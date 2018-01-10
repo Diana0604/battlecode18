@@ -1,30 +1,37 @@
 import bc.*;
 import java.util.*;
 
-class Pathfinder{
+public class Pathfinder{
 
-    private static GameController gc;
+    private static Pathfinder pathfinderInstance = null;
 
-    private static  final int AUX = 6;
-    private static final int AUX2 = 12;
-    private static final int distFactor = 100;
-    private static final int base = 0x3F;
-    private static final int INF = 1000000000;
-    private static final double sqrt2 = Math.sqrt(2);
-    private static final int[] X = {0, 1, 1, 1, 0, -1, -1, -1};
-    private static final int[] Y = {1, 1, 0, -1, -1, -1, 0, 1};
-    private static final double[] dists = {1, sqrt2, 1, sqrt2, 1, sqrt2, 1, sqrt2};
-    private static final Direction[] allDirs = {Direction.North, Direction.Northeast, Direction.East, Direction.Southeast, Direction.South, Direction.Southwest, Direction.West, Direction.Northwest};
+    static Pathfinder getInstance(GameController _gc){
+        if (pathfinderInstance == null) pathfinderInstance = new Pathfinder(_gc);
+        return pathfinderInstance;
+    }
+
+    private GameController gc;
+
+    private final int AUX = 6;
+    private final int AUX2 = 12;
+    private final double distFactor = 100;
+    private final int base = 0x3F;
+    private final int INF = 1000000000;
+    private final double sqrt2 = Math.sqrt(2);
+    private final int[] X = {0, 1, 1, 1, 0, -1, -1, -1};
+    private final int[] Y = {1, 1, 0, -1, -1, -1, 0, 1};
+    private final double[] dists = {1, sqrt2, 1, sqrt2, 1, sqrt2, 1, sqrt2};
+    private final Direction[] allDirs = {Direction.North, Direction.Northeast, Direction.East, Direction.Southeast, Direction.South, Direction.Southwest, Direction.West, Direction.Northwest};
 
 
-    private static PathfinderNode[][][][] EarthDirs;
-    private static PathfinderNode[][][][] MarsDirs;
-    private static PlanetMap EarthMap;
-    private static PlanetMap MarsMap;
-    private static int WE;
-    private static int HE;
-    private static int WM;
-    private static int HM;
+    private PathfinderNode[][][][] EarthDirs;
+    private PathfinderNode[][][][] MarsDirs;
+    private PlanetMap EarthMap;
+    private PlanetMap MarsMap;
+    private int WE;
+    private int HE;
+    private int WM;
+    private int HM;
 
 
     public Pathfinder(GameController _gc){
@@ -37,7 +44,7 @@ class Pathfinder{
         HM = (int)MarsMap.getHeight();
 
         EarthDirs = new PathfinderNode[WE][HE][WE][HE];
-        MarsDirs = new PathfinderNode[WE][HE][WE][HE];
+        MarsDirs = new PathfinderNode[WM][HM][WM][HM];
 
         for(int xe = 0; xe < WE; ++xe){
             for(int ye = 0; ye < HE; ++ye){
@@ -55,7 +62,7 @@ class Pathfinder{
 
 
 
-    private static void bfsEarth(int x,int y){
+    private  void bfsEarth(int x,int y){
         PriorityQueue<Integer> queue = new PriorityQueue<Integer>();
 
         for(int xe = 0; xe < WE; ++xe){
@@ -65,13 +72,13 @@ class Pathfinder{
         }
 
         EarthDirs[x][y][x][y].dist = 0;
-        queue.add((x << AUX)&y);
+        queue.add((x << AUX) | y);
 
         while(queue.size() > 0){
-            int myPos = queue.poll();
-            int myPosX = (myPos >> AUX)&base;
-            int myPosY = myPos&base;
-            double dist = ((double)(myPos >> AUX2))/distFactor;
+            int data = queue.poll();
+            int myPosX = (data >> AUX)&base;
+            int myPosY = data&base;
+            double dist = ((double)(data >> AUX2))/distFactor;
             for(int i = 0; i < X.length; ++i){
                 int newPosX = myPosX + X[i];
                 int newPosY = myPosY + Y[i];
@@ -80,7 +87,7 @@ class Pathfinder{
                 if(newPosX >= WE || newPosX < 0 || newPosY >= HE || newPosY < 0) continue;
                 if(newDist < EarthDirs[x][y][newPosX][newPosY].dist) {
                     if (EarthDirs[x][y][newPosX][newPosY].dist == INF){
-                        if(EarthMap.isPassableTerrainAt(new MapLocation(Planet.Earth, newPosX, newPosY)) > 0) queue.add((((parsedDist << AUX) & newPosX) << AUX) & newPosY);
+                        if(EarthMap.isPassableTerrainAt(new MapLocation(Planet.Earth, newPosX, newPosY)) > 0) queue.add((((parsedDist << AUX) | newPosX) << AUX) | newPosY);
                     }
                     EarthDirs[x][y][newPosX][newPosY].dist = newDist;
                     if(newDist < 1.8) EarthDirs[x][y][newPosX][newPosY].dir = allDirs[i];
@@ -90,7 +97,7 @@ class Pathfinder{
         }
     }
 
-    private static void bfsMars(int x,int y){
+    private  void bfsMars(int x,int y){
         PriorityQueue<Integer> queue = new PriorityQueue<Integer>();
 
         for(int xm = 0; xm < WE; ++xm){
@@ -125,7 +132,7 @@ class Pathfinder{
         }
     }
 
-    PathfinderNode getNode(Planet pl, int x1, int y1, int x2, int y2){
+    public PathfinderNode getNode(Planet pl, int x1, int y1, int x2, int y2){
         if(pl.equals(Planet.Earth)) return EarthDirs[x1][y1][x2][y2];
         return MarsDirs[x1][y1][x2][y2];
     }

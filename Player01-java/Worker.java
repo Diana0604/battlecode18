@@ -17,7 +17,7 @@ public class Worker extends MyUnit {
 
     Direction dirTo(Unit unit, Planet pl, int destX, int destY){
         MapLocation myLoc = unit.location().mapLocation();
-        PathfinderNode myNode = Pathfinder.getInstance().getNode(pl, myLoc.getX() ,myLoc.getY() , destX, destY);
+        PathfinderNode myNode = Pathfinder.getInstance(gc).getNode(pl, myLoc.getX() ,myLoc.getY() , destX, destY);
         return myNode.dir;
     }
 }

@@ -24,8 +24,8 @@
       <file leaf-file-name="Pathfinder.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Player01-java/Pathfinder.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="374">
-              <caret line="89" column="162" lean-forward="false" selection-start-line="89" selection-start-column="162" selection-end-line="89" selection-end-column="162" />
+            <state relative-caret-position="408">
+              <caret line="124" column="141" lean-forward="false" selection-start-line="124" selection-start-column="141" selection-end-line="124" selection-end-column="141" />
               <folding>
                 <element signature="e#1994#2003#0" expanded="true" />
               </folding>
@@ -411,7 +411,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-9" y="4" width="1382" height="735" extended-state="0" />
+    <frame x="-9" y="4" width="1382" height="735" extended-state="1" />
     <editor active="true" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
@@ -551,8 +551,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Player01-java/Pathfinder.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="374">
-          <caret line="89" column="162" lean-forward="false" selection-start-line="89" selection-start-column="162" selection-end-line="89" selection-end-column="162" />
+        <state relative-caret-position="408">
+          <caret line="124" column="141" lean-forward="false" selection-start-line="124" selection-start-column="141" selection-end-line="124" selection-end-column="141" />
           <folding>
             <element signature="e#1994#2003#0" expanded="true" />
           </folding>

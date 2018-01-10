@@ -107,7 +107,7 @@ public class Pathfinder{
         }
 
         MarsDirs[x][y][x][y].dist = 0;
-        queue.add((x << AUX)&y);
+        queue.add((x << AUX) | y);
 
         while(queue.size() > 0){
             int myPos = queue.poll();
@@ -122,7 +122,7 @@ public class Pathfinder{
                 if(newPosX >= WM || newPosX < 0 || newPosY >= HM || newPosY < 0) continue;
                 if(newDist < MarsDirs[x][y][newPosX][newPosY].dist) {
                     if (MarsDirs[x][y][newPosX][newPosY].dist == INF){
-                        if(MarsMap.isPassableTerrainAt(new MapLocation(Planet.Mars, newPosX, newPosY)) > 0) queue.add((((parsedDist << AUX) & newPosX) << AUX) & newPosY);
+                        if(MarsMap.isPassableTerrainAt(new MapLocation(Planet.Mars, newPosX, newPosY)) > 0) queue.add((((parsedDist << AUX) | newPosX) << AUX) | newPosY);
                     }
                     MarsDirs[x][y][newPosX][newPosY].dist = newDist;
                     if(newDist < 1.8) MarsDirs[x][y][newPosX][newPosY].dir = allDirs[i];

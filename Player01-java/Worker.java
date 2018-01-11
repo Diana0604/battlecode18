@@ -48,7 +48,7 @@ public class Worker {
             }
         }
         if (dirIndex >= 0){
-            if (gc.workerHasActed() == 0 && gc.canHarvest(unit.id(), allDirs[dirIndex])) gc.harvest(unit.id(), allDirs[dirIndex]);
+            if (unit.workerHasActed() == 0 && gc.canHarvest(unit.id(), allDirs[dirIndex])) gc.harvest(unit.id(), allDirs[dirIndex]);
             return;
         }
 

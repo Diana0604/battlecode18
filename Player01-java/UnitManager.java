@@ -6,6 +6,7 @@ public class UnitManager{
 
     static UnitManager instance;
     static GameController gc;
+    static PlanetMap map;
 
     static void initialize(GameController _gc){
         gc = _gc;
@@ -21,8 +22,6 @@ public class UnitManager{
     static ArrayList<Integer> Ymines; //ypos
     static ArrayList<Integer> Qmines; //quantity
     int INF = 1000000000;
-
-    PlanetMap map;
 
     static void add(int x, int y, int q) {
         Xmines.add(x);

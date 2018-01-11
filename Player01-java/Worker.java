@@ -41,7 +41,9 @@ public class Worker {
         long maxKarbo = 0;
         int dirIndex = -1;
         for (int i = 0; i < allDirs.length; ++i){
-            long k = gc.karboniteAt(myLoc.add(allDirs[i]));
+            MapLocation newLoc = myLoc.add(allDirs[i]);
+            if (!UnitManager.map.onMap(newLoc)) continue;
+            long k = gc.karboniteAt(newLoc);
             if (k > maxKarbo){
                 maxKarbo = k;
                 dirIndex = i;

@@ -7,23 +7,14 @@ public class Player {
         // Connect to the manager, starting the game
         GameController gc = new GameController();
         // Init pathfinder
-        MyUnit.initialize(gc);
-
-
+        UnitManager.initialize(gc);
+        UnitManager unitManager = UnitManager.getInstance();
 
         while (true) {
-            // VecUnit is a class that you can think of as similar to ArrayList<Unit>, but immutable.
-            VecUnit units = gc.myUnits();
 
-            MyUnit.update();
+            unitManager.update();
+            unitManager.moveUnits();
 
-            for (int i = 0; i < units.size(); i++) {
-                Unit unit = units.get(i);
-                if (unit.unitType() == UnitType.Worker) {
-                    Worker thisWorker = new Worker();
-                    thisWorker.play(unit);
-                }
-            }
             // Submit the actions we've done, and wait for our next turn.
             gc.nextTurn();
         }

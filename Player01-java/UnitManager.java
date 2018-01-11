@@ -68,6 +68,9 @@ public class UnitManager{
             if (unit.unitType() == UnitType.Worker) {
                 Worker.getInstance().play(unit);
             }
+            if(unit.unitType() == UnitType.Factory) {
+                Factory.getInstance().play(unit);
+            }
         }
     }
 }

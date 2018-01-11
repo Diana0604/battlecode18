@@ -5,8 +5,9 @@ import java.util.ListIterator;
 public class UnitManager{
 
     static UnitManager instance;
-    static GameController gc;
-    static PlanetMap map;
+    public static GameController gc;
+    public static PlanetMap map;
+    public static Unit currentUnit;
 
     static void initialize(GameController _gc){
         gc = _gc;
@@ -17,7 +18,6 @@ public class UnitManager{
         return instance;
     }
 
-    //Stuff available for all units
     static ArrayList<Integer> Xmines; //xpos
     static ArrayList<Integer> Ymines; //ypos
     static ArrayList<Integer> Qmines; //quantity
@@ -43,7 +43,6 @@ public class UnitManager{
         for(int i = Xmines.size() - 1; i >= 0; --i){
             int x = Xmines.get(i);
             int y = Ymines.get(i);
-            //if(x == 1 && y ==1) System.out.println("estem a la 1");
             if (gc.canSenseLocation(new MapLocation(gc.planet(), x, y))){
                 long q = gc.karboniteAt(new MapLocation(gc.planet(), x, y));
                 if (q > INF) q = INF;
@@ -51,7 +50,6 @@ public class UnitManager{
                     if (q != Qmines.get(i)) Qmines.set(i, (int)q);
                 }
                 else{
-                    //if(x == 1 && y == 1) System.out.println("removed");
                     Xmines.remove(i);
                     Ymines.remove(i);
                     Qmines.remove(i);
@@ -65,9 +63,46 @@ public class UnitManager{
         VecUnit units = gc.myUnits();
         for (int i = 0; i < units.size(); i++) {
             Unit unit = units.get(i);
+            currentUnit = unit;
             if (unit.unitType() == UnitType.Worker) {
-                Worker.getInstance().play(unit);
+                Worker.getInstance().play();
             }
         }
     }
+
+
+    /*AUX FUNCTIONS*/
+
+    Direction dirTo(int destX, int destY){
+        MapLocation myLoc = currentUnit.location().mapLocation();
+        PathfinderNode myNode = Pathfinder.getInstance().getNode(myLoc.getX() ,myLoc.getY() , destX, destY);
+        return myNode.dir;
+    }
+
+    Direction dirTo(MapLocation loc){
+        return dirTo(loc.getX(), loc.getY());
+    }
+
+    void moveTo(MapLocation target){ //todo: edge cases
+        if (!gc.isMoveReady(currentUnit.id())) return;
+        Direction dir = dirTo(target);
+        if (gc.canMove(currentUnit.id(), dir)) {
+            gc.moveRobot(currentUnit.id(), dir);
+            return;
+        }
+        MapLocation myLoc = currentUnit.location().mapLocation();
+        dir = null;
+        double mindist = Pathfinder.getInstance().getNode(myLoc.getX() ,myLoc.getY() , target.getX(), target.getY()).dist;
+        for (int i = 0; i < allDirs.length; ++i){
+            if (!gc.canMove(currentUnit.id(), allDirs[i])) continue;
+            MapLocation newLoc = myLoc.add(allDirs[i]);
+            PathfinderNode node = Pathfinder.getInstance().getNode(newLoc.getX(), newLoc.getY(), target.getX(), target.getY());
+            if (node.dist < mindist){
+                mindist = node.dist;
+                dir = allDirs[i];
+            }
+        }
+        if (dir != null) gc.moveRobot(currentUnit.id(), dir);
+    }
+
 }

@@ -22,7 +22,7 @@ public class Worker {
     }
 
     void move(Unit unit){
-        //if (!factoryBuilt) buildFactory(unit);
+        if (!factoryBuilt) buildFactory(unit);
         goToBestMine(unit);
     }
 
@@ -52,8 +52,6 @@ public class Worker {
         }
         if (dirIndex >= 0){
             if (unit.workerHasActed() == 0 && gc.canHarvest(unit.id(), allDirs[dirIndex])) {
-                //System.out.println("harvesting at");
-                //System.out.println(allDirs[dirIndex]);
                 gc.harvest(unit.id(), allDirs[dirIndex]);
             }
             return;
@@ -64,9 +62,10 @@ public class Worker {
         if (target == null) {
             return; // what to do? xD
         }
-        Direction dir = dirTo(unit, target);
-        System.out.println(dir);
-        if (gc.isMoveReady(unit.id()) && gc.canMove(unit.id(), dir))  gc.moveRobot(unit.id(), dir);
+        moveTo(unit, target);
+        //Direction dir = dirTo(unit, target);
+        //System.out.println(dir);
+        //if (gc.isMoveReady(unit.id()) && gc.canMove(unit.id(), dir))  gc.moveRobot(unit.id(), dir);
     }
 
     Direction dirTo(Unit unit, int destX, int destY){
@@ -96,6 +95,28 @@ public class Worker {
         //System.out.println(ans.getX());
         //System.out.println(ans.getY());
         return ans;
+    }
+
+    void moveTo(Unit unit, MapLocation target){ //todo: edge cases
+        if (!gc.isMoveReady(unit.id())) return;
+        Direction dir = dirTo(unit, target);
+        if (gc.canMove(unit.id(), dir)) {
+            gc.moveRobot(unit.id(), dir);
+            return;
+        }
+        MapLocation myLoc = unit.location().mapLocation();
+        dir = null;
+        double mindist = Pathfinder.getInstance().getNode(myLoc.getX() ,myLoc.getY() , target.getX(), target.getY()).dist;
+        for (int i = 0; i < allDirs.length; ++i){
+            if (!gc.canMove(unit.id(), allDirs[i])) continue;
+            MapLocation newLoc = myLoc.add(allDirs[i]);
+            PathfinderNode node = Pathfinder.getInstance().getNode(newLoc.getX(), newLoc.getY(), target.getX(), target.getY());
+            if (node.dist < mindist){
+                mindist = node.dist;
+                dir = allDirs[i];
+            }
+        }
+        if (dir != null) gc.moveRobot(unit.id(), dir);
     }
 
 }

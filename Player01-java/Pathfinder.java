@@ -56,6 +56,7 @@ public class Pathfinder{
 
 
     private  void bfs(int a,int b){
+        //System.out.println("bfs");
         PriorityQueue<Integer> queue = new PriorityQueue<Integer>();
 
         for(int x = 0; x < W; ++x){
@@ -79,12 +80,12 @@ public class Pathfinder{
                 int parsedDist = (int)Math.round(distFactor*newDist);
                 if(newPosX >= W || newPosX < 0 || newPosY >= H || newPosY < 0) continue;
                 if(newDist < Nodes[a][b][newPosX][newPosY].dist) {
-                    if (Nodes[a][b][newPosX][newPosY].dist == INF){
-                        if(map.isPassableTerrainAt(new MapLocation(gc.planet(), newPosX, newPosY)) > 0) queue.add((((parsedDist << AUX) | newPosX) << AUX) | newPosY);
-                    }
+                    if(map.isPassableTerrainAt(new MapLocation(gc.planet(), newPosX, newPosY)) > 0) queue.add((((parsedDist << AUX) | newPosX) << AUX) | newPosY);
+
                     Nodes[a][b][newPosX][newPosY].dist = newDist;
                     if(newDist < 1.8) Nodes[a][b][newPosX][newPosY].dir = allDirs[i];
                     else Nodes[a][b][newPosX][newPosY].dir = Nodes[a][b][myPosX][myPosY].dir;
+                    //if(newPosX ==0 && newPosY == 0) System.out.println(Nodes[a][b][0][0].dir);
                 }
             }
         }

@@ -34,24 +34,25 @@ public class UnitManager{
         Ymines = new ArrayList<Integer>();
         Qmines = new ArrayList<Integer>();
         map = gc.startingMap(gc.planet());
+        Pathfinder.getInstance();
     }
 
 
     public void update(){
         //check mines
-        ListIterator<Integer> iterator = Xmines.listIterator();
-        if (iterator.hasNext()){
-            int i = iterator.nextIndex();
-            int x = iterator.next();
+        for(int i = Xmines.size() - 1; i >= 0; --i){
+            int x = Xmines.get(i);
             int y = Ymines.get(i);
+            //if(x == 1 && y ==1) System.out.println("estem a la 1");
             if (gc.canSenseLocation(new MapLocation(gc.planet(), x, y))){
-                long q = map.initialKarboniteAt(new MapLocation(gc.planet(), x, y));
+                long q = gc.karboniteAt(new MapLocation(gc.planet(), x, y));
                 if (q > INF) q = INF;
                 if (q > 0){
                     if (q != Qmines.get(i)) Qmines.set(i, (int)q);
                 }
                 else{
-                    iterator.remove();
+                    //if(x == 1 && y == 1) System.out.println("removed");
+                    Xmines.remove(i);
                     Ymines.remove(i);
                     Qmines.remove(i);
                 }

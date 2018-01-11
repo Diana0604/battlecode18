@@ -14,7 +14,7 @@ public class Worker {
         return instance;
     }
 
-    private final Direction[] allDirs = {Direction.North, Direction.Northeast, Direction.East, Direction.Southeast, Direction.South, Direction.Southwest, Direction.West, Direction.Northwest};
+    private final Direction[] allDirs = {Direction.North, Direction.Northeast, Direction.East, Direction.Southeast, Direction.South, Direction.Southwest, Direction.West, Direction.Northwest, Direction.Center};
 
 
     void play(Unit unit){
@@ -22,7 +22,7 @@ public class Worker {
     }
 
     void move(Unit unit){
-        if (!factoryBuilt) buildFactory(unit);
+        //if (!factoryBuilt) buildFactory(unit);
         goToBestMine(unit);
     }
 
@@ -38,6 +38,7 @@ public class Worker {
 
     void goToBestMine(Unit unit){
         MapLocation myLoc = unit.location().mapLocation();
+        System.out.println(myLoc);
         long maxKarbo = 0;
         int dirIndex = -1;
         for (int i = 0; i < allDirs.length; ++i){
@@ -50,13 +51,21 @@ public class Worker {
             }
         }
         if (dirIndex >= 0){
-            if (unit.workerHasActed() == 0 && gc.canHarvest(unit.id(), allDirs[dirIndex])) gc.harvest(unit.id(), allDirs[dirIndex]);
+            if (unit.workerHasActed() == 0 && gc.canHarvest(unit.id(), allDirs[dirIndex])) {
+                //System.out.println("harvesting at");
+                //System.out.println(allDirs[dirIndex]);
+                gc.harvest(unit.id(), allDirs[dirIndex]);
+            }
             return;
         }
 
         MapLocation target = getBestMine(myLoc);
-        if (target == null) return; // what to do? xD
-        Direction dir = dirTo(unit, myLoc);
+        System.out.println(target);
+        if (target == null) {
+            return; // what to do? xD
+        }
+        Direction dir = dirTo(unit, target);
+        System.out.println(dir);
         if (gc.isMoveReady(unit.id()) && gc.canMove(unit.id(), dir))  gc.moveRobot(unit.id(), dir);
     }
 
@@ -73,6 +82,7 @@ public class Worker {
     MapLocation getBestMine(MapLocation loc){
         long minDist = 1000000;
         MapLocation ans = null;
+        //System.out.println("buscant mina");
         for (int i = 0; i < UnitManager.Xmines.size(); ++i){
             int x = UnitManager.Xmines.get(i);
             int y = UnitManager.Ymines.get(i);
@@ -83,6 +93,8 @@ public class Worker {
                 ans = mineLoc;
             }
         }
+        //System.out.println(ans.getX());
+        //System.out.println(ans.getY());
         return ans;
     }
 

@@ -11,10 +11,8 @@ public class Player {
         UnitManager unitManager = UnitManager.getInstance();
 
         while (true) {
-
             unitManager.update();
             unitManager.moveUnits();
-
             // Submit the actions we've done, and wait for our next turn.
             gc.nextTurn();
         }

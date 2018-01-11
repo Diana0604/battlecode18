@@ -45,7 +45,7 @@ public class UnitManager{
             int i = iterator.nextIndex();
             int x = iterator.next();
             int y = Ymines.get(i);
-            if (gc.canSenseLocation(gc.planet(), x, y)){
+            if (gc.canSenseLocation(new MapLocation(gc.planet(), x, y))){
                 long q = map.initialKarboniteAt(new MapLocation(gc.planet(), x, y));
                 if (q > INF) q = INF;
                 if (q > 0){

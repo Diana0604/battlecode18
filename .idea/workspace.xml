@@ -2,13 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="d7bc92bc-22eb-43e2-94d9-979a75870621" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Player01-java/UnitManager.java" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Player01-java/MyUnit.java" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/replay.bc18" afterPath="$PROJECT_DIR$/replay.bc18" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Player01-java/Pathfinder.java" afterPath="$PROJECT_DIR$/Player01-java/Pathfinder.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Player01-java/Player.java" afterPath="$PROJECT_DIR$/Player01-java/Player.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Player01-java/Worker.java" afterPath="$PROJECT_DIR$/Player01-java/Worker.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Player01-java/UnitManager.java" afterPath="$PROJECT_DIR$/Player01-java/UnitManager.java" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -29,8 +23,8 @@
       <file leaf-file-name="UnitManager.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Player01-java/UnitManager.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="281">
-              <caret line="64" column="33" lean-forward="false" selection-start-line="64" selection-start-column="27" selection-end-line="64" selection-end-column="33" />
+            <state relative-caret-position="196">
+              <caret line="50" column="27" lean-forward="true" selection-start-line="50" selection-start-column="27" selection-end-line="50" selection-end-column="27" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -890,8 +884,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Player01-java/UnitManager.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="281">
-          <caret line="64" column="33" lean-forward="false" selection-start-line="64" selection-start-column="27" selection-end-line="64" selection-end-column="33" />
+        <state relative-caret-position="196">
+          <caret line="50" column="27" lean-forward="true" selection-start-line="50" selection-start-column="27" selection-end-line="50" selection-end-column="27" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>

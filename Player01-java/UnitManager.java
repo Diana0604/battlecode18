@@ -2,11 +2,11 @@ import bc.*;
 import java.util.ArrayList;
 import java.util.ListIterator;
 
-public class MovementManager{
+public class UnitManager{
 
     private final Direction[] allDirs = {Direction.North, Direction.Northeast, Direction.East, Direction.Southeast, Direction.South, Direction.Southwest, Direction.West, Direction.Northwest, Direction.Center};
 
-    static MovementManager instance;
+    static UnitManager instance;
     static GameController gc;
     static PlanetMap map;
 
@@ -14,8 +14,8 @@ public class MovementManager{
         gc = _gc;
     }
 
-    static MovementManager getInstance(){
-        if (instance == null) instance = new MovementManager();
+    static UnitManager getInstance(){
+        if (instance == null) instance = new UnitManager();
         return instance;
     }
 
@@ -42,7 +42,7 @@ public class MovementManager{
         Henemy.add(h);
     }
 
-    MovementManager(){
+    UnitManager(){
         Xmines = new ArrayList<Integer>();
         Ymines = new ArrayList<Integer>();
         Qmines = new ArrayList<Integer>();

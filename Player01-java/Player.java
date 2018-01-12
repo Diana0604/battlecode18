@@ -7,8 +7,8 @@ public class Player {
         // Connect to the manager, starting the game
         GameController gc = new GameController();
         // Init pathfinder
-        MovementManager.initialize(gc);
-        MovementManager unitManager = UnitManager.getInstance();
+        UnitManager.initialize(gc);
+        UnitManager unitManager = UnitManager.getInstance();
 
         while (true) {
             unitManager.update();

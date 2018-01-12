@@ -18,15 +18,16 @@ public class Worker {
 
 
     void play(Unit unit){
+        if(!factoryBuilt) blueprintFactory(unit);
+        if(unit.workerHasActed() != 0) return;
         move(unit);
     }
 
     void move(Unit unit){
-        if (!factoryBuilt) buildFactory(unit);
         goToBestMine(unit);
     }
 
-    void buildFactory(Unit unit){
+    void blueprintFactory(Unit unit){
         for (int i = 0; i < allDirs.length; ++i){
             if (gc.canBlueprint(unit.id(), UnitType.Factory, allDirs[i])){
                 gc.blueprint(unit.id(), UnitType.Factory, allDirs[i]);

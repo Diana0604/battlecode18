@@ -10,7 +10,7 @@ public class Worker {
     static Worker getInstance(){
         if (instance == null){
             instance = new Worker();
-            gc = UnitManager.gc;
+            gc = MovementManager.gc;
         }
         return instance;
     }
@@ -64,7 +64,7 @@ public class Worker {
         int dirIndex = -1;
         for (int i = 0; i < allDirs.length; ++i){
             MapLocation newLoc = myLoc.add(allDirs[i]);
-            if (!UnitManager.map.onMap(newLoc)) continue;
+            if (!MovementManager.map.onMap(newLoc)) continue;
             long k = gc.karboniteAt(newLoc);
             if (k > maxKarbo){
                 maxKarbo = k;
@@ -82,15 +82,15 @@ public class Worker {
         if (target == null) {
             return; // what to do? xD
         }
-        UnitManager.getInstance().moveTo(unit, target);
+        MovementManager.getInstance().moveTo(unit, target);
     }
 
     MapLocation getBestMine(MapLocation loc){
         long minDist = 1000000;
         MapLocation ans = null;
-        for (int i = 0; i < UnitManager.Xmines.size(); ++i){
-            int x = UnitManager.Xmines.get(i);
-            int y = UnitManager.Ymines.get(i);
+        for (int i = 0; i < MovementManager.Xmines.size(); ++i){
+            int x = MovementManager.Xmines.get(i);
+            int y = MovementManager.Ymines.get(i);
             MapLocation mineLoc = new MapLocation(gc.planet(), x, y);
             long d = loc.distanceSquaredTo(mineLoc);
             if (d < minDist){

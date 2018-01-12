@@ -34,7 +34,7 @@ public class Pathfinder{
 
 
     public Pathfinder(){
-        gc = UnitManager.gc;
+        gc = MovementManager.gc;
         map = gc.startingMap(gc.planet());
         W = (int)map.getWidth();
         H = (int)map.getHeight();
@@ -46,7 +46,7 @@ public class Pathfinder{
                 //add initial karbonite
                 long a = map.initialKarboniteAt(new MapLocation(gc.planet(), x, y));
                 if (a > INF) a = INF;
-                if (a > 0) UnitManager.addMine(x,y,(int)a);
+                if (a > 0) MovementManager.addMine(x,y,(int)a);
                 //bfs
                 bfs(x,y);
             }

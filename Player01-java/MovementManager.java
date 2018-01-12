@@ -2,11 +2,11 @@ import bc.*;
 import java.util.ArrayList;
 import java.util.ListIterator;
 
-public class UnitManager{
+public class MovementManager{
 
     private final Direction[] allDirs = {Direction.North, Direction.Northeast, Direction.East, Direction.Southeast, Direction.South, Direction.Southwest, Direction.West, Direction.Northwest, Direction.Center};
 
-    static UnitManager instance;
+    static MovementManager instance;
     static GameController gc;
     static PlanetMap map;
 
@@ -14,8 +14,8 @@ public class UnitManager{
         gc = _gc;
     }
 
-    static UnitManager getInstance(){
-        if (instance == null) instance = new UnitManager();
+    static MovementManager getInstance(){
+        if (instance == null) instance = new MovementManager();
         return instance;
     }
 
@@ -42,7 +42,7 @@ public class UnitManager{
         Henemy.add(h);
     }
 
-    UnitManager(){
+    MovementManager(){
         Xmines = new ArrayList<Integer>();
         Ymines = new ArrayList<Integer>();
         Qmines = new ArrayList<Integer>();
@@ -72,7 +72,6 @@ public class UnitManager{
         for(int i = Xmines.size() - 1; i >= 0; --i){
             int x = Xmines.get(i);
             int y = Ymines.get(i);
-            //if(x == 1 && y ==1) System.out.println("estem a la 1");
             if (gc.canSenseLocation(new MapLocation(gc.planet(), x, y))){
                 long q = gc.karboniteAt(new MapLocation(gc.planet(), x, y));
                 if (q > INF) q = INF;
@@ -80,7 +79,6 @@ public class UnitManager{
                     if (q != Qmines.get(i)) Qmines.set(i, (int)q);
                 }
                 else{
-                    //if(x == 1 && y == 1) System.out.println("removed");
                     Xmines.remove(i);
                     Ymines.remove(i);
                     Qmines.remove(i);
@@ -91,18 +89,15 @@ public class UnitManager{
         for(int i = Xenemy.size() - 1; i >= 0; --i){
             int x = Xenemy.get(i);
             int y = Yenemy.get(i);
-            //if(x == 1 && y ==1) System.out.println("estem a la 1");
             if (gc.canSenseLocation(new MapLocation(gc.planet(), x, y))){
                 MapLocation ml = new MapLocation(gc.planet(), x, y);
                 try {
                     Unit unit = gc.senseUnitAtLocation(ml);
                     long h = unit.health();
-                    //if (q > INF) q = INF;
                     if (h > 0 && unit.team() != gc.team()){
                         if (h != Henemy.get(i)) Henemy.set(i, (int)h);
                     }
                     else {
-                        //if(x == 1 && y == 1) System.out.println("removed");
                         Xenemy.remove(i);
                         Yenemy.remove(i);
                         Henemy.remove(i);

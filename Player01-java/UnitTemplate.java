@@ -8,7 +8,7 @@ public class UnitTemplate {
     static UnitTemplate getInstance(){
         if (instance == null){
             instance = new UnitTemplate();
-            gc = UnitManager.gc;
+            gc = MovementManager.gc;
         }
         return instance;
     }

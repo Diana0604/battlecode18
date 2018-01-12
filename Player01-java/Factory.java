@@ -12,7 +12,7 @@ public class Factory {
     static Factory getInstance(){
         if (instance == null){
             instance = new Factory();
-            gc = UnitManager.gc;
+            gc = MovementManager.gc;
         }
         return instance;
     }

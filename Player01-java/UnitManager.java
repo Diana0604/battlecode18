@@ -4,6 +4,8 @@ import java.util.ListIterator;
 
 public class UnitManager{
 
+    private final Direction[] allDirs = {Direction.North, Direction.Northeast, Direction.East, Direction.Southeast, Direction.South, Direction.Southwest, Direction.West, Direction.Northwest, Direction.Center};
+
     static UnitManager instance;
     static GameController gc;
     static PlanetMap map;
@@ -72,5 +74,37 @@ public class UnitManager{
                 Factory.getInstance().play(unit);
             }
         }
+    }
+
+    Direction dirTo(Unit unit, int destX, int destY) {
+        MapLocation myLoc = unit.location().mapLocation();
+        PathfinderNode myNode = Pathfinder.getInstance().getNode(myLoc.getX() ,myLoc.getY() , destX, destY);
+        return myNode.dir;
+    }
+
+    Direction dirTo(Unit unit, MapLocation loc) {
+        return dirTo(unit, loc.getX(), loc.getY());
+    }
+
+    void moveTo(Unit unit, MapLocation target) { //todo: edge cases
+        if (!gc.isMoveReady(unit.id())) return;
+        Direction dir = dirTo(unit, target);
+        if (gc.canMove(unit.id(), dir)) {
+            gc.moveRobot(unit.id(), dir);
+            return;
+        }
+        MapLocation myLoc = unit.location().mapLocation();
+        dir = null;
+        double mindist = Pathfinder.getInstance().getNode(myLoc.getX() ,myLoc.getY() , target.getX(), target.getY()).dist;
+        for (int i = 0; i < allDirs.length; ++i){
+            if (!gc.canMove(unit.id(), allDirs[i])) continue;
+            MapLocation newLoc = myLoc.add(allDirs[i]);
+            PathfinderNode node = Pathfinder.getInstance().getNode(newLoc.getX(), newLoc.getY(), target.getX(), target.getY());
+            if (node.dist < mindist){
+                mindist = node.dist;
+                dir = allDirs[i];
+            }
+        }
+        if (dir != null) gc.moveRobot(unit.id(), dir);
     }
 }

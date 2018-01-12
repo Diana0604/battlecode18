@@ -20,23 +20,50 @@ public class UnitManager{
     }
 
     //Stuff available for all units
+    //mines in map
     static ArrayList<Integer> Xmines; //xpos
     static ArrayList<Integer> Ymines; //ypos
     static ArrayList<Integer> Qmines; //quantity
+    //enemy factories
+    static ArrayList<Integer> Xenemy; //xpos
+    static ArrayList<Integer> Yenemy; //ypos
+    static ArrayList<Integer> Henemy; //health
     int INF = 1000000000;
 
-    static void add(int x, int y, int q) {
+    static void addMine(int x, int y, int q) {
         Xmines.add(x);
         Ymines.add(y);
         Qmines.add(q);
+    }
+
+    static void addEnemy(int x, int y, int h) {
+        Xenemy.add(x);
+        Yenemy.add(y);
+        Henemy.add(h);
     }
 
     UnitManager(){
         Xmines = new ArrayList<Integer>();
         Ymines = new ArrayList<Integer>();
         Qmines = new ArrayList<Integer>();
+        Xenemy = new ArrayList<Integer>();
+        Yenemy = new ArrayList<Integer>();
+        Henemy = new ArrayList<Integer>();
+        //aixi no tenim sempre el mapa de la terra nomes? Podem utilitzar sempre el gc.planet();
         map = gc.startingMap(gc.planet());
         Pathfinder.getInstance();
+        //get location of enemy base
+        getLocationEnemyBase();
+    }
+
+    public void getLocationEnemyBase(){
+        Pathfinder pathfinder = Pathfinder.getInstance();
+        VecUnit units = gc.myUnits();
+        for(int i = 0; i < units.size(); ++i) {
+            Unit unit = units.get(i);
+            MapLocation myLoc = unit.location().mapLocation();
+            addEnemy(pathfinder.W - (int)myLoc.getX(), pathfinder.H - (int)myLoc.getY(), (int)unit.health());
+        }
     }
 
 
@@ -60,6 +87,31 @@ public class UnitManager{
                 }
             }
         }
+
+        for(int i = Xenemy.size() - 1; i >= 0; --i){
+            int x = Xenemy.get(i);
+            int y = Yenemy.get(i);
+            //if(x == 1 && y ==1) System.out.println("estem a la 1");
+            if (gc.canSenseLocation(new MapLocation(gc.planet(), x, y))){
+                MapLocation ml = new MapLocation(gc.planet(), x, y);
+                try {
+                    Unit unit = gc.senseUnitAtLocation(ml);
+                    long h = unit.health();
+                    //if (q > INF) q = INF;
+                    if (h > 0 && unit.team() != gc.team()){
+                        if (h != Henemy.get(i)) Henemy.set(i, (int)h);
+                    }
+                    else {
+                        //if(x == 1 && y == 1) System.out.println("removed");
+                        Xenemy.remove(i);
+                        Yenemy.remove(i);
+                        Henemy.remove(i);
+                    }
+                } catch (Throwable t){
+                    continue;
+                }
+            }
+        }
         return;
     }
 
@@ -67,11 +119,16 @@ public class UnitManager{
         VecUnit units = gc.myUnits();
         for (int i = 0; i < units.size(); i++) {
             Unit unit = units.get(i);
+            Location myLoc = unit.location();
+            if(myLoc.isInGarrison()) continue;
             if (unit.unitType() == UnitType.Worker) {
                 Worker.getInstance().play(unit);
             }
             if(unit.unitType() == UnitType.Factory) {
                 Factory.getInstance().play(unit);
+            }
+            if(unit.unitType() == UnitType.Ranger) {
+                Ranger.getInstance().play(unit);
             }
         }
     }

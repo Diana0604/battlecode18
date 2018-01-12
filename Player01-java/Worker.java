@@ -4,6 +4,7 @@ public class Worker {
 
     static Worker instance = null;
     static boolean factoryBuilt = false;
+    boolean wait;
     static GameController gc;
 
     static Worker getInstance(){
@@ -18,13 +19,33 @@ public class Worker {
 
 
     void play(Unit unit){
+        wait = false;
         if(!factoryBuilt) blueprintFactory(unit);
-        if(unit.workerHasActed() != 0) return;
+        if(wait || unit.workerHasActed() != 0) return;
+        buildFactory(unit);
+        if(wait || unit.workerHasActed() != 0) return;
         move(unit);
     }
 
     void move(Unit unit){
         goToBestMine(unit);
+    }
+
+    void buildFactory(Unit unit){
+        MapLocation myLoc = unit.location().mapLocation();
+        for(int i = 0; i < allDirs.length; ++i){
+            MapLocation newLoc = myLoc.add(allDirs[i]);
+            try {
+                Unit possibleFactory = gc.senseUnitAtLocation(newLoc);
+                if(possibleFactory != null && possibleFactory.unitType() == UnitType.Factory && possibleFactory.health() != possibleFactory.maxHealth() && possibleFactory.team().equals(gc.team())) {
+                    if (gc.canBuild(unit.id(), possibleFactory.id()))
+                        gc.build(unit.id(), possibleFactory.id());
+                    wait = true;
+                }
+            } catch(Throwable t){
+                continue;
+            }
+        }
     }
 
     void blueprintFactory(Unit unit){
@@ -39,7 +60,6 @@ public class Worker {
 
     void goToBestMine(Unit unit){
         MapLocation myLoc = unit.location().mapLocation();
-        System.out.println(myLoc);
         long maxKarbo = 0;
         int dirIndex = -1;
         for (int i = 0; i < allDirs.length; ++i){
@@ -59,7 +79,7 @@ public class Worker {
         }
 
         MapLocation target = getBestMine(myLoc);
-        System.out.println(target);
+        //System.out.println(target);
         if (target == null) {
             return; // what to do? xD
         }

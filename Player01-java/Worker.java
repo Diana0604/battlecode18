@@ -4,12 +4,13 @@ public class Worker {
 
     static Worker instance = null;
     static boolean factoryBuilt = false;
+    boolean wait;
     static GameController gc;
 
     static Worker getInstance(){
         if (instance == null){
             instance = new Worker();
-            gc = UnitManager.gc;
+            gc = MovementManager.gc;
         }
         return instance;
     }
@@ -18,15 +19,36 @@ public class Worker {
 
 
     void play(Unit unit){
+        wait = false;
+        if(!factoryBuilt) blueprintFactory(unit);
+        if(wait || unit.workerHasActed() != 0) return;
+        buildFactory(unit);
+        if(wait || unit.workerHasActed() != 0) return;
         move(unit);
     }
 
     void move(Unit unit){
-        if (!factoryBuilt) buildFactory(unit);
         goToBestMine(unit);
     }
 
     void buildFactory(Unit unit){
+        MapLocation myLoc = unit.location().mapLocation();
+        for(int i = 0; i < allDirs.length; ++i){
+            MapLocation newLoc = myLoc.add(allDirs[i]);
+            try {
+                Unit possibleFactory = gc.senseUnitAtLocation(newLoc);
+                if(possibleFactory != null && possibleFactory.unitType() == UnitType.Factory && possibleFactory.health() != possibleFactory.maxHealth() && possibleFactory.team().equals(gc.team())) {
+                    if (gc.canBuild(unit.id(), possibleFactory.id()))
+                        gc.build(unit.id(), possibleFactory.id());
+                    wait = true;
+                }
+            } catch(Throwable t){
+                continue;
+            }
+        }
+    }
+
+    void blueprintFactory(Unit unit){
         for (int i = 0; i < allDirs.length; ++i){
             if (gc.canBlueprint(unit.id(), UnitType.Factory, allDirs[i])){
                 gc.blueprint(unit.id(), UnitType.Factory, allDirs[i]);
@@ -38,12 +60,11 @@ public class Worker {
 
     void goToBestMine(Unit unit){
         MapLocation myLoc = unit.location().mapLocation();
-        System.out.println(myLoc);
         long maxKarbo = 0;
         int dirIndex = -1;
         for (int i = 0; i < allDirs.length; ++i){
             MapLocation newLoc = myLoc.add(allDirs[i]);
-            if (!UnitManager.map.onMap(newLoc)) continue;
+            if (!MovementManager.map.onMap(newLoc)) continue;
             long k = gc.karboniteAt(newLoc);
             if (k > maxKarbo){
                 maxKarbo = k;
@@ -58,33 +79,18 @@ public class Worker {
         }
 
         MapLocation target = getBestMine(myLoc);
-        System.out.println(target);
         if (target == null) {
             return; // what to do? xD
         }
-        moveTo(unit, target);
-        //Direction dir = dirTo(unit, target);
-        //System.out.println(dir);
-        //if (gc.isMoveReady(unit.id()) && gc.canMove(unit.id(), dir))  gc.moveRobot(unit.id(), dir);
-    }
-
-    Direction dirTo(Unit unit, int destX, int destY){
-        MapLocation myLoc = unit.location().mapLocation();
-        PathfinderNode myNode = Pathfinder.getInstance().getNode(myLoc.getX() ,myLoc.getY() , destX, destY);
-        return myNode.dir;
-    }
-
-    Direction dirTo(Unit unit, MapLocation loc){
-        return dirTo(unit, loc.getX(), loc.getY());
+        MovementManager.getInstance().moveTo(unit, target);
     }
 
     MapLocation getBestMine(MapLocation loc){
         long minDist = 1000000;
         MapLocation ans = null;
-        //System.out.println("buscant mina");
-        for (int i = 0; i < UnitManager.Xmines.size(); ++i){
-            int x = UnitManager.Xmines.get(i);
-            int y = UnitManager.Ymines.get(i);
+        for (int i = 0; i < MovementManager.Xmines.size(); ++i){
+            int x = MovementManager.Xmines.get(i);
+            int y = MovementManager.Ymines.get(i);
             MapLocation mineLoc = new MapLocation(gc.planet(), x, y);
             long d = loc.distanceSquaredTo(mineLoc);
             if (d < minDist){
@@ -92,31 +98,7 @@ public class Worker {
                 ans = mineLoc;
             }
         }
-        //System.out.println(ans.getX());
-        //System.out.println(ans.getY());
         return ans;
-    }
-
-    void moveTo(Unit unit, MapLocation target){ //todo: edge cases
-        if (!gc.isMoveReady(unit.id())) return;
-        Direction dir = dirTo(unit, target);
-        if (gc.canMove(unit.id(), dir)) {
-            gc.moveRobot(unit.id(), dir);
-            return;
-        }
-        MapLocation myLoc = unit.location().mapLocation();
-        dir = null;
-        double mindist = Pathfinder.getInstance().getNode(myLoc.getX() ,myLoc.getY() , target.getX(), target.getY()).dist;
-        for (int i = 0; i < allDirs.length; ++i){
-            if (!gc.canMove(unit.id(), allDirs[i])) continue;
-            MapLocation newLoc = myLoc.add(allDirs[i]);
-            PathfinderNode node = Pathfinder.getInstance().getNode(newLoc.getX(), newLoc.getY(), target.getX(), target.getY());
-            if (node.dist < mindist){
-                mindist = node.dist;
-                dir = allDirs[i];
-            }
-        }
-        if (dir != null) gc.moveRobot(unit.id(), dir);
     }
 
 }

@@ -8,11 +8,11 @@ public class Player {
         GameController gc = new GameController();
         // Init pathfinder
         MovementManager.initialize(gc);
-        MovementManager movementManager = MovementManager.getInstance();
+        MovementManager unitManager = UnitManager.getInstance();
 
         while (true) {
-            movementManager.update();
-            movementManager.moveUnits();
+            unitManager.update();
+            unitManager.moveUnits();
             // Submit the actions we've done, and wait for our next turn.
             gc.nextTurn();
         }

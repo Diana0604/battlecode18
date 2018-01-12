@@ -79,14 +79,10 @@ public class Worker {
         }
 
         MapLocation target = getBestMine(myLoc);
-        //System.out.println(target);
         if (target == null) {
             return; // what to do? xD
         }
         moveTo(unit, target);
-        //Direction dir = dirTo(unit, target);
-        //System.out.println(dir);
-        //if (gc.isMoveReady(unit.id()) && gc.canMove(unit.id(), dir))  gc.moveRobot(unit.id(), dir);
     }
 
     Direction dirTo(Unit unit, int destX, int destY){
@@ -102,7 +98,6 @@ public class Worker {
     MapLocation getBestMine(MapLocation loc){
         long minDist = 1000000;
         MapLocation ans = null;
-        //System.out.println("buscant mina");
         for (int i = 0; i < UnitManager.Xmines.size(); ++i){
             int x = UnitManager.Xmines.get(i);
             int y = UnitManager.Ymines.get(i);
@@ -113,8 +108,6 @@ public class Worker {
                 ans = mineLoc;
             }
         }
-        //System.out.println(ans.getX());
-        //System.out.println(ans.getY());
         return ans;
     }
 

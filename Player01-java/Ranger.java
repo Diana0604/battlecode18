@@ -27,7 +27,7 @@ public class Ranger {
 
     void attack(Unit unit) {
         MapLocation myLoc = unit.location().mapLocation();
-        VecUnit canAttack = gc.senseNearbyUnits(myLoc, attackRange);
+        VecUnit canAttack = gc.senseNearbyUnitsByTeam(myLoc, attackRange, UnitManager.getInstance().enemyTeam);
         for(int i = 0; i < canAttack.size(); ++i){
             Unit victim = canAttack.get(i);
             if(victim.team() != gc.team()) {

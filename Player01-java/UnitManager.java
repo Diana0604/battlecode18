@@ -140,10 +140,8 @@ public class UnitManager{
                         Yenemy.remove(i);
                         Henemy.remove(i);
                         IdEnemy.remove(i);
-                        System.out.println("removing because diferent id");
                     }
                 } catch (Throwable t){
-                    System.out.println("removing because no unit there");
                     Xenemy.remove(i);
                     Yenemy.remove(i);
                     Henemy.remove(i);

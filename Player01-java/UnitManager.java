@@ -82,7 +82,15 @@ public class UnitManager{
         for(int i = 0; i < units.size(); ++i) {
             Unit unit = units.get(i);
             MapLocation myLoc = unit.location().mapLocation();
-            addEnemy(W - (int)myLoc.getX(), H - (int)myLoc.getY(), (int)unit.health(), -1);
+            int id = -1;
+            //TODO. Untested:
+            /*
+            MapLocation enemyLoc = new MapLocation(gc.planet(), W - (int)myLoc.getX(), H - (int)myLoc.getY());
+            if(gc.canSenseLocation(enemyLoc)){
+                Unit enemy = gc.senseUnitAtLocation(enemyLoc);
+                id = enemy.id();
+            }*/
+            addEnemy(W - (int)myLoc.getX(), H - (int)myLoc.getY(), (int)unit.health(), id);
         }
     }
 

@@ -9,6 +9,7 @@ public class UnitManager{
     static UnitManager instance;
     static GameController gc;
     static PlanetMap map;
+    static Team enemyTeam;
 
     int W;
     int H;
@@ -23,6 +24,10 @@ public class UnitManager{
     }
 
     //Stuff available for all units
+    //danger
+    static int[][] dangerMatrix;
+    static MapLocation middle;
+    static long maxRadius;
     //mines in map
     static ArrayList<Integer> Xmines; //xpos
     static ArrayList<Integer> Ymines; //ypos
@@ -45,6 +50,10 @@ public class UnitManager{
         Yenemy.add(y);
         Henemy.add(h);
         IdEnemy.add(id);
+            System.out.println("adding ");
+            System.out.println(x);
+            System.out.println(y);
+            System.out.println(h);
     }
 
     UnitManager(){
@@ -55,10 +64,17 @@ public class UnitManager{
         Yenemy = new ArrayList<Integer>();
         Henemy = new ArrayList<Integer>();
         IdEnemy = new ArrayList<Integer>();
+        if(gc.team() == Team.Blue) enemyTeam = Team.Red;
+        else enemyTeam = Team.Blue;
         //aixi no tenim sempre el mapa de la terra nomes? Podem utilitzar sempre el gc.planet();
         map = gc.startingMap(gc.planet());
         W = (int)map.getWidth();
         H = (int)map.getHeight();
+        //danger matrix
+        dangerMatrix = new int[W][H];
+        middle = new MapLocation(gc.planet(), W/2, H/2);
+        maxRadius = middle.distanceSquaredTo(new MapLocation(gc.planet(), 0, 0));
+        //pathfinder
         Pathfinder.getInstance();
         //get location of enemy base
         getLocationEnemyBase();
@@ -74,26 +90,35 @@ public class UnitManager{
         }
     }
 
-
-    public void update(){
+    public void update() {
+        //check enemy units
+        checkEnemyUnits();
         //check mines
-        for(int i = Xmines.size() - 1; i >= 0; --i){
+        for (int i = Xmines.size() - 1; i >= 0; --i) {
             int x = Xmines.get(i);
             int y = Ymines.get(i);
-            if (gc.canSenseLocation(new MapLocation(gc.planet(), x, y))){
+            if (gc.canSenseLocation(new MapLocation(gc.planet(), x, y))) {
                 long q = gc.karboniteAt(new MapLocation(gc.planet(), x, y));
                 if (q > INF) q = INF;
-                if (q > 0){
-                    if (q != Qmines.get(i)) Qmines.set(i, (int)q);
-                }
-                else{
+                if (q > 0) {
+                    if (q != Qmines.get(i)) Qmines.set(i, (int) q);
+                } else {
                     Xmines.remove(i);
                     Ymines.remove(i);
                     Qmines.remove(i);
                 }
             }
         }
+    }
 
+    void checkEnemyUnits(){
+        //add new enemies
+        VecUnit enemyVecUnits = gc.senseNearbyUnitsByTeam(middle, maxRadius, enemyTeam);
+        ArrayList<Unit> enemyUnits = new ArrayList<Unit>();
+        for(int i = 0; i < enemyVecUnits.size(); ++i){
+            enemyUnits.add(enemyVecUnits.get(i));
+        }
+        //update existent enemies
         for(int i = Xenemy.size() - 1; i >= 0; --i){
             int x = Xenemy.get(i);
             int y = Yenemy.get(i);
@@ -102,24 +127,35 @@ public class UnitManager{
                 //canviar-ho a gc.hasUnitAtLocation(ml) quan estigui arreglat TODO
                 try {
                     Unit unit = gc.senseUnitAtLocation(ml);
+                    //remove it from enemy units list
+                    enemyUnits.remove(unit);
                     int id = unit.id();
                     long h = unit.health();
                     if(id == IdEnemy.get(i) || IdEnemy.get(i) == -1) {
                         if (h != Henemy.get(i)) Henemy.set(i, (int) h);
+                        continue;
                     }
                     else {
                         Xenemy.remove(i);
                         Yenemy.remove(i);
                         Henemy.remove(i);
                         IdEnemy.remove(i);
+                        System.out.println("removing because diferent id");
                     }
                 } catch (Throwable t){
+                    System.out.println("removing because no unit there");
                     Xenemy.remove(i);
                     Yenemy.remove(i);
                     Henemy.remove(i);
                     IdEnemy.remove(i);
                 }
             }
+        }
+        //add new enemies
+        for(int i = 0; i < enemyUnits.size(); ++i){
+            Unit enemy = enemyUnits.get(i);
+            MapLocation enemyLocation = enemy.location().mapLocation();
+            addEnemy(enemyLocation.getX(), enemyLocation.getY(), (int)enemy.health(), enemy.id());
         }
         return;
     }

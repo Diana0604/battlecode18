@@ -30,26 +30,25 @@ public class Ranger {
         VecUnit canAttack = gc.senseNearbyUnitsByTeam(myLoc, attackRange, UnitManager.getInstance().enemyTeam);
         for(int i = 0; i < canAttack.size(); ++i){
             Unit victim = canAttack.get(i);
-            if(victim.team() != gc.team()) {
-                wait = true;
-                if(!gc.isAttackReady(unit.id())) return;
-                if (gc.canAttack(unit.id(), victim.id())) {
-                    gc.attack(unit.id(), victim.id());
-                    return;
-                }
+            wait = true;
+            if(!gc.isAttackReady(unit.id())) return;
+            if (gc.canAttack(unit.id(), victim.id())) {
+                gc.attack(unit.id(), victim.id());
+                return;
             }
         }
     }
 
 
     void move(Unit unit){
+        if(!gc.isMoveReady(unit.id())) return;
         goToBestEnemy(unit);
     }
 
     void goToBestEnemy(Unit unit){
         MapLocation myLoc = unit.location().mapLocation();
         MapLocation target = getBestEnemy(myLoc);
-        if(target == null) return; // explorar
+        if(target == null) return; // explorar TODO
         UnitManager.getInstance().moveTo(unit, target);
     }
 

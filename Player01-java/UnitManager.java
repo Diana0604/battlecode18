@@ -50,13 +50,10 @@ public class UnitManager{
         Yenemy.add(y);
         Henemy.add(h);
         IdEnemy.add(id);
-            System.out.println("adding ");
-            System.out.println(x);
-            System.out.println(y);
-            System.out.println(h);
     }
 
     UnitManager(){
+        //init stuff
         Xmines = new ArrayList<Integer>();
         Ymines = new ArrayList<Integer>();
         Qmines = new ArrayList<Integer>();
@@ -66,11 +63,10 @@ public class UnitManager{
         IdEnemy = new ArrayList<Integer>();
         if(gc.team() == Team.Blue) enemyTeam = Team.Red;
         else enemyTeam = Team.Blue;
-        //aixi no tenim sempre el mapa de la terra nomes? Podem utilitzar sempre el gc.planet();
         map = gc.startingMap(gc.planet());
         W = (int)map.getWidth();
         H = (int)map.getHeight();
-        //danger matrix
+        //danger matrix TODO implementation
         dangerMatrix = new int[W][H];
         middle = new MapLocation(gc.planet(), W/2, H/2);
         maxRadius = middle.distanceSquaredTo(new MapLocation(gc.planet(), 0, 0));
@@ -94,6 +90,10 @@ public class UnitManager{
         //check enemy units
         checkEnemyUnits();
         //check mines
+        checkMines();
+    }
+
+    void checkMines(){
         for (int i = Xmines.size() - 1; i >= 0; --i) {
             int x = Xmines.get(i);
             int y = Ymines.get(i);
@@ -112,7 +112,8 @@ public class UnitManager{
     }
 
     void checkEnemyUnits(){
-        //add new enemies
+        //get all enemies I sense
+        //TODO think of a better way to do this, but there's no equivalent to .remove in a VecUnit.
         VecUnit enemyVecUnits = gc.senseNearbyUnitsByTeam(middle, maxRadius, enemyTeam);
         ArrayList<Unit> enemyUnits = new ArrayList<Unit>();
         for(int i = 0; i < enemyVecUnits.size(); ++i){
@@ -127,20 +128,21 @@ public class UnitManager{
                 //canviar-ho a gc.hasUnitAtLocation(ml) quan estigui arreglat TODO
                 try {
                     Unit unit = gc.senseUnitAtLocation(ml);
-                    //remove it from enemy units list
+                    //remove it from new enemies list
                     enemyUnits.remove(unit);
                     int id = unit.id();
                     long h = unit.health();
                     if(id == IdEnemy.get(i) || IdEnemy.get(i) == -1) {
+                        //update health
                         if (h != Henemy.get(i)) Henemy.set(i, (int) h);
                         continue;
                     }
-                    else {
-                        Xenemy.remove(i);
-                        Yenemy.remove(i);
-                        Henemy.remove(i);
-                        IdEnemy.remove(i);
-                    }
+                    //if that was a different unit, remove the one saved there and add the new one
+                    Xenemy.remove(i);
+                    Yenemy.remove(i);
+                    Henemy.remove(i);
+                    IdEnemy.remove(i);
+                    addEnemy(x, y, (int)h, id);
                 } catch (Throwable t){
                     Xenemy.remove(i);
                     Yenemy.remove(i);

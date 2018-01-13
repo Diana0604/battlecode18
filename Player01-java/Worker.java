@@ -73,12 +73,13 @@ public class Worker {
             }
         }
         if (dirIndex >= 0){
-            if (unit.workerHasActed() == 0 && gc.canHarvest(unit.id(), allDirs[dirIndex])) {
+            if (gc.canHarvest(unit.id(), allDirs[dirIndex])) {
                 gc.harvest(unit.id(), allDirs[dirIndex]);
             }
             return;
         }
-
+        //if I can't move return
+        if(!gc.isMoveReady(unit.id())) return;
         MapLocation target = getBestMine(myLoc);
         if (target == null) {
             return; // what to do? xD

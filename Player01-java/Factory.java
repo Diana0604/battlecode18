@@ -18,23 +18,24 @@ public class Factory {
     }
 
     void play(Unit unit){
+        //if it's still a blueprint return
+        if(unit.structureIsBuilt() == 0) return;
+        //I don't think we'll actually need a wait for factories
         wait = false;
         checkGarrison(unit);
-        if(wait) return;
         build(unit);
-    }
-
-    void build(Unit unit){
-        if(unit.structureIsBuilt() == 0 || !gc.canProduceRobot(unit.id(), UnitType.Ranger)) return;
-        gc.produceRobot(unit.id(),UnitType.Ranger);
     }
 
     void checkGarrison(Unit unit){
         for(int i = 0; i < allDirs.length; ++i){
             if(gc.canUnload(unit.id(), allDirs[i])) {
-                wait = true;
                 gc.unload(unit.id(), allDirs[i]);
             }
         }
+    }
+
+    void build(Unit unit){
+        if(!gc.canProduceRobot(unit.id(), UnitType.Ranger)) return;
+        gc.produceRobot(unit.id(),UnitType.Ranger);
     }
 }

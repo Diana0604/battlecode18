@@ -136,6 +136,7 @@ public class UnitManager{
                         Yenemy.remove(i);
                         Henemy.remove(i);
                         IdEnemy.remove(i);
+                        addEnemy(x, y, (int)h, id);
                     }
                 } catch (Throwable t){
                     Xenemy.remove(i);

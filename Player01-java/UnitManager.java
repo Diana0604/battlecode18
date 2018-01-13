@@ -10,6 +10,9 @@ public class UnitManager{
     static GameController gc;
     static PlanetMap map;
 
+    int W;
+    int H;
+
     static void initialize(GameController _gc){
         gc = _gc;
     }
@@ -28,6 +31,7 @@ public class UnitManager{
     static ArrayList<Integer> Xenemy; //xpos
     static ArrayList<Integer> Yenemy; //ypos
     static ArrayList<Integer> Henemy; //health
+    static ArrayList<Integer> IdEnemy; //id
     int INF = 1000000000;
 
     static void addMine(int x, int y, int q) {
@@ -36,10 +40,11 @@ public class UnitManager{
         Qmines.add(q);
     }
 
-    static void addEnemy(int x, int y, int h) {
+    static void addEnemy(int x, int y, int h, int id) {
         Xenemy.add(x);
         Yenemy.add(y);
         Henemy.add(h);
+        IdEnemy.add(id);
     }
 
     UnitManager(){
@@ -49,8 +54,11 @@ public class UnitManager{
         Xenemy = new ArrayList<Integer>();
         Yenemy = new ArrayList<Integer>();
         Henemy = new ArrayList<Integer>();
+        IdEnemy = new ArrayList<Integer>();
         //aixi no tenim sempre el mapa de la terra nomes? Podem utilitzar sempre el gc.planet();
         map = gc.startingMap(gc.planet());
+        W = (int)map.getWidth();
+        H = (int)map.getHeight();
         Pathfinder.getInstance();
         //get location of enemy base
         getLocationEnemyBase();
@@ -62,7 +70,7 @@ public class UnitManager{
         for(int i = 0; i < units.size(); ++i) {
             Unit unit = units.get(i);
             MapLocation myLoc = unit.location().mapLocation();
-            addEnemy(pathfinder.W - (int)myLoc.getX(), pathfinder.H - (int)myLoc.getY(), (int)unit.health());
+            addEnemy(W - (int)myLoc.getX(), H - (int)myLoc.getY(), (int)unit.health(), -1);
         }
     }
 
@@ -91,19 +99,25 @@ public class UnitManager{
             int y = Yenemy.get(i);
             if (gc.canSenseLocation(new MapLocation(gc.planet(), x, y))){
                 MapLocation ml = new MapLocation(gc.planet(), x, y);
+                //canviar-ho a gc.hasUnitAtLocation(ml) quan estigui arreglat TODO
                 try {
                     Unit unit = gc.senseUnitAtLocation(ml);
+                    int id = unit.id();
                     long h = unit.health();
-                    if (h > 0 && unit.team() != gc.team()){
-                        if (h != Henemy.get(i)) Henemy.set(i, (int)h);
+                    if(id == IdEnemy.get(i) || IdEnemy.get(i) == -1) {
+                        if (h != Henemy.get(i)) Henemy.set(i, (int) h);
                     }
                     else {
                         Xenemy.remove(i);
                         Yenemy.remove(i);
                         Henemy.remove(i);
+                        IdEnemy.remove(i);
                     }
                 } catch (Throwable t){
-                    continue;
+                    Xenemy.remove(i);
+                    Yenemy.remove(i);
+                    Henemy.remove(i);
+                    IdEnemy.remove(i);
                 }
             }
         }

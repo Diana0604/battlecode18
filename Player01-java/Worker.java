@@ -35,6 +35,7 @@ public class Worker {
         MapLocation myLoc = unit.location().mapLocation();
         for(int i = 0; i < allDirs.length; ++i){
             MapLocation newLoc = myLoc.add(allDirs[i]);
+            //canviar-ho a gc.hasUnitAtLocation(newLoc) quan estigui arreglat TODO
             try {
                 Unit possibleFactory = gc.senseUnitAtLocation(newLoc);
                 if(possibleFactory != null && possibleFactory.unitType() == UnitType.Factory && possibleFactory.health() != possibleFactory.maxHealth() && possibleFactory.team().equals(gc.team())) {

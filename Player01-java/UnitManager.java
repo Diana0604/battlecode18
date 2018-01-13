@@ -50,10 +50,6 @@ public class UnitManager{
         Yenemy.add(y);
         Henemy.add(h);
         IdEnemy.add(id);
-            System.out.println("adding ");
-            System.out.println(x);
-            System.out.println(y);
-            System.out.println(h);
     }
 
     UnitManager(){
@@ -140,10 +136,8 @@ public class UnitManager{
                         Yenemy.remove(i);
                         Henemy.remove(i);
                         IdEnemy.remove(i);
-                        System.out.println("removing because diferent id");
                     }
                 } catch (Throwable t){
-                    System.out.println("removing because no unit there");
                     Xenemy.remove(i);
                     Yenemy.remove(i);
                     Henemy.remove(i);

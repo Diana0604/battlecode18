@@ -21,9 +21,9 @@ public class Worker {
     void play(Unit unit){
         wait = false;
         if(!factoryBuilt) blueprintFactory(unit);
-        if(wait || unit.workerHasActed() != 0) return;
+        if(wait) return;
         buildFactory(unit);
-        if(wait || unit.workerHasActed() != 0) return;
+        if(wait) return;
         move(unit);
     }
 

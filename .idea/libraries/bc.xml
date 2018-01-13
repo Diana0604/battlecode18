@@ -1,0 +1,14 @@
+<component name="libraryTable">
+  <library name="bc">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/battlecode/java/bc" />
+    </CLASSES>
+    <JAVADOC />
+    <NATIVE>
+      <root url="file://$PROJECT_DIR$/battlecode/java/bc" />
+    </NATIVE>
+    <SOURCES>
+      <root url="file://$PROJECT_DIR$/battlecode/java" />
+    </SOURCES>
+  </library>
+</component>

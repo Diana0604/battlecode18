@@ -47,6 +47,8 @@ public class UnitManager{
     static ArrayList<Integer> IdEnemy; //id
     //enemy bases
     static double[][] exploreGrid;
+    static int areaSizeX;
+    static int areaSizeY;
     int INF = 1000000000;
 
     static void addMine(int x, int y, int q) {
@@ -71,8 +73,8 @@ public class UnitManager{
     static MapLocation areaToLocation(int[] area){
         int xArea = area[0];
         int yArea = area[1];
-        int xLocation = (int)xArea*W/exploreSize;
-        int yLocation = (int)yArea*H/exploreSize;
+        int xLocation = (int)xArea*W/exploreSize + exploreSize/2;
+        int yLocation = (int)yArea*H/exploreSize + exploreSize/2;
         return new MapLocation(gc.planet(), xLocation, yLocation);
     }
 
@@ -86,6 +88,8 @@ public class UnitManager{
         Qmines = new ArrayList<Integer>();
         //enemy bases
         exploreGrid = new double[exploreSize][exploreSize];
+        areaSizeX = W/exploreSize;
+        areaSizeY = H/exploreSize;
         if(gc.team() == Team.Blue) enemyTeam = Team.Red;
         else enemyTeam = Team.Blue;
         map = gc.startingMap(gc.planet());
@@ -118,16 +122,6 @@ public class UnitManager{
         checkMines();
         //update areas explored
         updateExplored();
-        if(gc.planet() == Planet.Earth) {
-            System.out.println("new round");
-            for (int i = 0; i < exploreSize; ++i) {
-                for (int j = 0; j < exploreSize; ++j) {
-                    System.out.print(exploreGrid[i][j]);
-                    System.out.print(" ");
-                }
-                System.out.println("");
-            }
-        }
     }
 
 

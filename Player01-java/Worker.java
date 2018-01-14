@@ -4,6 +4,7 @@ public class Worker {
 
     static Worker instance = null;
     static boolean factoryBuilt = false;
+    boolean wait;
     static GameController gc;
 
     static Worker getInstance(){
@@ -17,16 +18,38 @@ public class Worker {
     private final Direction[] allDirs = {Direction.North, Direction.Northeast, Direction.East, Direction.Southeast, Direction.South, Direction.Southwest, Direction.West, Direction.Northwest, Direction.Center};
 
 
-    void play(){
-        move();
+    void play(Unit unit){
+        wait = false;
+        if(!factoryBuilt) blueprintFactory(unit);
+        if(wait) return;
+        buildFactory(unit);
+        if(wait) return;
+        move(unit);
     }
 
-    void move(){
-        if (!factoryBuilt) buildFactory();
-        goToBestMine();
+    void move(Unit unit){
+        goToBestMine(unit);
     }
 
-    void buildFactory(){
+    void buildFactory(Unit unit){
+        MapLocation myLoc = unit.location().mapLocation();
+        for(int i = 0; i < allDirs.length; ++i){
+            MapLocation newLoc = myLoc.add(allDirs[i]);
+            //canviar-ho a gc.hasUnitAtLocation(newLoc) quan estigui arreglat TODO
+            try {
+                Unit possibleFactory = gc.senseUnitAtLocation(newLoc);
+                if(possibleFactory != null && possibleFactory.unitType() == UnitType.Factory && possibleFactory.health() != possibleFactory.maxHealth() && possibleFactory.team().equals(gc.team())) {
+                    if (gc.canBuild(unit.id(), possibleFactory.id()))
+                        gc.build(unit.id(), possibleFactory.id());
+                    wait = true;
+                }
+            } catch(Throwable t){
+                continue;
+            }
+        }
+    }
+
+    void blueprintFactory(Unit unit){
         for (int i = 0; i < allDirs.length; ++i){
             if (gc.canBlueprint(UnitManager.currentUnit.id(), UnitType.Factory, allDirs[i])){
                 gc.blueprint(UnitManager.currentUnit.id(), UnitType.Factory, allDirs[i]);
@@ -36,8 +59,8 @@ public class Worker {
         }
     }
 
-    void goToBestMine(){
-        MapLocation myLoc = UnitManager.currentUnit.location().mapLocation();
+    void goToBestMine(Unit unit){
+        MapLocation myLoc = unit.location().mapLocation();
         long maxKarbo = 0;
         int dirIndex = -1;
         for (int i = 0; i < allDirs.length; ++i){
@@ -50,25 +73,26 @@ public class Worker {
             }
         }
         if (dirIndex >= 0){
-            if (UnitManager.currentUnit.workerHasActed() == 0 && gc.canHarvest(UnitManager.currentUnit.id(), allDirs[dirIndex])) {
-                gc.harvest(UnitManager.currentUnit.id(), allDirs[dirIndex]);
+            if (gc.canHarvest(unit.id(), allDirs[dirIndex])) {
+                gc.harvest(unit.id(), allDirs[dirIndex]);
             }
             return;
         }
-
+        //if I can't move return
+        if(!gc.isMoveReady(unit.id())) return;
         MapLocation target = getBestMine(myLoc);
         if (target == null) {
             return; // what to do? xD
         }
-        UnitManager.getInstance().moveTo(target);
+        UnitManager.getInstance().moveTo(unit, target);
     }
 
     MapLocation getBestMine(MapLocation loc){
         long minDist = 1000000;
         MapLocation ans = null;
-        for (int i = 0; i < UnitManager.currentUnitManager.Xmines.size(); ++i){
-            int x = UnitManager.currentUnitManager.Xmines.get(i);
-            int y = UnitManager.currentUnitManager.Ymines.get(i);
+        for (int i = 0; i < UnitManager.Xmines.size(); ++i){
+            int x = UnitManager.Xmines.get(i);
+            int y = UnitManager.Ymines.get(i);
             MapLocation mineLoc = new MapLocation(gc.planet(), x, y);
             long d = loc.distanceSquaredTo(mineLoc);
             if (d < minDist){

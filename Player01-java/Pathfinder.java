@@ -29,8 +29,8 @@ public class Pathfinder{
 
     private PathfinderNode[][][][] Nodes;
     private PlanetMap map;
-    private int W;
-    private int H;
+    int W;
+    int H;
 
 
     public Pathfinder(){
@@ -46,7 +46,7 @@ public class Pathfinder{
                 //add initial karbonite
                 long a = map.initialKarboniteAt(new MapLocation(gc.planet(), x, y));
                 if (a > INF) a = INF;
-                if (a > 0) UnitManager.add(x,y,(int)a);
+                if (a > 0) UnitManager.addMine(x,y,(int)a);
                 //bfs
                 bfs(x,y);
             }

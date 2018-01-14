@@ -10,7 +10,7 @@ public class Worker {
     static Worker getInstance(){
         if (instance == null){
             instance = new Worker();
-            gc = UnitManager.currentUnitManager.gc;
+            gc = UnitManager.getInstance().gc;
         }
         return instance;
     }
@@ -51,8 +51,8 @@ public class Worker {
 
     void blueprintFactory(Unit unit){
         for (int i = 0; i < allDirs.length; ++i){
-            if (gc.canBlueprint(UnitManager.currentUnit.id(), UnitType.Factory, allDirs[i])){
-                gc.blueprint(UnitManager.currentUnit.id(), UnitType.Factory, allDirs[i]);
+            if (gc.canBlueprint(unit.id(), UnitType.Factory, allDirs[i])){
+                gc.blueprint(unit.id(), UnitType.Factory, allDirs[i]);
                 factoryBuilt = true;
                 return;
             }

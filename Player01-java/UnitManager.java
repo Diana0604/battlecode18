@@ -198,7 +198,7 @@ public class UnitManager{
             Location myLoc = unit.location();
             if(myLoc.isInGarrison()) continue;
             if (unit.unitType() == UnitType.Worker) {
-                Worker.getInstance().play();
+                Worker.getInstance().play(unit);
             }
             if(unit.unitType() == UnitType.Factory) {
                 Factory.getInstance().play(unit);

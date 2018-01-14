@@ -1,18 +1,25 @@
 import bc.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.ListIterator;
+
+import static java.lang.Math.floor;
 
 public class UnitManager{
 
-    private final Direction[] allDirs = {Direction.North, Direction.Northeast, Direction.East, Direction.Southeast, Direction.South, Direction.Southwest, Direction.West, Direction.Northwest, Direction.Center};
+    private static final Direction[] allDirs = {Direction.North, Direction.Northeast, Direction.East, Direction.Southeast, Direction.South, Direction.Southwest, Direction.West, Direction.Northwest, Direction.Center};
+    final static double enemyBaseValue = -5;
+    final static int exploreSize = 5;
 
     static UnitManager instance;
     static GameController gc;
     static PlanetMap map;
     static Team enemyTeam;
 
-    int W;
-    int H;
+    //current area
+    HashMap<Integer, int[]> currentArea = new HashMap();
+    static int W;
+    static int H;
 
     static void initialize(GameController _gc){
         gc = _gc;
@@ -24,19 +31,22 @@ public class UnitManager{
     }
 
     //Stuff available for all units
-    //danger
-    static int[][] dangerMatrix;
+    //general
     static MapLocation middle;
     static long maxRadius;
+    //danger
+    static int[][] dangerMatrix;
     //mines in map
     static ArrayList<Integer> Xmines; //xpos
     static ArrayList<Integer> Ymines; //ypos
     static ArrayList<Integer> Qmines; //quantity
-    //enemy factories
+    //enemies list
     static ArrayList<Integer> Xenemy; //xpos
     static ArrayList<Integer> Yenemy; //ypos
     static ArrayList<Integer> Henemy; //health
     static ArrayList<Integer> IdEnemy; //id
+    //enemy bases
+    static double[][] exploreGrid;
     int INF = 1000000000;
 
     static void addMine(int x, int y, int q) {
@@ -52,15 +62,30 @@ public class UnitManager{
         IdEnemy.add(id);
     }
 
+    static void addExploreGrid(int x, int y, double value) {
+        if(x == W) x = W - 1;
+        if(y == H) y = H - 1;
+        exploreGrid[(int)floor(x*exploreSize/W)][(int)floor(y*exploreSize/H)] += value;
+    }
+
+    static MapLocation areaToLocation(int[] area){
+        int xArea = area[0];
+        int yArea = area[1];
+        int xLocation = (int)xArea*W/exploreSize;
+        int yLocation = (int)yArea*H/exploreSize;
+        return new MapLocation(gc.planet(), xLocation, yLocation);
+    }
+
     UnitManager(){
-        //init stuff
+        //general
+        middle = new MapLocation(gc.planet(), W/2, H/2);
+        maxRadius = middle.distanceSquaredTo(new MapLocation(gc.planet(), 0, 0));
+        //mines
         Xmines = new ArrayList<Integer>();
         Ymines = new ArrayList<Integer>();
         Qmines = new ArrayList<Integer>();
-        Xenemy = new ArrayList<Integer>();
-        Yenemy = new ArrayList<Integer>();
-        Henemy = new ArrayList<Integer>();
-        IdEnemy = new ArrayList<Integer>();
+        //enemy bases
+        exploreGrid = new double[exploreSize][exploreSize];
         if(gc.team() == Team.Blue) enemyTeam = Team.Red;
         else enemyTeam = Team.Blue;
         map = gc.startingMap(gc.planet());
@@ -68,8 +93,6 @@ public class UnitManager{
         H = (int)map.getHeight();
         //danger matrix TODO implementation
         dangerMatrix = new int[W][H];
-        middle = new MapLocation(gc.planet(), W/2, H/2);
-        maxRadius = middle.distanceSquaredTo(new MapLocation(gc.planet(), 0, 0));
         //pathfinder
         Pathfinder.getInstance();
         //get location of enemy base
@@ -82,15 +105,9 @@ public class UnitManager{
         for(int i = 0; i < units.size(); ++i) {
             Unit unit = units.get(i);
             MapLocation myLoc = unit.location().mapLocation();
-            int id = -1;
-            //TODO. Untested:
-            /*
-            MapLocation enemyLoc = new MapLocation(gc.planet(), W - (int)myLoc.getX(), H - (int)myLoc.getY());
-            if(gc.canSenseLocation(enemyLoc)){
-                Unit enemy = gc.senseUnitAtLocation(enemyLoc);
-                id = enemy.id();
-            }*/
-            addEnemy(W - (int)myLoc.getX(), H - (int)myLoc.getY(), (int)unit.health(), id);
+            addExploreGrid(W - (int)myLoc.getX(), H - (int)myLoc.getY(), enemyBaseValue);
+            addExploreGrid((int)myLoc.getX(), H - (int)myLoc.getY(), enemyBaseValue);
+            addExploreGrid(W - (int)myLoc.getX(), (int)myLoc.getY(), enemyBaseValue);
         }
     }
 
@@ -99,6 +116,40 @@ public class UnitManager{
         checkEnemyUnits();
         //check mines
         checkMines();
+        //update areas explored
+        updateExplored();
+        if(gc.planet() == Planet.Earth) {
+            System.out.println("new round");
+            for (int i = 0; i < exploreSize; ++i) {
+                for (int j = 0; j < exploreSize; ++j) {
+                    System.out.print(exploreGrid[i][j]);
+                    System.out.print(" ");
+                }
+                System.out.println("");
+            }
+        }
+    }
+
+
+    void updateExplored(){
+        VecUnit units = gc.myUnits();
+        for(int i = 0; i < units.size(); ++i) {
+            Unit unit = units.get(i);
+            Location loc = unit.location();
+            if(loc.isInGarrison()) continue;
+            MapLocation myLoc = loc.mapLocation();
+            int[] myArea = getCurrentArea(unit);
+            int id = unit.id();
+            if (!currentArea.containsKey(id)) {
+                currentArea.put(id, myArea);
+                addExploreGrid(myLoc.getX(), myLoc.getY(), 1);
+                continue;
+            }
+            if (!currentArea.get(id).equals(myArea)) {
+                currentArea.put(id, myArea);
+                addExploreGrid(myLoc.getX(), myLoc.getY(), 1);
+            }
+        }
     }
 
     void checkMines(){
@@ -120,52 +171,19 @@ public class UnitManager{
     }
 
     void checkEnemyUnits(){
+        //set enemy stuff to empty
+        Xenemy = new ArrayList<Integer>();
+        Yenemy = new ArrayList<Integer>();
+        Henemy = new ArrayList<Integer>();
+        IdEnemy = new ArrayList<Integer>();
         //get all enemies I sense
-        //TODO think of a better way to do this, but there's no equivalent to .remove in a VecUnit.
-        VecUnit enemyVecUnits = gc.senseNearbyUnitsByTeam(middle, maxRadius, enemyTeam);
-        ArrayList<Unit> enemyUnits = new ArrayList<Unit>();
-        for(int i = 0; i < enemyVecUnits.size(); ++i){
-            enemyUnits.add(enemyVecUnits.get(i));
-        }
-        //update existent enemies
-        for(int i = Xenemy.size() - 1; i >= 0; --i){
-            int x = Xenemy.get(i);
-            int y = Yenemy.get(i);
-            if (gc.canSenseLocation(new MapLocation(gc.planet(), x, y))){
-                MapLocation ml = new MapLocation(gc.planet(), x, y);
-                //canviar-ho a gc.hasUnitAtLocation(ml) quan estigui arreglat TODO
-                try {
-                    Unit unit = gc.senseUnitAtLocation(ml);
-                    //remove it from new enemies list
-                    enemyUnits.remove(unit);
-                    int id = unit.id();
-                    long h = unit.health();
-                    if(id == IdEnemy.get(i) || IdEnemy.get(i) == -1) {
-                        //update health
-                        if (h != Henemy.get(i)) Henemy.set(i, (int) h);
-                        continue;
-                    }
-                    //if that was a different unit, remove the one saved there and add the new one
-                    Xenemy.remove(i);
-                    Yenemy.remove(i);
-                    Henemy.remove(i);
-                    IdEnemy.remove(i);
-                    addEnemy(x, y, (int)h, id);
-                } catch (Throwable t){
-                    Xenemy.remove(i);
-                    Yenemy.remove(i);
-                    Henemy.remove(i);
-                    IdEnemy.remove(i);
-                }
-            }
-        }
-        //add new enemies
+        VecUnit enemyUnits = gc.senseNearbyUnitsByTeam(middle, maxRadius, enemyTeam);
+        //make list of enemies
         for(int i = 0; i < enemyUnits.size(); ++i){
             Unit enemy = enemyUnits.get(i);
             MapLocation enemyLocation = enemy.location().mapLocation();
             addEnemy(enemyLocation.getX(), enemyLocation.getY(), (int)enemy.health(), enemy.id());
         }
-        return;
     }
 
     public void moveUnits(){
@@ -186,17 +204,17 @@ public class UnitManager{
         }
     }
 
-    Direction dirTo(Unit unit, int destX, int destY) {
+    static Direction dirTo(Unit unit, int destX, int destY) {
         MapLocation myLoc = unit.location().mapLocation();
         PathfinderNode myNode = Pathfinder.getInstance().getNode(myLoc.getX() ,myLoc.getY() , destX, destY);
         return myNode.dir;
     }
 
-    Direction dirTo(Unit unit, MapLocation loc) {
+    static Direction dirTo(Unit unit, MapLocation loc) {
         return dirTo(unit, loc.getX(), loc.getY());
     }
 
-    void moveTo(Unit unit, MapLocation target) { //todo: edge cases
+    static void moveTo(Unit unit, MapLocation target) { //todo: edge cases
         if (!gc.isMoveReady(unit.id())) return;
         Direction dir = dirTo(unit, target);
         if (gc.canMove(unit.id(), dir)) {
@@ -216,5 +234,15 @@ public class UnitManager{
             }
         }
         if (dir != null) gc.moveRobot(unit.id(), dir);
+    }
+
+
+    int[] getCurrentArea(Unit unit){
+        int x = unit.location().mapLocation().getX();
+        if(x == W) x = W - 1;
+        int y = unit.location().mapLocation().getY();
+        if(y == H) y = H -1;
+        return new int[]{(int)floor(x*exploreSize/W), (int)floor(y*exploreSize/H)};
+
     }
 }

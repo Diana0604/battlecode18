@@ -78,6 +78,15 @@ public class UnitManager{
         return new MapLocation(gc.planet(), xLocation, yLocation);
     }
 
+    int[] getCurrentArea(Unit unit){
+        int x = unit.location().mapLocation().getX();
+        if(x == W) x = W - 1;
+        int y = unit.location().mapLocation().getY();
+        if(y == H) y = H -1;
+        return new int[]{(int)floor(x*exploreSize/W), (int)floor(y*exploreSize/H)};
+
+    }
+
     UnitManager(){
         //general
         middle = new MapLocation(gc.planet(), W/2, H/2);
@@ -139,7 +148,9 @@ public class UnitManager{
                 addExploreGrid(myLoc.getX(), myLoc.getY(), 1);
                 continue;
             }
-            if (!currentArea.get(id).equals(myArea)) {
+            int [] current = currentArea.get(id);
+            //si no comparo terme a terme diu que son diferents quan son iguals
+            if (myArea[0] != current[0] || myArea[1] != current[1]) {
                 currentArea.put(id, myArea);
                 addExploreGrid(myLoc.getX(), myLoc.getY(), 1);
             }
@@ -231,12 +242,4 @@ public class UnitManager{
     }
 
 
-    int[] getCurrentArea(Unit unit){
-        int x = unit.location().mapLocation().getX();
-        if(x == W) x = W - 1;
-        int y = unit.location().mapLocation().getY();
-        if(y == H) y = H -1;
-        return new int[]{(int)floor(x*exploreSize/W), (int)floor(y*exploreSize/H)};
-
-    }
 }

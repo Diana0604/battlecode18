@@ -84,11 +84,23 @@ public class Ranger {
     void updateExploreObjective(Unit unit){
         UnitManager um = UnitManager.getInstance();
         int id = unit.id();
-        if(objectiveArea.containsKey(id) && !um.currentArea.get(id).equals(objectiveArea.get(id))) return;
+        int [] current = um.currentArea.get(id);
+        if(objectiveArea.containsKey(id) && !um.currentArea.get(id).equals(objectiveArea.get(id)))
+        {
+            int[] objective = objectiveArea.get(id);
+            if(current[0] != objective[0] || current[1] != objective[1]) {
+                return;
+            }
+        }
+        int[] myArea = um.currentArea.get(id);
         int[] obj = new int[2];
         double notExplored = INF;
         for(int i = 0; i < um.exploreSize; ++i){
             for(int j = 0; j < um.exploreSize; ++j){
+                int[] possible = new int[] {i,j};
+                if(myArea[0] == possible[0] && myArea[1] == possible[1]) {
+                    continue;
+                }
                 if(um.exploreGrid[i][j] < notExplored){
                     obj[0] = i;
                     obj[1] = j;

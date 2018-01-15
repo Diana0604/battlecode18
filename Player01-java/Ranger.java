@@ -116,6 +116,6 @@ public class Ranger {
     void explore(Unit unit){
         UnitManager um = UnitManager.getInstance();
         updateExploreObjective(unit);
-        UnitManager.moveTo(unit, um.areaToLocation(objectiveArea.get(unit.id())));
+        UnitManager.getInstance().moveTo(unit, um.areaToLocation(objectiveArea.get(unit.id())));
     }
 }

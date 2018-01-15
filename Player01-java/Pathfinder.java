@@ -24,8 +24,7 @@ public class Pathfinder{
     private final int[] X = {0, 1, 1, 1, 0, -1, -1, -1};
     private final int[] Y = {1, 1, 0, -1, -1, -1, 0, 1};
     private final double[] dists = {1, sqrt2, 1, sqrt2, 1, sqrt2, 1, sqrt2};
-    private final Direction[] allDirs = {Direction.North, Direction.Northeast, Direction.East, Direction.Southeast, Direction.South, Direction.Southwest, Direction.West, Direction.Northwest};
-
+    private static final Direction[] allDirs = {Direction.North, Direction.Northeast, Direction.East, Direction.Southeast, Direction.South, Direction.Southwest, Direction.West, Direction.Northwest};
 
     private PathfinderNode[][][][] Nodes;
     private PlanetMap map;
@@ -95,4 +94,39 @@ public class Pathfinder{
     public PathfinderNode getNode(int x1, int y1, int x2, int y2){
         return Nodes[x1][y1][x2][y2];
     }
+
+
+    public static int getIndex(Direction dir){
+        switch(dir){
+            case North:
+                return 0;
+            case Northeast:
+                return 1;
+            case East:
+                return 2;
+            case Southeast:
+                return 3;
+            case South:
+                return 4;
+            case Southwest:
+                return 5;
+            case West:
+                return 6;
+            case Northwest:
+                return 7;
+            default:
+                return 0;
+
+        }
+    }
+
+    public static Direction rotateLeft(Direction dir){
+        return allDirs[(getIndex(dir)+1)%8];
+    }
+
+    public static Direction rotateRight(Direction dir){
+        return allDirs[(getIndex(dir)+7)%8];
+    }
+
+
 }

@@ -10,6 +10,7 @@ public class UnitManager{
     static GameController gc;
     static PlanetMap map;
     static Team enemyTeam;
+    static MarsPlanning mp;
 
     int W;
     int H;
@@ -53,6 +54,8 @@ public class UnitManager{
     }
 
     UnitManager(){
+        MarsPlanning.initialize(gc);
+        mp = MarsPlanning.getInstance();
         Xmines = new ArrayList<Integer>();
         Ymines = new ArrayList<Integer>();
         Qmines = new ArrayList<Integer>();

@@ -5,8 +5,8 @@ import java.util.HashMap;
 import static java.lang.Math.floor;
 
 public class Ranger {
-    final long INFL = 1000000;
-    final int INF = 1000000;
+    final long INFL = 1000000000;
+    final int INF = 1000000000;
     final double eps = 0.001;
     static Ranger instance = null;
     static GameController gc;
@@ -28,9 +28,9 @@ public class Ranger {
     }
 
     void play(Unit unit){
-        attack(unit);
+        //attack(unit);
         move(unit);
-        attack(unit);
+        //attack(unit);
     }
 
     void attack(Unit unit) {
@@ -49,7 +49,7 @@ public class Ranger {
 
 
     void move(Unit unit){
-        goToBestEnemy(unit);
+        //goToBestEnemy(unit);
         explore(unit);
     }
 
@@ -81,20 +81,23 @@ public class Ranger {
         Integer current = unitManager.currentArea.get(id);
         Integer obj = null;
         double minExplored = INF;
+        MapLocation myLoc = unit.location().mapLocation();
         if(objectiveArea.containsKey(id) && current.intValue() != objectiveArea.get(id).intValue()) {
             return unitManager.areaToLocation(objectiveArea.get(id));
         }
         for(int i = 0; i < unitManager.exploreSizeX; ++i){
             for(int j = 0; j < unitManager.exploreSizeY; ++j){
                 if(current.intValue() == unitManager.encode(i,j).intValue()) continue;
+                Integer area = unitManager.encode(i,j);
+                MapLocation areaLoc = unitManager.areaToLocation(area);
+                if(Pathfinder.getInstance().getNode(myLoc.getX(), myLoc.getY(), areaLoc.getX(), areaLoc.getY()).dist >= INF) continue;
                 if(unitManager.exploreGrid[i][j] < minExplored){
                     minExplored = unitManager.exploreGrid[i][j];
-                    obj = unitManager.encode(i,j);
+                    obj = area;
                 }
             }
         }
         if(obj != null) {
-            //double add = Math.max(eps, unitManager.exploreGrid[unitManager.decodeX(obj)][unitManager.decodeY(obj)]/2);
             unitManager.addExploreGrid(obj, unitManager.exploreConstant);
             objectiveArea.put(id, obj);
         }

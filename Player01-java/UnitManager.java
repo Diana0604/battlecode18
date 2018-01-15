@@ -90,12 +90,24 @@ public class UnitManager{
         return c%maxMapSize;
     }
 
+    MapLocation getAccesLocation(int xCenter, int yCenter){
+        MapLocation realCenter = new MapLocation(gc.planet(), xCenter, yCenter);
+        //TODO check apart from passable accessible from origin in earth
+        if(map.isPassableTerrainAt(realCenter) > 0) return realCenter;
+        for(int i = 0; i < allDirs.length; ++i){
+            MapLocation fakeCenter = realCenter.add(allDirs[i]);
+            if(map.isPassableTerrainAt(fakeCenter) > 0) return fakeCenter;
+        }
+        return null;
+    }
+
     void createGrid(){
         currentArea = new HashMap();
         exploreSizeX = W/areaSize;
         exploreSizeY = H/areaSize;
         double auxiliarX = (double)W/exploreSizeX;
         double auxiliarY = (double)H/exploreSizeY;
+        exploreGrid = new double[exploreSizeX][exploreSizeY];
         locToArea = new int[W][H];
         areaToLocX = new int[exploreSizeX];
         areaToLocY = new int[exploreSizeY];
@@ -106,11 +118,17 @@ public class UnitManager{
                         locToArea[x][y] = encode(i,j);
                     }
                 }
-                areaToLocX[i] = (int)Math.floor(i*auxiliarX) + areaSize/2;
-                areaToLocY[j] = (int)Math.floor(j*auxiliarY) + areaSize/2;
+                int xCenter = (int)Math.floor(i*auxiliarX) + areaSize/2;
+                int yCenter = (int)Math.floor(j*auxiliarY) + areaSize/2;
+                MapLocation centerArea = getAccesLocation(xCenter, yCenter);
+                if(centerArea != null) {
+                    areaToLocX[i] = centerArea.getX();
+                    areaToLocY[j] = centerArea.getY();
+                    continue;
+                }
+                exploreGrid[i][j] = INF;
             }
         }
-        exploreGrid = new double[exploreSizeX][exploreSizeY];
     }
 
     UnitManager(){

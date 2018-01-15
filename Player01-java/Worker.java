@@ -108,6 +108,7 @@ public class Worker {
         for (int i = 0; i < UnitManager.Xmines.size(); ++i){
             int x = UnitManager.Xmines.get(i);
             int y = UnitManager.Ymines.get(i);
+
             MapLocation mineLoc = new MapLocation(gc.planet(), x, y);
             long d = location.distanceSquaredTo(mineLoc);
             if (d < minDist){
@@ -219,6 +220,7 @@ public class Worker {
             if (gc.karboniteAt(karboLoc) > 0){
                 //System.out.println("Unit location, dir: " + unit.location().mapLocation() + "   " + d);
                 gc.harvest(unit.id(), d);
+                if (gc.karboniteAt(karboLoc) <= unit.workerHarvestAmount()) resetTarget();
                 System.out.println("Worker " + unit.id() +  "  " + unit.location().mapLocation() + " harvests karbonite " + d);
                 return;
             }

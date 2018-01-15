@@ -61,6 +61,10 @@ public class MovementManager {
         return false;
     }
 
+    double distance (MapLocation loc1, MapLocation loc2){
+        return Pathfinder.getInstance().getNode(loc1.getX(), loc1.getY(), loc2.getX(), loc2.getY()).dist;
+    }
+
     public void moveTo(Unit unit, MapLocation target){
         /*sanity check*/
         if (target == null) return;
@@ -80,7 +84,7 @@ public class MovementManager {
             myData.target = target;
             myData.soft_reset(myLoc);
         }
-        if (target != null && myLoc.distanceSquaredTo(target) < myData.minDist){
+        if (target != null && distance(myLoc, target) < myData.minDist){
             myData.soft_reset(myLoc);
         }
 

@@ -19,6 +19,7 @@ public class UnitManager{
     static GameController gc;
     PlanetMap map;
     Team enemyTeam;
+    static MarsPlanning mp;
 
     //current area
     int W;
@@ -132,6 +133,8 @@ public class UnitManager{
     }
 
     UnitManager(){
+        MarsPlanning.initialize(gc);
+        mp = MarsPlanning.getInstance();
         //general
         map = gc.startingMap(gc.planet());
         W = (int)map.getWidth();

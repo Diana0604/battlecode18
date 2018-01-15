@@ -181,8 +181,7 @@ public class UnitManager{
             }
         }
         if (!factoryBuilt) queue.requestUnit(UnitType.Factory);
-        if (!rocketBuilt) queue.requestUnit(UnitType.Rocket);
-
+        //if (!rocketBuilt) queue.requestUnit(UnitType.Rocket);
     }
 
     public void moveUnits(){

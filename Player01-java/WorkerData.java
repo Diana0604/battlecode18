@@ -1,15 +1,12 @@
 import bc.*;
 
-/**
- * Created by Pau on 14/01/2018.
- */
-
-public class WorkerData {
+class WorkerData {
     int id;
     int target_id;
     MapLocation target_loc;
     int target_type;
     Direction safest_direction;
+    int karbonite_index; //index de l'array de la mina
 
 
     WorkerData(int id){
@@ -18,5 +15,6 @@ public class WorkerData {
         target_type = 0;
         target_loc = null;
         safest_direction = null;
+        karbonite_index = -1;
     }
 }

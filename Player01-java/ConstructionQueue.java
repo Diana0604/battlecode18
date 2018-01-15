@@ -1,10 +1,5 @@
 import bc.*;
 
-/**
- * Created by Pau on 14/01/2018.
- */
-
-
 public class ConstructionQueue {
     private boolean[] needed = {false, false, false, false, false, false, false};
 
@@ -15,15 +10,15 @@ public class ConstructionQueue {
         }
     }
 
-    public boolean needsUnit (UnitType type){
+    boolean needsUnit(UnitType type){
         return needed[type.swigValue()];
     }
 
-    public void requestUnit (UnitType type, boolean b){
+    void requestUnit(UnitType type, boolean b){
         needed[type.swigValue()] = b;
     }
 
-    public void requestUnit (UnitType type){
+    void requestUnit(UnitType type){
         requestUnit(type,true);
     }
 

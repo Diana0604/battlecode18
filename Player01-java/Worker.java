@@ -38,8 +38,10 @@ public class Worker {
         data.target_loc = null;
         data.target_type = TARGET_NONE;
         data.target_id = -1;
+        data.karbonite_index = -1;
     }
 
+    //Si esta en perill, fuig, si no, va al target
     private void move(Unit unit) {
         if (!gc.isMoveReady(unit.id())) return;
         if (data.safest_direction != null) {
@@ -102,32 +104,51 @@ public class Worker {
         return false;
     }
 
+    //Busca la mina mes propera
     private void searchKarbonite(MapLocation location){
         long minDist = 1000000;
         MapLocation ans = null;
+        int index = -2;
         for (int i = 0; i < UnitManager.Xmines.size(); ++i){
             int x = UnitManager.Xmines.get(i);
             int y = UnitManager.Ymines.get(i);
-
             MapLocation mineLoc = new MapLocation(gc.planet(), x, y);
             long d = location.distanceSquaredTo(mineLoc);
             if (d < minDist){
                 minDist = d;
                 ans = mineLoc;
+                index = i;
             }
         }
         data.target_id = -1;
         data.target_type = TARGET_MINE;
         data.target_loc = ans;
+        data.karbonite_index = index;
     }
 
     private void updateTarget(Unit unit){
         if (data.safest_direction != null) return; //no fas update si estas en perill
         int type = data.target_type;
-        if (type == TARGET_BLUEPRINT) return; //no fas update si ja tens un blueprint perque es lo mes important
+        if (type == TARGET_BLUEPRINT) {
+            Unit target_unit = gc.unit(data.target_id);
+            if (target_unit != null && target_unit.health() == target_unit.maxHealth()) resetTarget();
+        }
+        if (type == TARGET_BLUEPRINT) return;//no fas update si ja tens un blueprint perque es lo mes important
         boolean found = searchNearbyBlueprint(unit.location().mapLocation());
+        if (type == TARGET_STRUCTURE) {
+            Unit target_unit = gc.unit(data.target_id);
+            if (target_unit != null && target_unit.health() == target_unit.maxHealth()) resetTarget();
+        }
         if (found || type == TARGET_STRUCTURE) return;
         found = searchNearbyStructure(unit.location().mapLocation());
+        if (type == TARGET_MINE){
+            if (gc.canSenseLocation(data.target_loc) && gc.karboniteAt(data.target_loc) == 0) {
+                UnitManager.Xmines.remove(data.karbonite_index);
+                UnitManager.Ymines.remove(data.karbonite_index);
+                UnitManager.Qmines.remove(data.karbonite_index);
+                resetTarget();
+            }
+        }
         if (found || type == TARGET_MINE) return;
         searchKarbonite(unit.location().mapLocation());
     }
@@ -252,7 +273,7 @@ public class Worker {
         MapLocation myLoc = unit.location().mapLocation();
         for(int i = 0; i < allDirs.length; ++i){
             MapLocation newLoc = myLoc.add(allDirs[i]);
-            //canviar-ho a gc.hasUnitAtLocation(newLoc) quan estigui arreglat TODO
+            //canviar-ho a gc.hasUnitAtLocation(newLoc) quan estigui arreglat
             try {
                 Unit possibleFactory = gc.senseUnitAtLocation(newLoc);
                 if(possibleFactory != null && possibleFactory.unitType() == UnitType.Factory && possibleFactory.health() != possibleFactory.maxHealth() && possibleFactory.team().equals(gc.team())) {

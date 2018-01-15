@@ -115,6 +115,7 @@ public class MovementManager {
         if (gc.canMove(unit.id(), dir)){ //Todo: add safety
             gc.moveRobot(unit.id(), dir);
         }
+        bugpathData.put(unit.id(), data);
         return;
     }
 }

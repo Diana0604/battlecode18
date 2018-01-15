@@ -49,7 +49,7 @@ public class Ranger {
 
 
     void move(Unit unit){
-        //goToBestEnemy(unit);
+        goToBestEnemy(unit);
         explore(unit);
     }
 

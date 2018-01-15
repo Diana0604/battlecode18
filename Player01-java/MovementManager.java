@@ -105,7 +105,7 @@ public class MovementManager {
             int cont = 0;
             while (!gc.canMove(unit.id(), dir) && cont < 20) {
                 MapLocation newLoc = myLoc.add(dir);
-                if (!UnitManager.map.onMap(newLoc)) data.left = !data.left;
+                if (!UnitManager.getInstance().map.onMap(newLoc)) data.left = !data.left;
                 data.obstacle = newLoc;
                 if (data.left) dir = Pathfinder.rotateLeft(dir);
                 else dir = Pathfinder.rotateRight(dir);
@@ -115,6 +115,7 @@ public class MovementManager {
         if (gc.canMove(unit.id(), dir)){ //Todo: add safety
             gc.moveRobot(unit.id(), dir);
         }
+        bugpathData.put(unit.id(), data);
         return;
     }
 }

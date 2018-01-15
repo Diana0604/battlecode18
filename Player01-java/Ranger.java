@@ -28,9 +28,9 @@ public class Ranger {
     }
 
     void play(Unit unit){
-        //attack(unit);
+        attack(unit);
         move(unit);
-        //attack(unit);
+        attack(unit);
     }
 
     void attack(Unit unit) {

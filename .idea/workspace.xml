@@ -50,8 +50,8 @@
       <file leaf-file-name="MovementManager.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Player01-java/MovementManager.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="514">
-              <caret line="117" column="41" lean-forward="false" selection-start-line="117" selection-start-column="41" selection-end-line="117" selection-end-column="41" />
+            <state relative-caret-position="-515">
+              <caret line="71" column="0" lean-forward="true" selection-start-line="71" selection-start-column="0" selection-end-line="71" selection-end-column="0" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -92,9 +92,14 @@
       <file leaf-file-name="workspace.xml" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/.idea/workspace.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1853">
-              <caret line="109" column="12" lean-forward="false" selection-start-line="109" selection-start-column="12" selection-end-line="109" selection-end-column="12" />
-              <folding />
+            <state relative-caret-position="1938">
+              <caret line="114" column="12" lean-forward="false" selection-start-line="114" selection-start-column="12" selection-end-line="114" selection-end-column="12" />
+              <folding>
+                <marker date="1516040979716" expanded="true" signature="46862:46879" ph="..." />
+                <marker date="1516040979716" expanded="true" signature="46862:46897" ph="..." />
+                <marker date="1516040979716" expanded="true" signature="46862:46910" ph="..." />
+                <marker date="1516040979716" expanded="true" signature="46862:46925" ph="..." />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -107,6 +112,11 @@
         <option value="Class" />
       </list>
     </option>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>distance</find>
+    </findStrings>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/battlecode18" />
@@ -578,7 +588,12 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="690">
           <caret line="593" column="33" lean-forward="true" selection-start-line="593" selection-start-column="33" selection-end-line="593" selection-end-column="33" />
-          <folding />
+          <folding>
+            <marker date="1516040979716" expanded="true" signature="46862:46879" ph="..." />
+            <marker date="1516040979716" expanded="true" signature="46862:46897" ph="..." />
+            <marker date="1516040979716" expanded="true" signature="46862:46910" ph="..." />
+            <marker date="1516040979716" expanded="true" signature="46862:46925" ph="..." />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -729,9 +744,14 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/.idea/workspace.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1853">
-          <caret line="109" column="12" lean-forward="false" selection-start-line="109" selection-start-column="12" selection-end-line="109" selection-end-column="12" />
-          <folding />
+        <state relative-caret-position="1938">
+          <caret line="114" column="12" lean-forward="false" selection-start-line="114" selection-start-column="12" selection-end-line="114" selection-end-column="12" />
+          <folding>
+            <marker date="1516040979716" expanded="true" signature="46862:46879" ph="..." />
+            <marker date="1516040979716" expanded="true" signature="46862:46897" ph="..." />
+            <marker date="1516040979716" expanded="true" signature="46862:46910" ph="..." />
+            <marker date="1516040979716" expanded="true" signature="46862:46925" ph="..." />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -805,8 +825,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Player01-java/MovementManager.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="514">
-          <caret line="117" column="41" lean-forward="false" selection-start-line="117" selection-start-column="41" selection-end-line="117" selection-end-column="41" />
+        <state relative-caret-position="-515">
+          <caret line="71" column="0" lean-forward="true" selection-start-line="71" selection-start-column="0" selection-end-line="71" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>

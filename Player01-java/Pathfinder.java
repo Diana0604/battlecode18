@@ -45,7 +45,7 @@ public class Pathfinder{
                 //add initial karbonite
                 long a = map.initialKarboniteAt(new MapLocation(gc.planet(), x, y));
                 if (a > INF) a = INF;
-                if (a > 0) UnitManager.addMine(x,y,(int)a);
+                if (a > 0) UnitManager.getInstance().addMine(x,y,(int)a);
                 //bfs
                 bfs(x,y);
             }
@@ -55,7 +55,6 @@ public class Pathfinder{
 
 
     private  void bfs(int a,int b){
-        //System.out.println("bfs");
         PriorityQueue<Integer> queue = new PriorityQueue<Integer>();
 
         for(int x = 0; x < W; ++x){
@@ -84,7 +83,6 @@ public class Pathfinder{
                     Nodes[a][b][newPosX][newPosY].dist = newDist;
                     if(newDist < 1.8) Nodes[a][b][newPosX][newPosY].dir = allDirs[i];
                     else Nodes[a][b][newPosX][newPosY].dir = Nodes[a][b][myPosX][myPosY].dir;
-                    //if(newPosX ==0 && newPosY == 0) System.out.println(Nodes[a][b][0][0].dir);
                 }
             }
         }

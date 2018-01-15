@@ -8,14 +8,16 @@ public class UnitManager{
 
     static UnitManager instance;
     static GameController gc;
+    static ConstructionQueue queue;
     static PlanetMap map;
     static Team enemyTeam;
 
     int W;
     int H;
 
-    static void initialize(GameController _gc){
+    static void initialize(GameController _gc, ConstructionQueue q){
         gc = _gc;
+        queue = q;
     }
 
     static UnitManager getInstance(){
@@ -94,24 +96,10 @@ public class UnitManager{
     }
 
     public void update() {
-        //check enemy units
         checkEnemyUnits();
-        //check mines
-        for (int i = Xmines.size() - 1; i >= 0; --i) {
-            int x = Xmines.get(i);
-            int y = Ymines.get(i);
-            if (gc.canSenseLocation(new MapLocation(gc.planet(), x, y))) {
-                long q = gc.karboniteAt(new MapLocation(gc.planet(), x, y));
-                if (q > INF) q = INF;
-                if (q > 0) {
-                    if (q != Qmines.get(i)) Qmines.set(i, (int) q);
-                } else {
-                    Xmines.remove(i);
-                    Ymines.remove(i);
-                    Qmines.remove(i);
-                }
-            }
-        }
+        checkMines();
+        checkMyUnits();
+
     }
 
     void checkEnemyUnits(){
@@ -160,6 +148,41 @@ public class UnitManager{
             addEnemy(enemyLocation.getX(), enemyLocation.getY(), (int)enemy.health(), enemy.id());
         }
         return;
+    }
+
+    public void checkMines(){
+        for (int i = Xmines.size() - 1; i >= 0; --i) {
+            int x = Xmines.get(i);
+            int y = Ymines.get(i);
+            if (gc.canSenseLocation(new MapLocation(gc.planet(), x, y))) {
+                long q = gc.karboniteAt(new MapLocation(gc.planet(), x, y));
+                if (q > INF) q = INF;
+                if (q > 0) {
+                    if (q != Qmines.get(i)) Qmines.set(i, (int) q);
+                } else {
+                    Xmines.remove(i);
+                    Ymines.remove(i);
+                    Qmines.remove(i);
+                }
+            }
+        }
+    }
+
+    public void checkMyUnits(){
+        VecUnit v = gc.myUnits();
+        boolean factoryBuilt = false;
+        boolean rocketBuilt = false;
+        for (int i = 0; i < v.size(); i++){
+            Unit u = v.get(i);
+            if (u.unitType() == UnitType.Factory){
+                factoryBuilt = true;
+            }else if (u.unitType() == UnitType.Rocket){
+                rocketBuilt = true;
+            }
+        }
+        if (!factoryBuilt) queue.requestUnit(UnitType.Factory);
+        if (!rocketBuilt) queue.requestUnit(UnitType.Rocket);
+
     }
 
     public void moveUnits(){

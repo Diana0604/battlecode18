@@ -95,4 +95,12 @@ public class Pathfinder{
     public PathfinderNode getNode(int x1, int y1, int x2, int y2){
         return Nodes[x1][y1][x2][y2];
     }
+
+    public PathfinderNode getNode(MapLocation l1, MapLocation l2) {
+        return getNode(l1.getX(),l1.getY(),l2.getX(),l2.getY());
+    }
+
+    public PathfinderNode getNode(Unit u1, Unit u2){
+        return getNode(u1.location().mapLocation(), u2.location().mapLocation());
+    }
 }

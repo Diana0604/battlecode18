@@ -1,13 +1,21 @@
 import bc.*;
 
+import java.util.HashMap;
+
+import static java.lang.Math.floor;
+
 public class Ranger {
 
-    //does it change with research? will have to change this
-    final long attackRange = 50;
 
+    final long attackRange = 50; //TODO there's a "get range" o algo aixi method
+    final long INFL = 1000000;
+    final int INF = 1000000;
+    final double eps = 0.001;
     static Ranger instance = null;
     static GameController gc;
     boolean wait;
+
+    HashMap<Integer, int[]> objectiveArea = new HashMap();
 
     static Ranger getInstance(){
         if (instance == null){
@@ -27,34 +35,37 @@ public class Ranger {
 
     void attack(Unit unit) {
         MapLocation myLoc = unit.location().mapLocation();
-        VecUnit canAttack = gc.senseNearbyUnits(myLoc, attackRange);
+        VecUnit canAttack = gc.senseNearbyUnitsByTeam(myLoc, attackRange, UnitManager.getInstance().enemyTeam);
         for(int i = 0; i < canAttack.size(); ++i){
             Unit victim = canAttack.get(i);
-            if(victim.team() != gc.team()) {
-                wait = true;
-                if(!gc.isAttackReady(unit.id())) return;
-                if (gc.canAttack(unit.id(), victim.id())) {
-                    gc.attack(unit.id(), victim.id());
-                    return;
-                }
+            wait = true;
+            if(!gc.isAttackReady(unit.id())) return;
+            if (gc.canAttack(unit.id(), victim.id())) {
+                gc.attack(unit.id(), victim.id());
+                return;
             }
         }
     }
 
 
+
     void move(Unit unit){
-        goToBestEnemy(unit);
+        if(!gc.isMoveReady(unit.id())) return;
+        //goToBestEnemy(unit);
+        if(wait) return;
+        explore(unit);
     }
 
     void goToBestEnemy(Unit unit){
         MapLocation myLoc = unit.location().mapLocation();
         MapLocation target = getBestEnemy(myLoc);
-        if(target == null) return; // explorar
+        if(target == null) return;
+        wait = true;
         UnitManager.getInstance().moveTo(unit, target);
     }
 
     MapLocation getBestEnemy(MapLocation loc){
-        long minDist = 1000000;
+        long minDist = INFL;
         MapLocation ans = null;
         for(int i = 0; i < UnitManager.Xenemy.size(); ++i){
             int x = UnitManager.Xenemy.get(i);
@@ -67,5 +78,44 @@ public class Ranger {
             }
         }
         return ans;
+    }
+
+
+    void updateExploreObjective(Unit unit){
+        UnitManager um = UnitManager.getInstance();
+        int id = unit.id();
+        int [] current = um.currentArea.get(id);
+        if(objectiveArea.containsKey(id) && !um.currentArea.get(id).equals(objectiveArea.get(id)))
+        {
+            int[] objective = objectiveArea.get(id);
+            if(current[0] != objective[0] || current[1] != objective[1]) {
+                return;
+            }
+        }
+        int[] myArea = um.currentArea.get(id);
+        int[] obj = new int[2];
+        double notExplored = INF;
+        for(int i = 0; i < um.exploreSize; ++i){
+            for(int j = 0; j < um.exploreSize; ++j){
+                int[] possible = new int[] {i,j};
+                if(myArea[0] == possible[0] && myArea[1] == possible[1]) {
+                    continue;
+                }
+                if(um.exploreGrid[i][j] < notExplored){
+                    obj[0] = i;
+                    obj[1] = j;
+                    notExplored = um.exploreGrid[i][j];
+                }
+            }
+        }
+        MapLocation exploring = um.areaToLocation(obj);
+        um.addExploreGrid(exploring.getX(), exploring.getY(),eps);
+        objectiveArea.put(id, obj);
+    }
+
+    void explore(Unit unit){
+        UnitManager um = UnitManager.getInstance();
+        updateExploreObjective(unit);
+        UnitManager.getInstance().moveTo(unit, um.areaToLocation(objectiveArea.get(unit.id())));
     }
 }

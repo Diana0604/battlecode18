@@ -1,18 +1,25 @@
 import bc.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.ListIterator;
+
+import static java.lang.Math.floor;
 
 public class UnitManager{
 
-    private final Direction[] allDirs = {Direction.North, Direction.Northeast, Direction.East, Direction.Southeast, Direction.South, Direction.Southwest, Direction.West, Direction.Northwest, Direction.Center};
+    private static final Direction[] allDirs = {Direction.North, Direction.Northeast, Direction.East, Direction.Southeast, Direction.South, Direction.Southwest, Direction.West, Direction.Northwest, Direction.Center};
+    final static double enemyBaseValue = -5;
+    final static int exploreSize = 5;
 
     static UnitManager instance;
     static GameController gc;
     static PlanetMap map;
     static Team enemyTeam;
 
-    int W;
-    int H;
+    //current area
+    HashMap<Integer, int[]> currentArea = new HashMap();
+    static int W;
+    static int H;
 
     static void initialize(GameController _gc){
         gc = _gc;
@@ -24,19 +31,24 @@ public class UnitManager{
     }
 
     //Stuff available for all units
-    //danger
-    static int[][] dangerMatrix;
+    //general
     static MapLocation middle;
     static long maxRadius;
+    //danger
+    static int[][] dangerMatrix;
     //mines in map
     static ArrayList<Integer> Xmines; //xpos
     static ArrayList<Integer> Ymines; //ypos
     static ArrayList<Integer> Qmines; //quantity
-    //enemy factories
+    //enemies list
     static ArrayList<Integer> Xenemy; //xpos
     static ArrayList<Integer> Yenemy; //ypos
     static ArrayList<Integer> Henemy; //health
     static ArrayList<Integer> IdEnemy; //id
+    //enemy bases
+    static double[][] exploreGrid;
+    static int areaSizeX;
+    static int areaSizeY;
     int INF = 1000000000;
 
     static void addMine(int x, int y, int q) {
@@ -52,23 +64,48 @@ public class UnitManager{
         IdEnemy.add(id);
     }
 
+    static void addExploreGrid(int x, int y, double value) {
+        if(x == W) x = W - 1;
+        if(y == H) y = H - 1;
+        exploreGrid[(int)floor(x*exploreSize/W)][(int)floor(y*exploreSize/H)] += value;
+    }
+
+    static MapLocation areaToLocation(int[] area){
+        int xArea = area[0];
+        int yArea = area[1];
+        int xLocation = (int)xArea*W/exploreSize + exploreSize/2;
+        int yLocation = (int)yArea*H/exploreSize + exploreSize/2;
+        return new MapLocation(gc.planet(), xLocation, yLocation);
+    }
+
+    int[] getCurrentArea(Unit unit){
+        int x = unit.location().mapLocation().getX();
+        if(x == W) x = W - 1;
+        int y = unit.location().mapLocation().getY();
+        if(y == H) y = H -1;
+        return new int[]{(int)floor(x*exploreSize/W), (int)floor(y*exploreSize/H)};
+
+    }
+
     UnitManager(){
+        //general
+        middle = new MapLocation(gc.planet(), W/2, H/2);
+        maxRadius = middle.distanceSquaredTo(new MapLocation(gc.planet(), 0, 0));
+        //mines
         Xmines = new ArrayList<Integer>();
         Ymines = new ArrayList<Integer>();
         Qmines = new ArrayList<Integer>();
-        Xenemy = new ArrayList<Integer>();
-        Yenemy = new ArrayList<Integer>();
-        Henemy = new ArrayList<Integer>();
-        IdEnemy = new ArrayList<Integer>();
+        //enemy bases
+        exploreGrid = new double[exploreSize][exploreSize];
+        areaSizeX = W/exploreSize;
+        areaSizeY = H/exploreSize;
         if(gc.team() == Team.Blue) enemyTeam = Team.Red;
         else enemyTeam = Team.Blue;
         map = gc.startingMap(gc.planet());
         W = (int)map.getWidth();
         H = (int)map.getHeight();
-        //danger matrix
+        //danger matrix TODO implementation
         dangerMatrix = new int[W][H];
-        middle = new MapLocation(gc.planet(), W/2, H/2);
-        maxRadius = middle.distanceSquaredTo(new MapLocation(gc.planet(), 0, 0));
         //pathfinder
         Pathfinder.getInstance();
         //get location of enemy base
@@ -81,15 +118,9 @@ public class UnitManager{
         for(int i = 0; i < units.size(); ++i) {
             Unit unit = units.get(i);
             MapLocation myLoc = unit.location().mapLocation();
-            int id = -1;
-            //TODO. Untested:
-            /*
-            MapLocation enemyLoc = new MapLocation(gc.planet(), W - (int)myLoc.getX(), H - (int)myLoc.getY());
-            if(gc.canSenseLocation(enemyLoc)){
-                Unit enemy = gc.senseUnitAtLocation(enemyLoc);
-                id = enemy.id();
-            }*/
-            addEnemy(W - (int)myLoc.getX(), H - (int)myLoc.getY(), (int)unit.health(), id);
+            addExploreGrid(W - (int)myLoc.getX(), H - (int)myLoc.getY(), enemyBaseValue);
+            addExploreGrid((int)myLoc.getX(), H - (int)myLoc.getY(), enemyBaseValue);
+            addExploreGrid(W - (int)myLoc.getX(), (int)myLoc.getY(), enemyBaseValue);
         }
     }
 
@@ -97,6 +128,36 @@ public class UnitManager{
         //check enemy units
         checkEnemyUnits();
         //check mines
+        checkMines();
+        //update areas explored
+        updateExplored();
+    }
+
+
+    void updateExplored(){
+        VecUnit units = gc.myUnits();
+        for(int i = 0; i < units.size(); ++i) {
+            Unit unit = units.get(i);
+            Location loc = unit.location();
+            if(loc.isInGarrison()) continue;
+            MapLocation myLoc = loc.mapLocation();
+            int[] myArea = getCurrentArea(unit);
+            int id = unit.id();
+            if (!currentArea.containsKey(id)) {
+                currentArea.put(id, myArea);
+                addExploreGrid(myLoc.getX(), myLoc.getY(), 1);
+                continue;
+            }
+            int [] current = currentArea.get(id);
+            //si no comparo terme a terme diu que son diferents quan son iguals
+            if (myArea[0] != current[0] || myArea[1] != current[1]) {
+                currentArea.put(id, myArea);
+                addExploreGrid(myLoc.getX(), myLoc.getY(), 1);
+            }
+        }
+    }
+
+    void checkMines(){
         for (int i = Xmines.size() - 1; i >= 0; --i) {
             int x = Xmines.get(i);
             int y = Ymines.get(i);
@@ -115,51 +176,19 @@ public class UnitManager{
     }
 
     void checkEnemyUnits(){
-        //add new enemies
-        VecUnit enemyVecUnits = gc.senseNearbyUnitsByTeam(middle, maxRadius, enemyTeam);
-        ArrayList<Unit> enemyUnits = new ArrayList<Unit>();
-        for(int i = 0; i < enemyVecUnits.size(); ++i){
-            enemyUnits.add(enemyVecUnits.get(i));
-        }
-        //update existent enemies
-        for(int i = Xenemy.size() - 1; i >= 0; --i){
-            int x = Xenemy.get(i);
-            int y = Yenemy.get(i);
-            if (gc.canSenseLocation(new MapLocation(gc.planet(), x, y))){
-                MapLocation ml = new MapLocation(gc.planet(), x, y);
-                //canviar-ho a gc.hasUnitAtLocation(ml) quan estigui arreglat TODO
-                try {
-                    Unit unit = gc.senseUnitAtLocation(ml);
-                    //remove it from enemy units list
-                    enemyUnits.remove(unit);
-                    int id = unit.id();
-                    long h = unit.health();
-                    if(id == IdEnemy.get(i) || IdEnemy.get(i) == -1) {
-                        if (h != Henemy.get(i)) Henemy.set(i, (int) h);
-                        continue;
-                    }
-                    else {
-                        Xenemy.remove(i);
-                        Yenemy.remove(i);
-                        Henemy.remove(i);
-                        IdEnemy.remove(i);
-                        addEnemy(x, y, (int)h, id);
-                    }
-                } catch (Throwable t){
-                    Xenemy.remove(i);
-                    Yenemy.remove(i);
-                    Henemy.remove(i);
-                    IdEnemy.remove(i);
-                }
-            }
-        }
-        //add new enemies
+        //set enemy stuff to empty
+        Xenemy = new ArrayList<Integer>();
+        Yenemy = new ArrayList<Integer>();
+        Henemy = new ArrayList<Integer>();
+        IdEnemy = new ArrayList<Integer>();
+        //get all enemies I sense
+        VecUnit enemyUnits = gc.senseNearbyUnitsByTeam(middle, maxRadius, enemyTeam);
+        //make list of enemies
         for(int i = 0; i < enemyUnits.size(); ++i){
             Unit enemy = enemyUnits.get(i);
             MapLocation enemyLocation = enemy.location().mapLocation();
             addEnemy(enemyLocation.getX(), enemyLocation.getY(), (int)enemy.health(), enemy.id());
         }
-        return;
     }
 
     public void moveUnits(){
@@ -180,35 +209,8 @@ public class UnitManager{
         }
     }
 
-    Direction dirTo(Unit unit, int destX, int destY) {
-        MapLocation myLoc = unit.location().mapLocation();
-        PathfinderNode myNode = Pathfinder.getInstance().getNode(myLoc.getX() ,myLoc.getY() , destX, destY);
-        return myNode.dir;
+    public void moveTo(Unit unit, MapLocation target){
+        MovementManager.getInstance().moveTo(unit, target);
     }
 
-    Direction dirTo(Unit unit, MapLocation loc) {
-        return dirTo(unit, loc.getX(), loc.getY());
-    }
-
-    void moveTo(Unit unit, MapLocation target) { //todo: edge cases
-        if (!gc.isMoveReady(unit.id())) return;
-        Direction dir = dirTo(unit, target);
-        if (gc.canMove(unit.id(), dir)) {
-            gc.moveRobot(unit.id(), dir);
-            return;
-        }
-        MapLocation myLoc = unit.location().mapLocation();
-        dir = null;
-        double mindist = Pathfinder.getInstance().getNode(myLoc.getX() ,myLoc.getY() , target.getX(), target.getY()).dist;
-        for (int i = 0; i < allDirs.length; ++i){
-            if (!gc.canMove(unit.id(), allDirs[i])) continue;
-            MapLocation newLoc = myLoc.add(allDirs[i]);
-            PathfinderNode node = Pathfinder.getInstance().getNode(newLoc.getX(), newLoc.getY(), target.getX(), target.getY());
-            if (node.dist < mindist){
-                mindist = node.dist;
-                dir = allDirs[i];
-            }
-        }
-        if (dir != null) gc.moveRobot(unit.id(), dir);
-    }
 }

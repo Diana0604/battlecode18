@@ -10,7 +10,7 @@ public class Worker {
     static Worker getInstance(){
         if (instance == null){
             instance = new Worker();
-            gc = UnitManager.gc;
+            gc = UnitManager.getInstance().gc;
         }
         return instance;
     }
@@ -21,9 +21,9 @@ public class Worker {
     void play(Unit unit){
         wait = false;
         if(!factoryBuilt) blueprintFactory(unit);
-        if(wait || unit.workerHasActed() != 0) return;
+        if(wait) return;
         buildFactory(unit);
-        if(wait || unit.workerHasActed() != 0) return;
+        if(wait) return;
         move(unit);
     }
 
@@ -73,12 +73,13 @@ public class Worker {
             }
         }
         if (dirIndex >= 0){
-            if (unit.workerHasActed() == 0 && gc.canHarvest(unit.id(), allDirs[dirIndex])) {
+            if (gc.canHarvest(unit.id(), allDirs[dirIndex])) {
                 gc.harvest(unit.id(), allDirs[dirIndex]);
             }
             return;
         }
-
+        //if I can't move return
+        if(!gc.isMoveReady(unit.id())) return;
         MapLocation target = getBestMine(myLoc);
         if (target == null) {
             return; // what to do? xD

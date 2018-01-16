@@ -33,6 +33,7 @@
           </provider>
         </entry>
       </file>
+<<<<<<< Updated upstream
 <<<<<<< HEAD
       <file leaf-file-name="Pathfinder.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Playermaster/Pathfinder.java">
@@ -45,9 +46,26 @@
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="2298">
               <caret line="223" column="93" lean-forward="false" selection-start-line="223" selection-start-column="87" selection-end-line="223" selection-end-column="93" />
+=======
+      <file leaf-file-name="UnitManager.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Player01-java/UnitManager.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="277">
+              <caret line="141" column="33" lean-forward="false" selection-start-line="141" selection-start-column="33" selection-end-line="141" selection-end-column="33" />
+>>>>>>> Stashed changes
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="MarsPlanning.java" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/Player01-java/MarsPlanning.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="212">
+              <caret line="82" column="14" lean-forward="false" selection-start-line="82" selection-start-column="14" selection-end-line="82" selection-end-column="14" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -103,6 +121,7 @@
       <file leaf-file-name="Utils.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Playermaster/Utils.java">
           <provider selected="true" editor-type-id="text-editor">
+<<<<<<< Updated upstream
             <state relative-caret-position="88">
               <caret line="4" column="4" lean-forward="false" selection-start-line="4" selection-start-column="4" selection-end-line="4" selection-end-column="4" />
               <folding />
@@ -116,6 +135,10 @@
             <state relative-caret-position="176">
               <caret line="8" column="24" lean-forward="false" selection-start-line="8" selection-start-column="24" selection-end-line="8" selection-end-column="24" />
 >>>>>>> 2b66d67557692d6f5467e7a2aca989a303b66e22
+=======
+            <state relative-caret-position="9401">
+              <caret line="553" column="12" lean-forward="false" selection-start-line="553" selection-start-column="12" selection-end-line="553" selection-end-column="12" />
+>>>>>>> Stashed changes
               <folding />
             </state>
           </provider>
@@ -185,13 +208,18 @@
         <option value="$PROJECT_DIR$/Player01-java/Utils.java" />
         <option value="$PROJECT_DIR$/Player01-java/WorkerData.java" />
         <option value="$PROJECT_DIR$/Player01-java/UnitManager.java" />
+<<<<<<< Updated upstream
         <option value="$PROJECT_DIR$/Player01-java/Worker.java" />
         <option value="$PROJECT_DIR$/Player01-java/Factory.java" />
 >>>>>>> 2b66d67557692d6f5467e7a2aca989a303b66e22
+=======
+        <option value="$PROJECT_DIR$/Player01-java/MarsPlanning.java" />
+>>>>>>> Stashed changes
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
+<<<<<<< Updated upstream
 <<<<<<< HEAD
     <option name="x" value="-10" />
     <option name="y" value="8" />
@@ -203,6 +231,12 @@
     <option name="width" value="1938" />
     <option name="height" value="1048" />
 >>>>>>> 2b66d67557692d6f5467e7a2aca989a303b66e22
+=======
+    <option name="x" value="-8" />
+    <option name="y" value="-8" />
+    <option name="width" value="1382" />
+    <option name="height" value="784" />
+>>>>>>> Stashed changes
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
@@ -220,6 +254,11 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+<<<<<<< Updated upstream
+=======
+      <pane id="PackagesPane" />
+      <pane id="Scope" />
+>>>>>>> Stashed changes
       <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
@@ -263,8 +302,11 @@
           </PATH>
         </subPane>
       </pane>
+<<<<<<< Updated upstream
       <pane id="PackagesPane" />
       <pane id="Scope" />
+=======
+>>>>>>> Stashed changes
       <pane id="AndroidView" />
     </panes>
   </component>
@@ -652,6 +694,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
+<<<<<<< Updated upstream
 <<<<<<< HEAD
     <frame x="-10" y="8" width="1382" height="735" extended-state="0" />
     <editor active="false" />
@@ -659,6 +702,10 @@
     <frame x="-9" y="-9" width="1938" height="1048" extended-state="6" />
     <editor active="true" />
 >>>>>>> 2b66d67557692d6f5467e7a2aca989a303b66e22
+=======
+    <frame x="-8" y="-8" width="1382" height="784" extended-state="6" />
+    <editor active="false" />
+>>>>>>> Stashed changes
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -669,20 +716,27 @@
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+<<<<<<< Updated upstream
 <<<<<<< HEAD
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
 =======
 >>>>>>> 2b66d67557692d6f5467e7a2aca989a303b66e22
+=======
+>>>>>>> Stashed changes
       <window_info id="Properties" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+<<<<<<< Updated upstream
 <<<<<<< HEAD
       <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2339137" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="ASM" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
 =======
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.13319013" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
 >>>>>>> 2b66d67557692d6f5467e7a2aca989a303b66e22
+=======
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.12445095" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+>>>>>>> Stashed changes
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -709,6 +763,7 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
+<<<<<<< Updated upstream
 <<<<<<< HEAD
     <entry file="file://$PROJECT_DIR$/Player01-java/UnitTemplate.java" />
     <entry file="file://$PROJECT_DIR$/Player01-java/MovementManager.java" />
@@ -723,6 +778,9 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/.idea/modules.xml">
+=======
+    <entry file="file://$PROJECT_DIR$/Player01-java/Factory.java">
+>>>>>>> Stashed changes
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -1148,9 +1206,14 @@
 =======
     <entry file="file://$PROJECT_DIR$/Playermaster/WorkerData.java">
       <provider selected="true" editor-type-id="text-editor">
+<<<<<<< Updated upstream
         <state relative-caret-position="176">
           <caret line="8" column="24" lean-forward="false" selection-start-line="8" selection-start-column="24" selection-end-line="8" selection-end-column="24" />
 >>>>>>> 2b66d67557692d6f5467e7a2aca989a303b66e22
+=======
+        <state relative-caret-position="9401">
+          <caret line="553" column="12" lean-forward="false" selection-start-line="553" selection-start-column="12" selection-end-line="553" selection-end-column="12" />
+>>>>>>> Stashed changes
           <folding />
         </state>
       </provider>
@@ -1169,22 +1232,35 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Playermaster/UnitManager.java">
       <provider selected="true" editor-type-id="text-editor">
+<<<<<<< Updated upstream
         <state relative-caret-position="2298">
           <caret line="223" column="93" lean-forward="false" selection-start-line="223" selection-start-column="87" selection-end-line="223" selection-end-column="93" />
+=======
+        <state relative-caret-position="277">
+          <caret line="141" column="33" lean-forward="false" selection-start-line="141" selection-start-column="33" selection-end-line="141" selection-end-column="33" />
+>>>>>>> Stashed changes
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+<<<<<<< Updated upstream
     <entry file="file://$PROJECT_DIR$/Playermaster/Factory.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="426">
           <caret line="28" column="34" lean-forward="false" selection-start-line="28" selection-start-column="34" selection-end-line="28" selection-end-column="34" />
+=======
+    <entry file="file://$PROJECT_DIR$/Player01-java/MarsPlanning.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="212">
+          <caret line="82" column="14" lean-forward="false" selection-start-line="82" selection-start-column="14" selection-end-line="82" selection-end-column="14" />
+>>>>>>> Stashed changes
           <folding />
         </state>
       </provider>
     </entry>
+<<<<<<< Updated upstream
     <entry file="file://$PROJECT_DIR$/Playermaster/Player.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="66">
@@ -1194,6 +1270,8 @@
       </provider>
     </entry>
 >>>>>>> 2b66d67557692d6f5467e7a2aca989a303b66e22
+=======
+>>>>>>> Stashed changes
   </component>
   <component name="masterDetails">
     <states>

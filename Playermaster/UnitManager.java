@@ -17,6 +17,8 @@ public class UnitManager{
 
     static UnitManager instance;
     static GameController gc;
+    static Planet planet;
+    static Team team;
     static ConstructionQueue queue;
     static PlanetMap map;
     static Team enemyTeam;
@@ -45,6 +47,8 @@ public class UnitManager{
     static ArrayList<Integer> Xmines; //xpos
     static ArrayList<Integer> Ymines; //ypos
     static ArrayList<Integer> Qmines; //quantity
+    //my units
+    VecUnit units;
     //enemies list
     VecUnit enemyUnits;
     //enemy bases
@@ -71,7 +75,7 @@ public class UnitManager{
     MapLocation areaToLocation(Integer area){
         int x = areaToLocX[decodeX(area)];
         int y = areaToLocY[decodeY(area)];
-        return new MapLocation(gc.planet(), x, y);
+        return new MapLocation(planet, x, y);
     }
 
     Integer locationToArea(MapLocation loc){
@@ -93,7 +97,7 @@ public class UnitManager{
     }
 
     MapLocation getAccesLocation(int xCenter, int yCenter){
-        MapLocation realCenter = new MapLocation(gc.planet(), xCenter, yCenter);
+        MapLocation realCenter = new MapLocation(planet, xCenter, yCenter);
         //TODO check apart from passable accessible from origin in earth
         if(map.isPassableTerrainAt(realCenter) > 0) return realCenter;
         for(int i = 0; i < allDirs.length; ++i){
@@ -135,11 +139,13 @@ public class UnitManager{
 
     UnitManager(){
         //general
-        map = gc.startingMap(gc.planet());
+        planet = gc.planet();
+        team = gc.team();
+        map = gc.startingMap(planet);
         W = (int)map.getWidth();
         H = (int)map.getHeight();
-        middle = new MapLocation(gc.planet(), W/2, H/2);
-        maxRadius = middle.distanceSquaredTo(new MapLocation(gc.planet(), 0, 0));
+        middle = new MapLocation(planet, W/2, H/2);
+        maxRadius = middle.distanceSquaredTo(new MapLocation(planet, 0, 0));
         //mines
         Xmines = new ArrayList<Integer>();
         Ymines = new ArrayList<Integer>();
@@ -147,7 +153,7 @@ public class UnitManager{
         //explore grid
         createGrid();
         //other
-        if(gc.team() == Team.Blue) enemyTeam = Team.Red;
+        if(team == Team.Blue) enemyTeam = Team.Red;
         else enemyTeam = Team.Blue;
         //danger matrix TODO implementation
         dangerMatrix = new int[W][H];
@@ -167,6 +173,8 @@ public class UnitManager{
     }
 
     public void update() {
+        //System.out.println(gc.getTimeLeftMs());
+        units = gc.myUnits();
         //check enemy units
         enemyUnits = gc.senseNearbyUnitsByTeam(middle, maxRadius, enemyTeam);
         //check mines
@@ -179,7 +187,6 @@ public class UnitManager{
 
 
     void updateCurrentArea(){
-        VecUnit units = gc.myUnits();
         for(int i = 0; i < units.size(); ++i){
             Unit unit = units.get(i);
             if(unit.location().isInGarrison()) continue;
@@ -196,8 +203,8 @@ public class UnitManager{
         for (int i = Xmines.size() - 1; i >= 0; --i) {
             int x = Xmines.get(i);
             int y = Ymines.get(i);
-            if (gc.canSenseLocation(new MapLocation(gc.planet(), x, y))) {
-                long q = gc.karboniteAt(new MapLocation(gc.planet(), x, y));
+            if (gc.canSenseLocation(new MapLocation(planet, x, y))) {
+                long q = gc.karboniteAt(new MapLocation(planet, x, y));
                 if (q > INF) q = INF;
                 if (q > 0) {
                     if (q != Qmines.get(i)) Qmines.set(i, (int) q);
@@ -211,11 +218,10 @@ public class UnitManager{
     }
 
     public void checkMyUnits(){
-        VecUnit v = gc.myUnits();
         boolean factoryBuilt = false;
         boolean rocketBuilt = false;
-        for (int i = 0; i < v.size(); i++){
-            Unit u = v.get(i);
+        for (int i = 0; i < units.size(); i++){
+            Unit u = units.get(i);
             if (u.unitType() == UnitType.Factory){
                 factoryBuilt = true;
             }else if (u.unitType() == UnitType.Rocket){
@@ -228,7 +234,6 @@ public class UnitManager{
 
 
     public void moveUnits(){
-        VecUnit units = gc.myUnits();
         for (int i = 0; i < units.size(); i++) {
             Unit unit = units.get(i);
             Location myLoc = unit.location();

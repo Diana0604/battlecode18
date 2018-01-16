@@ -1,3 +1,4 @@
+package Playermaster;
 
 import bc.*;
 
@@ -19,6 +20,7 @@ public class Worker {
     private static final int TARGET_MINE = 1;
     private static final int TARGET_STRUCTURE = 2; //structure per reparar
     private static final int TARGET_BLUEPRINT = 3;
+    private static final int TARGET_ROCKET = 4;
 
     public Worker(){
 
@@ -73,6 +75,13 @@ public class Worker {
         MovementManager.getInstance().moveTo(unit,data.target_loc);
     }
 
+    private boolean checkNeededForRocket(Unit unit){
+        HashMap<Integer, MapLocation> mapa = Rocket.callsToRocket;
+        if (mapa.containsKey(data.id)){
+
+        }
+        return false;
+    }
 
     //Busca un blueprint per construir que estigui a prop del worker
     private boolean searchNearbyBlueprint(MapLocation location){
@@ -155,12 +164,19 @@ public class Worker {
         Unit target_unit = null;
         if (data.target_id != -1 && gc.canSenseUnit(data.target_id)) target_unit = gc.unit(data.target_id);
 
+        //si ha d'anar a un coet, hi va
+        if (type == TARGET_ROCKET){
+
+        }
+        if (type == TARGET_ROCKET) return;
+        boolean found = checkNeededForRocket(unit);
+
         //si te un blueprint de target, mira si el blueprint ja esta construit. Si esta construit, reseteja target.
         if (type == TARGET_BLUEPRINT) {
             if (target_unit != null && target_unit.health() == target_unit.maxHealth()) resetTarget();
         }
         if (type == TARGET_BLUEPRINT) return;//no fas update si ja tens un blueprint perque es lo mes important
-        boolean found = searchNearbyBlueprint(data.loc);
+        found = searchNearbyBlueprint(data.loc);
 
         //Si te una structure de target, mira que la structure no estigui full vida. Si ho esta, reseteja
         if (type == TARGET_STRUCTURE) {
@@ -321,18 +337,12 @@ public class Worker {
     }
 
     void play(Unit unit){
-        //System.out.println("Worker " + data.id + " start round " + gc.round());
         initMemory(unit);
         int id = data.id;
-        //System.out.println(id + " ok 1");
         data.safest_direction = checkDanger();
-        //System.out.println(id + " ok 2");
         updateTarget(unit);
-        //System.out.println(id + " ok 3");
-        if (DEBUG)System.out.println("Worker " + id +  "  " + data.loc + " has target " + data.target_loc + ", " + data.target_type);
+        if (DEBUG) System.out.println("Worker " + id +  "  " + data.loc + " has target " + data.target_loc + ", " + data.target_type);
         doAction(unit);
-        //System.out.println(id + " ok 4");
         move(unit);
-        //System.out.println("Worker " + id + " end round " + gc.round());
     }
 }

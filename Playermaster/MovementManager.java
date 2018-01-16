@@ -1,5 +1,6 @@
+package Playermaster;
 
-
+import Playermaster.BugPathfindingData;
 import bc.*;
 
 import java.util.HashMap;

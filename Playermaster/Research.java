@@ -1,3 +1,5 @@
+package Playermaster;
+
 import bc.GameController;
 import bc.UnitType;
 

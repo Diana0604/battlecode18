@@ -293,13 +293,18 @@ public class Worker {
     }
 
     void play(Unit unit){
+        System.out.println("Worker " + unit.id() + " start round " + gc.round());
         mapa.computeIfAbsent(unit.id(), k -> new WorkerData(unit.id()));
         data = mapa.get(unit.id());
-
+        System.out.println(unit.id() + " ok 1");
         data.safest_direction = checkDanger();
+        System.out.println(unit.id() + " ok 2");
         updateTarget(unit);
+        System.out.println(unit.id() + " ok 3");
         if (DEBUG)System.out.println("Worker " + unit.id() +  "  " + unit.location().mapLocation() + " has target " + data.target_loc + ", " + data.target_type);
         doAction(unit);
+        System.out.println(unit.id() + " ok 4");
         move(unit);
+        System.out.println("Worker " + unit.id() + " end round " + gc.round());
     }
 }

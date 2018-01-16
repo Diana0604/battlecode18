@@ -21,6 +21,7 @@ public class UnitManager{
     static PlanetMap map;
     static Team enemyTeam;
     static MarsPlanning mp;
+    static Research research;
 
     //current area
     int W;
@@ -136,6 +137,8 @@ public class UnitManager{
 
     UnitManager(){
         //general
+        Research.initialize(gc);
+        research = Research.getInstance();
         MarsPlanning.initialize(gc);
         mp = MarsPlanning.getInstance();
         map = gc.startingMap(gc.planet());
@@ -178,6 +181,8 @@ public class UnitManager{
         updateCurrentArea();
         //comprova si ha de construir factory o rocket
         checkMyUnits();
+        research.checkResearch();
+        Rocket.initTurn();
     }
 
 
@@ -226,12 +231,21 @@ public class UnitManager{
             }
         }
         if (!factoryBuilt) queue.requestUnit(UnitType.Factory);
-        //if (!rocketBuilt) queue.requestUnit(UnitType.Rocket);
+        if (!rocketBuilt && v.size() > 8 && gc.researchInfo().getLevel(UnitType.Rocket) > 0) { // aixo es super cutre, canviar!
+            queue.requestUnit(UnitType.Rocket);
+        }
     }
 
 
     public void moveUnits(){
         VecUnit units = gc.myUnits();
+        for (int i = 0; i < units.size(); i++) {
+            Unit unit = units.get(i);
+            Location myLoc = unit.location();
+            if(unit.unitType() == UnitType.Rocket) {
+                Rocket.getInstance().playFirst(unit);
+            }
+        }
         for (int i = 0; i < units.size(); i++) {
             Unit unit = units.get(i);
             Location myLoc = unit.location();
@@ -244,6 +258,9 @@ public class UnitManager{
             }
             if(unit.unitType() == UnitType.Ranger) {
                 Ranger.getInstance().play(unit);
+            }
+            if(unit.unitType() == UnitType.Rocket) {
+                Rocket.getInstance().play(unit);
             }
         }
     }

@@ -21,10 +21,8 @@ public class MovementManager {
     private long attackRange;
     private boolean attacker;
 
-    private VecUnit enemies;
 
-
-    private static final Direction[] allDirs = {Direction.North, Direction.Northeast, Direction.East, Direction.Southeast, Direction.South, Direction.Southwest, Direction.West, Direction.Northwest, Direction.Center};
+    static final Direction[] allDirs = {Direction.North, Direction.Northeast, Direction.East, Direction.Southeast, Direction.South, Direction.Southwest, Direction.West, Direction.Northwest, Direction.Center};
 
     static MovementManager getInstance(){
         if (instance == null) instance = new MovementManager();
@@ -150,7 +148,6 @@ public class MovementManager {
         else data = bugpathData.get(id);
         attackRange = unit.attackRange();
         attacker = dangerousUnit(unit);
-        enemies = gc.senseNearbyUnitsByTeam(myLoc, 70, UnitManager.enemyTeam);
         canMove = new boolean[9];
         for (int i = 0; i < 9; ++i){
             if (gc.canMove(id, allDirs[i])) {
@@ -159,32 +156,7 @@ public class MovementManager {
             else canMove[i] = false;
         }
 
-        UnitManager unitManager = UnitManager.getInstance();
-
-        data.DPSreceived = new double[9];
-        data.minDistToEnemy = new int[9];
-        for (int i = 0; i < 9; ++i){
-            data.DPSreceived[i] = 0;
-            data.minDistToEnemy[i] = INF;
-        }
-
-
-        for(int i = 0; i < enemies.size(); ++i){
-            Unit enemy = enemies.get(i);
-            double dps = 0;
-            long ar = 0;
-            if (dangerousUnit(enemy)) {
-                dps = (double) enemy.damage() / enemy.attackCooldown();
-                ar = enemy.attackRange();
-            }
-            for (int j = 0; j < 9; ++j){
-                if (!canMove[j]) continue;
-                MapLocation newLoc = myLoc.add(allDirs[j]);
-                long d = enemy.location().mapLocation().distanceSquaredTo(newLoc);
-                if (dps > 0 && d <= ar) data.DPSreceived[j] += dps;
-                data.minDistToEnemy[j] = Math.min(data.minDistToEnemy[j], (int)d);
-            }
-        }
+        Danger.computeDanger(myLoc, canMove);
 
         greedyMove();
 
@@ -196,13 +168,13 @@ public class MovementManager {
     }
 
     int bestIndex(int i, int j){
-        if (data.DPSreceived[i] > data.DPSreceived[j]) return j;
-        if (data.DPSreceived[i] < data.DPSreceived[j]) return i;
+        if (Danger.DPS[i] > Danger.DPS[j]) return j;
+        if (Danger.DPS[i] < Danger.DPS[j]) return i;
         if (attacker){
-            if (data.minDistToEnemy[i] > attackRange && data.minDistToEnemy[j] < attackRange) return j;
-            if (data.minDistToEnemy[i] < attackRange && data.minDistToEnemy[j] > attackRange) return i;
-            if (data.minDistToEnemy[i] < attackRange){
-                if (data.minDistToEnemy[i] >= data.minDistToEnemy[j]) return i;
+            if (Danger.minDist[i] > attackRange && Danger.minDist[j] < attackRange) return j;
+            if (Danger.minDist[i] < attackRange && Danger.minDist[j] > attackRange) return i;
+            if (Danger.minDist[i] < attackRange){
+                if (Danger.minDist[i] >= Danger.minDist[j]) return i;
                 return j;
             }
         }
@@ -222,10 +194,10 @@ public class MovementManager {
 
     boolean isSafe(Direction dir){
         int ind = Pathfinder.getIndex(dir);
-        return (data.DPSreceived[ind] <= 0);
+        return (Danger.DPS[ind] <= 0);
     }
 
-    boolean dangerousUnit(Unit unit){
+    public boolean dangerousUnit(Unit unit){
         return (unit.unitType() == UnitType.Knight || unit.unitType() == UnitType.Mage || unit.unitType() == UnitType.Ranger);
     }
 

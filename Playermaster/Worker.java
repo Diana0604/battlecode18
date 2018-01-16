@@ -58,14 +58,7 @@ public class Worker {
             return;
         }
         if (data.target_type == TARGET_NONE) return;
-        MapLocation myLoc = unit.location().mapLocation();
-        MapLocation dest = data.target_loc;
-        PathfinderNode node = Pathfinder.getInstance().getNode(myLoc,dest);
-        Direction targetDir = node.dir;
-        if (gc.canMove(unit.id(),targetDir)) {
-            gc.moveRobot(unit.id(), targetDir);
-            if (DEBUG)System.out.println("Worker " + unit.id() + " moves " + targetDir + " (to target)");
-        }
+        MovementManager.getInstance().moveTo(unit,data.target_loc);
     }
 
 

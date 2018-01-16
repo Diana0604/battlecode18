@@ -13,7 +13,8 @@ public class Rocket {
 
     private static HashMap<Integer, RocketData> mapa;
     private final int[] firstRocket = {   2,      0,      6,      0,      0,      0,      0};
-    //                              Worker  Knight  Ranger  Mage    Healer  Factory Rocket
+    //                                  Worker  Knight  Ranger  Mage    Healer  Factory Rocket
+    boolean[] center = {false,false,false,false,false,false,false,false,true};
     boolean wait;
     public static HashMap<Integer, MapLocation> callsToRocket; // hauria de ser Integer,Integer amb els ids, pero per minimitzar calls al gc...
 
@@ -53,7 +54,7 @@ public class Rocket {
     void play(Unit unit) {
         //if it's still a blueprint return
         if(unit.structureIsBuilt() == 0) return;
-        if (hasToLeave(unit)) {
+        if (hasToLeaveByEggs(unit)) {
             launchRocket(unit);
             return;
         }
@@ -64,8 +65,10 @@ public class Rocket {
 
     }
 
-    private boolean hasToLeave(Unit unit) {
-        return false;
+    private boolean hasToLeaveByEggs(Unit unit) {
+        Danger.computeDanger(unit.location().mapLocation(), center);
+        double danger = Danger.DPS[8];
+        return unit.health() <= danger;
     }
 
     private ArrayList<Pair> getSorted(Unit unit) {

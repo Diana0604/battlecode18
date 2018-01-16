@@ -1,5 +1,3 @@
-
-
 import bc.*;
 import java.util.*;
 
@@ -95,7 +93,6 @@ public class Pathfinder{
         return Nodes[x1][y1][x2][y2];
     }
 
-
     public static int getIndex(Direction dir){
         switch(dir){
             case North:
@@ -129,4 +126,11 @@ public class Pathfinder{
     }
 
 
+    public PathfinderNode getNode(MapLocation l1, MapLocation l2) {
+        return getNode(l1.getX(),l1.getY(),l2.getX(),l2.getY());
+    }
+
+    public PathfinderNode getNode(Unit u1, Unit u2){
+        return getNode(u1.location().mapLocation(), u2.location().mapLocation());
+    }
 }

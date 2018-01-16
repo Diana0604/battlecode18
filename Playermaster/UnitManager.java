@@ -1,4 +1,3 @@
-
 import bc.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,15 +17,17 @@ public class UnitManager{
 
     static UnitManager instance;
     static GameController gc;
-    PlanetMap map;
-    Team enemyTeam;
+    static ConstructionQueue queue;
+    static PlanetMap map;
+    static Team enemyTeam;
 
     //current area
     int W;
     int H;
 
-    static void initialize(GameController _gc){
+    static void initialize(GameController _gc, ConstructionQueue q){
         gc = _gc;
+        queue = q;
     }
 
     static UnitManager getInstance(){
@@ -41,9 +42,9 @@ public class UnitManager{
     //danger
     int[][] dangerMatrix;
     //mines in map
-    ArrayList<Integer> Xmines; //xpos
-    ArrayList<Integer> Ymines; //ypos
-    ArrayList<Integer> Qmines; //quantity
+    static ArrayList<Integer> Xmines; //xpos
+    static ArrayList<Integer> Ymines; //ypos
+    static ArrayList<Integer> Qmines; //quantity
     //enemies list
     VecUnit enemyUnits;
     //enemy bases
@@ -169,7 +170,7 @@ public class UnitManager{
         //check enemy units
         enemyUnits = gc.senseNearbyUnitsByTeam(middle, maxRadius, enemyTeam);
         //check mines
-        checkMines();
+        //checkMines(); //de moment ho trec (Pau) perque no vull que s'esborrin posicions de la llista
         //update areas explored
         updateCurrentArea();
     }
@@ -187,6 +188,7 @@ public class UnitManager{
             addExploreGrid(current,exploreConstant);
         }
     }
+
 
     void checkMines(){
         for (int i = Xmines.size() - 1; i >= 0; --i) {

@@ -1,5 +1,3 @@
-
-
 import bc.*;
 
 class PathfinderNode{

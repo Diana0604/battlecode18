@@ -1,5 +1,3 @@
-
-
 import bc.*;
 
 import java.util.HashMap;
@@ -51,15 +49,9 @@ public class Ranger {
 
 
     void move(Unit unit){
-        MapLocation target = getBestTarget(unit);
-        if (target != null) MovementManager.getInstance().moveTo(unit, target);
-        else explore(unit);
+        goToBestEnemy(unit);
+        explore(unit);
     }
-
-    MapLocation getBestTarget(Unit unit){
-        return getBestEnemy(unit.location().mapLocation());
-    }
-
 
     void goToBestEnemy(Unit unit){
         MapLocation myLoc = unit.location().mapLocation();

@@ -147,21 +147,29 @@ public class Worker {
         data.karbonite_index = index;
     }
 
+    //cada torn, el worker mira si canvia de target
     private void updateTarget(Unit unit){
-        if (data.safest_direction != null) return; //no fas update si estas en perill
+        if (data.safest_direction != null) return; //no fa update si esta en perill
         int type = data.target_type;
+
+        Unit target_unit = null;
+        if (data.target_id != -1 && gc.canSenseUnit(data.target_id)) target_unit = gc.unit(data.target_id);
+
+        //si te un blueprint de target, mira si el blueprint ja esta construit. Si esta construit, reseteja target.
         if (type == TARGET_BLUEPRINT) {
-            Unit target_unit = gc.unit(data.target_id);
             if (target_unit != null && target_unit.health() == target_unit.maxHealth()) resetTarget();
         }
         if (type == TARGET_BLUEPRINT) return;//no fas update si ja tens un blueprint perque es lo mes important
         boolean found = searchNearbyBlueprint(data.loc);
+
+        //Si te una structure de target, mira que la structure no estigui full vida. Si ho esta, reseteja
         if (type == TARGET_STRUCTURE) {
-            Unit target_unit = gc.unit(data.target_id);
             if (target_unit != null && target_unit.health() == target_unit.maxHealth()) resetTarget();
         }
         if (found || type == TARGET_STRUCTURE) return;
         found = searchNearbyStructure(data.loc);
+
+        //Si te una mina de target, mira que encara hi quedi karbonite. Si no, reseteja target i elimina la mina de l'array
         if (type == TARGET_MINE){
             if (gc.canSenseLocation(data.target_loc) && gc.karboniteAt(data.target_loc) == 0) {
                 deleteMineFromArray(data.karbonite_index);

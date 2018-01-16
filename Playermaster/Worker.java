@@ -259,7 +259,7 @@ public class Worker {
                 work += missingHealth/workperturn + 1;
             }
         }
-        return work / workers > WORKPERWORKER;
+        return work / ((workers>0)?workers:1 )> WORKPERWORKER;
     }
 
     private boolean tryReplicate(Unit unit){

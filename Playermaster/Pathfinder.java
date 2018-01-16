@@ -19,7 +19,7 @@ public class Pathfinder{
     private final int AUX2 = 12;
     private final double distFactor = 100;
     private final int base = 0x3F;
-    private final int INF = 1000000000;
+    public static final int INF = 1000000000;
     private final double sqrt2 = Math.sqrt(2);
     private final int[] X = {0, 1, 1, 1, 0, -1, -1, -1};
     private final int[] Y = {1, 1, 0, -1, -1, -1, 0, 1};

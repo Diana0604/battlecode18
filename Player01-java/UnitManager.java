@@ -17,8 +17,8 @@ public class UnitManager{
 
     static UnitManager instance;
     static GameController gc;
-    PlanetMap map;
-    Team enemyTeam;
+    static PlanetMap map;
+    static Team enemyTeam;
     static MarsPlanning mp;
 
     //current area

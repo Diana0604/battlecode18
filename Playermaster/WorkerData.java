@@ -1,6 +1,6 @@
 import bc.*;
 
-class WorkerData {
+public class WorkerData {
     int id;
     MapLocation loc;
     int target_id;

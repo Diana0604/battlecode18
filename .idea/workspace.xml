@@ -16,17 +16,17 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file leaf-file-name="MovementManager.java" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/Player02-java/MovementManager.java">
+        <entry file="file://$PROJECT_DIR$/Playermaster/MovementManager.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="607">
-              <caret line="212" column="126" lean-forward="false" selection-start-line="212" selection-start-column="126" selection-end-line="212" selection-end-column="126" />
+            <state relative-caret-position="828">
+              <caret line="201" column="45" lean-forward="false" selection-start-line="201" selection-start-column="45" selection-end-line="201" selection-end-column="45" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
       <file leaf-file-name="Pathfinder.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Player02-java/Pathfinder.java">
+        <entry file="file://$PROJECT_DIR$/Playermaster/Pathfinder.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="306">
               <caret line="28" column="129" lean-forward="false" selection-start-line="28" selection-start-column="0" selection-end-line="29" selection-end-column="0" />
@@ -36,7 +36,7 @@
         </entry>
       </file>
       <file leaf-file-name="BugPathfindingData.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Player02-java/BugPathfindingData.java">
+        <entry file="file://$PROJECT_DIR$/Playermaster/BugPathfindingData.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="255">
               <caret line="15" column="24" lean-forward="false" selection-start-line="15" selection-start-column="24" selection-end-line="15" selection-end-column="24" />
@@ -46,10 +46,10 @@
         </entry>
       </file>
       <file leaf-file-name="Ranger.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Player02-java/Ranger.java">
+        <entry file="file://$PROJECT_DIR$/Playermaster/Ranger.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="-27">
-              <caret line="52" column="25" lean-forward="true" selection-start-line="52" selection-start-column="25" selection-end-line="52" selection-end-column="25" />
+              <caret line="52" column="25" lean-forward="false" selection-start-line="52" selection-start-column="25" selection-end-line="52" selection-end-column="25" />
               <folding />
             </state>
           </provider>
@@ -97,9 +97,9 @@
         <option value="$PROJECT_DIR$/Player02-java/Worker.java" />
         <option value="$PROJECT_DIR$/Player02-java/Ranger.java" />
         <option value="$PROJECT_DIR$/Player02-java/BugPathfindingData.java" />
-        <option value="$PROJECT_DIR$/Player02-java/MovementManager.java" />
         <option value="$PROJECT_DIR$/APlayer/Ranger.java" />
         <option value="$PROJECT_DIR$/APlayer/MovementManager.java" />
+        <option value="$PROJECT_DIR$/Player02-java/MovementManager.java" />
       </list>
     </option>
   </component>
@@ -639,7 +639,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Player02-java/.idea/misc.xml">
+    <entry file="file://$PROJECT_DIR$/Playermaster/.idea/misc.xml">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -653,7 +653,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Player02-java/Factory.java">
+    <entry file="file://$PROJECT_DIR$/Playermaster/Factory.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -661,7 +661,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Player02-java/PathfinderNode.java">
+    <entry file="file://$PROJECT_DIR$/Playermaster/PathfinderNode.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -669,7 +669,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Player02-java/Player.java">
+    <entry file="file://$PROJECT_DIR$/Playermaster/Player.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -677,7 +677,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Player02-java/Worker.java">
+    <entry file="file://$PROJECT_DIR$/Playermaster/Worker.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="true" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -685,7 +685,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Player02-java/UnitManager.java">
+    <entry file="file://$PROJECT_DIR$/Playermaster/UnitManager.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-153">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -708,15 +708,15 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Player02-java/Ranger.java">
+    <entry file="file://$PROJECT_DIR$/Playermaster/Ranger.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-27">
-          <caret line="52" column="25" lean-forward="true" selection-start-line="52" selection-start-column="25" selection-end-line="52" selection-end-column="25" />
+          <caret line="52" column="25" lean-forward="false" selection-start-line="52" selection-start-column="25" selection-end-line="52" selection-end-column="25" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Player02-java/BugPathfindingData.java">
+    <entry file="file://$PROJECT_DIR$/Playermaster/BugPathfindingData.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="255">
           <caret line="15" column="24" lean-forward="false" selection-start-line="15" selection-start-column="24" selection-end-line="15" selection-end-column="24" />
@@ -724,7 +724,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Player02-java/Pathfinder.java">
+    <entry file="file://$PROJECT_DIR$/Playermaster/Pathfinder.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="306">
           <caret line="28" column="129" lean-forward="false" selection-start-line="28" selection-start-column="0" selection-end-line="29" selection-end-column="0" />
@@ -732,10 +732,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Player02-java/MovementManager.java">
+    <entry file="file://$PROJECT_DIR$/Playermaster/MovementManager.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="607">
-          <caret line="212" column="126" lean-forward="false" selection-start-line="212" selection-start-column="126" selection-end-line="212" selection-end-column="126" />
+        <state relative-caret-position="828">
+          <caret line="201" column="45" lean-forward="false" selection-start-line="201" selection-start-column="45" selection-end-line="201" selection-end-column="45" />
           <folding />
         </state>
       </provider>

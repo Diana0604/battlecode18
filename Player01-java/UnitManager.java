@@ -97,7 +97,7 @@ public class UnitManager{
 
     public void update() {
         checkEnemyUnits();
-        checkMines();
+        //checkMines(); //de moment ho trec (Pau) perque no vull que s'esborrin posicions de la llista
         checkMyUnits();
 
     }

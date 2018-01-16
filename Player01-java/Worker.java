@@ -9,6 +9,7 @@ public class Worker {
     private static Worker instance = null;
     private static GameController gc;
     private static ConstructionQueue queue;
+    private static boolean DEBUG = false;
 
     // definicio dels target types, per ordre d'importancia
     private static final int TARGET_NONE = 0;
@@ -34,6 +35,12 @@ public class Worker {
         return null;
     }
 
+    private void deleteMineFromArray(int index){
+        UnitManager.Xmines.set(index, -1);
+        UnitManager.Ymines.set(index, -1);
+        UnitManager.Qmines.set(index, -1);
+    }
+
     private void resetTarget(){
         data.target_loc = null;
         data.target_type = TARGET_NONE;
@@ -46,17 +53,17 @@ public class Worker {
         if (!gc.isMoveReady(unit.id())) return;
         if (data.safest_direction != null) {
             gc.moveRobot(unit.id(), data.safest_direction);
-            System.out.println("Worker " + unit.id() + " moves " + data.safest_direction + " (in danger)");
+            if (DEBUG)System.out.println("Worker " + unit.id() + " moves " + data.safest_direction + " (in danger)");
             return;
         }
         if (data.target_type == TARGET_NONE) return;
         MapLocation myLoc = unit.location().mapLocation();
         MapLocation dest = data.target_loc;
-        PathfinderNode node = Pathfinder.getInstance().getNode(myLoc.getX(),myLoc.getY(),dest.getX(),dest.getY());
+        PathfinderNode node = Pathfinder.getInstance().getNode(myLoc,dest);
         Direction targetDir = node.dir;
         if (gc.canMove(unit.id(),targetDir)) {
             gc.moveRobot(unit.id(), targetDir);
-            System.out.println("Worker " + unit.id() + " moves " + targetDir + " (to target)");
+            if (DEBUG)System.out.println("Worker " + unit.id() + " moves " + targetDir + " (to target)");
         }
     }
 
@@ -110,9 +117,14 @@ public class Worker {
         MapLocation ans = null;
         int index = -2;
         for (int i = 0; i < UnitManager.Xmines.size(); ++i){
+            if (UnitManager.Qmines.get(i) == -1) continue;
             int x = UnitManager.Xmines.get(i);
             int y = UnitManager.Ymines.get(i);
             MapLocation mineLoc = new MapLocation(gc.planet(), x, y);
+            if (gc.canSenseLocation(mineLoc) && gc.karboniteAt(mineLoc) == 0){
+                deleteMineFromArray(i);
+                continue;
+            }
             long d = location.distanceSquaredTo(mineLoc);
             if (d < minDist){
                 minDist = d;
@@ -120,6 +132,7 @@ public class Worker {
                 index = i;
             }
         }
+        if (ans == null) return;
         data.target_id = -1;
         data.target_type = TARGET_MINE;
         data.target_loc = ans;
@@ -143,9 +156,7 @@ public class Worker {
         found = searchNearbyStructure(unit.location().mapLocation());
         if (type == TARGET_MINE){
             if (gc.canSenseLocation(data.target_loc) && gc.karboniteAt(data.target_loc) == 0) {
-                UnitManager.Xmines.remove(data.karbonite_index);
-                UnitManager.Ymines.remove(data.karbonite_index);
-                UnitManager.Qmines.remove(data.karbonite_index);
+                deleteMineFromArray(data.karbonite_index);
                 resetTarget();
             }
         }
@@ -190,12 +201,12 @@ public class Worker {
             //si es blueprint
             gc.build(unit.id(),str.id());
             if (str.health() + unit.workerBuildHealth() >= str.maxHealth()) resetTarget();
-            System.out.println("Worker " + unit.id() + "  " + unit.location().mapLocation() + " builds blueprint " + str.id());
+            if (DEBUG)System.out.println("Worker " + unit.id() + "  " + unit.location().mapLocation() + " builds blueprint " + str.id());
         }else{
             //si es structure
             gc.repair(unit.id(),str.id());
             if (str.health() + unit.workerRepairHealth() >= str.maxHealth()) resetTarget();
-            System.out.println("Worker " + unit.id() +  "  " + unit.location().mapLocation() +" repairs structure " + str.id() + ": " + str.health() + "/" + str.maxHealth());
+            if (DEBUG)System.out.println("Worker " + unit.id() +  "  " + unit.location().mapLocation() +" repairs structure " + str.id() + ": " + str.health() + "/" + str.maxHealth());
         }
         return true;
     }
@@ -207,7 +218,7 @@ public class Worker {
         for (Direction d: Direction.values()){
             if (gc.canReplicate(unit.id(), d)) {
                 gc.replicate(unit.id(),d);
-                System.out.println("Worker " + unit.id() +  "  " + unit.location().mapLocation() +" replicates");
+                if (DEBUG)System.out.println("Worker " + unit.id() +  "  " + unit.location().mapLocation() +" replicates");
                 queue.requestUnit(UnitType.Worker, false);
                 return true;
             }
@@ -225,7 +236,7 @@ public class Worker {
         for (Direction d: Direction.values()){
             if (gc.canBlueprint(unit.id(), type, d)) {
                 gc.blueprint(unit.id(), type, d);
-                System.out.println("Worker " + unit.id() +  "  " + unit.location().mapLocation() +" places blueprint " + d);
+                if (DEBUG)System.out.println("Worker " + unit.id() +  "  " + unit.location().mapLocation() +" places blueprint " + d);
                 queue.requestUnit(type, false);
                 return true;
             }
@@ -242,7 +253,7 @@ public class Worker {
                 //System.out.println("Unit location, dir: " + unit.location().mapLocation() + "   " + d);
                 gc.harvest(unit.id(), d);
                 if (gc.karboniteAt(karboLoc) <= unit.workerHarvestAmount()) resetTarget();
-                System.out.println("Worker " + unit.id() +  "  " + unit.location().mapLocation() + " harvests karbonite " + d);
+                if (DEBUG)System.out.println("Worker " + unit.id() +  "  " + unit.location().mapLocation() + " harvests karbonite " + d);
                 return;
             }
         }
@@ -261,9 +272,9 @@ public class Worker {
         mapa.computeIfAbsent(unit.id(), k -> new WorkerData(unit.id()));
         data = mapa.get(unit.id());
 
-        System.out.println("Worker " + unit.id() +  "  " + unit.location().mapLocation() + " has target " + data.target_loc);
         data.safest_direction = checkDanger();
         updateTarget(unit);
+        if (DEBUG)System.out.println("Worker " + unit.id() +  "  " + unit.location().mapLocation() + " has target " + data.target_loc + ", " + data.target_type);
         doAction(unit);
         move(unit);
     }

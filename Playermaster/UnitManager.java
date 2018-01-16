@@ -5,13 +5,13 @@ import java.util.ListIterator;
 
 import java.lang.Math.*;
 
-public class UnitManager{
+class UnitManager{
 
     private final Direction[] allDirs = {Direction.North, Direction.Northeast, Direction.East, Direction.Southeast, Direction.South, Direction.Southwest, Direction.West, Direction.Northwest, Direction.Center};
-    final double enemyBaseValue = -5;
-    final int areaSize = 5;
+    private final double enemyBaseValue = -5;
+    private final int areaSize = 5;
     final int exploreConstant = 1;
-    final int maxMapSize = 50;
+    private final int maxMapSize = 50;
 
     HashMap<Integer, Integer> currentArea;
 
@@ -19,11 +19,12 @@ public class UnitManager{
     static GameController gc;
     static ConstructionQueue queue;
     static PlanetMap map;
+    static Team myTeam;
     static Team enemyTeam;
 
     //current area
-    int W;
-    int H;
+    private int W;
+    private int H;
 
     static void initialize(GameController _gc, ConstructionQueue q){
         gc = _gc;
@@ -37,10 +38,10 @@ public class UnitManager{
 
     //Stuff available for all units
     //general
-    MapLocation middle;
-    long maxRadius;
+    private MapLocation middle;
+    private long maxRadius;
     //danger
-    int[][] dangerMatrix;
+    private int[][] dangerMatrix;
     //mines in map
     static ArrayList<Integer> Xmines; //xpos
     static ArrayList<Integer> Ymines; //ypos
@@ -48,13 +49,13 @@ public class UnitManager{
     //enemies list
     VecUnit enemyUnits;
     //enemy bases
-    int[][] locToArea;
-    int[] areaToLocX;
-    int[] areaToLocY;
+    private int[][] locToArea;
+    private int[] areaToLocX;
+    private int[] areaToLocY;
     double[][] exploreGrid;
     int exploreSizeX;
     int exploreSizeY;
-    int INF = 1000000000;
+    private int INF = 1000000000;
 
     void addMine(int x, int y, int q) {
         Xmines.add(x);
@@ -74,7 +75,7 @@ public class UnitManager{
         return new MapLocation(gc.planet(), x, y);
     }
 
-    Integer locationToArea(MapLocation loc){
+    private Integer locationToArea(MapLocation loc){
         int x = loc.getX();
         int y = loc.getY();
         return locToArea[x][y];
@@ -84,15 +85,15 @@ public class UnitManager{
         return i*maxMapSize+j;
     }
 
-    int decodeX(Integer c){
+    private int decodeX(Integer c){
         return c/maxMapSize;
     }
 
-    int decodeY(Integer c){
+    private int decodeY(Integer c){
         return c%maxMapSize;
     }
 
-    MapLocation getAccesLocation(int xCenter, int yCenter){
+    private MapLocation getAccesLocation(int xCenter, int yCenter){
         MapLocation realCenter = new MapLocation(gc.planet(), xCenter, yCenter);
         //TODO check apart from passable accessible from origin in earth
         if(map.isPassableTerrainAt(realCenter) > 0) return realCenter;
@@ -103,7 +104,7 @@ public class UnitManager{
         return null;
     }
 
-    void createGrid(){
+    private void createGrid(){
         currentArea = new HashMap();
         exploreSizeX = W/areaSize;
         exploreSizeY = H/areaSize;
@@ -147,7 +148,8 @@ public class UnitManager{
         //explore grid
         createGrid();
         //other
-        if(gc.team() == Team.Blue) enemyTeam = Team.Red;
+        myTeam = gc.team();
+        if(myTeam == Team.Blue) enemyTeam = Team.Red;
         else enemyTeam = Team.Blue;
         //danger matrix TODO implementation
         dangerMatrix = new int[W][H];
@@ -155,7 +157,7 @@ public class UnitManager{
         getLocationEnemyBase();
     }
 
-    public void getLocationEnemyBase(){
+    private void getLocationEnemyBase(){
         VecUnit initialUnits = map.getInitial_units();
         for(int i = 0; i < initialUnits.size(); ++i){
             Unit possibleEnemy = initialUnits.get(i);
@@ -166,7 +168,7 @@ public class UnitManager{
         }
     }
 
-    public void update() {
+    void update() {
         //check enemy units
         enemyUnits = gc.senseNearbyUnitsByTeam(middle, maxRadius, enemyTeam);
         //check mines
@@ -178,7 +180,7 @@ public class UnitManager{
     }
 
 
-    void updateCurrentArea(){
+    private void updateCurrentArea(){
         VecUnit units = gc.myUnits();
         for(int i = 0; i < units.size(); ++i){
             Unit unit = units.get(i);
@@ -210,7 +212,7 @@ public class UnitManager{
         }
     }
 
-    public void checkMyUnits(){
+    private void checkMyUnits(){
         VecUnit v = gc.myUnits();
         boolean factoryBuilt = false;
         boolean rocketBuilt = false;
@@ -227,7 +229,7 @@ public class UnitManager{
     }
 
 
-    public void moveUnits(){
+    void moveUnits(){
         VecUnit units = gc.myUnits();
         for (int i = 0; i < units.size(); i++) {
             Unit unit = units.get(i);
@@ -245,7 +247,7 @@ public class UnitManager{
         }
     }
 
-    public void moveTo(Unit unit, MapLocation target){
+    void moveTo(Unit unit, MapLocation target){
         MovementManager.getInstance().moveTo(unit, target);
     }
 }

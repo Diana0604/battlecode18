@@ -1,3 +1,5 @@
+
+
 import bc.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -5,13 +7,13 @@ import java.util.ListIterator;
 
 import java.lang.Math.*;
 
-class UnitManager{
+public class UnitManager{
 
     private final Direction[] allDirs = {Direction.North, Direction.Northeast, Direction.East, Direction.Southeast, Direction.South, Direction.Southwest, Direction.West, Direction.Northwest, Direction.Center};
-    private final double enemyBaseValue = -5;
-    private final int areaSize = 5;
+    final double enemyBaseValue = -5;
+    final int areaSize = 5;
     final int exploreConstant = 1;
-    private final int maxMapSize = 50;
+    final int maxMapSize = 50;
 
     HashMap<Integer, Integer> currentArea;
 
@@ -19,14 +21,11 @@ class UnitManager{
     static GameController gc;
     static ConstructionQueue queue;
     static PlanetMap map;
-    static Team myTeam;
     static Team enemyTeam;
-    static MarsPlanning mp;
-    static Research research;
 
     //current area
-    private int W;
-    private int H;
+    int W;
+    int H;
 
     static void initialize(GameController _gc, ConstructionQueue q){
         gc = _gc;
@@ -40,10 +39,10 @@ class UnitManager{
 
     //Stuff available for all units
     //general
-    private MapLocation middle;
-    private long maxRadius;
+    MapLocation middle;
+    long maxRadius;
     //danger
-    private int[][] dangerMatrix;
+    int[][] dangerMatrix;
     //mines in map
     static ArrayList<Integer> Xmines; //xpos
     static ArrayList<Integer> Ymines; //ypos
@@ -51,13 +50,13 @@ class UnitManager{
     //enemies list
     VecUnit enemyUnits;
     //enemy bases
-    private int[][] locToArea;
-    private int[] areaToLocX;
-    private int[] areaToLocY;
+    int[][] locToArea;
+    int[] areaToLocX;
+    int[] areaToLocY;
     double[][] exploreGrid;
     int exploreSizeX;
     int exploreSizeY;
-    private int INF = 1000000000;
+    int INF = 1000000000;
 
     void addMine(int x, int y, int q) {
         Xmines.add(x);
@@ -77,7 +76,7 @@ class UnitManager{
         return new MapLocation(gc.planet(), x, y);
     }
 
-    private Integer locationToArea(MapLocation loc){
+    Integer locationToArea(MapLocation loc){
         int x = loc.getX();
         int y = loc.getY();
         return locToArea[x][y];
@@ -87,15 +86,15 @@ class UnitManager{
         return i*maxMapSize+j;
     }
 
-    private int decodeX(Integer c){
+    int decodeX(Integer c){
         return c/maxMapSize;
     }
 
-    private int decodeY(Integer c){
+    int decodeY(Integer c){
         return c%maxMapSize;
     }
 
-    private MapLocation getAccesLocation(int xCenter, int yCenter){
+    MapLocation getAccesLocation(int xCenter, int yCenter){
         MapLocation realCenter = new MapLocation(gc.planet(), xCenter, yCenter);
         //TODO check apart from passable accessible from origin in earth
         if(map.isPassableTerrainAt(realCenter) > 0) return realCenter;
@@ -106,7 +105,7 @@ class UnitManager{
         return null;
     }
 
-    private void createGrid(){
+    void createGrid(){
         currentArea = new HashMap();
         exploreSizeX = W/areaSize;
         exploreSizeY = H/areaSize;
@@ -138,10 +137,6 @@ class UnitManager{
 
     UnitManager(){
         //general
-        Research.initialize(gc);
-        research = Research.getInstance();
-        MarsPlanning.initialize(gc);
-        mp = MarsPlanning.getInstance();
         map = gc.startingMap(gc.planet());
         W = (int)map.getWidth();
         H = (int)map.getHeight();
@@ -154,8 +149,7 @@ class UnitManager{
         //explore grid
         createGrid();
         //other
-        myTeam = gc.team();
-        if(myTeam == Team.Blue) enemyTeam = Team.Red;
+        if(gc.team() == Team.Blue) enemyTeam = Team.Red;
         else enemyTeam = Team.Blue;
         //danger matrix TODO implementation
         dangerMatrix = new int[W][H];
@@ -163,7 +157,7 @@ class UnitManager{
         getLocationEnemyBase();
     }
 
-    private void getLocationEnemyBase(){
+    public void getLocationEnemyBase(){
         VecUnit initialUnits = map.getInitial_units();
         for(int i = 0; i < initialUnits.size(); ++i){
             Unit possibleEnemy = initialUnits.get(i);
@@ -174,7 +168,7 @@ class UnitManager{
         }
     }
 
-    void update() {
+    public void update() {
         //check enemy units
         enemyUnits = gc.senseNearbyUnitsByTeam(middle, maxRadius, enemyTeam);
         //check mines
@@ -183,12 +177,10 @@ class UnitManager{
         updateCurrentArea();
         //comprova si ha de construir factory o rocket
         checkMyUnits();
-        research.checkResearch();
-        Rocket.initTurn();
     }
 
 
-    private void updateCurrentArea(){
+    void updateCurrentArea(){
         VecUnit units = gc.myUnits();
         for(int i = 0; i < units.size(); ++i){
             Unit unit = units.get(i);
@@ -220,7 +212,7 @@ class UnitManager{
         }
     }
 
-    private void checkMyUnits(){
+    public void checkMyUnits(){
         VecUnit v = gc.myUnits();
         boolean factoryBuilt = false;
         boolean rocketBuilt = false;
@@ -233,21 +225,12 @@ class UnitManager{
             }
         }
         if (!factoryBuilt) queue.requestUnit(UnitType.Factory);
-        if (!rocketBuilt && v.size() > 8 && gc.researchInfo().getLevel(UnitType.Rocket) > 0) { // aixo es super cutre, canviar!
-            queue.requestUnit(UnitType.Rocket);
-        }
+        //if (!rocketBuilt) queue.requestUnit(UnitType.Rocket);
     }
 
 
-    void moveUnits(){
+    public void moveUnits(){
         VecUnit units = gc.myUnits();
-        for (int i = 0; i < units.size(); i++) {
-            Unit unit = units.get(i);
-            Location myLoc = unit.location();
-            if(unit.unitType() == UnitType.Rocket) {
-                Rocket.getInstance().playFirst(unit);
-            }
-        }
         for (int i = 0; i < units.size(); i++) {
             Unit unit = units.get(i);
             Location myLoc = unit.location();
@@ -261,13 +244,10 @@ class UnitManager{
             if(unit.unitType() == UnitType.Ranger) {
                 Ranger.getInstance().play(unit);
             }
-            if(unit.unitType() == UnitType.Rocket) {
-                Rocket.getInstance().play(unit);
-            }
         }
     }
 
-    void moveTo(Unit unit, MapLocation target){
+    public void moveTo(Unit unit, MapLocation target){
         MovementManager.getInstance().moveTo(unit, target);
     }
 }

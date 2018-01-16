@@ -1,5 +1,3 @@
-package Playermaster;
-
 import bc.*;
 
 public class BugPathfindingData {

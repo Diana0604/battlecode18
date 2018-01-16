@@ -1,5 +1,3 @@
-package Playermaster;
-
 import bc.*;
 
 import java.util.HashMap;
@@ -47,8 +45,6 @@ public class Ranger {
             }
         }
     }
-
-
 
     void move(Unit unit){
         MapLocation target = getBestTarget(unit);

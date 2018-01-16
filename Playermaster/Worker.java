@@ -1,5 +1,3 @@
-package Playermaster;
-
 import bc.*;
 
 import java.util.HashMap;
@@ -75,10 +73,14 @@ public class Worker {
         MovementManager.getInstance().moveTo(unit,data.target_loc);
     }
 
-    private boolean checkNeededForRocket(Unit unit){
+    private boolean checkNeededForRocket(){
         HashMap<Integer, MapLocation> mapa = Rocket.callsToRocket;
-        if (mapa.containsKey(data.id)){
-
+        MapLocation loc = mapa.get(data.id);
+        if (loc != null){
+            data.target_loc = loc;
+            data.target_type = TARGET_ROCKET;
+            data.target_id = -1;
+            return true;
         }
         return false;
     }
@@ -161,36 +163,28 @@ public class Worker {
         if (data.safest_direction != null) return; //no fa update si esta en perill
         int type = data.target_type;
 
+        //si un rocket el crida, fa return perque ja te el target mes important
+        boolean found = checkNeededForRocket();
+        if (type == TARGET_ROCKET && !found) resetTarget(); //si el rocket mor, reseteja
+        else if (type == TARGET_ROCKET) return;
+
         Unit target_unit = null;
         if (data.target_id != -1 && gc.canSenseUnit(data.target_id)) target_unit = gc.unit(data.target_id);
 
-        //si ha d'anar a un coet, hi va
-        if (type == TARGET_ROCKET){
-
-        }
-        if (type == TARGET_ROCKET) return;
-        boolean found = checkNeededForRocket(unit);
-
         //si te un blueprint de target, mira si el blueprint ja esta construit. Si esta construit, reseteja target.
-        if (type == TARGET_BLUEPRINT) {
-            if (target_unit != null && target_unit.health() == target_unit.maxHealth()) resetTarget();
-        }
+        if (type == TARGET_BLUEPRINT && target_unit != null && target_unit.health() == target_unit.maxHealth()) resetTarget();
         if (type == TARGET_BLUEPRINT) return;//no fas update si ja tens un blueprint perque es lo mes important
         found = searchNearbyBlueprint(data.loc);
 
         //Si te una structure de target, mira que la structure no estigui full vida. Si ho esta, reseteja
-        if (type == TARGET_STRUCTURE) {
-            if (target_unit != null && target_unit.health() == target_unit.maxHealth()) resetTarget();
-        }
+        if (type == TARGET_STRUCTURE && target_unit != null && target_unit.health() == target_unit.maxHealth()) resetTarget();
         if (found || type == TARGET_STRUCTURE) return;
         found = searchNearbyStructure(data.loc);
 
         //Si te una mina de target, mira que encara hi quedi karbonite. Si no, reseteja target i elimina la mina de l'array
-        if (type == TARGET_MINE){
-            if (gc.canSenseLocation(data.target_loc) && gc.karboniteAt(data.target_loc) == 0) {
+        if (type == TARGET_MINE && gc.canSenseLocation(data.target_loc) && gc.karboniteAt(data.target_loc) == 0) {
                 deleteMineFromArray(data.karbonite_index);
                 resetTarget();
-            }
         }
         if (found || type == TARGET_MINE) return;
         searchKarbonite(data.loc);

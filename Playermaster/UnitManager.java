@@ -173,6 +173,8 @@ public class UnitManager{
         //checkMines(); //de moment ho trec (Pau) perque no vull que s'esborrin posicions de la llista
         //update areas explored
         updateCurrentArea();
+        //comprova si ha de construir factory o rocket
+        checkMyUnits();
     }
 
 
@@ -207,6 +209,23 @@ public class UnitManager{
             }
         }
     }
+
+    public void checkMyUnits(){
+        VecUnit v = gc.myUnits();
+        boolean factoryBuilt = false;
+        boolean rocketBuilt = false;
+        for (int i = 0; i < v.size(); i++){
+            Unit u = v.get(i);
+            if (u.unitType() == UnitType.Factory){
+                factoryBuilt = true;
+            }else if (u.unitType() == UnitType.Rocket){
+                rocketBuilt = true;
+            }
+        }
+        if (!factoryBuilt) queue.requestUnit(UnitType.Factory);
+        //if (!rocketBuilt) queue.requestUnit(UnitType.Rocket);
+    }
+
 
     public void moveUnits(){
         VecUnit units = gc.myUnits();

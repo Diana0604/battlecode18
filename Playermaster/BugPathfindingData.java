@@ -1,3 +1,5 @@
+
+
 import bc.*;
 
 public class BugPathfindingData {
@@ -8,8 +10,6 @@ public class BugPathfindingData {
     public MapLocation target = null;
     public boolean left = true;
     public double minDist = INF;
-    public double[] DPSreceived;
-    public int[] minDistToEnemy;
 
     void reset(){
         target = null;

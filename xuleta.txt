@@ -1,0 +1,43 @@
+
+================= Vidéotutorial git:
+
+---------- Com actualitzar els canvis al remote (commit-push)
+
+[Pau] git pull 						[si algú més ha fet canvis, me'ls he de baixar primer (no hauria de caldre)]
+[Pau] git add . 					[afegeix tota la carpeta als fitxers trackejats]
+[Pau] git commit -m "missatge"		[fa commit de tots els canvis als fitxers]
+[Pau] git push 						[actualitza la branca remota amb els canvis del commit]
+
+
+---------- Com fer merge de la meva branca amb dev 
+[Assumint que tots els canvis a la branch locals els he pujat al remote
+[Pau] git checkout development 						[em canvia de branch]
+[Dev] git pull origin pau							[des de Dev, em baixo els canvis fets a Pau]
+[Dev] ...arreglar conflictes...
+[Dev] git push										[faig push a Dev havent arreglat els conflictes]
+
+
+---------- Com fer que la branca Pau sigui copia de Development, despres de fer el merge
+[Dev] git branch -D Pau 						[esborro la meva branch en el local] -> no se si fa falta
+[Dev] git push origin --delete Pau 				[esborro la meva branch en el remote]
+[Dev] git branch Pau 							[em crea la branch Pau com a copia de Dev, nomes en local]
+[Dev] git checkout Pau 							[em canvia de branch]
+[Pau] git push --set-upstream origin Pau 		[em crea la branch al remote i fa push de la local]
+
+
+
+
+
+
+================= Com correr partides
+1. iniciar el docker toolbox: C:\Program Files\Docker Toolbox\start.sh
+2. anar al directori del btc: cd battlecode18
+3. escriure a la linia de comandes: winpty bash run.sh
+4. anar a: http://192.168.99.100:6147/run.html
+
+
+
+
+================= Link al viewer
+
+http://anthonybau.com/bc18-tinyview/

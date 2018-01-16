@@ -2,6 +2,7 @@ import bc.*;
 
 class WorkerData {
     int id;
+    MapLocation loc;
     int target_id;
     MapLocation target_loc;
     int target_type;

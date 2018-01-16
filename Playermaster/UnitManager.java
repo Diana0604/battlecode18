@@ -20,6 +20,7 @@ public class UnitManager{
     static ConstructionQueue queue;
     static PlanetMap map;
     static Team enemyTeam;
+    static MarsPlanning mp;
 
     //current area
     int W;
@@ -135,6 +136,8 @@ public class UnitManager{
 
     UnitManager(){
         //general
+        MarsPlanning.initialize(gc);
+        mp = MarsPlanning.getInstance();
         map = gc.startingMap(gc.planet());
         W = (int)map.getWidth();
         H = (int)map.getHeight();

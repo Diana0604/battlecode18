@@ -26,7 +26,7 @@ public class Factory {
 
     void build(Unit unit){
         if(unit.structureIsBuilt() == 0 || !gc.canProduceRobot(unit.id(), UnitType.Ranger)) return;
-        //gc.produceRobot(unit.id(),UnitType.Ranger);
+        gc.produceRobot(unit.id(),UnitType.Ranger);
     }
 
     void checkGarrison(Unit unit){

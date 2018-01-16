@@ -211,10 +211,40 @@ public class Worker {
         return true;
     }
 
+    private boolean shouldReplicate(Unit unit){
+        if (data.safest_direction != null) return false;
+        int search_radius = 2;
+        int work = 0; //turns of work in the area (mining+building+repairing)
+        int workers = 0;
+        final int WORKPERWORKER = 20;
+        MapLocation myPos = unit.location().mapLocation();
+        for (int i = -search_radius; i <= search_radius; i++) {
+            for (int j = -search_radius; j <= search_radius; j++) {
+                MapLocation loc = myPos.translate(i, j);
+                if (!Utils.onTheMap(loc, gc)) continue;
+                int karbonite = (int) gc.karboniteAt(loc);
+                if (karbonite > 0) work += karbonite / unit.workerHarvestAmount() + 1;
+            }
+        }
+        VecUnit v = gc.senseNearbyUnitsByTeam(myPos,8, unit.team());
+        for (int i = 0; i < v.size(); i++){
+            Unit u = v.get(i);
+            UnitType type = u.unitType();
+            if (type == UnitType.Worker) workers++;
+            if ((type == UnitType.Rocket || type == UnitType.Factory) && u.health() < u.maxHealth()){
+                int workperturn;
+                if (u.structureIsBuilt() == 0) workperturn = (int) unit.workerBuildHealth();
+                else workperturn = (int) unit.workerRepairHealth();
+                work += (u.maxHealth() - u.health())/workperturn + 1;
+            }
+        }
+        return work / workers > WORKPERWORKER;
+    }
+
     private boolean tryReplicate(Unit unit){
         if (!gc.isAttackReady(unit.id())) return false; //no tinc clar que attack sigui lo correcte aqui pero idk
-        if (!queue.needsUnit(UnitType.Worker)) return false;
         if (data.safest_direction != null) return false;
+        if (!queue.needsUnit(UnitType.Worker) && !shouldReplicate(unit)) return false;
         for (Direction d: Direction.values()){
             if (gc.canReplicate(unit.id(), d)) {
                 gc.replicate(unit.id(),d);
@@ -262,8 +292,8 @@ public class Worker {
     //Aqui decideix si construeix/mina/etc
     private void doAction(Unit unit){
         //teoricament el hasMoved no cal
-        boolean hasMoved = tryRepairBuild(unit);
-        if (!hasMoved) hasMoved = tryReplicate(unit);
+        boolean hasMoved = tryReplicate(unit);
+        if (!hasMoved) hasMoved = tryRepairBuild(unit);
         if (!hasMoved) hasMoved = tryPlaceBlueprint(unit);
         if (!hasMoved) tryMine(unit);
     }

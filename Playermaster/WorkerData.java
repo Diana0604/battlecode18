@@ -7,7 +7,6 @@ public class WorkerData {
     MapLocation target_loc;
     int target_type;
     Direction safest_direction;
-    int karbonite_index; //index de l'array de la mina
 
 
     WorkerData(int id){
@@ -16,6 +15,5 @@ public class WorkerData {
         target_type = 0;
         target_loc = null;
         safest_direction = null;
-        karbonite_index = -1;
     }
 }

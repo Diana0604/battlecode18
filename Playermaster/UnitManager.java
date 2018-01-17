@@ -226,7 +226,7 @@ class UnitManager{
                 factoryBuilt = true;
             }else if (type == UnitType.Rocket){
                 rocketBuilt = true;
-            }else if (type == UnitType.Worker) workerBuilt = true;
+            }else if (type == UnitType.Worker && !u.location().isInGarrison()) workerBuilt = true;
         }
         if (!factoryBuilt) queue.requestUnit(UnitType.Factory);
         if (!rocketBuilt && v.size() > 8 && gc.researchInfo().getLevel(UnitType.Rocket) > 0) { // aixo es super cutre, canviar!

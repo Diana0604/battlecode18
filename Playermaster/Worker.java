@@ -67,8 +67,10 @@ public class Worker {
             if (DEBUG)System.out.println("Worker " + data.id + " moves " + data.safest_direction + " (in danger)");
             return;
         }
-        if (data.target_type == TARGET_NONE) return;
-        MovementManager.getInstance().moveTo(unit,data.target_loc);
+        MapLocation dest;
+        if (data.target_type == TARGET_NONE) dest = data.loc; //si no tinc target, vaig al meu lloc (fuig sol)
+        else dest = data.target_loc;
+        MovementManager.getInstance().moveTo(unit,dest);
     }
 
     private boolean checkNeededForRocket(){
@@ -281,13 +283,17 @@ public class Worker {
         if (queue.needsUnit(UnitType.Rocket)) type = UnitType.Rocket;
         if (queue.needsUnit(UnitType.Factory)) type = UnitType.Factory;
         if (type == null) return false;
+
+        Danger.computeDanger(data.loc);
         for (Direction d: Direction.values()){
-            if (gc.canBlueprint(data.id, type, d)) {
-                gc.blueprint(data.id, type, d);
-                if (DEBUG)System.out.println("Worker " + data.id +  "  " + data.loc +" places blueprint " + d);
-                queue.requestUnit(type, false);
-                return true;
-            }
+            if (Danger.DPS[d.swigValue()] > 0) continue;
+            if (!gc.canBlueprint(data.id, type, d)) continue;
+
+            gc.blueprint(data.id, type, d);
+            if (DEBUG)System.out.println("Worker " + data.id +  "  " + data.loc +" places blueprint " + d);
+            queue.requestUnit(type, false);
+            return true;
+
         }
         return false;
     }

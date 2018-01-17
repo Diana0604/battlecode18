@@ -36,4 +36,9 @@ public class Danger {
             }
         }
     }
+
+    static void computeDanger(MapLocation myLoc){
+        boolean[] v = {true, true, true, true, true, true, true, true, true};
+        computeDanger(myLoc, v);
+    }
 }

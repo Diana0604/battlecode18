@@ -1,4 +1,3 @@
-package Player06
 
 import bc.*;
 
@@ -127,7 +126,8 @@ public class Ranger {
             unitManager.addExploreGrid(obj, unitManager.exploreConstant);
             objectiveArea.put(id, obj);
         }
-        return unitManager.areaToLocation(obj);
+        if (obj != null) return unitManager.areaToLocation(obj);
+        return null;
     }
 
     void explore(Unit unit){

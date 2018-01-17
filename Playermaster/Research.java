@@ -1,3 +1,5 @@
+
+
 import bc.GameController;
 import bc.UnitType;
 
@@ -9,7 +11,7 @@ public class Research {
     static GameController gc;
     static Research instance;
 
-    private UnitType[] fixedTree = new UnitType[]{UnitType.Worker, UnitType.Rocket, UnitType.Ranger, UnitType.Ranger, UnitType.Ranger, UnitType.Ranger};
+    private UnitType[] fixedTree = new UnitType[]{UnitType.Worker, UnitType.Ranger, UnitType.Ranger, UnitType.Rocket, UnitType.Ranger, UnitType.Ranger};
     private int stage = 0;
 
     static void initialize(GameController _gc){
@@ -21,7 +23,7 @@ public class Research {
         return instance;
     }
 
-    public void checkResearch() {
+    /*public void checkResearch() {
         if(!gc.researchInfo().hasNextInQueue()) {
             if(stage < fixedTree.length) {
                 if (gc.queueResearch(fixedTree[stage]) != 0) {
@@ -30,6 +32,10 @@ public class Research {
                 else System.out.println("Per algun motiu ha fallat el research");
             }
         }
+    }*/
+
+    public void yolo(){
+        for (int i = 0; i < fixedTree.length; ++i) gc.queueResearch(fixedTree[i]);
     }
 
 }

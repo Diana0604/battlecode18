@@ -1,3 +1,5 @@
+
+
 import bc.*;
 
 public class Player {
@@ -11,12 +13,12 @@ public class Player {
         Pathfinder.getInstance();
 
         while (true) {
-            long roundTime = System.nanoTime();
+            //long roundTime = System.nanoTime();
             //System.out.println("Start of round " + gc.round());
             unitManager.update();
             unitManager.moveUnits();
-            long endTime = System.nanoTime();
-            long usedTime = endTime - roundTime;
+            //long endTime = System.nanoTime();
+            //long usedTime = endTime - roundTime;
             //if (usedTime > 10000000) System.out.println("Round time: " + usedTime + "    Total time: " + (endTime - initTime));
             gc.nextTurn();
         }

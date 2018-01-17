@@ -1,3 +1,4 @@
+
 import bc.*;
 
 import java.util.HashMap;
@@ -33,18 +34,38 @@ public class Ranger {
         attack(unit);
     }
 
+    Unit getBestAttackTarget(Unit A, Unit B){
+        if (A == null) return B;
+        if (B == null) return A;
+        if (A.unitType() == B.unitType()){
+            if (A.health() < B.health()) return A;
+            return B;
+        }
+        if (A.unitType() == UnitType.Ranger) return A;
+        if (B.unitType() == UnitType.Ranger) return B;
+        if (A.unitType() == UnitType.Mage) return A;
+        if (B.unitType() == UnitType.Mage) return B;
+        if (A.unitType() == UnitType.Knight) return A;
+        if (B.unitType() == UnitType.Knight) return B;
+        return B;
+    }
+
     void attack(Unit unit) {
-        if(!gc.isAttackReady(unit.id())) return;
+        int id = unit.id();
+        Unit bestVictim = null;
+        if(!gc.isAttackReady(id)) return;
         MapLocation myLoc = unit.location().mapLocation();
         VecUnit canAttack = gc.senseNearbyUnitsByTeam(myLoc, unit.attackRange(), unitManager.enemyTeam);
         for(int i = 0; i < canAttack.size(); ++i){
             Unit victim = canAttack.get(i);
-            if (gc.canAttack(unit.id(), victim.id())) {
-                gc.attack(unit.id(), victim.id());
-                return;
+            if (gc.canAttack(id, victim.id())) {
+                bestVictim = getBestAttackTarget(bestVictim, victim);
             }
         }
+        if (bestVictim != null) gc.attack(id, bestVictim.id());
     }
+
+
 
     void move(Unit unit){
         MapLocation target = getBestTarget(unit);
@@ -53,6 +74,7 @@ public class Ranger {
     }
 
     MapLocation getBestTarget(Unit unit){
+        if (Rocket.callsToRocket.containsKey(unit.id())) return Rocket.callsToRocket.get(unit.id());
         return getBestEnemy(unit.location().mapLocation());
     }
 
@@ -105,7 +127,8 @@ public class Ranger {
             unitManager.addExploreGrid(obj, unitManager.exploreConstant);
             objectiveArea.put(id, obj);
         }
-        return unitManager.areaToLocation(obj);
+        if (obj != null) return unitManager.areaToLocation(obj);
+        return null;
     }
 
     void explore(Unit unit){

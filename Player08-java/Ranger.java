@@ -1,4 +1,5 @@
 
+
 import bc.*;
 
 import java.util.HashMap;
@@ -47,12 +48,8 @@ public class Ranger {
         if (B.unitType() == UnitType.Ranger) return B;
         if (A.unitType() == UnitType.Mage) return A;
         if (B.unitType() == UnitType.Mage) return B;
-        if (A.unitType() == UnitType.Healer) return A;
-        if (B.unitType() == UnitType.Healer) return B;
         if (A.unitType() == UnitType.Knight) return A;
         if (B.unitType() == UnitType.Knight) return B;
-        if (A.unitType() == UnitType.Worker) return A;
-        if (B.unitType() == UnitType.Worker) return B;
         return B;
     }
 

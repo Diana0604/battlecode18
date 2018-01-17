@@ -1,4 +1,5 @@
 
+
 import bc.*;
 import java.util.*;
 
@@ -27,35 +28,18 @@ public class Pathfinder{
     private final double[] dists = {1, sqrt2, 1, sqrt2, 1, sqrt2, 1, sqrt2};
     private static final Direction[] allDirs = {Direction.North, Direction.Northeast, Direction.East, Direction.Southeast, Direction.South, Direction.Southwest, Direction.West, Direction.Northwest};
 
-    boolean[][] accessible;
-
-
-
-
     private PathfinderNode[][][][] Nodes;
     private PlanetMap map;
-    private Planet planet;
     int W;
     int H;
 
     public Pathfinder(){
         gc = UnitManager.gc;
-        planet = gc.planet();
-        map = gc.startingMap(planet);
+        map = gc.startingMap(gc.planet());
         W = (int)map.getWidth();
         H = (int)map.getHeight();
 
         Nodes  = new PathfinderNode[W][H][W][H];
-        accessible = new boolean[W][H];
-
-        for (int x = 0; x < W; ++x){
-            for (int y = 0; y < H; ++y){
-                if (map.isPassableTerrainAt(new MapLocation(planet, x, y)) > 0){
-                    accessible[x][y] = true;
-                }
-                else accessible[x][y] = false;
-            }
-        }
 
         for(int x = 0; x < W; ++x){
             for(int y = 0; y < H; ++y){
@@ -98,7 +82,7 @@ public class Pathfinder{
                 int parsedDist = (int)Math.round(distFactor*newDist);
                 if(newPosX >= W || newPosX < 0 || newPosY >= H || newPosY < 0) continue;
                 if(newDist < Nodes[a][b][newPosX][newPosY].dist) {
-                    if(accessible[newPosX][newPosY]) queue.add((((parsedDist << AUX) | newPosX) << AUX) | newPosY);
+                    if(map.isPassableTerrainAt(new MapLocation(gc.planet(), newPosX, newPosY)) > 0) queue.add((((parsedDist << AUX) | newPosX) << AUX) | newPosY);
 
                     Nodes[a][b][newPosX][newPosY].dist = newDist;
                     if(newDist < 1.8) Nodes[a][b][newPosX][newPosY].dir = allDirs[i];

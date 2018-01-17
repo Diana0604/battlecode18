@@ -1,3 +1,5 @@
+
+
 import bc.*;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -6,7 +8,6 @@ import java.util.Iterator;
 class Data {
     static GameController gc;
     static Research research;
-    static ResearchInfo researchInfo;
     static MarsPlanning marsPlanning;
     static HashMap<MapLocation, Integer> karboniteAt;
     static Planet planet;
@@ -37,7 +38,7 @@ class Data {
 
     static Integer[] asteroidRounds;
     static AsteroidStrike[] asteroidStrikes;
-    private static AsteroidPattern asteroidPattern;
+    static AsteroidPattern asteroidPattern;
 
     private static int[][] dangerMatrix;
     private static final double enemyBaseValue = -5;
@@ -132,7 +133,6 @@ class Data {
         Research.initialize(gc);
         research = Research.getInstance();
         research.yolo();
-        researchInfo = gc.researchInfo();
 
         MarsPlanning.initialize(gc); //calcula els asteroids
         marsPlanning = MarsPlanning.getInstance();
@@ -203,13 +203,14 @@ class Data {
     private static void checkMyUnits(){
         allUnits = new HashMap<>();
         structures = new HashSet<>();
+        VecUnit v = gc.myUnits();
         int MIN_KARBONITE_FOR_FACTORY = 200;
         int INITIAL_FACTORIES = 3;
         int factories = 0;
         boolean rocketBuilt = false;
         boolean workerBuilt = false;
-        for (int i = 0; i < units.size(); i++){
-            Unit u = units.get(i);
+        for (int i = 0; i < v.size(); i++){
+            Unit u = v.get(i);
             allUnits.put(u.id(), i);
             UnitType type = u.unitType();
             if (type == UnitType.Factory){
@@ -220,12 +221,12 @@ class Data {
                 structures.add(i);
             }else if (type == UnitType.Worker && !u.location().isInGarrison()) workerBuilt = true;
         }
-        if (factories < INITIAL_FACTORIES || gc.karbonite() > MIN_KARBONITE_FOR_FACTORY) queue.requestUnit(UnitType.Factory);
-        if (!rocketBuilt && units.size() > 8 && gc.researchInfo().getLevel(UnitType.Rocket) > 0) { // aixo es super cutre, canviar!
+        if (factories <= INITIAL_FACTORIES || gc.karbonite() > MIN_KARBONITE_FOR_FACTORY) queue.requestUnit(UnitType.Factory);
+        if (!rocketBuilt && v.size() > 8 && gc.researchInfo().getLevel(UnitType.Rocket) > 0) { // aixo es super cutre, canviar!
             queue.requestUnit(UnitType.Rocket);
         }
         if (!workerBuilt) queue.requestUnit(UnitType.Worker);
-        System.out.println(round + " Factory requested: " + queue.needsUnit(UnitType.Factory));
+        //System.out.println("Rocket requested: " + queue.needsUnit(UnitType.Rocket));
     }
 
 
@@ -240,9 +241,8 @@ class Data {
         updateCurrentArea();
         //comprova si ha de construir factory o rocket
         checkMyUnits();
+        //research.checkResearch();
         Rocket.initTurn();
-
-        researchInfo = gc.researchInfo();
 
         Danger.updateAttackers();
         if (!aggro && gc.researchInfo().getLevel(UnitType.Ranger) > 1) aggro = true;

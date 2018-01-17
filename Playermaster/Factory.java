@@ -29,7 +29,9 @@ public class Factory {
     }
 
     void checkGarrison(Unit unit){
+        Danger.computeDanger(unit.location().mapLocation());
         for(int i = 0; i < allDirs.length; ++i){
+            if (Danger.DPS[i] > 0) continue;
             if(gc.canUnload(unit.id(), allDirs[i])) {
                 gc.unload(unit.id(), allDirs[i]);
             }

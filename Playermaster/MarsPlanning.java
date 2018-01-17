@@ -64,7 +64,7 @@ public class MarsPlanning{
 
         // compute times from earth to mars
         OrbitPattern op = gc.orbitPattern();
-        System.out.println("orbites: "+ op.getCenter() + " " + op.getAmplitude() + " " + op.getPeriod());
+        //System.out.println("orbites: "+ op.getCenter() + " " + op.getAmplitude() + " " + op.getPeriod());
         orbitPeriod = (int)op.getPeriod();
         for (int i = 1; i <= 1000; ++i) {
             int time = (int)op.duration(i);

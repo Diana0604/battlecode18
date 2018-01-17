@@ -1,7 +1,6 @@
 import bc.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.ListIterator;
+
+import java.util.*;
 
 import java.lang.Math.*;
 
@@ -18,6 +17,7 @@ class UnitManager{
     static UnitManager instance;
     static GameController gc;
     static ConstructionQueue queue;
+    static Planet planet;
     static PlanetMap map;
     static Team myTeam;
     static Team enemyTeam;
@@ -45,9 +45,7 @@ class UnitManager{
     //danger
     private int[][] dangerMatrix;
     //mines in map
-    static ArrayList<Integer> Xmines; //xpos
-    static ArrayList<Integer> Ymines; //ypos
-    static ArrayList<Integer> Qmines; //quantity
+    public HashMap<MapLocation, Integer> karboniteAt;
     //enemies list
     VecUnit enemyUnits;
     //enemy bases
@@ -60,9 +58,8 @@ class UnitManager{
     private int INF = 1000000000;
 
     void addMine(int x, int y, int q) {
-        Xmines.add(x);
-        Ymines.add(y);
-        Qmines.add(q);
+        MapLocation loc = new MapLocation(planet,x,y);
+        karboniteAt.put(loc,q);
     }
 
     void addExploreGrid(Integer area, double value) {
@@ -142,15 +139,14 @@ class UnitManager{
         research = Research.getInstance();
         MarsPlanning.initialize(gc);
         mp = MarsPlanning.getInstance();
-        map = gc.startingMap(gc.planet());
+        planet = gc.planet();
+        map = gc.startingMap(planet);
         W = (int)map.getWidth();
         H = (int)map.getHeight();
         middle = new MapLocation(gc.planet(), W/2, H/2);
         maxRadius = middle.distanceSquaredTo(new MapLocation(gc.planet(), 0, 0));
         //mines
-        Xmines = new ArrayList<Integer>();
-        Ymines = new ArrayList<Integer>();
-        Qmines = new ArrayList<Integer>();
+        karboniteAt = new HashMap<MapLocation, Integer>();
         //explore grid
         createGrid();
         //other
@@ -178,7 +174,7 @@ class UnitManager{
         //check enemy units
         enemyUnits = gc.senseNearbyUnitsByTeam(middle, maxRadius, enemyTeam);
         //check mines
-        //checkMines(); //de moment ho trec (Pau) perque no vull que s'esborrin posicions de la llista
+        checkMines();
         //update areas explored
         updateCurrentArea();
         //comprova si ha de construir factory o rocket
@@ -203,19 +199,17 @@ class UnitManager{
 
 
     void checkMines(){
-        for (int i = Xmines.size() - 1; i >= 0; --i) {
-            int x = Xmines.get(i);
-            int y = Ymines.get(i);
-            if (gc.canSenseLocation(new MapLocation(gc.planet(), x, y))) {
-                long q = gc.karboniteAt(new MapLocation(gc.planet(), x, y));
-                if (q > INF) q = INF;
-                if (q > 0) {
-                    if (q != Qmines.get(i)) Qmines.set(i, (int) q);
-                } else {
-                    Xmines.remove(i);
-                    Ymines.remove(i);
-                    Qmines.remove(i);
-                }
+        Iterator<HashMap.Entry<MapLocation,Integer> > it = karboniteAt.entrySet().iterator();
+        while (it.hasNext()){
+            HashMap.Entry<MapLocation, Integer> entry = it.next();
+            MapLocation location = entry.getKey();
+            int value = entry.getValue();
+            if (gc.canSenseLocation(location)){
+                long quant = gc.karboniteAt(location);
+                if (quant > INF) quant = INF;
+                if (quant > 0){
+                    if (quant != value) karboniteAt.put(location, (int) quant);
+                }else it.remove();
             }
         }
     }
@@ -224,18 +218,21 @@ class UnitManager{
         VecUnit v = gc.myUnits();
         boolean factoryBuilt = false;
         boolean rocketBuilt = false;
+        boolean workerBuilt = false;
         for (int i = 0; i < v.size(); i++){
             Unit u = v.get(i);
-            if (u.unitType() == UnitType.Factory){
+            UnitType type = u.unitType();
+            if (type == UnitType.Factory){
                 factoryBuilt = true;
-            }else if (u.unitType() == UnitType.Rocket){
+            }else if (type == UnitType.Rocket){
                 rocketBuilt = true;
-            }
+            }else if (type == UnitType.Worker) workerBuilt = true;
         }
         if (!factoryBuilt) queue.requestUnit(UnitType.Factory);
         if (!rocketBuilt && v.size() > 8 && gc.researchInfo().getLevel(UnitType.Rocket) > 0) { // aixo es super cutre, canviar!
             queue.requestUnit(UnitType.Rocket);
         }
+        if (!workerBuilt) queue.requestUnit(UnitType.Worker);
     }
 
 
@@ -243,7 +240,6 @@ class UnitManager{
         VecUnit units = gc.myUnits();
         for (int i = 0; i < units.size(); i++) {
             Unit unit = units.get(i);
-            Location myLoc = unit.location();
             if(unit.unitType() == UnitType.Rocket) {
                 Rocket.getInstance().playFirst(unit);
             }

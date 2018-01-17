@@ -17,7 +17,7 @@ public class Player {
             unitManager.moveUnits();
             long endTime = System.nanoTime();
             long usedTime = endTime - roundTime;
-            if (usedTime > 10000000) System.out.println("Round time: " + usedTime + "    Total time: " + (endTime - initTime));
+            //if (usedTime > 10000000) System.out.println("Round time: " + usedTime + "    Total time: " + (endTime - initTime));
             gc.nextTurn();
         }
     }

@@ -41,6 +41,7 @@ public class Worker {
         mapa.computeIfAbsent(id, k -> new WorkerData(id));
         data = mapa.get(id);
         data.loc = unit.location().mapLocation();
+        //System.out.println(unit.location() + "  " + unit.location().isInGarrison());
     }
 
     private Direction checkDanger(){
@@ -48,17 +49,14 @@ public class Worker {
         return null;
     }
 
-    private void deleteMineFromArray(int index){
-        UnitManager.Xmines.set(index, -1);
-        UnitManager.Ymines.set(index, -1);
-        UnitManager.Qmines.set(index, -1);
+    private void deleteMine(MapLocation location){
+        UnitManager.getInstance().karboniteAt.remove(location);
     }
 
     private void resetTarget(){
         data.target_loc = null;
         data.target_type = TARGET_NONE;
         data.target_id = -1;
-        data.karbonite_index = -1;
     }
 
     //Si esta en perill, fuig, si no, va al target
@@ -134,28 +132,20 @@ public class Worker {
     private void searchKarbonite(MapLocation location){
         long minDist = 1000000;
         MapLocation ans = null;
-        int index = -2;
-        for (int i = 0; i < UnitManager.Xmines.size(); ++i){
-            if (UnitManager.Qmines.get(i) == -1) continue;
-            int x = UnitManager.Xmines.get(i);
-            int y = UnitManager.Ymines.get(i);
-            MapLocation mineLoc = new MapLocation(myPlanet, x, y);
-            if (gc.canSenseLocation(mineLoc) && gc.karboniteAt(mineLoc) == 0){
-                deleteMineFromArray(i);
-                continue;
-            }
+        for (HashMap.Entry<MapLocation, Integer> entry : UnitManager.getInstance().karboniteAt.entrySet()) {
+            MapLocation mineLoc = entry.getKey();
+            //int value = entry.getValue();
             long d = location.distanceSquaredTo(mineLoc);
             if (d < minDist){
                 minDist = d;
                 ans = mineLoc;
-                index = i;
             }
         }
+
         if (ans == null) return;
         data.target_id = -1;
         data.target_type = TARGET_MINE;
         data.target_loc = ans;
-        data.karbonite_index = index;
     }
 
     //cada torn, el worker mira si canvia de target
@@ -182,10 +172,7 @@ public class Worker {
         found = searchNearbyStructure(data.loc);
 
         //Si te una mina de target, mira que encara hi quedi karbonite. Si no, reseteja target i elimina la mina de l'array
-        if (type == TARGET_MINE && gc.canSenseLocation(data.target_loc) && gc.karboniteAt(data.target_loc) == 0) {
-                deleteMineFromArray(data.karbonite_index);
-                resetTarget();
-        }
+        if (type == TARGET_MINE && UnitManager.getInstance().karboniteAt.get(data.target_loc) == null) resetTarget();
         if (found || type == TARGET_MINE) return;
         searchKarbonite(data.loc);
     }
@@ -252,8 +239,8 @@ public class Worker {
             for (int j = -search_radius; j <= search_radius; j++) {
                 MapLocation loc = myPos.translate(i, j);
                 if (!Utils.onTheMap(loc, gc)) continue;
-                int karbonite = (int) gc.karboniteAt(loc);
-                if (karbonite > 0) work += karbonite / unit.workerHarvestAmount() + 1;
+                HashMap<MapLocation,Integer> mapa = UnitManager.getInstance().karboniteAt;
+                if (mapa.containsKey(loc)) work += mapa.get(loc) / unit.workerHarvestAmount() + 1;
             }
         }
         VecUnit v = gc.senseNearbyUnitsByTeam(myPos,8, myTeam);
@@ -312,6 +299,7 @@ public class Worker {
             if (!Utils.onTheMap(karboLoc,gc)) continue;
             int karboAmount = (int) gc.karboniteAt(karboLoc);
             if (karboAmount > 0){
+                //System.out.println("AAAAA " + unit.location() + "  " + unit.location().isInGarrison());
                 //System.out.println("Unit location, dir: " + data.loc + "   " + d);
                 gc.harvest(data.id, d);
                 if (karboAmount <= unit.workerHarvestAmount()) resetTarget();
@@ -331,12 +319,25 @@ public class Worker {
     }
 
     void play(Unit unit){
-        initMemory(unit);
-        int id = data.id;
-        data.safest_direction = checkDanger();
-        updateTarget(unit);
-        if (DEBUG) System.out.println("Worker " + id +  "  " + data.loc + " has target " + data.target_loc + ", " + data.target_type);
-        doAction(unit);
-        move(unit);
+        try {
+            //System.out.println("Worker " + data.id + " start round " + gc.round());
+            initMemory(unit);
+            if (unit.location().isInGarrison() || unit.location().isInSpace()) return;
+
+            int id = data.id;
+            //System.out.println(id + " ok 1");
+            data.safest_direction = checkDanger();
+            //System.out.println(id + " ok 2");
+            updateTarget(unit);
+            //System.out.println(id + " ok 3");
+            if (DEBUG) System.out.println("Worker " + id + "  " + data.loc + " has target " + data.target_loc + ", " + data.target_type);
+            doAction(unit);
+            //System.out.println(id + " ok 4");
+            move(unit);
+            //System.out.println("Worker " + id + " end round " + gc.round());
+        }catch(Exception e){
+            System.out.println("CUIDADUUU!!!! Excepcio a worker, probablement perque un worker de dintre un garrison ha intentat fer una accio");
+            e.printStackTrace();
+        }
     }
 }

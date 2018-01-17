@@ -88,7 +88,7 @@ public class Danger {
 
         for (int i = 0; i < n; ++i){
             Unit unit = UnitManager.units.get(i);
-            dangUnits[i] = (MovementManager.getInstance().dangerousUnit(unit) && UnitManager.gc.isMoveReady(unit.id()));
+            dangUnits[i] = (MovementManager.getInstance().dangerousUnit(unit) && UnitManager.gc.isMoveReady(unit.id()) && UnitManager.gc.isAttackReady(unit.id()));
             Location loc = unit.location();
             if (!loc.isInGarrison()) locUnits[i] = unit.location().mapLocation();
             else dangUnits[i] = false;

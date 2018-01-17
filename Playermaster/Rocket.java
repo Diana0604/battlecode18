@@ -42,11 +42,20 @@ public class Rocket {
         mapa.computeIfAbsent(unit.id(), k -> new RocketData(unit.id()));
 
         if (unit.location().isOnPlanet(Planet.Earth)) {
-            RocketData data = mapa.get(unit.id());
             ArrayList<Pair> sorted = getSorted(unit);
+            RocketData data = mapa.get(unit.id());
+            data.voyagers = decideVoyagers();
             int[] remaining = getRemaining(unit, data);
             loadRobots(unit, sorted, remaining);
             aSopar(unit, data, sorted, remaining);
+        }
+        else if (unit.location().isOnPlanet(Planet.Mars)) {
+            if (unit.structureGarrison().size() > 0) {
+                for (Direction dir : MovementManager.allDirs) {
+                    if (dir == Direction.Center) continue;
+                    if (gc.canUnload(unit.id(), dir)) gc.unload(unit.id(), dir);
+                }
+            }
         }
 
     }
@@ -54,15 +63,20 @@ public class Rocket {
     void play(Unit unit) {
         //if it's still a blueprint return
         if(unit.structureIsBuilt() == 0) return;
-        if (hasToLeaveByEggs(unit)) {
-            launchRocket(unit);
-            return;
+        if (unit.location().isOnPlanet(Planet.Earth)) {
+            if (hasToLeaveByEggs(unit)) {
+                launchRocket(unit);
+                return;
+            }
+            RocketData data = mapa.get(unit.id());
+            checkLaunch(unit, data);
         }
-        checkLaunch(unit);
     }
 
     private void launchRocket(Unit unit) {
-
+        int arrivalRound = (int)gc.orbitPattern().duration(gc.round());
+        MapLocation arrivalLoc = MarsPlanning.getInstance().bestPlaceForRound(arrivalRound);
+        gc.launchRocket(unit.id(), arrivalLoc);
     }
 
     private boolean hasToLeaveByEggs(Unit unit) {
@@ -83,15 +97,14 @@ public class Rocket {
             sorted.add(new Pair(distance, unit_i));
         }
         sorted.sort((p1, p2) -> (p1.dist < p2.dist)?-1:1);
-        if (sorted.size() > 2) System.out.println(sorted.get(0).dist + " " + sorted.get(1).dist + " " + sorted.get(2).dist);
+        //if (sorted.size() > 2) System.out.println(sorted.get(0).dist + " " + sorted.get(1).dist + " " + sorted.get(2).dist);
         return sorted;
     }
 
     private int[] getRemaining(Unit unit, RocketData data) {
-        data.voyagers = decideVoyagers();
         int[] remaining = data.voyagers.clone();
         // check garrison: de moment nomes descomptem els que ja han arribat.
-        // en realitat tambe s'haurien de xutar els que sobrin en cas que canvies la composicio de voyagers
+        // Si hi ha robots que no haurien d'estar quedaran numeros negatius.
         VecUnitID garrison = unit.structureGarrison();
         for (int i = 0; i < garrison.size(); ++i) {
             remaining[gc.unit(garrison.get(i)).unitType().swigValue()]--;
@@ -130,8 +143,30 @@ public class Rocket {
         return firstRocket.clone();
     }
 
-    private void checkLaunch(Unit unit) {
+    private void checkLaunch(Unit unit, RocketData data) {
+        int[] remaining = getRemaining(unit, data);
+        if (full(remaining)) {
+            Danger.computeDanger(unit.location().mapLocation(), center);
+            double dps = Danger.DPS[8];
+            boolean shouldWait = false;
+            // calcula quantes rondes podria aguantar amb aquest dps i mira si surt a compte esperar-les
+            // si no te dps mira si surt a compte esperar qualsevol numero de rondes
+            if (dps > 0) {
+                int rounds = (int)Math.round(Math.min(1000, Math.floor(unit.health() / dps)));
+                shouldWait = MarsPlanning.getInstance().shouldWaitToLaunchRocket((int)gc.round(), rounds);
+            }
+            else shouldWait = MarsPlanning.getInstance().shouldWaitToLaunchRocket((int)gc.round());
+            if (!shouldWait) {
+                launchRocket(unit);
+            }
+        }
+    }
 
+    private boolean full(int[] remaining) {
+        for (int r:remaining) {
+            if (r != 0) return false;
+        }
+        return true;
     }
 
     private class Pair {

@@ -203,14 +203,13 @@ class Data {
     private static void checkMyUnits(){
         allUnits = new HashMap<>();
         structures = new HashSet<>();
-        VecUnit v = gc.myUnits();
-        int INITIAL_FACTORIES = 3; //volem tenir minim aquestes fabriques
-        int MIN_KARBONITE_FOR_FACTORY = 200; //si ens passem d'aquesta karbo, fem factory sempre
+        int MIN_KARBONITE_FOR_FACTORY = 200;
+        int INITIAL_FACTORIES = 3;
         int factories = 0;
         boolean rocketBuilt = false;
         boolean workerBuilt = false;
-        for (int i = 0; i < v.size(); i++){
-            Unit u = v.get(i);
+        for (int i = 0; i < units.size(); i++){
+            Unit u = units.get(i);
             allUnits.put(u.id(), i);
             UnitType type = u.unitType();
             if (type == UnitType.Factory){
@@ -222,7 +221,7 @@ class Data {
             }else if (type == UnitType.Worker && !u.location().isInGarrison()) workerBuilt = true;
         }
         if (factories < INITIAL_FACTORIES || gc.karbonite() > MIN_KARBONITE_FOR_FACTORY) queue.requestUnit(UnitType.Factory);
-        if (!rocketBuilt && v.size() > 8 && gc.researchInfo().getLevel(UnitType.Rocket) > 0) { // aixo es super cutre, canviar!
+        if (!rocketBuilt && units.size() > 8 && gc.researchInfo().getLevel(UnitType.Rocket) > 0) { // aixo es super cutre, canviar!
             queue.requestUnit(UnitType.Rocket);
         }
         if (!workerBuilt) queue.requestUnit(UnitType.Worker);

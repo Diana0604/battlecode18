@@ -265,7 +265,8 @@ public class Worker {
     private boolean shouldReplicate(Unit unit){
         if (data.safest_direction != null) return false;
         int search_radius = 8;
-        int work = 0; //turns of work in the area (mining+building+repairing)
+        int miningwork = 0; //turns of work
+        int buildingwork = 0;
         int workers = 0;
         final int WORKPERWORKER = 30;
         MapLocation myPos = data.loc;
@@ -273,9 +274,8 @@ public class Worker {
             MapLocation loc = entry.getKey();
             if (myPos.distanceSquaredTo(loc) > search_radius) continue;
             int karbonite = entry.getValue();
-            if (karbonite > 0) work += karbonite/unit.workerHarvestAmount() + 1;
+            if (karbonite > 0) miningwork += karbonite/unit.workerHarvestAmount() + 1;
         }
-        if (unit.id() == 16) System.out.println(gc.round() + " WORK OF KARBONITE " + work);
         VecUnit v = gc.senseNearbyUnitsByTeam(myPos,8, myTeam);
         for (int i = 0; i < v.size(); i++){
             Unit u = v.get(i);
@@ -286,10 +286,13 @@ public class Worker {
                 int workperturn;
                 if (u.structureIsBuilt() == 0) workperturn = (int) unit.workerBuildHealth();
                 else workperturn = (int) unit.workerRepairHealth();
-                work += missingHealth/workperturn + 1;
+                buildingwork += missingHealth/workperturn + 1;
             }
         }
-        return work / ((workers>0)?workers:1 )> WORKPERWORKER;
+        if (workers == 0) workers = 1;
+
+
+        return (miningwork + 2*buildingwork) / workers > WORKPERWORKER;
     }
 
     private void tryReplicate(Unit unit){

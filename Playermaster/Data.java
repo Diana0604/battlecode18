@@ -36,7 +36,7 @@ class Data {
 
     static Integer[] asteroidRounds;
     static AsteroidStrike[] asteroidStrikes;
-    static AsteroidPattern asteroidPattern;
+    private static AsteroidPattern asteroidPattern;
 
     private static int[][] dangerMatrix;
     private static final double enemyBaseValue = -5;

@@ -11,7 +11,7 @@ public class Worker {
     private static Worker instance = null;
     private static GameController gc;
     private static ConstructionQueue queue;
-    private static boolean DEBUG = true;
+    private static boolean DEBUG = false;
     private static Team myTeam;
     private static Planet myPlanet;
 
@@ -264,19 +264,18 @@ public class Worker {
 
     private boolean shouldReplicate(Unit unit){
         if (data.safest_direction != null) return false;
-        int search_radius = 2;
+        int search_radius = 8;
         int work = 0; //turns of work in the area (mining+building+repairing)
         int workers = 0;
-        final int WORKPERWORKER = 15;
+        final int WORKPERWORKER = 30;
         MapLocation myPos = data.loc;
-        for (int i = -search_radius; i <= search_radius; i++) {
-            for (int j = -search_radius; j <= search_radius; j++) {
-                MapLocation loc = myPos.translate(i, j);
-                if (!Utils.onTheMap(loc, gc)) continue;
-                HashMap<MapLocation,Integer> mapa = Data.karboniteAt;
-                if (mapa.containsKey(loc)) work += mapa.get(loc) / unit.workerHarvestAmount() + 1;
-            }
+        for (HashMap.Entry<MapLocation,Integer> entry :Data.karboniteAt.entrySet()){
+            MapLocation loc = entry.getKey();
+            if (myPos.distanceSquaredTo(loc) > search_radius) continue;
+            int karbonite = entry.getValue();
+            if (karbonite > 0) work += karbonite/unit.workerHarvestAmount() + 1;
         }
+        if (unit.id() == 16) System.out.println(gc.round() + " WORK OF KARBONITE " + work);
         VecUnit v = gc.senseNearbyUnitsByTeam(myPos,8, myTeam);
         for (int i = 0; i < v.size(); i++){
             Unit u = v.get(i);
@@ -295,7 +294,9 @@ public class Worker {
 
     private void tryReplicate(Unit unit){
         if (data.safest_direction != null) return;
-        if (!queue.needsUnit(UnitType.Worker) && !shouldReplicate(unit)) return;
+        boolean should = shouldReplicate(unit);
+        //System.out.println(unit.location().mapLocation() + " Should replicate? " + should);
+        if (!queue.needsUnit(UnitType.Worker) && !should) return;
         for (int i = 0; i < 9; ++i){
             Direction d = allDirs[i];
             if (gc.canReplicate(data.id, d)) {

@@ -10,7 +10,7 @@
 
 
 ---------- Com fer merge de la meva branca amb dev 
-[Assumint que tots els canvis a la branch locals els he pujat al remote
+[Assumint que tots els canvis a la branch locals els he pujat al remote]
 [Pau] git checkout development 						[em canvia de branch]
 [Dev] git pull origin pau							[des de Dev, em baixo els canvis fets a Pau]
 [Dev] ...arreglar conflictes...
@@ -18,7 +18,7 @@
 
 
 ---------- Com fer que la branca Pau sigui copia de Development, despres de fer el merge
-[Dev] git branch -D Pau 						[esborro la meva branch en el local] -> no se si fa falta
+[Dev] git branch -D Pau 						[esborro la meva branch en el local]
 [Dev] git push origin --delete Pau 				[esborro la meva branch en el remote]
 [Dev] git branch Pau 							[em crea la branch Pau com a copia de Dev, nomes en local]
 [Dev] git checkout Pau 							[em canvia de branch]

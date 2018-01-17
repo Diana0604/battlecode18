@@ -1,3 +1,5 @@
+
+
 import bc.*;
 
 import java.util.HashMap;
@@ -78,13 +80,20 @@ public class MovementManager {
     }
 
     public boolean naiveMoveTo(MapLocation target){
-        if (!gc.isMoveReady(id)) return false;
 
         /*reset if new target*/
-        if (data.target == null || !target.equals(data.target)){
-            data.target = target;
-            data.soft_reset(myLoc);
+        if (data.target == null || (target != null && target.distanceSquaredTo(data.target) > 0)){
+            if (data.target != null && target != null && target.distanceSquaredTo(data.target) <= 2){
+                data.minDist = myLoc.distanceSquaredTo(target);
+            }
+            else data.soft_reset(myLoc);
         }
+
+        //else if (data.target != null && target != null && target.distanceSquaredTo(data.target) > 0 && target.distanceSquaredTo(data.target) <= 8){
+            //data.minDist = target.distanceSquaredTo(myLoc);
+        //}
+        data.target = target;
+
         if (target != null && distance(myLoc, target) < data.minDist){
             data.soft_reset(myLoc);
         }
@@ -158,6 +167,21 @@ public class MovementManager {
 
         greedyMove();
 
+
+        if (!gc.isMoveReady(id)) return;
+
+        //for (int i = 0; i < 9; ++i) if(Danger.DPS[i] > 0) canMove[i] = false;
+
+        long d = myLoc.distanceSquaredTo(target);
+        if (d == 0) return;
+        if (d <= 2){
+            Direction dir = myLoc.directionTo(target);
+            //System.err.println(dir);
+            //System.err.println(Pathfinder.getIndex(dir));
+            if (canMove[Pathfinder.getIndex(dir)]) gc.moveRobot(id, dir);
+            return;
+        }
+
         naiveMoveTo(target);
 
         //safeMoveTo(unit, target);
@@ -166,15 +190,26 @@ public class MovementManager {
     }
 
     int bestIndex(int i, int j){
-        if (Danger.DPS[i] > Danger.DPS[j]) return j;
-        if (Danger.DPS[i] < Danger.DPS[j]) return i;
-        if (attacker){
-            if (Danger.minDist[i] > attackRange && Danger.minDist[j] < attackRange) return j;
-            if (Danger.minDist[i] < attackRange && Danger.minDist[j] > attackRange) return i;
-            if (Danger.minDist[i] < attackRange){
-                if (Danger.minDist[i] >= Danger.minDist[j]) return i;
-                return j;
+        if (!Danger.attackers.contains(id)) {
+            if (Danger.DPS[i] > Danger.DPS[j]) return j;
+            if (Danger.DPS[i] < Danger.DPS[j]) return i;
+            if (attacker) {
+                if (Danger.minDist[i] > attackRange && Danger.minDist[j] <= attackRange) return j;
+                if (Danger.minDist[i] <= attackRange && Danger.minDist[j] > attackRange) return i;
+                if (Danger.minDist[i] <= attackRange) {
+                    if (Danger.minDist[i] >= Danger.minDist[j]) return i;
+                    return j;
+                }
             }
+            return i;
+        }
+        if (Danger.minDist[i] > attackRange && Danger.minDist[j] <= attackRange) return j;
+        if (Danger.minDist[i] <= attackRange && Danger.minDist[j] > attackRange) return i;
+        if (Danger.minDist[i] <= attackRange){
+            if (Danger.DPS[i] > Danger.DPS[j]) return j;
+            if (Danger.DPS[i] < Danger.DPS[j]) return i;
+            if (Danger.minDist[i] >= Danger.minDist[j]) return i;
+            return j;
         }
         return i;
     }
@@ -184,6 +219,8 @@ public class MovementManager {
         int index = 8;
         for (int i = 0; i < 8; ++i) if (canMove[i]) index = bestIndex(index, i);
 
+        //System.err.println(index);
+
         if (index != 8){
             gc.moveRobot(id, allDirs[index]);
             data.soft_reset(myLoc);
@@ -192,6 +229,7 @@ public class MovementManager {
 
     boolean isSafe(Direction dir){
         int ind = Pathfinder.getIndex(dir);
+        //if (Danger.attackers.contains(id)) return (Danger.DPSshort[ind] <= 0);
         return (Danger.DPS[ind] <= 0);
     }
 

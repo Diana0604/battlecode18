@@ -47,7 +47,7 @@ class UnitManager{
     //mines in map
     public HashMap<MapLocation, Integer> karboniteAt;
     //enemies list
-    VecUnit enemyUnits;
+    static VecUnit enemyUnits, units;
     //enemy bases
     private int[][] locToArea;
     private int[] areaToLocX;
@@ -173,6 +173,7 @@ class UnitManager{
     void update() {
         //check enemy units
         enemyUnits = gc.senseNearbyUnitsByTeam(middle, maxRadius, enemyTeam);
+        units = gc.myUnits();
         //check mines
         checkMines();
         //update areas explored
@@ -181,11 +182,13 @@ class UnitManager{
         checkMyUnits();
         research.checkResearch();
         Rocket.initTurn();
+
+        Danger.updateAttackers();
+
     }
 
 
     private void updateCurrentArea(){
-        VecUnit units = gc.myUnits();
         for(int i = 0; i < units.size(); ++i){
             Unit unit = units.get(i);
             if(unit.location().isInGarrison()) continue;

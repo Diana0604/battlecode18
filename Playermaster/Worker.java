@@ -284,7 +284,9 @@ public class Worker {
         if (queue.needsUnit(UnitType.Factory)) type = UnitType.Factory;
         if (type == null) return false;
 
-        Danger.computeDanger(data.loc);
+        boolean[] aux = new boolean[9];
+        for (int i = 0; i < 9; ++i) aux[i] = true;
+        Danger.computeDanger(data.loc, aux);
         for (Direction d: Direction.values()){
             if (Danger.DPS[d.swigValue()] > 0) continue;
             if (!gc.canBlueprint(data.id, type, d)) continue;

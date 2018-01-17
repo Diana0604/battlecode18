@@ -8,6 +8,9 @@
       <excludeFolder url="file://$MODULE_DIR$/Player01-java" />
       <excludeFolder url="file://$MODULE_DIR$/Player02-java" />
       <excludeFolder url="file://$MODULE_DIR$/Player03-java" />
+      <excludeFolder url="file://$MODULE_DIR$/Player04-java" />
+      <excludeFolder url="file://$MODULE_DIR$/Player05-java" />
+      <excludeFolder url="file://$MODULE_DIR$/Player06-java" />
       <excludeFolder url="file://$MODULE_DIR$/examplefuncsplayer-java" />
     </content>
     <orderEntry type="inheritedJdk" />

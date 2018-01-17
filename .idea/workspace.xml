@@ -101,8 +101,8 @@
       <file leaf-file-name="Danger.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Playermaster/Danger.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="782">
-              <caret line="49" column="51" lean-forward="true" selection-start-line="49" selection-start-column="16" selection-end-line="49" selection-end-column="51" />
+            <state relative-caret-position="1377">
+              <caret line="90" column="160" lean-forward="false" selection-start-line="90" selection-start-column="160" selection-end-line="90" selection-end-column="160" />
               <folding />
             </state>
           </provider>
@@ -154,7 +154,6 @@
         <option value="$PROJECT_DIR$/Playermaster/Factory.java" />
         <option value="$PROJECT_DIR$/Playermaster/Worker.java" />
         <option value="$PROJECT_DIR$/Playermaster/MovementManager.java" />
-        <option value="$PROJECT_DIR$/Playermaster/Danger.java" />
         <option value="$PROJECT_DIR$/Playermaster/Ranger.java" />
         <option value="$PROJECT_DIR$/Player-07/BugPathfindingData.java" />
         <option value="$PROJECT_DIR$/Player-07/ConstructionQueue.java" />
@@ -175,6 +174,7 @@
         <option value="$PROJECT_DIR$/Player-07/UnitManager.java" />
         <option value="$PROJECT_DIR$/Player-07/Worker.java" />
         <option value="$PROJECT_DIR$/Player-07/Ranger.java" />
+        <option value="$PROJECT_DIR$/Playermaster/Danger.java" />
       </list>
     </option>
   </component>
@@ -482,7 +482,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-10" y="8" width="1374" height="735" extended-state="0" />
-    <editor active="false" />
+    <editor active="true" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -498,7 +498,7 @@
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2498096" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2498096" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="ASM" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -911,8 +911,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Playermaster/Danger.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="782">
-          <caret line="49" column="51" lean-forward="true" selection-start-line="49" selection-start-column="16" selection-end-line="49" selection-end-column="51" />
+        <state relative-caret-position="1377">
+          <caret line="90" column="160" lean-forward="false" selection-start-line="90" selection-start-column="160" selection-end-line="90" selection-end-column="160" />
           <folding />
         </state>
       </provider>

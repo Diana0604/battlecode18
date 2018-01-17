@@ -216,6 +216,7 @@ class UnitManager{
 
     private void checkMyUnits(){
         VecUnit v = gc.myUnits();
+        int MIN_KARBONITE_FOR_FACTORY = 200;
         boolean factoryBuilt = false;
         boolean rocketBuilt = false;
         boolean workerBuilt = false;
@@ -228,7 +229,7 @@ class UnitManager{
                 rocketBuilt = true;
             }else if (type == UnitType.Worker && !u.location().isInGarrison()) workerBuilt = true;
         }
-        if (!factoryBuilt) queue.requestUnit(UnitType.Factory);
+        if (!factoryBuilt || gc.karbonite() > MIN_KARBONITE_FOR_FACTORY) queue.requestUnit(UnitType.Factory);
         if (!rocketBuilt && v.size() > 8 && gc.researchInfo().getLevel(UnitType.Rocket) > 0) { // aixo es super cutre, canviar!
             queue.requestUnit(UnitType.Rocket);
         }

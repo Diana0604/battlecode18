@@ -3,8 +3,6 @@ import bc.*;
 
 import java.util.HashMap;
 
-import static java.lang.Math.floor;
-
 public class Ranger {
     final long INFL = 1000000000;
     final int INF = 1000000000;
@@ -34,6 +32,10 @@ public class Ranger {
         attack(unit);
     }
 
+    static void moveTo(Unit unit, MapLocation target){
+        MovementManager.getInstance().moveTo(unit, target);
+    }
+
     Unit getBestAttackTarget(Unit A, Unit B){
         if (A == null) return B;
         if (B == null) return A;
@@ -55,7 +57,7 @@ public class Ranger {
         Unit bestVictim = null;
         if(!gc.isAttackReady(id)) return;
         MapLocation myLoc = unit.location().mapLocation();
-        VecUnit canAttack = gc.senseNearbyUnitsByTeam(myLoc, unit.attackRange(), unitManager.enemyTeam);
+        VecUnit canAttack = gc.senseNearbyUnitsByTeam(myLoc, unit.attackRange(), Data.enemyTeam);
         for(int i = 0; i < canAttack.size(); ++i){
             Unit victim = canAttack.get(i);
             if (gc.canAttack(id, victim.id())) {
@@ -70,7 +72,11 @@ public class Ranger {
     void move(Unit unit){
         MapLocation target = getBestTarget(unit);
         if (target != null) MovementManager.getInstance().moveTo(unit, target);
-        else explore(unit);
+        else {
+            ConstructionQueue queue = Data.queue;
+            queue.requestUnit(UnitType.Rocket);
+            explore(unit);
+        }
     }
 
     MapLocation getBestTarget(Unit unit){
@@ -83,15 +89,15 @@ public class Ranger {
         MapLocation myLoc = unit.location().mapLocation();
         MapLocation target = getBestEnemy(myLoc);
         if(target == null) return;
-        UnitManager.getInstance().moveTo(unit, target);
+        moveTo(unit, target);
 
     }
 
     MapLocation getBestEnemy(MapLocation myLoc){
         long minDist = INFL;
         MapLocation target = null;
-        for(int i = 0; i < unitManager.enemyUnits.size(); ++i){
-            MapLocation enemyLocation = unitManager.enemyUnits.get(i).location().mapLocation();
+        for(int i = 0; i < Data.enemyUnits.size(); ++i){
+            MapLocation enemyLocation = Data.enemyUnits.get(i).location().mapLocation();
             long d = enemyLocation.distanceSquaredTo(myLoc);
             if(d < minDist){
                 minDist = d;
@@ -101,39 +107,44 @@ public class Ranger {
         return target;
     }
 
+    static MapLocation areaToLocation(Integer area){
+        int x = Data.areaToLocX[Data.decodeX(area)];
+        int y = Data.areaToLocY[Data.decodeY(area)];
+        return new MapLocation(gc.planet(), x, y);
+    }
 
     MapLocation findExploreObjective(Unit unit){
         int id = unit.id();
-        Integer current = unitManager.currentArea.get(id);
+        Integer current = Data.currentArea.get(id);
         Integer obj = null;
         double minExplored = INF;
         MapLocation myLoc = unit.location().mapLocation();
         if(objectiveArea.containsKey(id) && current.intValue() != objectiveArea.get(id).intValue()) {
-            return unitManager.areaToLocation(objectiveArea.get(id));
+            return areaToLocation(objectiveArea.get(id));
         }
-        for(int i = 0; i < unitManager.exploreSizeX; ++i){
-            for(int j = 0; j < unitManager.exploreSizeY; ++j){
-                if(current.intValue() == unitManager.encode(i,j).intValue()) continue;
-                Integer area = unitManager.encode(i,j);
-                MapLocation areaLoc = unitManager.areaToLocation(area);
+        for(int i = 0; i < Data.exploreSizeX; ++i){
+            for(int j = 0; j < Data.exploreSizeY; ++j){
+                if(current.intValue() == Data.encode(i,j).intValue()) continue;
+                Integer area = Data.encode(i,j);
+                MapLocation areaLoc = areaToLocation(area);
                 if(Pathfinder.getInstance().getNode(myLoc.getX(), myLoc.getY(), areaLoc.getX(), areaLoc.getY()).dist >= INF) continue;
-                if(unitManager.exploreGrid[i][j] < minExplored){
-                    minExplored = unitManager.exploreGrid[i][j];
+                if(Data.exploreGrid[i][j] < minExplored){
+                    minExplored = Data.exploreGrid[i][j];
                     obj = area;
                 }
             }
         }
         if(obj != null) {
-            unitManager.addExploreGrid(obj, unitManager.exploreConstant);
+            Data.addExploreGrid(obj, Data.exploreConstant);
             objectiveArea.put(id, obj);
         }
-        if (obj != null) return unitManager.areaToLocation(obj);
+        if (obj != null) return areaToLocation(obj);
         return null;
     }
 
     void explore(Unit unit){
         MapLocation obj = findExploreObjective(unit);
-        if(obj != null) unitManager.moveTo(unit, obj);
+        if(obj != null) moveTo(unit, obj);
 
     }
 }

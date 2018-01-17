@@ -125,7 +125,7 @@ public class MovementManager {
             int cont = 0;
             while (!canMove[index] && cont < 20) {
                 MapLocation newLoc = myLoc.add(allDirs[index]);
-                if (!UnitManager.getInstance().map.onMap(newLoc)) data.left = !data.left;
+                if (!Data.planetMap.onMap(newLoc)) data.left = !data.left;
                 data.obstacle = newLoc;
                 if (data.left) index = (index + 1)%8;
                 else index = (index + 7)%8;

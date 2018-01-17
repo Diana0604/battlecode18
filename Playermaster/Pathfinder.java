@@ -32,7 +32,6 @@ public class Pathfinder{
     int W;
     int H;
 
-
     public Pathfinder(){
         gc = UnitManager.gc;
         map = gc.startingMap(gc.planet());
@@ -46,14 +45,17 @@ public class Pathfinder{
                 //add initial karbonite
                 long a = map.initialKarboniteAt(new MapLocation(gc.planet(), x, y));
                 if (a > INF) a = INF;
-                if (a > 0) UnitManager.getInstance().addMine(x,y,(int)a);
+                if (a > 0) addMine(x,y,(int)a);
                 //bfs
                 bfs(x,y);
             }
         }
     }
 
-
+    static void addMine(int x, int y, int q) {
+        MapLocation loc = new MapLocation(Data.planet,x,y);
+        Data.karboniteAt.put(loc,q);
+    }
 
     private  void bfs(int a,int b){
         PriorityQueue<Integer> queue = new PriorityQueue<Integer>();

@@ -15,7 +15,7 @@ public class Factory {
         if (instance == null){
             instance = new Factory();
             gc = UnitManager.gc;
-            queue = UnitManager.queue;
+            queue = Data.queue;
         }
         return instance;
     }

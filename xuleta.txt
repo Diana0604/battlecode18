@@ -33,7 +33,7 @@
 1. iniciar el docker toolbox: C:\Program Files\Docker Toolbox\start.sh
 2. anar al directori del btc: cd battlecode18
 3. escriure a la linia de comandes: winpty bash run.sh
-4. anar a: http://192.168.99.100:6147/run.html
+4. amb el chrome, anar a: http://192.168.99.100:6147/run.html
 
 
 

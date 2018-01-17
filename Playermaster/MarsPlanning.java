@@ -27,9 +27,6 @@ public class MarsPlanning{
     int ccs;
     int orbitPeriod;
 
-    Integer[] asteroidRounds;
-    AsteroidStrike[] asteroidStrikes;
-
     int[] arrivalTime = new int[1001];
     int[] departTime = new int[1001];
     int[] optimArrivalTime = new int[1001];
@@ -101,8 +98,8 @@ public class MarsPlanning{
                 aRounds.add(i);
             }
         }
-        asteroidRounds = aRounds.toArray(new Integer[0]);
-        asteroidStrikes = aStrikes.toArray(new AsteroidStrike[0]);
+        Data.asteroidRounds = aRounds.toArray(new Integer[0]);
+        Data.asteroidStrikes = aStrikes.toArray(new AsteroidStrike[0]);
 
     }
 
@@ -146,10 +143,10 @@ public class MarsPlanning{
 
         int[] ccKarbonite = new int[ccs+1];
         int[][] locKarbonite = new int[W][H];
-        for (int i = 0; i < asteroidRounds.length; ++i) {
-            int round_i = asteroidRounds[i];
+        for (int i = 0; i < Data.asteroidRounds.length; ++i) {
+            int round_i = Data.asteroidRounds[i];
             if (round_i-round > 50) break;
-            AsteroidStrike strike = asteroidStrikes[i];
+            AsteroidStrike strike = Data.asteroidStrikes[i];
             MapLocation loc = strike.getLocation();
             boolean[] seen_cc = new boolean[ccs+1];
             for (Direction dir: MovementManager.allDirs) {

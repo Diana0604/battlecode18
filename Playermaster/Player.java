@@ -6,16 +6,16 @@ public class Player {
     public static void main(String[] args) {
         long initTime = System.nanoTime();
         GameController gc = new GameController();
-        ConstructionQueue queue = new ConstructionQueue();
         // Init pathfinder
-        UnitManager.initialize(gc,queue);
+        UnitManager.initialize(gc);
         UnitManager unitManager = UnitManager.getInstance();
         Pathfinder.getInstance();
 
         while (true) {
             //long roundTime = System.nanoTime();
             //System.out.println("Start of round " + gc.round());
-            unitManager.update();
+            Data.initTurn();
+            //unitManager.update();
             unitManager.moveUnits();
             //long endTime = System.nanoTime();
             //long usedTime = endTime - roundTime;

@@ -64,6 +64,7 @@ public class Rocket {
     void play(Unit unit) {
         //if it's still a blueprint return
         if(unit.structureIsBuilt() == 0) return;
+        //System.out.println("Rocket location " + unit.location() + " round " + gc.round());
         if (unit.location().isOnPlanet(Planet.Earth)) {
             if (hasToLeaveByEggs(unit)) {
                 launchRocket(unit);
@@ -71,6 +72,8 @@ public class Rocket {
             }
             RocketData data = mapa.get(unit.id());
             checkLaunch(unit, data);
+        }else{
+            System.out.println("Rocket " + unit.id() + " a l'espai!");
         }
     }
 

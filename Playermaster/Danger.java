@@ -35,7 +35,7 @@ public class Danger {
             DPSshort[i] = 0;
         }
 
-        VecUnit enemies = UnitManager.gc.senseNearbyUnitsByTeam(myLoc, 100, UnitManager.enemyTeam);
+        VecUnit enemies = UnitManager.gc.senseNearbyUnitsByTeam(myLoc, 100, Data.enemyTeam);
         for(int i = 0; i < enemies.size(); ++i){
             Unit enemy = enemies.get(i);
             double dps = 0;
@@ -71,9 +71,8 @@ public class Danger {
     }
 
     static void updateAttackers(){
-
-        int n = (int) UnitManager.units.size();
-        int m = (int) UnitManager.enemyUnits.size();
+        int n = (int) Data.units.size();
+        int m = (int) Data.enemyUnits.size();
 
         locUnits = new MapLocation[n];
         locEnemyUnits = new MapLocation[m];
@@ -87,7 +86,7 @@ public class Danger {
         attackers = new HashSet<>();
 
         for (int i = 0; i < n; ++i){
-            Unit unit = UnitManager.units.get(i);
+            Unit unit = Data.units.get(i);
             dangUnits[i] = (MovementManager.getInstance().dangerousUnit(unit) && UnitManager.gc.isMoveReady(unit.id()) && UnitManager.gc.isAttackReady(unit.id()));
             Location loc = unit.location();
             if (!loc.isInGarrison()) locUnits[i] = unit.location().mapLocation();
@@ -96,7 +95,7 @@ public class Danger {
         }
 
         for (int i = 0; i < m; ++i){
-            Unit unit = UnitManager.enemyUnits.get(i);
+            Unit unit = Data.enemyUnits.get(i);
             locEnemyUnits[i] = unit.location().mapLocation();
             dangEnemyUnits[i] = MovementManager.getInstance().dangerousUnit(unit);
             visitedEnemyUnits[i] = false;
@@ -118,25 +117,25 @@ public class Danger {
         Queue<Integer> q = new LinkedList<Integer>();
         visitedUnits[i] = true;
         q.add(encode(i, 0));
-        possibleAttackers.add(UnitManager.units.get(i).id());
+        possibleAttackers.add(Data.units.get(i).id());
         while (!q.isEmpty()) {
             int a = q.poll();
             int y = decodeY(a);
             int x = decodeX(a);
             if (y == 0){
-                for (int j = 0; j < UnitManager.enemyUnits.size(); ++j){
-                    if (!visitedEnemyUnits[j] && dangEnemyUnits[j] && locEnemyUnits[j].distanceSquaredTo(locUnits[x]) <= getMaxDanger(UnitManager.enemyUnits.get(j))){
+                for (int j = 0; j < Data.enemyUnits.size(); ++j){
+                    if (!visitedEnemyUnits[j] && dangEnemyUnits[j] && locEnemyUnits[j].distanceSquaredTo(locUnits[x]) <= getMaxDanger(Data.enemyUnits.get(j))){
                         q.add(encode(j, 1));
-                        possibleDefenders.add(UnitManager.enemyUnits.get(j).id());
+                        possibleDefenders.add(Data.enemyUnits.get(j).id());
                         visitedEnemyUnits[j] = true;
                     }
                 }
             }
             else{
-                for (int j = 0; j < UnitManager.units.size(); ++j){
-                    if (!visitedUnits[j] && dangUnits[j] && locUnits[j].distanceSquaredTo(locEnemyUnits[x]) <= getMaxDanger(UnitManager.units.get(j))){
+                for (int j = 0; j < Data.units.size(); ++j){
+                    if (!visitedUnits[j] && dangUnits[j] && locUnits[j].distanceSquaredTo(locEnemyUnits[x]) <= getMaxDanger(Data.units.get(j))){
                         q.add(encode(j, 0));
-                        possibleAttackers.add(UnitManager.units.get(j).id());
+                        possibleAttackers.add(Data.units.get(j).id());
                         visitedUnits[j] = true;
                     }
                 }
@@ -155,7 +154,7 @@ public class Danger {
     }
 
     static int getMaxDanger(Unit unit){
-        if (UnitManager.aggro) {
+        if (Data.aggro) {
             if (unit.unitType() == UnitType.Ranger) return 68;
             if (unit.unitType() == UnitType.Mage) return 65;
             if (unit.unitType() == UnitType.Knight) return 8;

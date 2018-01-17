@@ -1,3 +1,5 @@
+
+
 import bc.GameController;
 import bc.UnitType;
 
@@ -21,7 +23,7 @@ public class Research {
         return instance;
     }
 
-    public void checkResearch() {
+    /*public void checkResearch() {
         if(!gc.researchInfo().hasNextInQueue()) {
             if(stage < fixedTree.length) {
                 if (gc.queueResearch(fixedTree[stage]) != 0) {
@@ -30,6 +32,10 @@ public class Research {
                 else System.out.println("Per algun motiu ha fallat el research");
             }
         }
+    }*/
+
+    public void yolo(){
+        for (int i = 0; i < fixedTree.length; ++i) gc.queueResearch(fixedTree[i]);
     }
 
 }

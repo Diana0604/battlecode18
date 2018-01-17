@@ -1,5 +1,4 @@
 
-
 import bc.*;
 
 import java.util.HashMap;
@@ -75,6 +74,7 @@ public class Ranger {
     }
 
     MapLocation getBestTarget(Unit unit){
+        if (Rocket.callsToRocket.containsKey(unit.id())) return Rocket.callsToRocket.get(unit.id());
         return getBestEnemy(unit.location().mapLocation());
     }
 
@@ -127,7 +127,8 @@ public class Ranger {
             unitManager.addExploreGrid(obj, unitManager.exploreConstant);
             objectiveArea.put(id, obj);
         }
-        return unitManager.areaToLocation(obj);
+        if (obj != null) return unitManager.areaToLocation(obj);
+        return null;
     }
 
     void explore(Unit unit){

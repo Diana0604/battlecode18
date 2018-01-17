@@ -1,4 +1,3 @@
-package Player06
 
 import bc.*;
 
@@ -8,6 +7,7 @@ public class Factory {
 
     static Factory instance = null;
     static GameController gc;
+    static ConstructionQueue queue;
 
     boolean wait;
 
@@ -15,6 +15,7 @@ public class Factory {
         if (instance == null){
             instance = new Factory();
             gc = UnitManager.gc;
+            queue = UnitManager.queue;
         }
         return instance;
     }
@@ -29,7 +30,11 @@ public class Factory {
     }
 
     void checkGarrison(Unit unit){
+        boolean[] aux = new boolean[9];
+        for (int i = 0; i < 9; ++i) aux[i] = true;
+        Danger.computeDanger(unit.location().mapLocation(), aux);
         for(int i = 0; i < allDirs.length; ++i){
+            if (Danger.DPS[i] > 0) continue;
             if(gc.canUnload(unit.id(), allDirs[i])) {
                 gc.unload(unit.id(), allDirs[i]);
             }
@@ -37,7 +42,12 @@ public class Factory {
     }
 
     void build(Unit unit){
-        if(!gc.canProduceRobot(unit.id(), UnitType.Ranger)) return;
+        int id = unit.id();
+        if (queue.needsUnit(UnitType.Worker) && gc.canProduceRobot(id,UnitType.Worker)){
+            gc.produceRobot(id, UnitType.Worker);
+            queue.requestUnit(UnitType.Worker,false);
+        }
+        if(!gc.canProduceRobot(id, UnitType.Ranger)) return;
         gc.produceRobot(unit.id(),UnitType.Ranger);
     }
 }

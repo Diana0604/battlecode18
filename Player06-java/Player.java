@@ -1,9 +1,10 @@
-package Player06
-// See xxx for the javadocs.
+
+
 import bc.*;
 
 public class Player {
     public static void main(String[] args) {
+        long initTime = System.nanoTime();
         GameController gc = new GameController();
         ConstructionQueue queue = new ConstructionQueue();
         // Init pathfinder
@@ -11,13 +12,14 @@ public class Player {
         UnitManager unitManager = UnitManager.getInstance();
         Pathfinder.getInstance();
 
-        gc.queueResearch(UnitType.Ranger);
-        gc.queueResearch(UnitType.Ranger);
-
         while (true) {
-            System.out.println("Start of round " + gc.round());
+            long roundTime = System.nanoTime();
+            //System.out.println("Start of round " + gc.round());
             unitManager.update();
             unitManager.moveUnits();
+            long endTime = System.nanoTime();
+            long usedTime = endTime - roundTime;
+            //if (usedTime > 10000000) System.out.println("Round time: " + usedTime + "    Total time: " + (endTime - initTime));
             gc.nextTurn();
         }
     }

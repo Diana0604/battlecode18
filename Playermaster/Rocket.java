@@ -1,3 +1,4 @@
+
 import bc.*;
 
 import java.util.ArrayList;
@@ -93,7 +94,7 @@ public class Rocket {
             Unit unit_i = myUnits.get(i);
             if (!unit_i.location().isOnMap() || !unit_i.location().isOnPlanet(Planet.Earth)) continue;
             double distance = Pathfinder.getInstance().getNode(unit.location().mapLocation(), unit_i.location().mapLocation()).dist;
-            if (distance == (double)Pathfinder.INF) continue;
+            if (distance == (double) Pathfinder.INF) continue;
             sorted.add(new Pair(distance, unit_i));
         }
         sorted.sort((p1, p2) -> (p1.dist < p2.dist)?-1:1);

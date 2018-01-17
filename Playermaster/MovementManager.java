@@ -200,6 +200,12 @@ public class MovementManager {
                     if (Danger.minDist[i] >= Danger.minDist[j]) return i;
                     return j;
                 }
+                else {
+                    if (i != 8){
+                        if (Danger.minDist[i] <= Danger.minDist[j]) return i;
+                        return j;
+                    }
+                }
             }
             return i;
         }
@@ -210,6 +216,12 @@ public class MovementManager {
             if (Danger.DPS[i] < Danger.DPS[j]) return i;
             if (Danger.minDist[i] >= Danger.minDist[j]) return i;
             return j;
+        }
+        else {
+            if (i != 8){
+                if (Danger.minDist[i] <= Danger.minDist[j]) return i;
+                return j;
+            }
         }
         return i;
     }

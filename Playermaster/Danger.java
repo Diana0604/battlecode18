@@ -18,6 +18,8 @@ public class Danger {
     static final int INF = 1000000000;
     static HashSet<Integer> attackers;
 
+    static final double winningProportion = 1.15;
+
     static MapLocation[] locUnits, locEnemyUnits;
     static boolean[] dangUnits, dangEnemyUnits, visitedUnits, visitedEnemyUnits;
 
@@ -70,8 +72,8 @@ public class Danger {
 
     static void updateAttackers(){
 
-        int n = (int)UnitManager.units.size();
-        int m = (int)UnitManager.enemyUnits.size();
+        int n = (int) UnitManager.units.size();
+        int m = (int) UnitManager.enemyUnits.size();
 
         locUnits = new MapLocation[n];
         locEnemyUnits = new MapLocation[m];
@@ -146,16 +148,23 @@ public class Danger {
         //System.err.println("Possible defenders");
         //System.err.println(possibleDefenders.size());
 
-        if ((double)possibleAttackers.size() > (double)possibleDefenders.size()*1.25){
+        if ((double)possibleAttackers.size() > (double)possibleDefenders.size()*winningProportion){
             for (Integer a : possibleAttackers) attackers.add(a);
         }
 
     }
 
     static int getMaxDanger(Unit unit){
-        if (unit.unitType() == UnitType.Ranger) return 68;
-        if (unit.unitType() == UnitType.Mage) return 65;
-        if (unit.unitType() == UnitType.Knight) return 8;
+        if (UnitManager.aggro) {
+            if (unit.unitType() == UnitType.Ranger) return 68;
+            if (unit.unitType() == UnitType.Mage) return 65;
+            if (unit.unitType() == UnitType.Knight) return 8;
+        }
+        else{
+            if (unit.unitType() == UnitType.Ranger) return 50;
+            if (unit.unitType() == UnitType.Mage) return 45;
+            if (unit.unitType() == UnitType.Knight) return 2;
+        }
         return 0;
     }
 

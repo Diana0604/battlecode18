@@ -1,3 +1,5 @@
+
+
 import bc.*;
 
 import java.util.*;
@@ -23,6 +25,9 @@ class UnitManager{
     static Team enemyTeam;
     static MarsPlanning mp;
     static Research research;
+    static boolean aggro;
+    static HashMap<Integer, Integer> allUnits;
+    static HashSet<Integer> structures;
 
     //current area
     private int W;
@@ -135,8 +140,10 @@ class UnitManager{
 
     UnitManager(){
         //general
+        aggro = false;
         Research.initialize(gc);
         research = Research.getInstance();
+        research.yolo();
         MarsPlanning.initialize(gc);
         mp = MarsPlanning.getInstance();
         planet = gc.planet();
@@ -180,10 +187,11 @@ class UnitManager{
         updateCurrentArea();
         //comprova si ha de construir factory o rocket
         checkMyUnits();
-        research.checkResearch();
+        //research.checkResearch();
         Rocket.initTurn();
 
         Danger.updateAttackers();
+        if (!aggro && gc.researchInfo().getLevel(UnitType.Ranger) > 1) aggro = true;
 
     }
 
@@ -218,6 +226,8 @@ class UnitManager{
     }
 
     private void checkMyUnits(){
+        allUnits = new HashMap<>();
+        structures = new HashSet<>();
         VecUnit v = gc.myUnits();
         int MIN_KARBONITE_FOR_FACTORY = 200;
         boolean factoryBuilt = false;
@@ -225,11 +235,14 @@ class UnitManager{
         boolean workerBuilt = false;
         for (int i = 0; i < v.size(); i++){
             Unit u = v.get(i);
+            allUnits.put(u.id(), i);
             UnitType type = u.unitType();
             if (type == UnitType.Factory){
                 factoryBuilt = true;
+                structures.add(i);
             }else if (type == UnitType.Rocket){
                 rocketBuilt = true;
+                structures.add(i);
             }else if (type == UnitType.Worker && !u.location().isInGarrison()) workerBuilt = true;
         }
         if (!factoryBuilt || gc.karbonite() > MIN_KARBONITE_FOR_FACTORY) queue.requestUnit(UnitType.Factory);

@@ -1,3 +1,4 @@
+
 import bc.*;
 
 public class BugPathfindingData {

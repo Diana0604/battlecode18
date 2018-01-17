@@ -1,3 +1,5 @@
+
+
 import bc.*;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -150,7 +152,7 @@ public class MarsPlanning{
             AsteroidStrike strike = asteroidStrikes[i];
             MapLocation loc = strike.getLocation();
             boolean[] seen_cc = new boolean[ccs+1];
-            for (Direction dir:MovementManager.allDirs) {
+            for (Direction dir: MovementManager.allDirs) {
                 if (dir == Direction.Center) continue;
                 MapLocation newLoc = loc.add(dir);
                 if (!map.onMap(newLoc)) continue;

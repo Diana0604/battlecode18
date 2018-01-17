@@ -10,7 +10,7 @@
 
 
 ---------- Com fer merge de la meva branca amb dev 
-[Assumint que tots els canvis a la branch locals els he pujat al remote
+[Assumint que tots els canvis a la branch locals els he pujat al remote]
 [Pau] git checkout development 						[em canvia de branch]
 [Dev] git pull origin pau							[des de Dev, em baixo els canvis fets a Pau]
 [Dev] ...arreglar conflictes...

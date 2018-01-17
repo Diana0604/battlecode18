@@ -314,10 +314,10 @@ public class Worker {
     private boolean tryPlaceBlueprint(Unit unit){
         if (data.safest_direction != null) return false;
         UnitType type = null;
-        if (queue.needsUnit(UnitType.Rocket)) type = UnitType.Rocket;
-        if (type == null && queue.needsUnit(UnitType.Factory)) type = UnitType.Factory;
+        if (Data.researchInfo.getLevel(UnitType.Rocket) > 0 && queue.needsUnit(UnitType.Rocket)) type = UnitType.Rocket;
+        if (queue.needsUnit(UnitType.Factory)) type = UnitType.Factory;
         if (type == null) return false;
-
+        System.out.println(Data.round + " type to build: " + type);
         boolean[] aux = new boolean[9];
         for (int i = 0; i < 9; ++i) aux[i] = true;
         Danger.computeDanger(data.loc, aux);

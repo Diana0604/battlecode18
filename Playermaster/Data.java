@@ -6,6 +6,7 @@ import java.util.Iterator;
 class Data {
     static GameController gc;
     static Research research;
+    static ResearchInfo researchInfo;
     static MarsPlanning marsPlanning;
     static HashMap<MapLocation, Integer> karboniteAt;
     static Planet planet;
@@ -131,6 +132,7 @@ class Data {
         Research.initialize(gc);
         research = Research.getInstance();
         research.yolo();
+        researchInfo = gc.researchInfo();
 
         MarsPlanning.initialize(gc); //calcula els asteroids
         marsPlanning = MarsPlanning.getInstance();
@@ -224,7 +226,7 @@ class Data {
             queue.requestUnit(UnitType.Rocket);
         }
         if (!workerBuilt) queue.requestUnit(UnitType.Worker);
-        //System.out.println("Rocket requested: " + queue.needsUnit(UnitType.Rocket));
+        System.out.println(round + " Factory requested: " + queue.needsUnit(UnitType.Factory));
     }
 
 
@@ -239,8 +241,9 @@ class Data {
         updateCurrentArea();
         //comprova si ha de construir factory o rocket
         checkMyUnits();
-        //research.checkResearch();
         Rocket.initTurn();
+
+        researchInfo = gc.researchInfo();
 
         Danger.updateAttackers();
         if (!aggro && gc.researchInfo().getLevel(UnitType.Ranger) > 1) aggro = true;

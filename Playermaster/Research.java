@@ -3,9 +3,6 @@
 import bc.GameController;
 import bc.UnitType;
 
-/**
- * Created by David on 16/01/2018.
- */
 public class Research {
 
     static GameController gc;

@@ -8,7 +8,7 @@ public class Research {
     static GameController gc;
     static Research instance;
 
-    private UnitType[] fixedTree = new UnitType[]{UnitType.Worker, UnitType.Rocket, UnitType.Ranger, UnitType.Ranger, UnitType.Ranger, UnitType.Ranger};
+    private UnitType[] fixedTree = new UnitType[]{UnitType.Worker, UnitType.Ranger, UnitType.Ranger, UnitType.Rocket, UnitType.Ranger, UnitType.Ranger};
     private int stage = 0;
 
     static void initialize(GameController _gc){

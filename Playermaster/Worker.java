@@ -267,12 +267,15 @@ public class Worker {
         int search_radius = 8;
         int miningwork = 0; //turns of work
         int buildingwork = 0;
-        int workers = 0;
-        final int WORKPERWORKER = 30;
+        int workers_local = 0;
+        int workers_total = 0;
+        final int MIN_WORK_LOCAL = 20;
+        final int MIN_WORK_TOTAL = 30;
+        final int MIN_WORK = 50;
         MapLocation myPos = data.loc;
         for (HashMap.Entry<MapLocation,Integer> entry :Data.karboniteAt.entrySet()){
             MapLocation loc = entry.getKey();
-            if (myPos.distanceSquaredTo(loc) > search_radius) continue;
+            //if (myPos.distanceSquaredTo(loc) > search_radius) continue;
             int karbonite = entry.getValue();
             if (karbonite > 0) miningwork += karbonite/unit.workerHarvestAmount() + 1;
         }
@@ -280,7 +283,6 @@ public class Worker {
         for (int i = 0; i < v.size(); i++){
             Unit u = v.get(i);
             UnitType type = u.unitType();
-            if (type == UnitType.Worker) workers++;
             int missingHealth = (int) (u.maxHealth() - u.health());
             if ((type == UnitType.Rocket || type == UnitType.Factory) && missingHealth > 0){
                 int workperturn;
@@ -289,10 +291,20 @@ public class Worker {
                 buildingwork += missingHealth/workperturn + 1;
             }
         }
-        if (workers == 0) workers = 1;
-
-
-        return (miningwork + 2*buildingwork) / workers > WORKPERWORKER;
+        for (int i = 0; i < Data.units.size(); i++){
+            Unit u = Data.units.get(i);
+            UnitType type = u.unitType();
+            if (type == UnitType.Worker) {
+                workers_total++;
+                if (myPos.distanceSquaredTo(u.location().mapLocation()) <= search_radius) workers_local++;
+            }
+        }
+        if (workers_local == 0) workers_local = 1;
+        if (workers_total == 0) workers_total = 1;
+        double work_local = buildingwork / workers_local;
+        double work_total = miningwork / workers_total;
+        return (work_local + work_total) > MIN_WORK;
+        //return (work_local > MIN_WORK_LOCAL) || (work_total > MIN_WORK_TOTAL);
     }
 
     private void tryReplicate(Unit unit){

@@ -267,15 +267,16 @@ public class Worker {
         int search_radius = 8;
         int miningwork = 0; //turns of work
         int buildingwork = 0;
-        int workers_local = 0;
-        int workers_total = 0;
-        final int MIN_WORK_LOCAL = 20;
-        final int MIN_WORK_TOTAL = 30;
-        final int MIN_WORK = 50;
+        //int workers_local = 0;
+        //int workers_total = 0;
+        int workers = 0;
+        //final int MIN_WORK_LOCAL = 20;
+        //final int MIN_WORK_TOTAL = 30;
+        final int MIN_WORK = 30;
         MapLocation myPos = data.loc;
         for (HashMap.Entry<MapLocation,Integer> entry :Data.karboniteAt.entrySet()){
             MapLocation loc = entry.getKey();
-            //if (myPos.distanceSquaredTo(loc) > search_radius) continue;
+            if (myPos.distanceSquaredTo(loc) > search_radius) continue;
             int karbonite = entry.getValue();
             if (karbonite > 0) miningwork += karbonite/unit.workerHarvestAmount() + 1;
         }
@@ -295,14 +296,14 @@ public class Worker {
             Unit u = Data.units.get(i);
             UnitType type = u.unitType();
             if (type == UnitType.Worker) {
-                workers_total++;
-                if (myPos.distanceSquaredTo(u.location().mapLocation()) <= search_radius) workers_local++;
+                //workers_total++;
+                if (myPos.distanceSquaredTo(u.location().mapLocation()) <= search_radius) workers++;
             }
         }
-        if (workers_local == 0) workers_local = 1;
-        if (workers_total == 0) workers_total = 1;
-        double work_local = buildingwork / workers_local;
-        double work_total = miningwork / workers_total;
+        if (workers == 0) workers = 1;
+        //if (workers_total == 0) workers_total = 1;
+        double work_local = buildingwork / workers;
+        double work_total = miningwork / workers;
         return (work_local + work_total) > MIN_WORK;
         //return (work_local > MIN_WORK_LOCAL) || (work_total > MIN_WORK_TOTAL);
     }

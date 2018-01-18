@@ -225,7 +225,7 @@ class Data {
             queue.requestUnit(UnitType.Rocket);
         }
         if (!workerBuilt) queue.requestUnit(UnitType.Worker);
-        System.out.println(round + " Factory requested: " + queue.needsUnit(UnitType.Factory));
+        //System.out.println(round + " Factory requested: " + queue.needsUnit(UnitType.Factory));
     }
 
 

@@ -6,6 +6,7 @@ public class Vision {
     static int[][] Mx, My;
 
     static void initialize(){
+        //WTF!!!!!
         Mx[0] = new int[]{0};
         My[0] = new int[]{0};
 

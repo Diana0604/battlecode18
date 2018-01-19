@@ -46,5 +46,4 @@ public class AuxMapLocation {
     public int dirBFSTo (AuxMapLocation mloc){
         return Pathfinder.getInstance().getNode(x, y, mloc.x, mloc.y).dir;
     }
-
 }

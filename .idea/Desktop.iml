@@ -5,7 +5,7 @@
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Player07-java" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/Playermaster" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Player11-java" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/Player01-java" />
       <excludeFolder url="file://$MODULE_DIR$/Player02-java" />
       <excludeFolder url="file://$MODULE_DIR$/Player03-java" />
@@ -14,6 +14,9 @@
       <excludeFolder url="file://$MODULE_DIR$/Player06-java" />
       <excludeFolder url="file://$MODULE_DIR$/Player07-java" />
       <excludeFolder url="file://$MODULE_DIR$/Player08-java" />
+      <excludeFolder url="file://$MODULE_DIR$/Player09-java" />
+      <excludeFolder url="file://$MODULE_DIR$/Player10-java" />
+      <excludeFolder url="file://$MODULE_DIR$/Playermaster" />
       <excludeFolder url="file://$MODULE_DIR$/examplefuncsplayer-java" />
     </content>
     <orderEntry type="inheritedJdk" />

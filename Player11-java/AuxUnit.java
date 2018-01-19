@@ -89,7 +89,7 @@ public class AuxUnit {
 
     public boolean canMove(){
         if (canMove == null){
-            if (getType() == UnitType.Factory || getType() == UnitType.Rocket) canMove = UnitManager.gc.isMoveReady(getID());
+            if (getType() == UnitType.Factory || getType() == UnitType.Rocket) canMove = Data.gc.isMoveReady(getID());
             else canMove = false;
         }
         return canMove;
@@ -97,7 +97,7 @@ public class AuxUnit {
 
     public boolean canAttack(){
         if (canAttack == null){
-            if (!(getType() == UnitType.Factory || getType() == UnitType.Rocket || getType() == UnitType.Worker || getType() == UnitType.Healer)) canAttack = UnitManager.gc.isAttackReady(getID());
+            if (!(getType() == UnitType.Factory || getType() == UnitType.Rocket || getType() == UnitType.Worker || getType() == UnitType.Healer)) canAttack = Data.gc.isAttackReady(getID());
             else if (getType() == UnitType.Worker) canAttack = (unit.workerHasActed() > 0);
             else if (getType() == UnitType.Healer) canAttack = Data.gc.isHealReady(getID());
             else canAttack = false;

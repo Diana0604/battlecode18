@@ -89,7 +89,7 @@ public class Danger {
 
         for (int i = 0; i < n; ++i){
             AuxUnit unit = Data.myUnits[i];
-            dangUnits[i] = (MovementManager.getInstance().dangerousUnit(unit.getType()) && UnitManager.gc.isMoveReady(unit.getID()) && UnitManager.gc.isAttackReady(unit.getID()));
+            dangUnits[i] = (MovementManager.getInstance().dangerousUnit(unit.getType()) && Data.gc.isMoveReady(unit.getID()) && Data.gc.isAttackReady(unit.getID()));
             locUnits[i] = unit.getMaplocation();
             if (locUnits[i] == null) dangUnits[i] = false;
             visitedUnits[i] = false;

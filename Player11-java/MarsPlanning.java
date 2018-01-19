@@ -1,4 +1,4 @@
-import bc.UnitType;
+import bc.*;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -39,7 +39,7 @@ public class MarsPlanning{
     }
 
     private MarsPlanning(){
-        gc = UnitManager.gc;
+        gc = Data.gc;
         init();
     }
 
@@ -137,7 +137,7 @@ public class MarsPlanning{
         return false;
     }
 
-    public MapLocation bestPlaceForRound(int round) {
+    public AuxMapLocation bestPlaceForRound(int round) {
 
         int[] ccKarbonite = new int[ccs+1];
         int[][] locKarbonite = new int[W][H];
@@ -147,7 +147,7 @@ public class MarsPlanning{
             AsteroidStrike strike = Data.asteroidStrikes[i];
             MapLocation loc = strike.getLocation();
             boolean[] seen_cc = new boolean[ccs+1];
-            for (Direction dir: MovementManager.allDirs) {
+            for (Direction dir: Data.allDirs) {
                 if (dir == Direction.Center) continue;
                 MapLocation newLoc = loc.add(dir);
                 if (!map.onMap(newLoc)) continue;
@@ -170,7 +170,7 @@ public class MarsPlanning{
                 if (locKarbonite[x][y] > locKarbonite[bestLoc.getX()][bestLoc.getY()]) bestLoc = new MapLocation(Planet.Mars, x, y);
             }
         }
-        return bestLoc;
+        return new AuxMapLocation(bestLoc);
     }
     
 }

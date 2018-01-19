@@ -35,7 +35,6 @@ public class AuxUnit {
         canMove = null;
         canAttack = null;
         type = null;
-        canMoveTo = new Boolean[9];
         for (int i = 0; i < 9; ++i) canMoveTo[i] = null;
         isBuilt = null;
         garrisonUnits = null;
@@ -92,11 +91,6 @@ public class AuxUnit {
     public UnitType getType(){
         if (type == null) type = unit.unitType();
         return type;
-    }
-
-    public boolean getCanMoveTo(int i){
-        if (canMoveTo[i] == null) canMoveTo[i] = UnitManager.gc.canMove(getID(), Data.allDirs[i]);
-        return canMoveTo[i];
     }
 
     public boolean getIsBuilt(){

@@ -36,17 +36,6 @@ public class MovementManager {
         bugpathData = new HashMap<>();
     }
 
-
-    /*public int dirTo(int destX, int destY) {
-        PathfinderNode myNode = Pathfinder.getInstance().getNode(myLoc.getX() ,myLoc.getY() , destX, destY);
-        return myNode.dir;
-    }*/
-
-    //public int dirTo(MapLocation loc) {
-
-    //return dirTo(loc.getX(), loc.getY());
-    //}
-
     public boolean moveBFSTo(AuxMapLocation target) {
         int index = myLoc.dirBFSTo(target);
         //Direction dir = dirTo(unit, target);
@@ -57,30 +46,26 @@ public class MovementManager {
             }
         }
         index = -1;
-        double mindist = Pathfinder.getInstance().getNode(myLoc.getX() ,myLoc.getY() , target.getX(), target.getY()).dist;
-        for (int i = 0; i < allDirs.length; ++i){
+        double mindist = myLoc.distanceBFSTo(target);
+        for (int i = 0; i < 9; ++i){
             if (!canMove[i]) continue;
-            MapLocation newLoc = myLoc.add(allDirs[i]);
-            PathfinderNode node = Pathfinder.getInstance().getNode(newLoc.getX(), newLoc.getY(), target.getX(), target.getY());
-            if (node.dist < mindist){
-                mindist = node.dist;
+            AuxMapLocation newLoc = myLoc.add(i);
+            double d = myLoc.distanceBFSTo(newLoc);
+            if (d < mindist){
+                mindist = d;
                 index = i;
             }
         }
         if (index >= 0){
-            if (isSafe(allDirs[index])) {
-                gc.moveRobot(id, allDirs[index]);
+            if (isSafe(index)) {
+                Wrapper.moveRobot(unit, index);
                 return true;
             }
         }
         return false;
     }
 
-    double distance (MapLocation loc1, MapLocation loc2){
-        return Pathfinder.getInstance().getNode(loc1.getX(), loc1.getY(), loc2.getX(), loc2.getY()).dist;
-    }
-
-    public boolean naiveMoveTo(MapLocation target){
+    public boolean naiveMoveTo(AuxMapLocation target){
 
         /*reset if new target*/
         if (data.target == null || (target != null && target.distanceSquaredTo(data.target) > 0)){
@@ -95,7 +80,7 @@ public class MovementManager {
         //}
         data.target = target;
 
-        if (target != null && distance(myLoc, target) < data.minDist){
+        if (target != null && myLoc.distanceBFSTo(target) < data.minDist){
             data.soft_reset(myLoc);
         }
 
@@ -115,27 +100,26 @@ public class MovementManager {
     }
 
     public boolean BugPath(BugPathfindingData data){
-        Direction dir;
-        if (data.obstacle == null) dir = myLoc.directionTo(data.target);
-        else dir = myLoc.directionTo(data.obstacle);
-        int index = Pathfinder.getIndex(dir);
-        if (canMove[index]){
+        int dir;
+        if (data.obstacle == null) dir = myLoc.dirBFSTo(data.target);
+        else dir = myLoc.dirBFSTo(data.obstacle);
+        if (canMove[dir]){
             data.obstacle = null;
         }
         else {
             int cont = 0;
-            while (!canMove[index] && cont < 20) {
-                MapLocation newLoc = myLoc.add(allDirs[index]);
-                if (!Data.planetMap.onMap(newLoc)) data.left = !data.left;
+            while (!canMove[dir] && cont < 20) {
+                AuxMapLocation newLoc = myLoc.add(dir);
+                if (!newLoc.isOnMap()) data.left = !data.left;
                 data.obstacle = newLoc;
-                if (data.left) index = (index + 1)%8;
-                else index = (index + 7)%8;
+                if (data.left) dir = (dir + 1)%8;
+                else dir = (dir + 7)%8;
                 ++cont;
             }
         }
-        if (canMove[index]){
-            if (isSafe(allDirs[index])){
-                gc.moveRobot(id, allDirs[index]);
+        if (canMove[dir]){
+            if (isSafe(dir)){
+                Wrapper.moveRobot(unit, dir);
                 return true;
             }
         }
@@ -144,42 +128,44 @@ public class MovementManager {
 
 
 
-    public void moveTo(Unit unit, MapLocation target){
+    public void moveTo(AuxUnit _unit, AuxMapLocation target){
         if (target == null) return;
-        if (!gc.isMoveReady(unit.id())) return;
+        if (!_unit.canMove()) return;
+        unit = _unit;
 
-        id = unit.id();
-        myLoc = unit.location().mapLocation();
+
+        id = unit.getID();
+        myLoc = unit.getMaplocation();
         if (!bugpathData.keySet().contains(id)){
             data = new BugPathfindingData();
         }
         else data = bugpathData.get(id);
-        attackRange = unit.attackRange();
-        attacker = dangerousUnit(unit.unitType());
+        attackRange = Wrapper.getAttackRange(unit.getType());
+        attacker = dangerousUnit(unit.getType());
         canMove = new boolean[9];
         for (int i = 0; i < 9; ++i){
-            if (gc.canMove(id, allDirs[i])) {
+            if (Wrapper.canMove(unit, i)) {
                 canMove[i] = true;
             }
             else canMove[i] = false;
         }
 
-        Danger.computeDanger(Data.myUnits[Data.allUnits.get(id)]);
+        Danger.computeDanger(unit);
 
         greedyMove();
 
 
-        if (!gc.isMoveReady(id)) return;
+        if (!unit.canMove()) return;
 
         //for (int i = 0; i < 9; ++i) if(Danger.DPS[i] > 0) canMove[i] = false;
 
         long d = myLoc.distanceSquaredTo(target);
         if (d == 0) return;
         if (d <= 2){
-            Direction dir = myLoc.directionTo(target);
+            int dir = myLoc.dirBFSTo(target);
             //System.err.println(dir);
             //System.err.println(Pathfinder.getIndex(dir));
-            if (canMove[Pathfinder.getIndex(dir)]) gc.moveRobot(id, dir);
+            if (canMove[dir]) Wrapper.moveRobot(unit, dir);
             return;
         }
 
@@ -228,14 +214,14 @@ public class MovementManager {
     }
 
     void greedyMove(){
-        if (!gc.isMoveReady(id)) return;
+        if (!unit.canMove()) return;
         int index = 8;
         for (int i = 0; i < 8; ++i) if (canMove[i]) index = bestIndex(index, i);
 
         //System.err.println(index);
 
         if (index != 8){
-            gc.moveRobot(id, allDirs[index]);
+            Wrapper.moveRobot(unit, index);
             data.soft_reset(myLoc);
         }
     }

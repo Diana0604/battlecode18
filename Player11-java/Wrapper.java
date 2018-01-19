@@ -140,6 +140,13 @@ public class Wrapper {
         Data.gc.heal(u1.getID(), u2.getID());
     }
 
+    static boolean canMove(AuxUnit unit, int dir){
+        if (!unit.canMove()) return false;
+        AuxMapLocation mloc = unit.getMaplocation();
+        AuxMapLocation newLoc = mloc.add(dir);
+        return (isAccessible(newLoc));
+    }
+
     static void moveRobot(AuxUnit unit, int dir){
         AuxMapLocation mloc = unit.getMaplocation();
         AuxMapLocation newLoc = mloc.add(dir);
@@ -147,6 +154,6 @@ public class Wrapper {
         unit.mloc = newLoc;
         Data.unitMap[mloc.x][mloc.y] = 0;
         Data.unitMap[newLoc.x][newLoc.y] = Data.allUnits.get(unit.getID());
+        Data.gc.moveRobot(unit.getID(), Data.allDirs[dir]);
     }
-
 }

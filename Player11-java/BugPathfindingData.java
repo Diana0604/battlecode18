@@ -6,8 +6,8 @@ public class BugPathfindingData {
 
     static final double INF = 1000000000;
 
-    public MapLocation obstacle = null;
-    public MapLocation target = null;
+    public AuxMapLocation obstacle = null;
+    public AuxMapLocation target = null;
     public boolean left = true;
     public double minDist = INF;
 
@@ -17,9 +17,9 @@ public class BugPathfindingData {
         minDist = INF;
     }
 
-    void soft_reset(MapLocation m){
+    void soft_reset(AuxMapLocation m){
         obstacle = null;
-        if (target != null) minDist = Pathfinder.getInstance().getNode(m.getX(), m.getY(), target.getX(), target.getY()).dist;
+        if (target != null) minDist = m.distanceBFSTo(target);
     }
 
 

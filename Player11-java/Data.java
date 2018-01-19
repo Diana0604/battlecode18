@@ -45,7 +45,7 @@ class Data {
     static final int exploreConstant = 1;
 
     static HashMap<Integer, Integer> allUnits;
-    static VecUnit enemyUnits, units;
+    //static VecUnit enemyUnits, units;
     static HashSet<Integer> structures;
 
     static int rangers;
@@ -61,6 +61,7 @@ class Data {
 
     private static int[] healingPowers = {10, 12, 17, 17};
     static int healingPower;
+<<<<<<< Updated upstream
     private static int[] buildingPowers = {5, 5, 6, 7, 10};
     static int buildingPower;
     private static int[] repairingPowers = {10, 10, 11, 12, 15};
@@ -71,6 +72,9 @@ class Data {
     static boolean canBuildRockets;
 
     static int replicateCost = 15;
+
+    static int mageDMG;
+
 
     static int getKarbonite(){
         if (karbonite == null){
@@ -159,7 +163,7 @@ class Data {
 
         round = 1;
         aggro = false;
-        Research.initialize(gc);
+
         research = Research.getInstance();
         research.yolo();
         researchInfo = gc.researchInfo();
@@ -302,13 +306,13 @@ class Data {
             for (int j = 0; j < H; ++j) karboMap[i][j] = 0; //ToDO really needed?
         }
         //check enemy units
-        enemyUnits = gc.senseNearbyUnitsByTeam(mapCenter, maxRadius, enemyTeam);
+        VecUnit enemyUnits = gc.senseNearbyUnitsByTeam(mapCenter, maxRadius, enemyTeam);
         enemies = new AuxUnit[(int) enemyUnits.size()];
         for (int i = 0; i < enemies.length; ++i){
             enemies[i] = new AuxUnit(enemyUnits.get(i));
             unitMap[enemies[i].getX()][enemies[i].getY()] = -i-1;
         }
-        units = gc.myUnits();
+        VecUnit units = gc.myUnits();
         myUnits = new AuxUnit[(int) units.size()];
         for (int i = 0; i < myUnits.length; ++i){
             myUnits[i] = new AuxUnit(units.get(i));
@@ -328,6 +332,7 @@ class Data {
 
         Danger.updateAttackers();
         if (!aggro && researchInfo.getLevel(UnitType.Ranger) > 1) aggro = true;
+<<<<<<< Updated upstream
 
         int workerLevel = (int)researchInfo.getLevel(UnitType.Worker);
         int healerLevel = (int)researchInfo.getLevel(UnitType.Healer);
@@ -337,6 +342,22 @@ class Data {
         harvestingPower = harvestingPowers[workerLevel];
         healingPower = healingPowers[healerLevel];
         if (rocketLevel > 0) canBuildRockets = true;
+=======
+        if (healingPower < 17){
+            int lvl = (int)researchInfo.getLevel(UnitType.Healer);
+            if (lvl > 1) healingPower = 17;
+            else if (lvl > 0) healingPower = 12;
+            healingPower = 10;
+        }
+
+        if (mageDMG < 105){
+            int lvl = (int)researchInfo.getLevel(UnitType.Mage);
+            if (lvl > 2) mageDMG = 105;
+            else if (lvl > 1) mageDMG = 90;
+            else if (lvl > 0) mageDMG = 75;
+            else mageDMG = 60;
+        }
+>>>>>>> Stashed changes
     }
 
     public static boolean onEarth(){ return planet == Planet.Earth;}

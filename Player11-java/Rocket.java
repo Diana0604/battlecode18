@@ -1,16 +1,14 @@
 
 
-import bc.*;
+import bc.UnitType;
+import bc.Planet;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Rocket {
 
-    private final Direction[] allDirs = {Direction.North, Direction.Northeast, Direction.East, Direction.Southeast, Direction.South, Direction.Southwest, Direction.West, Direction.Northwest, Direction.Center};
-
     static Rocket instance = null;
-    static GameController gc;
     private UnitManager unitManager;
 
     private static HashMap<Integer, RocketData> mapa;
@@ -18,12 +16,11 @@ public class Rocket {
     //                                  Worker  Knight  Ranger  Mage    Healer  Factory Rocket
     boolean[] center = {false,false,false,false,false,false,false,false,true};
     boolean wait;
-    public static HashMap<Integer, MapLocation> callsToRocket; // hauria de ser Integer,Integer amb els ids, pero per minimitzar calls al gc...
+    public static HashMap<Integer, AuxMapLocation> callsToRocket; // hauria de ser Integer,Integer amb els ids, pero per minimitzar calls al gc...
 
     static Rocket getInstance(){
         if (instance == null){
             instance = new Rocket();
-            gc = UnitManager.gc;
         }
         return instance;
     }
@@ -37,68 +34,66 @@ public class Rocket {
         callsToRocket = new HashMap<>();
     }
 
-    void playFirst(Unit unit){
+    void playFirst(AuxUnit unit){
         //if it's still a blueprint return
-        if(unit.structureIsBuilt() == 0) return;
+        if(!unit.getIsBuilt()) return;
         wait = false;
-        mapa.computeIfAbsent(unit.id(), k -> new RocketData(unit.id()));
+        mapa.computeIfAbsent(unit.getID(), k -> new RocketData(unit.getID()));
 
-        if (unit.location().isOnPlanet(Planet.Earth)) {
+        if (unit.getLocation().isOnPlanet(Planet.Earth)) {
             ArrayList<Pair> sorted = getSorted(unit);
-            RocketData data = mapa.get(unit.id());
+            RocketData data = mapa.get(unit.getID());
             data.voyagers = decideVoyagers();
             int[] remaining = getRemaining(unit, data);
             loadRobots(unit, sorted, remaining);
             aSopar(unit, data, sorted, remaining);
         }
-        else if (unit.location().isOnPlanet(Planet.Mars)) {
-            if (unit.structureGarrison().size() > 0) {
-                for (Direction dir : MovementManager.allDirs) {
-                    if (dir == Direction.Center) continue;
-                    if (gc.canUnload(unit.id(), dir)) gc.unload(unit.id(), dir);
+        else if (unit.getLocation().isOnPlanet(Planet.Mars)) {
+            if (unit.getGarrisonUnits().size() > 0) {
+                for (int i =0; i < 8; ++i) {
+                    if (Wrapper.canUnload(unit, i)) Wrapper.unload(unit, i);
                 }
             }
         }
 
     }
 
-    void play(Unit unit) {
+    void play(AuxUnit unit) {
         //if it's still a blueprint return
-        if(unit.structureIsBuilt() == 0) return;
+        if(!unit.getIsBuilt()) return;
         //System.out.println("Rocket location " + unit.location() + " round " + gc.round());
-        if (unit.location().isOnPlanet(Planet.Earth)) {
+        if (unit.getLocation().isOnPlanet(Planet.Earth)) {
             if (hasToLeaveByEggs(unit)) {
                 launchRocket(unit);
                 return;
             }
-            RocketData data = mapa.get(unit.id());
+            RocketData data = mapa.get(unit.getID());
             checkLaunch(unit, data);
         }else{
-            System.out.println("Rocket " + unit.id() + " a l'espai!");
+            System.out.println("Rocket " + unit.getID() + " a l'espai!");
         }
     }
 
-    private void launchRocket(Unit unit) {
-        int arrivalRound = (int)gc.orbitPattern().duration(gc.round());
-        MapLocation arrivalLoc = MarsPlanning.getInstance().bestPlaceForRound(arrivalRound);
-        gc.launchRocket(unit.id(), arrivalLoc);
+    private void launchRocket(AuxUnit unit) {
+        int arrivalRound = Wrapper.getArrivalRound(Data.round);
+        AuxMapLocation arrivalLoc = MarsPlanning.getInstance().bestPlaceForRound(arrivalRound);
+        Wrapper.launchRocket(unit, arrivalLoc);
     }
 
-    private boolean hasToLeaveByEggs(Unit unit) {
-        Danger.computeDanger(new AuxUnit(unit));
+    private boolean hasToLeaveByEggs(AuxUnit unit) {
+        Danger.computeDanger(unit);
         double danger = Danger.DPS[8];
-        return unit.health() <= danger;
+        return unit.getHealth() <= 2*danger;
     }
 
-    private ArrayList<Pair> getSorted(Unit unit) {
-        // get units sorted by proximity
-        VecUnit myUnits = gc.myUnits();
+    private ArrayList<Pair> getSorted(AuxUnit unit) {
+        if (Data.planet != Planet.Earth) return new ArrayList<>();
         ArrayList<Pair> sorted = new ArrayList<>();
-        for (int i = 0; i < myUnits.size(); ++i) {
-            Unit unit_i = myUnits.get(i);
-            if (!unit_i.location().isOnMap() || !unit_i.location().isOnPlanet(Planet.Earth)) continue;
-            double distance = Pathfinder.getInstance().getNode(unit.location().mapLocation(), unit_i.location().mapLocation()).dist;
-            if (distance == (double) Pathfinder.INF) continue;
+        for (int i = 0; i < Data.myUnits.length; ++i) {
+            AuxUnit unit_i = Data.myUnits[i];
+            if (!unit_i.getMaplocation().isOnMap()) continue;
+            double distance = unit.getMaplocation().distanceBFSTo(unit_i.getMaplocation());
+            if (distance >= (double) Pathfinder.INF) continue;
             sorted.add(new Pair(distance, unit_i));
         }
         sorted.sort((p1, p2) -> (p1.dist < p2.dist)?-1:1);
@@ -106,39 +101,40 @@ public class Rocket {
         return sorted;
     }
 
-    private int[] getRemaining(Unit unit, RocketData data) {
+    private int[] getRemaining(AuxUnit unit, RocketData data) {
         int[] remaining = data.voyagers.clone();
         // check garrison: de moment nomes descomptem els que ja han arribat.
         // Si hi ha robots que no haurien d'estar quedaran numeros negatius.
-        VecUnitID garrison = unit.structureGarrison();
+        ArrayList<Integer> garrison = unit.getGarrisonUnits();
+        //VecUnitID garrison = unit.structureGarrison();
         for (int i = 0; i < garrison.size(); ++i) {
-            remaining[gc.unit(garrison.get(i)).unitType().swigValue()]--;
+            remaining[Wrapper.getIndex(Data.myUnits[Data.allUnits.get(garrison.get(i))].getType())]--;
         }
         return remaining;
     }
 
-    private void aSopar(Unit unit, RocketData data, ArrayList<Pair> sorted, int[] remaining) {
+    private void aSopar(AuxUnit unit, RocketData data, ArrayList<Pair> sorted, int[] remaining) {
         // cridar els que faltin
         for (int i = 0; i < sorted.size(); ++i) {
-            Unit unit_i = sorted.get(i).unit;
-            UnitType type = unit_i.unitType();
-            if(remaining[type.swigValue()] > 0) {
-                if (!callsToRocket.containsKey(unit_i.id())) {
-                    callsToRocket.put(unit_i.id(), unit.location().mapLocation());
-                    remaining[type.swigValue()]--;
+            AuxUnit unit_i = sorted.get(i).unit;
+            UnitType type = unit_i.getType();
+            if(remaining[Wrapper.getIndex(type)] > 0) {
+                if (!callsToRocket.containsKey(unit_i.getID())) {
+                    callsToRocket.put(unit_i.getID(), unit.getMaplocation());
+                    remaining[Wrapper.getIndex(type)]--;
                 }
             }
         }
     }
 
-    private void loadRobots(Unit unit, ArrayList<Pair> sorted, int[] remaining) {
+    private void loadRobots(AuxUnit unit, ArrayList<Pair> sorted, int[] remaining) {
         for (Pair p:sorted) {
             if (p.dist > 2) break;
-            Unit unit_i = p.unit;
-            if (remaining[unit_i.unitType().swigValue()] > 0) {
-                if (gc.canLoad(unit.id(), unit_i.id())) {
-                    gc.load(unit.id(), unit_i.id());
-                    remaining[unit_i.unitType().swigValue()]--;
+            AuxUnit unit_i = p.unit;
+            if (remaining[Wrapper.getIndex(unit_i.getType())] > 0) {
+                if (Wrapper.canLoad(unit, unit_i)) {
+                    gc.load(unit, unit_i);
+                    remaining[Wrapper.getIndex(unit_i.getType())]--;
                 }
             }
         }
@@ -148,19 +144,19 @@ public class Rocket {
         return firstRocket.clone();
     }
 
-    private void checkLaunch(Unit unit, RocketData data) {
+    private void checkLaunch(AuxUnit unit, RocketData data) {
         int[] remaining = getRemaining(unit, data);
         if (full(remaining)) {
-            Danger.computeDanger(new AuxUnit(unit));
+            Danger.computeDanger(unit);
             double dps = Danger.DPS[8];
             boolean shouldWait = false;
             // calcula quantes rondes podria aguantar amb aquest dps i mira si surt a compte esperar-les
             // si no te dps mira si surt a compte esperar qualsevol numero de rondes
             if (dps > 0) {
-                int rounds = (int)Math.round(Math.min(1000, Math.floor(unit.health() / dps)));
-                shouldWait = MarsPlanning.getInstance().shouldWaitToLaunchRocket((int)gc.round(), rounds);
+                int rounds = (int)Math.round(Math.min(1000, Math.floor(unit.getHealth() / dps)));
+                shouldWait = MarsPlanning.getInstance().shouldWaitToLaunchRocket(Data.round, rounds);
             }
-            else shouldWait = MarsPlanning.getInstance().shouldWaitToLaunchRocket((int)gc.round());
+            else shouldWait = MarsPlanning.getInstance().shouldWaitToLaunchRocket(Data.round);
             if (!shouldWait) {
                 launchRocket(unit);
             }
@@ -176,9 +172,9 @@ public class Rocket {
 
     private class Pair {
         double dist;
-        Unit unit;
+        AuxUnit unit;
 
-        Pair(double dist, Unit unit){
+        Pair(double dist, AuxUnit unit){
             this.dist = dist;
             this.unit = unit;
         }

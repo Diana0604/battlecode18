@@ -1,19 +1,13 @@
 
 
-import bc.GameController;
 import bc.UnitType;
 
 public class Research {
 
-    static GameController gc;
     static Research instance;
 
     private UnitType[] fixedTree = new UnitType[]{UnitType.Worker, UnitType.Ranger, UnitType.Ranger, UnitType.Rocket, UnitType.Ranger, UnitType.Ranger};
     private int stage = 0;
-
-    static void initialize(GameController _gc){
-        gc = _gc;
-    }
 
     static Research getInstance(){
         if (instance == null) instance = new Research();
@@ -32,7 +26,7 @@ public class Research {
     }*/
 
     public void yolo(){
-        for (int i = 0; i < fixedTree.length; ++i) gc.queueResearch(fixedTree[i]);
+        for (int i = 0; i < fixedTree.length; ++i) Data.gc.queueResearch(fixedTree[i]);
     }
 
 }

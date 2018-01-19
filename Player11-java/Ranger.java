@@ -1,6 +1,6 @@
 
 
-import bc.*;
+import bc.UnitType;
 
 import java.util.HashMap;
 
@@ -9,7 +9,6 @@ public class Ranger {
     final int INF = 1000000000;
     final double eps = 0.001;
     static Ranger instance = null;
-    static GameController gc;
     private UnitManager unitManager;
 
     HashMap<Integer, Integer> objectiveArea;
@@ -23,59 +22,53 @@ public class Ranger {
 
     public Ranger(){
         unitManager = UnitManager.getInstance();
-        gc = unitManager.gc;
         objectiveArea = new HashMap();
     }
 
-    void play(Unit unit){
+    void play(AuxUnit unit){
         attack(unit);
         move(unit);
         attack(unit);
     }
 
-    static void moveTo(Unit unit, MapLocation target){
-        MovementManager.getInstance().moveTo(unit, target);
-    }
-
-    Unit getBestAttackTarget(Unit A, Unit B){
+    AuxUnit getBestAttackTarget(AuxUnit A, AuxUnit B){
         if (A == null) return B;
         if (B == null) return A;
-        if (A.unitType() == B.unitType()){
-            if (A.health() < B.health()) return A;
+        if (A.getType() == B.getType()){
+            if (A.getHealth() < B.getHealth()) return A;
             return B;
         }
-        if (A.unitType() == UnitType.Ranger) return A;
-        if (B.unitType() == UnitType.Ranger) return B;
-        if (A.unitType() == UnitType.Mage) return A;
-        if (B.unitType() == UnitType.Mage) return B;
-        if (A.unitType() == UnitType.Healer) return A;
-        if (B.unitType() == UnitType.Healer) return B;
-        if (A.unitType() == UnitType.Knight) return A;
-        if (B.unitType() == UnitType.Knight) return B;
-        if (A.unitType() == UnitType.Worker) return A;
-        if (B.unitType() == UnitType.Worker) return B;
+        if (A.getType() == UnitType.Ranger) return A;
+        if (B.getType() == UnitType.Ranger) return B;
+        if (A.getType() == UnitType.Mage) return A;
+        if (B.getType() == UnitType.Mage) return B;
+        if (A.getType() == UnitType.Healer) return A;
+        if (B.getType() == UnitType.Healer) return B;
+        if (A.getType() == UnitType.Knight) return A;
+        if (B.getType() == UnitType.Knight) return B;
+        if (A.getType() == UnitType.Worker) return A;
+        if (B.getType() == UnitType.Worker) return B;
         return B;
     }
 
-    void attack(Unit unit) {
-        int id = unit.id();
-        Unit bestVictim = null;
-        if(!gc.isAttackReady(id)) return;
-        MapLocation myLoc = unit.location().mapLocation();
-        VecUnit canAttack = gc.senseNearbyUnitsByTeam(myLoc, unit.attackRange(), Data.enemyTeam);
-        for(int i = 0; i < canAttack.size(); ++i){
-            Unit victim = canAttack.get(i);
-            if (gc.canAttack(id, victim.id())) {
+    void attack(AuxUnit unit) {
+        AuxUnit bestVictim = null;
+        if(!unit.canAttack()) return;
+        AuxMapLocation myLoc = unit.getMaplocation();
+        AuxUnit[] canAttack = Wrapper.senseUnits(myLoc.x, myLoc.y, Wrapper.getAttackRange(unit.getType()), false);
+        for(int i = 0; i < canAttack.length; ++i){
+            AuxUnit victim = canAttack[i];
+            if (Wrapper.canAttack(unit, victim)) {
                 bestVictim = getBestAttackTarget(bestVictim, victim);
             }
         }
-        if (bestVictim != null) gc.attack(id, bestVictim.id());
+        if (bestVictim != null) Wrapper.attack(unit, bestVictim);
     }
 
 
 
-    void move(Unit unit){
-        MapLocation target = getBestTarget(unit);
+    void move(AuxUnit unit){
+        AuxMapLocation target = getBestTarget(unit);
         if (target != null) MovementManager.getInstance().moveTo(unit, target);
         else {
             ConstructionQueue queue = Data.queue;
@@ -84,16 +77,15 @@ public class Ranger {
         }
     }
 
-    MapLocation getBestHealer(MapLocation loc){
+    AuxMapLocation getBestHealer(AuxMapLocation loc){
         double minDist = 100000;
-        MapLocation ans = null;
-        for (int i = 0; i < Data.units.size(); ++i){
-            Unit u = Data.units.get(i);
-            if (u.unitType() == UnitType.Healer){
-                Location l = u.location();
-                if (!l.isInGarrison()){
-                    MapLocation mLoc = l.mapLocation();
-                    double d = MovementManager.getInstance().distance(loc, mLoc);
+        AuxMapLocation ans = null;
+        for (int i = 0; i < Data.myUnits.length; ++i){
+            AuxUnit u = Data.myUnits[i];
+            if (u.getType() == UnitType.Healer){
+                AuxMapLocation mLoc = u.getMaplocation();
+                if (mLoc != null){
+                    double d = loc.distanceBFSTo(mLoc);
                     if (d < minDist){
                         minDist = d;
                         ans = mLoc;
@@ -104,29 +96,29 @@ public class Ranger {
         return ans;
     }
 
-    MapLocation getBestTarget(Unit unit){
-        if (Rocket.callsToRocket.containsKey(unit.id())) return Rocket.callsToRocket.get(unit.id());
-        if (unit.health() < 100) {
-            MapLocation ans = getBestHealer(unit.location().mapLocation());
+    AuxMapLocation getBestTarget(AuxUnit unit){
+        if (Rocket.callsToRocket.containsKey(unit.getID())) return Rocket.callsToRocket.get(unit.getID());
+        if (unit.getHealth() < 100) {
+            AuxMapLocation ans = getBestHealer(unit.getMaplocation());
             if (ans != null) return ans;
         }
-        return getBestEnemy(unit.location().mapLocation());
+        return getBestEnemy(unit.getMaplocation());
     }
 
 
-    void goToBestEnemy(Unit unit){
-        MapLocation myLoc = unit.location().mapLocation();
-        MapLocation target = getBestEnemy(myLoc);
+    void goToBestEnemy(AuxUnit unit){
+        AuxMapLocation myLoc = unit.getMaplocation();
+        AuxMapLocation target = getBestEnemy(myLoc);
         if(target == null) return;
-        moveTo(unit, target);
+        MovementManager.getInstance().moveTo(unit, target);
 
     }
 
-    MapLocation getBestEnemy(MapLocation myLoc){
+    AuxMapLocation getBestEnemy(AuxMapLocation myLoc){
         long minDist = INFL;
-        MapLocation target = null;
-        for(int i = 0; i < Data.enemyUnits.size(); ++i){
-            MapLocation enemyLocation = Data.enemyUnits.get(i).location().mapLocation();
+        AuxMapLocation target = null;
+        for(int i = 0; i < Data.enemies.length; ++i){
+            AuxMapLocation enemyLocation = Data.enemies[i].getMaplocation();
             long d = enemyLocation.distanceSquaredTo(myLoc);
             if(d < minDist){
                 minDist = d;
@@ -136,27 +128,26 @@ public class Ranger {
         return target;
     }
 
-    static MapLocation areaToLocation(Integer area){
+    static AuxMapLocation areaToLocation(Integer area){
         int x = Data.areaToLocX[Data.decodeX(area)];
         int y = Data.areaToLocY[Data.decodeY(area)];
-        return new MapLocation(gc.planet(), x, y);
+        return new AuxMapLocation(x, y);
     }
 
-    MapLocation findExploreObjective(Unit unit){
-        int id = unit.id();
-        Integer current = Data.currentArea.get(id);
+    AuxMapLocation findExploreObjective(AuxUnit unit){
+        Integer current = Data.currentArea.get(unit.getID());
         Integer obj = null;
         double minExplored = INF;
-        MapLocation myLoc = unit.location().mapLocation();
-        if(objectiveArea.containsKey(id) && current.intValue() != objectiveArea.get(id).intValue()) {
-            return areaToLocation(objectiveArea.get(id));
+        AuxMapLocation myLoc = unit.getMaplocation();
+        if(objectiveArea.containsKey(unit.getID()) && current.intValue() != objectiveArea.get(unit.getID()).intValue()) {
+            return areaToLocation(objectiveArea.get(unit.getID()));
         }
         for(int i = 0; i < Data.exploreSizeX; ++i){
             for(int j = 0; j < Data.exploreSizeY; ++j){
                 if(current.intValue() == Data.encode(i,j).intValue()) continue;
                 Integer area = Data.encode(i,j);
-                MapLocation areaLoc = areaToLocation(area);
-                if(Pathfinder.getInstance().getNode(myLoc.getX(), myLoc.getY(), areaLoc.getX(), areaLoc.getY()).dist >= INF) continue;
+                AuxMapLocation areaLoc = areaToLocation(area);
+                if(myLoc.distanceBFSTo(areaLoc) >= INF) continue;
                 if(Data.exploreGrid[i][j] < minExplored){
                     minExplored = Data.exploreGrid[i][j];
                     obj = area;
@@ -165,15 +156,14 @@ public class Ranger {
         }
         if(obj != null) {
             Data.addExploreGrid(obj, Data.exploreConstant);
-            objectiveArea.put(id, obj);
+            objectiveArea.put(unit.getID(), obj);
         }
         if (obj != null) return areaToLocation(obj);
         return null;
     }
 
-    void explore(Unit unit){
-        MapLocation obj = findExploreObjective(unit);
-        if(obj != null) moveTo(unit, obj);
-
+    void explore(AuxUnit unit){
+        AuxMapLocation obj = findExploreObjective(unit);
+        if(obj != null) MovementManager.getInstance().moveTo(unit, obj);
     }
 }

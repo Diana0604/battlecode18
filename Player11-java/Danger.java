@@ -49,7 +49,7 @@ public class Danger {
                 arshort = Wrapper.getAttackRange(enemy.getType());
             }
             for (int j = 0; j < 9; ++j){
-                if (!unit.getCanMoveTo(j) && j < 8) continue;
+                if (!Wrapper.canMove(unit, j) && j < 8) continue;
                 AuxMapLocation newLoc = myLoc.add(j);
                 long d = enemy.getMaplocation().distanceSquaredTo(newLoc);
                 if (dps > 0 && d <= ar) DPS[j] += dps;

@@ -12,7 +12,7 @@ public class Wrapper {
             case Knight:
                 return 60;
             case Mage:
-                return 105;
+                return Data.mageDMG;
             default:
                 return 0;
         }
@@ -127,6 +127,53 @@ public class Wrapper {
         }
     }
 
+    static int getIndex(UnitType type){
+        switch(type){
+            case Factory:
+                return 5;
+            case Worker:
+                return 0;
+            case Ranger:
+                return 2;
+            case Knight:
+                return 1;
+            case Mage:
+                return 3;
+            case Rocket:
+                return 6;
+            case Healer:
+                return 4;
+            default:
+                return 0;
+        }
+    }
+
+    public static int getIndex(Direction dir) {
+        switch (dir) {
+            case North:
+                return 0;
+            case Northeast:
+                return 1;
+            case East:
+                return 2;
+            case Southeast:
+                return 3;
+            case South:
+                return 4;
+            case Southwest:
+                return 5;
+            case West:
+                return 6;
+            case Northwest:
+                return 7;
+            default:
+                return 0;
+
+        }
+    }
+
+
+
     static boolean canProduceUnit(AuxUnit unit, UnitType type){ //IT DOESNT CHECK IF ALREADY BUILT
         return (Data.karbonite >= cost(type));
     }
@@ -137,6 +184,7 @@ public class Wrapper {
     }
 
     static void heal(AuxUnit u1, AuxUnit u2){
+        u2.getHealth();
         u2.health += Data.healingPower;
         int mh = getMaxHealth(u2.getType());
         if (u2.health > mh) u2.health = mh;
@@ -172,7 +220,7 @@ public class Wrapper {
         unit.canMove = false;
         unit.mloc = newLoc;
         Data.unitMap[mloc.x][mloc.y] = 0;
-        Data.unitMap[newLoc.x][newLoc.y] = Data.allUnits.get(unit.getID());
+        Data.unitMap[newLoc.x][newLoc.y] = Data.allUnits.get(unit.getID()) + 1;
         Data.gc.moveRobot(unit.getID(), Data.allDirs[dir]);
     }
 
@@ -209,7 +257,7 @@ public class Wrapper {
 
     // retorna -1 si no fa harvest
     // si fa harvest, retorna la karbo que queda al lloc
-    static int harvest(AuxUnit unit, int dir){
+    static int harvest(AuxUnit unit, int dir) {
         AuxMapLocation loc = unit.getMaplocation();
         AuxMapLocation mineLoc = loc.add(dir);
         if (!mineLoc.isOnMap()) return -1;
@@ -218,10 +266,51 @@ public class Wrapper {
         Data.gc.harvest(unit.getID(), Direction.values()[dir]);
         int newKarboAmount = karboAmount -= Data.harvestingPower;
         if (newKarboAmount < 0) newKarboAmount = 0;
-        if (newKarboAmount > 0){
+        if (newKarboAmount > 0) {
             Data.karboniteAt.put(mineLoc, newKarboAmount);
-        }else Data.karboniteAt.remove(mineLoc);
+        } else Data.karboniteAt.remove(mineLoc);
         Data.karboMap[mineLoc.x][mineLoc.y] = newKarboAmount;
         return newKarboAmount;
+    }
+
+
+    static boolean canAttack(AuxUnit unit, AuxUnit unit2){
+        if (!unit.canAttack()) return false;
+        int d = unit.getMaplocation().distanceSquaredTo(unit2.getMaplocation());
+        if (unit.getType() == UnitType.Ranger && d <= 10) return false;
+        return (getAttackRange(unit.getType()) >= d);
+    }
+
+    static void attack(AuxUnit u1, AuxUnit u2){
+        if (u1.getType() != UnitType.Mage) {
+            u2.getHealth();
+            u2.health -= (int) getDamage(u1.getType());
+            if (u2.health <= 0) Data.unitMap[u2.getMaplocation().x][u2.getMaplocation().y] = 0;
+            u1.canAttack = false;
+            Data.gc.attack(u1.getID(), u2.getID());
+        }
+        else{
+            AuxMapLocation mloc = u2.getMaplocation();
+            for (int i = 0; i < 9; ++i){
+                AuxMapLocation newLoc = mloc.add(i);
+                AuxUnit unit2 = Data.getUnit(newLoc.x, newLoc.y, false);
+                if (unit2 != null) {
+                    unit2.getHealth();
+                    unit2.health -= (int) getDamage(u1.getType());
+                    if (unit2.health <= 0) Data.unitMap[unit2.getMaplocation().x][unit2.getMaplocation().y] = 0;
+                    u1.canAttack = false;
+                    Data.gc.attack(u1.getID(), unit2.getID());
+                }
+            }
+        }
+    }
+
+    static int getArrivalRound(int round){
+        return (int)Data.gc.orbitPattern().duration(round);
+    }
+
+    static void launchRocket(AuxUnit unit, AuxMapLocation loc){
+        Data.gc.launchRocket(unit.getID(), new MapLocation(Planet.Mars, loc.x, loc.y));
+        Data.unitMap[loc.x][loc.y] = 0;
     }
 }

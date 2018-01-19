@@ -20,8 +20,6 @@ public class AuxUnit {
     public Boolean canAttack; //for workers it counts harvest as action, and healers == heal
     public UnitType type;
 
-    public Boolean[] canMoveTo;
-
     public Boolean isBuilt;
     //Team team; no cal crec
 
@@ -41,7 +39,6 @@ public class AuxUnit {
         canMove = null;
         canAttack = null;
         type = null;
-        for (int i = 0; i < 9; ++i) canMoveTo[i] = null;
         isBuilt = null;
         garrisonUnits = null;
         health = null;

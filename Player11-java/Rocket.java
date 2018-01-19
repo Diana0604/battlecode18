@@ -133,7 +133,7 @@ public class Rocket {
             AuxUnit unit_i = p.unit;
             if (remaining[Wrapper.getIndex(unit_i.getType())] > 0) {
                 if (Wrapper.canLoad(unit, unit_i)) {
-                    gc.load(unit, unit_i);
+                    Wrapper.load(unit, unit_i);
                     remaining[Wrapper.getIndex(unit_i.getType())]--;
                 }
             }

@@ -1,4 +1,4 @@
-import bc.UnitType;
+import bc.*;
 
 class UnitManager{
     private static UnitManager instance;
@@ -18,30 +18,28 @@ class UnitManager{
     }
 
     void moveUnits(){
-        VecUnit units = gc.myUnits();
-        for (int i = 0; i < units.size(); i++) {
-            Unit unit = units.get(i);
-            if(unit.unitType() == UnitType.Rocket) {
+        for (int i = 0; i < Data.myUnits.length; i++) {
+            AuxUnit unit = Data.myUnits[i];
+            if(unit.getType() == UnitType.Rocket) {
                 Rocket.getInstance().playFirst(unit);
             }
         }
-        for (int i = 0; i < units.size(); i++) {
-            Unit unit = units.get(i);
-            Location myLoc = unit.location();
-            if(myLoc.isInGarrison()) continue;
-            if (unit.unitType() == UnitType.Worker) {
+        for (int i = 0; i < Data.myUnits.length; i++) {
+            AuxUnit unit = Data.myUnits[i];
+            if(unit.isInGarrison()) continue;
+            if (unit.getType() == UnitType.Worker) {
                 Worker.getInstance().play(unit);
             }
-            if(unit.unitType() == UnitType.Factory) {
-                Factory.getInstance().play(new AuxUnit(unit));
+            if(unit.getType() == UnitType.Factory) {
+                Factory.getInstance().play(unit);
             }
-            if(unit.unitType() == UnitType.Ranger) {
+            if(unit.getType() == UnitType.Ranger) {
                 Ranger.getInstance().play(unit);
             }
-            if(unit.unitType() == UnitType.Rocket) {
+            if(unit.getType() == UnitType.Rocket) {
                 Rocket.getInstance().play(unit);
             }
-            if(unit.unitType() == UnitType.Healer){
+            if(unit.getType() == UnitType.Healer){
                 Healer.getInstance().play(unit);
             }
         }

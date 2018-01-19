@@ -313,4 +313,21 @@ public class Wrapper {
         Data.gc.launchRocket(unit.getID(), new MapLocation(Planet.Mars, loc.x, loc.y));
         Data.unitMap[loc.x][loc.y] = 0;
     }
+
+    static boolean canLoad(AuxUnit u1, AuxUnit u2){
+        if (!u2.canMove()) return false;
+        if (u1.getGarrisonUnits().size() >= 8) return false;
+        if (u2.isInGarrison()) return false;
+        return (u1.getMaplocation().distanceSquaredTo(u2.getMaplocation()) <= 2);
+    }
+
+    static void load(AuxUnit u1, AuxUnit u2){
+        AuxMapLocation mloc = u2.getMaplocation();
+        Data.unitMap[mloc.x][mloc.y] = 0;
+        u2.garrison = true;
+        u2.mloc = null;
+        u1.getGarrisonUnits().add(u2.getID());
+        Data.gc.load(u1.getID(), u2.getID());
+    }
+
 }

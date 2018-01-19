@@ -169,7 +169,7 @@ class Data {
         researchInfo = gc.researchInfo();
         canBuildRockets = false;
 
-        MarsPlanning.initialize(gc); //calcula els asteroids
+        //MarsPlanning.initialize(gc); //calcula els asteroids
         marsPlanning = MarsPlanning.getInstance();
         asteroidPattern = gc.asteroidPattern();
 

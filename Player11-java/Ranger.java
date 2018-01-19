@@ -38,12 +38,12 @@ public class Ranger {
             if (A.getHealth() < B.getHealth()) return A;
             return B;
         }
-        if (A.getType() == UnitType.Ranger) return A;
-        if (B.getType() == UnitType.Ranger) return B;
         if (A.getType() == UnitType.Mage) return A;
         if (B.getType() == UnitType.Mage) return B;
         if (A.getType() == UnitType.Healer) return A;
         if (B.getType() == UnitType.Healer) return B;
+        if (A.getType() == UnitType.Ranger) return A;
+        if (B.getType() == UnitType.Ranger) return B;
         if (A.getType() == UnitType.Knight) return A;
         if (B.getType() == UnitType.Knight) return B;
         if (A.getType() == UnitType.Worker) return A;

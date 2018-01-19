@@ -1,7 +1,3 @@
-
-
-import bc.*;
-
 class PathfinderNode{
 
     int dir;

@@ -7,6 +7,8 @@ public class Vision {
 
     static void initialize(){
         //WTF!!!!!
+        Mx = new int[101][];
+        My = new int[101][];
         initialize0();
         initialize10();
         initialize20();

@@ -186,7 +186,7 @@ class Data {
         queue = new ConstructionQueue();
 
         createGrid();
-
+        Vision.initialize();
 
         myTeam = gc.team();
         if(myTeam == Team.Blue) enemyTeam = Team.Red;

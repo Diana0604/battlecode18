@@ -57,7 +57,7 @@ public class Wrapper {
             AuxUnit unit = Data.getUnit(x+Vision.Mx[r][i], y + Vision.Mx[r][i], myTeam);
             if (unit != null) ans.add(unit);
         }
-        return (AuxUnit[])ans.toArray();
+        return ans.toArray(new AuxUnit[ans.size()]);
     }
 
     static AuxUnit[] senseUnits(AuxMapLocation loc, int r, boolean myTeam){
@@ -175,12 +175,12 @@ public class Wrapper {
 
 
     static boolean canProduceUnit(AuxUnit unit, UnitType type){ //IT DOESNT CHECK IF ALREADY BUILT
-        return (Data.karbonite >= cost(type));
+        return (Data.getKarbonite() >= cost(type));
     }
 
     static void produceUnit(AuxUnit unit, UnitType type){
         Data.gc.produceRobot(unit.getID(), type);
-        Data.karbonite -= cost(type);
+        Data.karbonite = Data.getKarbonite() - cost(type);
     }
 
     static void heal(AuxUnit u1, AuxUnit u2){
@@ -225,7 +225,7 @@ public class Wrapper {
     }
 
     static boolean canReplicate(AuxUnit unit, int dir){
-        if (Data.karbonite < Data.replicateCost) return false;
+        if (Data.getKarbonite() < Data.replicateCost) return false;
         AuxMapLocation mloc = unit.getMaplocation();
         AuxMapLocation newLoc = mloc.add(dir);
         if (newLoc.isOnMap()) return false;
@@ -236,11 +236,11 @@ public class Wrapper {
 
     static void replicate(AuxUnit unit, int dir){
         Data.gc.replicate(unit.getID(), Direction.values()[dir]);
-        Data.karbonite -= Data.replicateCost;
+        Data.karbonite = Data.getKarbonite() - Data.replicateCost;
     }
 
     static boolean canPlaceBlueprint (AuxUnit unit, UnitType type, int dir){
-        if (Data.karbonite < cost(type)) return false;
+        if (Data.getKarbonite() < cost(type)) return false;
         AuxMapLocation mloc = unit.getMaplocation();
         AuxMapLocation newLoc = mloc.add(dir);
         if (newLoc.isOnMap()) return false;
@@ -252,7 +252,7 @@ public class Wrapper {
 
     static void placeBlueprint(AuxUnit unit, UnitType type, int dir){
         Data.gc.blueprint(unit.getID(), type, Direction.values()[dir]);
-        Data.karbonite -= cost(type);
+        Data.karbonite = Data.getKarbonite() - cost(type);
     }
 
     // retorna -1 si no fa harvest

@@ -73,6 +73,7 @@ public class AuxUnit {
     public AuxMapLocation getMaplocation(){
         if (isInGarrison()) return null;
         mloc = new AuxMapLocation(getLocation().mapLocation());
+        //System.out.println("map location " + mloc);
         return mloc;
     }
 

@@ -22,41 +22,13 @@
   <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="Utils.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Player11-java/Utils.java">
+<<<<<<< HEAD
+=======
+      <file leaf-file-name="Worker.java" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/Player11-java/Worker.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="153">
-              <caret line="9" column="5" lean-forward="false" selection-start-line="9" selection-start-column="5" selection-end-line="9" selection-end-column="5" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Wrapper.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Player11-java/Wrapper.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="242">
-              <caret line="147" column="5" lean-forward="true" selection-start-line="147" selection-start-column="5" selection-end-line="147" selection-end-column="5" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Data.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Player11-java/Data.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-911">
-              <caret line="243" column="35" lean-forward="true" selection-start-line="243" selection-start-column="35" selection-end-line="243" selection-end-column="35" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Healer.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Player11-java/Healer.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="531">
-              <caret line="44" column="0" lean-forward="true" selection-start-line="44" selection-start-column="0" selection-end-line="44" selection-end-column="0" />
+            <state relative-caret-position="496">
+              <caret line="72" column="36" lean-forward="true" selection-start-line="72" selection-start-column="36" selection-end-line="72" selection-end-column="36" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -64,6 +36,80 @@
           </provider>
         </entry>
       </file>
+>>>>>>> d84dd68186cd811adbb52770e6bf4e691f50a492
+      <file leaf-file-name="Utils.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Player11-java/Utils.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="176">
+              <caret line="8" column="8" lean-forward="true" selection-start-line="8" selection-start-column="8" selection-end-line="8" selection-end-column="41" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+<<<<<<< HEAD
+      <file leaf-file-name="Wrapper.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Player11-java/Wrapper.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="242">
+              <caret line="147" column="5" lean-forward="true" selection-start-line="147" selection-start-column="5" selection-end-line="147" selection-end-column="5" />
+=======
+      <file leaf-file-name="Danger.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Player11-java/Danger.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="374">
+              <caret line="26" column="16" lean-forward="false" selection-start-line="26" selection-start-column="16" selection-end-line="26" selection-end-column="16" />
+>>>>>>> d84dd68186cd811adbb52770e6bf4e691f50a492
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+<<<<<<< HEAD
+      <file leaf-file-name="Data.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Player11-java/Data.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-911">
+              <caret line="243" column="35" lean-forward="true" selection-start-line="243" selection-start-column="35" selection-end-line="243" selection-end-column="35" />
+              <folding />
+=======
+      <file leaf-file-name="Healer.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Player11-java/Healer.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="404">
+              <caret line="41" column="20" lean-forward="false" selection-start-line="41" selection-start-column="20" selection-end-line="41" selection-end-column="20" />
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+>>>>>>> d84dd68186cd811adbb52770e6bf4e691f50a492
+            </state>
+          </provider>
+        </entry>
+      </file>
+<<<<<<< HEAD
+      <file leaf-file-name="Healer.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Player11-java/Healer.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="531">
+              <caret line="44" column="0" lean-forward="true" selection-start-line="44" selection-start-column="0" selection-end-line="44" selection-end-column="0" />
+              <folding>
+                <element signature="imports" expanded="true" />
+=======
+      <file leaf-file-name="Wrapper.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Player11-java/Wrapper.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="620">
+              <caret line="216" column="30" lean-forward="false" selection-start-line="216" selection-start-column="30" selection-end-line="216" selection-end-column="30" />
+              <folding>
+                <element signature="e#3609#3610#0" expanded="true" />
+                <element signature="e#3697#3698#0" expanded="true" />
+>>>>>>> d84dd68186cd811adbb52770e6bf4e691f50a492
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+<<<<<<< HEAD
       <file leaf-file-name="MovementManager.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Player11-java/MovementManager.java">
           <provider selected="true" editor-type-id="text-editor">
@@ -76,6 +122,14 @@
                 <element signature="e#6871#6872#0" expanded="true" />
                 <element signature="e#6916#6917#0" expanded="true" />
               </folding>
+=======
+      <file leaf-file-name="Factory.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Player11-java/Factory.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="598">
+              <caret line="57" column="16" lean-forward="false" selection-start-line="57" selection-start-column="16" selection-end-line="57" selection-end-column="16" />
+              <folding />
+>>>>>>> d84dd68186cd811adbb52770e6bf4e691f50a492
             </state>
           </provider>
         </entry>
@@ -83,18 +137,31 @@
       <file leaf-file-name="AuxMapLocation.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Player11-java/AuxMapLocation.java">
           <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
             <state relative-caret-position="381">
               <caret line="47" column="5" lean-forward="false" selection-start-line="47" selection-start-column="5" selection-end-line="47" selection-end-column="5" />
+=======
+            <state relative-caret-position="726">
+              <caret line="35" column="29" lean-forward="true" selection-start-line="35" selection-start-column="29" selection-end-line="35" selection-end-column="29" />
+>>>>>>> d84dd68186cd811adbb52770e6bf4e691f50a492
               <folding />
             </state>
           </provider>
         </entry>
       </file>
+<<<<<<< HEAD
       <file leaf-file-name="Danger.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Player11-java/Danger.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="-323">
               <caret line="14" column="24" lean-forward="true" selection-start-line="14" selection-start-column="20" selection-end-line="14" selection-end-column="24" />
+=======
+      <file leaf-file-name="AuxUnit.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Player11-java/AuxUnit.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="536">
+              <caret line="68" column="23" lean-forward="false" selection-start-line="68" selection-start-column="23" selection-end-line="68" selection-end-column="23" />
+>>>>>>> d84dd68186cd811adbb52770e6bf4e691f50a492
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -105,6 +172,7 @@
       <file leaf-file-name="BugPathfindingData.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Player11-java/BugPathfindingData.java">
           <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
             <state relative-caret-position="136">
               <caret line="8" column="42" lean-forward="false" selection-start-line="8" selection-start-column="42" selection-end-line="8" selection-end-column="42" />
               <folding />
@@ -118,17 +186,33 @@
             <state relative-caret-position="969">
               <caret line="57" column="38" lean-forward="false" selection-start-line="57" selection-start-column="38" selection-end-line="57" selection-end-column="38" />
               <folding />
+=======
+            <state relative-caret-position="294">
+              <caret line="52" column="26" lean-forward="true" selection-start-line="52" selection-start-column="12" selection-end-line="52" selection-end-column="26" />
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+>>>>>>> d84dd68186cd811adbb52770e6bf4e691f50a492
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="AuxUnit.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Player11-java/AuxUnit.java">
+      <file leaf-file-name="Data.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Player11-java/Data.java">
           <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
             <state relative-caret-position="143">
               <caret line="93" column="5" lean-forward="false" selection-start-line="93" selection-start-column="5" selection-end-line="93" selection-end-column="5" />
+=======
+            <state relative-caret-position="298">
+              <caret line="56" column="23" lean-forward="false" selection-start-line="56" selection-start-column="23" selection-end-line="56" selection-end-column="23" />
+>>>>>>> d84dd68186cd811adbb52770e6bf4e691f50a492
               <folding>
                 <element signature="imports" expanded="true" />
+                <element signature="e#9985#9986#0" expanded="true" />
+                <element signature="e#10036#10037#0" expanded="true" />
+                <element signature="e#10093#10094#0" expanded="true" />
+                <element signature="e#10150#10151#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -150,6 +234,13 @@
       <find>searchNearby</find>
       <find>Direction.values()</find>
       <find>allUnits</find>
+      <find>team</find>
+      <find>MapLocation</find>
+      <find>Unit</find>
+      <find>heali</find>
+      <find>acces</find>
+      <find>unitmap</find>
+      <find>karbonite</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -194,6 +285,7 @@
         <option value="$PROJECT_DIR$/Player11-java/Ranger.java" />
         <option value="$PROJECT_DIR$/Player11-java/Rocket.java" />
         <option value="$PROJECT_DIR$/Player11-java/UnitManager.java" />
+<<<<<<< HEAD
         <option value="$PROJECT_DIR$/Player11-java/Worker.java" />
         <option value="$PROJECT_DIR$/Player11-java/Utils.java" />
         <option value="$PROJECT_DIR$/Player11-java/Healer.java" />
@@ -203,14 +295,26 @@
         <option value="$PROJECT_DIR$/Player11-java/Wrapper.java" />
         <option value="$PROJECT_DIR$/Player11-java/AuxUnit.java" />
         <option value="$PROJECT_DIR$/Player11-java/MovementManager.java" />
+=======
+        <option value="$PROJECT_DIR$/Player11-java/Healer.java" />
+        <option value="$PROJECT_DIR$/Player11-java/MovementManager.java" />
+        <option value="$PROJECT_DIR$/Player11-java/Vision.java" />
+        <option value="$PROJECT_DIR$/Player11-java/WorkerData.java" />
+        <option value="$PROJECT_DIR$/Player11-java/AuxMapLocation.java" />
+        <option value="$PROJECT_DIR$/Player11-java/Utils.java" />
+        <option value="$PROJECT_DIR$/Player11-java/Data.java" />
+        <option value="$PROJECT_DIR$/Player11-java/Wrapper.java" />
+        <option value="$PROJECT_DIR$/Player11-java/AuxUnit.java" />
+        <option value="$PROJECT_DIR$/Player11-java/Worker.java" />
+>>>>>>> d84dd68186cd811adbb52770e6bf4e691f50a492
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="-10" />
-    <option name="y" value="8" />
-    <option name="width" value="1374" />
-    <option name="height" value="735" />
+    <option name="x" value="-9" />
+    <option name="y" value="-9" />
+    <option name="width" value="1938" />
+    <option name="height" value="1048" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
@@ -228,9 +332,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scratches" />
-      <pane id="Scope" />
-      <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -259,6 +360,9 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scope" />
+      <pane id="Scratches" />
+      <pane id="PackagesPane" />
       <pane id="AndroidView" />
     </panes>
   </component>
@@ -507,7 +611,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-10" y="8" width="1374" height="735" extended-state="0" />
+    <frame x="-9" y="-9" width="1938" height="1048" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -524,8 +628,8 @@
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.12642802" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="ASM" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.16971" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3295583" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -536,8 +640,8 @@
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="ASM" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Learn" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
@@ -682,7 +786,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="68">
           <caret line="4" column="13" lean-forward="false" selection-start-line="4" selection-start-column="13" selection-end-line="4" selection-end-column="13" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -690,7 +793,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="306">
           <caret line="18" column="36" lean-forward="false" selection-start-line="18" selection-start-column="36" selection-end-line="18" selection-end-column="36" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -698,9 +800,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="527">
           <caret line="34" column="7" lean-forward="false" selection-start-line="34" selection-start-column="7" selection-end-line="34" selection-end-column="7" />
-          <folding>
-            <element signature="e#978#979#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -708,7 +807,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="748">
           <caret line="48" column="0" lean-forward="false" selection-start-line="48" selection-start-column="0" selection-end-line="48" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -716,7 +814,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="68">
           <caret line="4" column="13" lean-forward="false" selection-start-line="4" selection-start-column="13" selection-end-line="4" selection-end-column="13" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -724,10 +821,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="102">
           <caret line="9" column="0" lean-forward="false" selection-start-line="8" selection-start-column="4" selection-end-line="9" selection-end-column="0" />
-          <folding>
-            <element signature="e#1205#1206#0" expanded="false" />
-            <element signature="e#1252#1253#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -735,7 +828,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="4046">
           <caret line="242" column="0" lean-forward="false" selection-start-line="242" selection-start-column="0" selection-end-line="242" selection-end-column="37" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -743,7 +835,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1292">
           <caret line="80" column="0" lean-forward="false" selection-start-line="80" selection-start-column="0" selection-end-line="80" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -751,7 +842,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="514">
           <caret line="90" column="43" lean-forward="false" selection-start-line="90" selection-start-column="43" selection-end-line="90" selection-end-column="43" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -759,6 +849,16 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="17">
           <caret line="1" column="22" lean-forward="false" selection-start-line="1" selection-start-column="22" selection-end-line="1" selection-end-column="22" />
+<<<<<<< HEAD
+=======
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Player11-java/BugPathfindingData.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="102">
+          <caret line="6" column="41" lean-forward="false" selection-start-line="6" selection-start-column="41" selection-end-line="6" selection-end-column="41" />
+>>>>>>> d84dd68186cd811adbb52770e6bf4e691f50a492
           <folding />
         </state>
       </provider>
@@ -821,41 +921,14 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Player11-java/UnitManager.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="259">
-          <caret line="40" column="48" lean-forward="true" selection-start-line="40" selection-start-column="48" selection-end-line="40" selection-end-column="48" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Player11-java/Vision.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="3" column="13" lean-forward="false" selection-start-line="3" selection-start-column="13" selection-end-line="3" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Player11-java/Worker.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-64">
-          <caret line="340" column="46" lean-forward="false" selection-start-line="340" selection-start-column="46" selection-end-line="340" selection-end-column="46" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Player11-java/WorkerData.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="68">
-          <caret line="4" column="13" lean-forward="false" selection-start-line="4" selection-start-column="13" selection-end-line="4" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Player11-java/Utils.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="153">
-          <caret line="9" column="5" lean-forward="false" selection-start-line="9" selection-start-column="5" selection-end-line="9" selection-end-column="5" />
-          <folding />
+        <state relative-caret-position="792">
+          <caret line="40" column="48" lean-forward="false" selection-start-line="40" selection-start-column="48" selection-end-line="40" selection-end-column="48" />
+          <folding>
+            <element signature="e#153#154#0" expanded="false" />
+            <element signature="e#177#178#0" expanded="false" />
+            <element signature="e#327#328#0" expanded="false" />
+            <element signature="e#360#361#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -867,8 +940,70 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/Player11-java/Vision.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="154">
+          <caret line="7" column="29" lean-forward="true" selection-start-line="7" selection-start-column="29" selection-end-line="7" selection-end-column="29" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Player11-java/WorkerData.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="352">
+          <caret line="16" column="10" lean-forward="false" selection-start-line="16" selection-start-column="10" selection-end-line="16" selection-end-column="10" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+<<<<<<< HEAD
+=======
+    <entry file="file://$PROJECT_DIR$/Player11-java/MovementManager.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="294">
+          <caret line="52" column="26" lean-forward="true" selection-start-line="52" selection-start-column="12" selection-end-line="52" selection-end-column="26" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+>>>>>>> d84dd68186cd811adbb52770e6bf4e691f50a492
+    <entry file="file://$PROJECT_DIR$/Player11-java/Utils.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="176">
+          <caret line="8" column="8" lean-forward="true" selection-start-line="8" selection-start-column="8" selection-end-line="8" selection-end-column="41" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Player11-java/Danger.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="374">
+          <caret line="26" column="16" lean-forward="false" selection-start-line="26" selection-start-column="16" selection-end-line="26" selection-end-column="16" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Player11-java/AuxMapLocation.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="726">
+          <caret line="35" column="29" lean-forward="true" selection-start-line="35" selection-start-column="29" selection-end-line="35" selection-end-column="29" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Player11-java/Factory.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="598">
+          <caret line="57" column="16" lean-forward="false" selection-start-line="57" selection-start-column="16" selection-end-line="57" selection-end-column="16" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/Player11-java/Data.java">
       <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
         <state relative-caret-position="-911">
           <caret line="243" column="35" lean-forward="true" selection-start-line="243" selection-start-column="35" selection-end-line="243" selection-end-column="35" />
           <folding />
@@ -895,12 +1030,17 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-323">
           <caret line="14" column="24" lean-forward="true" selection-start-line="14" selection-start-column="20" selection-end-line="14" selection-end-column="24" />
+=======
+        <state relative-caret-position="404">
+          <caret line="41" column="20" lean-forward="false" selection-start-line="41" selection-start-column="20" selection-end-line="41" selection-end-column="20" />
+>>>>>>> d84dd68186cd811adbb52770e6bf4e691f50a492
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+<<<<<<< HEAD
     <entry file="file://$PROJECT_DIR$/Player11-java/AuxMapLocation.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="381">
@@ -923,20 +1063,41 @@
           <caret line="93" column="5" lean-forward="false" selection-start-line="93" selection-start-column="5" selection-end-line="93" selection-end-column="5" />
           <folding>
             <element signature="imports" expanded="true" />
+=======
+    <entry file="file://$PROJECT_DIR$/Player11-java/Data.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="298">
+          <caret line="56" column="23" lean-forward="false" selection-start-line="56" selection-start-column="23" selection-end-line="56" selection-end-column="23" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#9985#9986#0" expanded="true" />
+            <element signature="e#10036#10037#0" expanded="true" />
+            <element signature="e#10093#10094#0" expanded="true" />
+            <element signature="e#10150#10151#0" expanded="true" />
+>>>>>>> d84dd68186cd811adbb52770e6bf4e691f50a492
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Player11-java/Healer.java">
       <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
         <state relative-caret-position="531">
           <caret line="44" column="0" lean-forward="true" selection-start-line="44" selection-start-column="0" selection-end-line="44" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
+=======
+        <state relative-caret-position="620">
+          <caret line="216" column="30" lean-forward="false" selection-start-line="216" selection-start-column="30" selection-end-line="216" selection-end-column="30" />
+          <folding>
+            <element signature="e#3609#3610#0" expanded="true" />
+            <element signature="e#3697#3698#0" expanded="true" />
+>>>>>>> d84dd68186cd811adbb52770e6bf4e691f50a492
           </folding>
         </state>
       </provider>
     </entry>
+<<<<<<< HEAD
     <entry file="file://$PROJECT_DIR$/Player11-java/MovementManager.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="3740">
@@ -947,6 +1108,24 @@
             <element signature="e#889#890#0" expanded="true" />
             <element signature="e#6871#6872#0" expanded="true" />
             <element signature="e#6916#6917#0" expanded="true" />
+=======
+    <entry file="file://$PROJECT_DIR$/Player11-java/AuxUnit.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="536">
+          <caret line="68" column="23" lean-forward="false" selection-start-line="68" selection-start-column="23" selection-end-line="68" selection-end-column="23" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Player11-java/Worker.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="496">
+          <caret line="72" column="36" lean-forward="true" selection-start-line="72" selection-start-column="36" selection-end-line="72" selection-end-column="36" />
+          <folding>
+            <element signature="imports" expanded="true" />
+>>>>>>> d84dd68186cd811adbb52770e6bf4e691f50a492
           </folding>
         </state>
       </provider>

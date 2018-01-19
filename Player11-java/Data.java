@@ -1,5 +1,3 @@
-
-
 import bc.*;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -61,7 +59,18 @@ class Data {
     static AuxUnit[] enemies;
     static boolean[][] accessible;
 
+    private static int[] healingPowers = {10, 12, 17, 17};
     static int healingPower;
+    private static int[] buildingPowers = {5, 5, 6, 7, 10};
+    static int buildingPower;
+    private static int[] repairingPowers = {10, 10, 11, 12, 15};
+    static int repairingPower;
+    private static int[] harvestingPowers = {3, 4, 4, 4, 4};
+    static int harvestingPower;
+
+    static boolean canBuildRockets;
+
+    static int replicateCost = 15;
 
     static int getKarbonite(){
         if (karbonite == null){
@@ -154,6 +163,7 @@ class Data {
         research = Research.getInstance();
         research.yolo();
         researchInfo = gc.researchInfo();
+        canBuildRockets = false;
 
         MarsPlanning.initialize(gc); //calcula els asteroids
         marsPlanning = MarsPlanning.getInstance();
@@ -272,6 +282,14 @@ class Data {
         return null;
     }
 
+    static boolean isOccupied(int x, int y){
+        return getUnit(x, y, false) != null;
+    }
+
+    static boolean isOccupied(AuxMapLocation location){
+        return isOccupied(location.x, location.y);
+    }
+
     static void initTurn(){
         round++;
         unitMap = new int[W][H];
@@ -309,14 +327,25 @@ class Data {
 
         Danger.updateAttackers();
         if (!aggro && researchInfo.getLevel(UnitType.Ranger) > 1) aggro = true;
-        if (healingPower < 17){
-            int lvl = (int)researchInfo.getLevel(UnitType.Healer);
-            if (lvl > 1) healingPower = 17;
-            else if (lvl > 0) healingPower = 12;
-            healingPower = 10;
-        }
+
+        int workerLevel = (int)researchInfo.getLevel(UnitType.Worker);
+        int healerLevel = (int)researchInfo.getLevel(UnitType.Healer);
+        int rocketLevel = (int)researchInfo.getLevel(UnitType.Rocket);
+        buildingPower = buildingPowers[workerLevel];
+        repairingPower = repairingPowers[workerLevel];
+        harvestingPower = harvestingPowers[workerLevel];
+        healingPower = healingPowers[healerLevel];
+        if (rocketLevel > 0) canBuildRockets = true;
     }
 
+    public static boolean onEarth(){ return planet == Planet.Earth;}
 
+    public static boolean onMars(){ return planet == Planet.Mars;}
+
+    public static boolean onTheMap(AuxMapLocation location){
+        int x = location.x;
+        int y = location.y;
+        return x >= 0 && x < W && y >= 0  && y < H;
+    }
 
 }

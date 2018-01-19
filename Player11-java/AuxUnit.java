@@ -1,6 +1,7 @@
 import bc.*;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 /**
  * Created by Ivan on 1/18/2018.
@@ -10,11 +11,13 @@ public class AuxUnit {
     public Integer id;
     public Location loc;
     public Boolean garrison;
+    public Boolean inSpace;
+    public Boolean blueprint;
     public AuxMapLocation mloc;
     //private Integer x;
     //private Integer y;
     public Boolean canMove;
-    public Boolean canAttack; //for workers it counts as action and healers == heal
+    public Boolean canAttack; //for workers it counts harvest as action, and healers == heal
     public UnitType type;
 
     public Boolean[] canMoveTo;
@@ -23,6 +26,7 @@ public class AuxUnit {
     //Team team; no cal crec
 
     public Integer health;
+    public Integer maxHealth;
 
     public ArrayList<Integer> garrisonUnits;
 
@@ -31,6 +35,8 @@ public class AuxUnit {
         id = null;
         loc = null;
         garrison = null;
+        inSpace = null;
+        blueprint = null;
         mloc = null;
         canMove = null;
         canAttack = null;
@@ -39,6 +45,7 @@ public class AuxUnit {
         isBuilt = null;
         garrisonUnits = null;
         health = null;
+        maxHealth = null;
     }
 
     public int getID(){
@@ -54,6 +61,16 @@ public class AuxUnit {
     public boolean isInGarrison(){
         if (garrison == null) garrison = getLocation().isInGarrison();
         return garrison;
+    }
+
+    public boolean isInSpace(){
+        if (inSpace == null) inSpace = getLocation().isInSpace();
+        return inSpace;
+    }
+
+    public boolean isBlueprint(){
+        if (blueprint == null) blueprint = unit.structureIsBuilt() == 0;
+        return blueprint;
     }
 
     public AuxMapLocation getMaplocation(){
@@ -110,6 +127,15 @@ public class AuxUnit {
     public Integer getHealth(){
         if (health == null) health = (int)unit.health();
         return health;
+    }
+
+    public Integer getMaxHealth(){
+        if (maxHealth == null) maxHealth = (int)unit.maxHealth();
+        return maxHealth;
+    }
+
+    public boolean isMaxHealth(){
+        return Objects.equals(getHealth(), getMaxHealth()); //no se si funciona amb .equals()?
     }
 
 

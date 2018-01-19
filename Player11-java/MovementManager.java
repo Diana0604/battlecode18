@@ -245,7 +245,7 @@ public class MovementManager {
         return (Danger.DPS[ind] <= 0);
     }
 
-    public boolean dangerousUnit(Unit unit){
+    public boolean dangerousUnit(UnitType unit){
         return (unit.unitType() == UnitType.Knight || unit.unitType() == UnitType.Mage || unit.unitType() == UnitType.Ranger);
     }
 

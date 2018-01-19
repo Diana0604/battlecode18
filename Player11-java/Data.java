@@ -47,7 +47,7 @@ class Data {
     static final int exploreConstant = 1;
 
     static HashMap<Integer, Integer> allUnits;
-    static VecUnit enemyUnits, units;
+    //static VecUnit enemyUnits, units;
     static HashSet<Integer> structures;
 
     static int rangers;
@@ -261,10 +261,16 @@ class Data {
     }
 
 
-    static AuxUnit getUnit(int x, int y){
+    static AuxUnit getUnit(int x, int y, boolean myTeam){
+        if (x < 0 || x >= W) return null;
+        if (y < 0 || y >= H) return null;
         int i = unitMap[x][y];
-        if (i > 0) return myUnits[i-1];
-        return enemies[-i-1];
+        if (myTeam) {
+            if (i > 0) return myUnits[i - 1];
+            return null;
+        }
+        if (i < 0) return enemies[-i-1];
+        return null;
     }
 
     static void initTurn(){
@@ -278,13 +284,13 @@ class Data {
             for (int j = 0; j < H; ++j) karboMap[i][j] = 0; //ToDO really needed?
         }
         //check enemy units
-        enemyUnits = gc.senseNearbyUnitsByTeam(mapCenter, maxRadius, enemyTeam);
+        VecUnit enemyUnits = gc.senseNearbyUnitsByTeam(mapCenter, maxRadius, enemyTeam);
         enemies = new AuxUnit[(int) enemyUnits.size()];
         for (int i = 0; i < enemies.length; ++i){
             enemies[i] = new AuxUnit(enemyUnits.get(i));
             unitMap[enemies[i].getX()][enemies[i].getY()] = -i-1;
         }
-        units = gc.myUnits();
+        VecUnit units = gc.myUnits();
         myUnits = new AuxUnit[(int) units.size()];
         for (int i = 0; i < myUnits.length; ++i){
             myUnits[i] = new AuxUnit(units.get(i));
@@ -303,7 +309,7 @@ class Data {
 
 
         Danger.updateAttackers();
-        if (!aggro && gc.researchInfo().getLevel(UnitType.Ranger) > 1) aggro = true;
+        if (!aggro && researchInfo.getLevel(UnitType.Ranger) > 1) aggro = true;
     }
 
 

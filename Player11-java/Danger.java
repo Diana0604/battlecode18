@@ -71,8 +71,8 @@ public class Danger {
     }
 
     static void updateAttackers(){
-        int n = (int) Data.units.size();
-        int m = (int) Data.enemyUnits.size();
+        int n = Data.myUnits.length;
+        int m = Data.enemies.length;
 
         locUnits = new MapLocation[n];
         locEnemyUnits = new MapLocation[m];
@@ -86,8 +86,8 @@ public class Danger {
         attackers = new HashSet<>();
 
         for (int i = 0; i < n; ++i){
-            Unit unit = Data.units.get(i);
-            dangUnits[i] = (MovementManager.getInstance().dangerousUnit(unit) && UnitManager.gc.isMoveReady(unit.id()) && UnitManager.gc.isAttackReady(unit.id()));
+            AuxUnit unit = Data.myUnits[i];
+            dangUnits[i] = (MovementManager.getInstance().dangerousUnit(unit.getType()) && UnitManager.gc.isMoveReady(unit.id()) && UnitManager.gc.isAttackReady(unit.id()));
             Location loc = unit.location();
             if (!loc.isInGarrison()) locUnits[i] = unit.location().mapLocation();
             else dangUnits[i] = false;
@@ -153,18 +153,22 @@ public class Danger {
 
     }
 
-    static int getMaxDanger(Unit unit){
+    static int getMaxDanger(UnitType type){
         if (Data.aggro) {
-            if (unit.unitType() == UnitType.Ranger) return 68;
-            if (unit.unitType() == UnitType.Mage) return 65;
-            if (unit.unitType() == UnitType.Knight) return 8;
+            if (type == UnitType.Ranger) return 68;
+            if (type == UnitType.Mage) return 65;
+            if (type == UnitType.Knight) return 8;
         }
         else{
-            if (unit.unitType() == UnitType.Ranger) return 50;
-            if (unit.unitType() == UnitType.Mage) return 45;
-            if (unit.unitType() == UnitType.Knight) return 2;
+            if (type == UnitType.Ranger) return 50;
+            if (type == UnitType.Mage) return 45;
+            if (type == UnitType.Knight) return 2;
         }
         return 0;
+    }
+
+    public boolean dangerousUnit(UnitType type){
+        return (type == UnitType.Knight || type == UnitType.Mage || type == UnitType.Ranger);
     }
 
 }

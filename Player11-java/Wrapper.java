@@ -228,14 +228,12 @@ public class Wrapper {
         if (Data.getKarbonite() < Data.replicateCost) return false;
         AuxMapLocation mloc = unit.getMaplocation();
         AuxMapLocation newLoc = mloc.add(dir);
-        if (newLoc.isOnMap()) return false;
-        if (!Data.accessible[newLoc.x][newLoc.y]) return false;
-        if (Data.isOccupied(newLoc)) return false;
+        if (!isAccessible(newLoc)) return false;
         return true;
     }
 
     static void replicate(AuxUnit unit, int dir){
-        Data.gc.replicate(unit.getID(), Direction.values()[dir]);
+        Data.gc.replicate(unit.getID(), Data.allDirs[dir]);
         Data.karbonite = Data.getKarbonite() - Data.replicateCost;
     }
 
@@ -263,7 +261,7 @@ public class Wrapper {
         if (!mineLoc.isOnMap()) return -1;
         int karboAmount = Data.karboniteAt.get(mineLoc);
         if (karboAmount == 0) return -1;
-        Data.gc.harvest(unit.getID(), Direction.values()[dir]);
+        Data.gc.harvest(unit.getID(), Data.allDirs[dir]);
         int newKarboAmount = karboAmount -= Data.harvestingPower;
         if (newKarboAmount < 0) newKarboAmount = 0;
         if (newKarboAmount > 0) {

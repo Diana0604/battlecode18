@@ -53,6 +53,23 @@ class Data {
     static int rangers;
     static int healers;
 
+    static int DEF = 10000;
+
+    static Integer karbonite;
+
+    static int[][] unitMap;
+    static int[][] karboMap;
+    static AuxUnit[] myUnits;
+    static AuxUnit[] enemies;
+    static boolean[][] accessible;
+
+    static int getKarbonite(){
+        if (karbonite == null){
+            karbonite = (int)gc.karbonite();
+        }
+        return karbonite;
+    }
+
     static Integer encode(int i, int j){
         return i*maxMapSize+j;
     }
@@ -148,7 +165,7 @@ class Data {
 
         W = (int)planetMap.getWidth();
         H = (int)planetMap.getHeight();
-        mapCenter = new MapLocation(gc.planet(), W/2, H/2);
+        mapCenter = new MapLocation(gc.planet(), W/2+1, H/2+1);
         maxRadius = mapCenter.distanceSquaredTo(new MapLocation(gc.planet(), 0, 0));
 
         karboniteAt = new HashMap<MapLocation, Integer>();
@@ -179,8 +196,10 @@ class Data {
                 if (quant > INF) quant = INF;
                 if (quant > 0){
                     if (quant != value) karboniteAt.put(location, (int) quant);
+                    karboMap[location.getX()][location.getY()] = (int)quant;
                 }else it.remove();
             }
+            else karboMap[location.getX()][location.getY()] = karboniteAt.get(location);
         }
 
         if (planet == Planet.Earth) return;
@@ -188,18 +207,18 @@ class Data {
         AsteroidStrike strike = asteroidPattern.asteroid(round);
         MapLocation loc = strike.getLocation();
         int karbonite = (int) strike.getKarbonite();
-        karboniteAt.put(loc,karbonite);
+        if (!karboniteAt.containsKey(loc)) karboniteAt.put(loc,karbonite);
+        else karboniteAt.put(loc,karbonite + karboniteAt.get(loc));
     }
 
 
     private static void updateCurrentArea(){
-        for(int i = 0; i < units.size(); ++i){
-            Unit unit = units.get(i);
-            if(unit.location().isInGarrison()) continue;
-            int id = unit.id();
-            Integer current = locationToArea(unit.location().mapLocation());
-            if(currentArea.containsKey(id) && currentArea.get(id) == current) continue;
-            currentArea.put(id,current);
+        for(int i = 0; i < myUnits.length; ++i){
+            AuxUnit unit = myUnits[i];
+            if(unit.isInGarrison()) continue;
+            Integer current = locationToArea(unit.getMaplocation());
+            if(currentArea.containsKey(unit.getID()) && currentArea.get(unit.getID()) == current) continue;
+            currentArea.put(unit.getID(),current);
             addExploreGrid(current,exploreConstant);
         }
     }
@@ -215,25 +234,26 @@ class Data {
         int factories = 0;
         boolean rocketBuilt = false;
         boolean workerBuilt = false;
-        for (int i = 0; i < units.size(); i++){
-            Unit u = units.get(i);
-            allUnits.put(u.id(), i);
-            UnitType type = u.unitType();
+        for (int i = 0; i < myUnits.length; i++){
+            AuxUnit u = myUnits[i];
+            allUnits.put(u.getID(), i);
+            UnitType type = u.getType();
             if (type == UnitType.Factory){
                 factories++;
                 structures.add(i);
             }else if (type == UnitType.Rocket){
                 rocketBuilt = true;
                 structures.add(i);
-            }else if (type == UnitType.Worker && !u.location().isInGarrison()) workerBuilt = true;
+            }else if (type == UnitType.Worker && !u.isInGarrison()) workerBuilt = true;
             else if (type == UnitType.Ranger){
                 ++rangers;
             } else if (type == UnitType.Healer) {
                 ++healers;
             }
         }
-        if (factories < INITIAL_FACTORIES || gc.karbonite() > MIN_KARBONITE_FOR_FACTORY) queue.requestUnit(UnitType.Factory);
-        if (!rocketBuilt && units.size() > 8 && gc.researchInfo().getLevel(UnitType.Rocket) > 0) { // aixo es super cutre, canviar!
+        //Todo: wrappejar gc.karbonite()??
+        if (factories < INITIAL_FACTORIES || getKarbonite() > MIN_KARBONITE_FOR_FACTORY) queue.requestUnit(UnitType.Factory);
+        if (!rocketBuilt && myUnits.length > 8 && researchInfo.getLevel(UnitType.Rocket) > 0) { // aixo es super cutre, canviar!
             queue.requestUnit(UnitType.Rocket);
         }
         if (!workerBuilt) queue.requestUnit(UnitType.Worker);
@@ -241,20 +261,46 @@ class Data {
     }
 
 
+    static AuxUnit getUnit(int x, int y){
+        int i = unitMap[x][y];
+        if (i > 0) return myUnits[i-1];
+        return enemies[-i-1];
+    }
+
     static void initTurn(){
         round++;
+        unitMap = new int[W][H];
+        for (int i = 0; i < W; ++i){
+            for (int j = 0; j < H; ++j) unitMap[i][j] = 0; //ToDO really needed?
+        }
+        karboMap = new int[W][H];
+        for (int i = 0; i < W; ++i){
+            for (int j = 0; j < H; ++j) karboMap[i][j] = 0; //ToDO really needed?
+        }
         //check enemy units
         enemyUnits = gc.senseNearbyUnitsByTeam(mapCenter, maxRadius, enemyTeam);
+        enemies = new AuxUnit[(int) enemyUnits.size()];
+        for (int i = 0; i < enemies.length; ++i){
+            enemies[i] = new AuxUnit(enemyUnits.get(i));
+            unitMap[enemies[i].getX()][enemies[i].getY()] = -i-1;
+        }
         units = gc.myUnits();
+        myUnits = new AuxUnit[(int) units.size()];
+        for (int i = 0; i < myUnits.length; ++i){
+            myUnits[i] = new AuxUnit(units.get(i));
+            unitMap[myUnits[i].getX()][myUnits[i].getY()] = i+1;
+        }
+        researchInfo = gc.researchInfo();
+        karbonite = null;
         //check mines
         updateMines();
         //update areas explored
         updateCurrentArea();
         //comprova si ha de construir factory o rocket
         checkMyUnits();
+
         Rocket.initTurn();
 
-        researchInfo = gc.researchInfo();
 
         Danger.updateAttackers();
         if (!aggro && gc.researchInfo().getLevel(UnitType.Ranger) > 1) aggro = true;

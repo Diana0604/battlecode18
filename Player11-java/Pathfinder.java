@@ -28,7 +28,7 @@ public class Pathfinder{
     private final double[] dists = {1, sqrt2, 1, sqrt2, 1, sqrt2, 1, sqrt2};
     private static final Direction[] allDirs = {Direction.North, Direction.Northeast, Direction.East, Direction.Southeast, Direction.South, Direction.Southwest, Direction.West, Direction.Northwest};
 
-    boolean[][] accessible;
+    static boolean[][] accessible;
 
 
 
@@ -57,6 +57,8 @@ public class Pathfinder{
                 else accessible[x][y] = false;
             }
         }
+
+        Data.accessible = accessible;
 
         for(int x = 0; x < W; ++x){
             for(int y = 0; y < H; ++y){

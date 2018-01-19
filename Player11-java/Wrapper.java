@@ -205,6 +205,7 @@ public class Wrapper {
         if (blueprint.health > maxHP) blueprint.health = maxHP;
         if (blueprint.health == maxHP) blueprint.blueprint = false;
         Data.gc.build(unit.getID(), blueprint.getID());
+        unit.canAttack = false;
     }
 
     static void repair(AuxUnit unit, AuxUnit structure){
@@ -212,6 +213,7 @@ public class Wrapper {
         int maxHP = getMaxHealth(structure.getType());
         if (structure.health > maxHP) structure.health = maxHP;
         Data.gc.build(unit.getID(), structure.getID());
+        unit.canAttack = false;
     }
 
     static void moveRobot(AuxUnit unit, int dir){
@@ -229,6 +231,7 @@ public class Wrapper {
         AuxMapLocation mloc = unit.getMaplocation();
         AuxMapLocation newLoc = mloc.add(dir);
         if (!isAccessible(newLoc)) return false;
+        if (!unit.canAttack()) return false;
         return true;
     }
 
@@ -241,9 +244,11 @@ public class Wrapper {
         if (Data.getKarbonite() < cost(type)) return false;
         AuxMapLocation mloc = unit.getMaplocation();
         AuxMapLocation newLoc = mloc.add(dir);
-        if (newLoc.isOnMap()) return false;
+        //System.out.println("Newloc: " + newLoc.x + "," + newLoc.y + "   " + Data.W + "," + Data.H);
+        if (!newLoc.isOnMap()) return false;
         if (!Data.accessible[newLoc.x][newLoc.y]) return false;
-        if (Data.isOccupied(newLoc)) return false;
+        System.out.println("Ocupada: " + newLoc.x + "," + newLoc.y + " = " + Data.isOccupied(newLoc));
+        if (Data.isOccupied(newLoc)) return false; //falla perque no detecta els blueprints
         if (type == UnitType.Rocket && !Data.canBuildRockets) return false;
         return true;
     }
@@ -256,6 +261,7 @@ public class Wrapper {
     // retorna -1 si no fa harvest
     // si fa harvest, retorna la karbo que queda al lloc
     static int harvest(AuxUnit unit, int dir) {
+        System.out.println("Entra harvest ");
         AuxMapLocation loc = unit.getMaplocation();
         AuxMapLocation mineLoc = loc.add(dir);
         if (!mineLoc.isOnMap()) return -1;
@@ -268,6 +274,7 @@ public class Wrapper {
             Data.karboniteAt.put(mineLoc, newKarboAmount);
         } else Data.karboniteAt.remove(mineLoc);
         Data.karboMap[mineLoc.x][mineLoc.y] = newKarboAmount;
+        unit.canAttack = false;
         return newKarboAmount;
     }
 

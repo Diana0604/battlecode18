@@ -67,10 +67,12 @@ public class Worker {
 
     //Si esta en perill, fuig, si no, va al target
     private void move(AuxUnit unit) {
+        //System.out.println("Worker can move? " + unit.canMove());
         if (!unit.canMove()) return;
         AuxMapLocation dest;
         if (data.target_type == TARGET_NONE) dest = data.loc; //si no tinc target, vaig al meu lloc (fuig sol)
         else dest = data.target_loc;
+        //System.out.println("Worker moves to " + dest);
         MovementManager.getInstance().moveTo(unit,dest);
     }
 
@@ -302,6 +304,7 @@ public class Worker {
 
     private void tryReplicate(AuxUnit unit){
         if (inDanger) return;
+        if (!unit.canUseAbility()) return;
         boolean should = shouldReplicate(unit);
         //System.out.println(unit.location().mapLocation() + " Should replicate? " + should);
         if (!queue.needsUnit(UnitType.Worker) && !should) return;
@@ -321,7 +324,7 @@ public class Worker {
         if (Data.researchInfo.getLevel(UnitType.Rocket) > 0 && queue.needsUnit(UnitType.Rocket)) type = UnitType.Rocket;
         if (queue.needsUnit(UnitType.Factory)) type = UnitType.Factory;
         if (type == null) return false;
-        System.out.println(Data.round + " type to build: " + type);
+        //System.out.println(Data.round + " type to build: " + type);
         boolean[] aux = new boolean[9];
         for (int i = 0; i < 9; ++i) aux[i] = true;
         Danger.computeDanger(unit);
@@ -340,8 +343,11 @@ public class Worker {
     private boolean tryMine(AuxUnit unit){
         for(int i = 0; i < 9; ++i){
             AuxMapLocation karboLoc = unit.getMaplocation().add(i);
+            //System.out.println("OK");
             if (!karboLoc.isOnMap()) continue;
-            int karboAmount = Data.karboniteAt.get(karboLoc);
+            HashMap<AuxMapLocation, Integer> mapa = Data.karboniteAt;
+            if (!mapa.containsKey(karboLoc)) continue;
+            int karboAmount = mapa.get(karboLoc);
             if (karboAmount > 0){
                 //System.out.println("Unit location, dir: " + data.loc + "   " + d);
                 int karboLeft = Wrapper.harvest(unit,i);

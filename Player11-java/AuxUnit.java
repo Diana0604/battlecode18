@@ -18,6 +18,7 @@ public class AuxUnit {
     //private Integer y;
     public Boolean canMove;
     public Boolean canAttack; //for workers it counts harvest as action, and healers == heal
+    public Boolean canUseAbility;
     public UnitType type;
 
     public Boolean isBuilt;
@@ -38,6 +39,7 @@ public class AuxUnit {
         mloc = null;
         canMove = null;
         canAttack = null;
+        canUseAbility = null;
         type = null;
         isBuilt = null;
         garrisonUnits = null;
@@ -87,7 +89,7 @@ public class AuxUnit {
 
     public boolean canMove(){
         if (canMove == null){
-            if (getType() == UnitType.Factory || getType() == UnitType.Rocket) canMove = Data.gc.isMoveReady(getID());
+            if (getType() != UnitType.Factory && getType() != UnitType.Rocket) canMove = Data.gc.isMoveReady(getID());
             else canMove = false;
         }
         return canMove;
@@ -96,11 +98,16 @@ public class AuxUnit {
     public boolean canAttack(){
         if (canAttack == null){
             if (!(getType() == UnitType.Factory || getType() == UnitType.Rocket || getType() == UnitType.Worker || getType() == UnitType.Healer)) canAttack = Data.gc.isAttackReady(getID());
-            else if (getType() == UnitType.Worker) canAttack = (unit.workerHasActed() > 0);
+            else if (getType() == UnitType.Worker) canAttack = (unit.workerHasActed() == 0);
             else if (getType() == UnitType.Healer) canAttack = Data.gc.isHealReady(getID());
             else canAttack = false;
         }
         return canAttack;
+    }
+
+    public boolean canUseAbility(){
+        if (canUseAbility == null) canUseAbility = unit.abilityHeat() < 10;
+        return canUseAbility;
     }
 
     public UnitType getType(){

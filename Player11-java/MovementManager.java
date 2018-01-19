@@ -1,6 +1,6 @@
 
 
-import bc.*;
+import bc.UnitType;
 
 import java.util.HashMap;
 
@@ -11,18 +11,19 @@ import java.util.HashMap;
 public class MovementManager {
 
     static MovementManager instance;
-    private GameController gc;
     public final int INF = 1000000000;
 
     private BugPathfindingData data;
-    private MapLocation myLoc;
+    AuxUnit unit;
+
+    private AuxMapLocation myLoc;
     private int id;
     private boolean[] canMove;
     private long attackRange;
     private boolean attacker;
 
 
-    static final Direction[] allDirs = {Direction.North, Direction.Northeast, Direction.East, Direction.Southeast, Direction.South, Direction.Southwest, Direction.West, Direction.Northwest, Direction.Center};
+    //static final Direction[] allDirs = {Direction.North, Direction.Northeast, Direction.East, Direction.Southeast, Direction.South, Direction.Southwest, Direction.West, Direction.Northwest, Direction.Center};
 
     static MovementManager getInstance(){
         if (instance == null) instance = new MovementManager();
@@ -32,26 +33,26 @@ public class MovementManager {
     HashMap<Integer, BugPathfindingData> bugpathData;
 
     public MovementManager(){
-        gc = UnitManager.gc;
         bugpathData = new HashMap<>();
     }
 
 
-    public Direction dirTo(int destX, int destY) {
+    /*public int dirTo(int destX, int destY) {
         PathfinderNode myNode = Pathfinder.getInstance().getNode(myLoc.getX() ,myLoc.getY() , destX, destY);
         return myNode.dir;
-    }
+    }*/
 
-    public Direction dirTo(MapLocation loc) {
-        return dirTo(loc.getX(), loc.getY());
-    }
+    //public int dirTo(MapLocation loc) {
 
-    public boolean moveBFSTo(MapLocation target) {
-        int index = Pathfinder.getIndex(dirTo(target));
+    //return dirTo(loc.getX(), loc.getY());
+    //}
+
+    public boolean moveBFSTo(AuxMapLocation target) {
+        int index = myLoc.dirBFSTo(target);
         //Direction dir = dirTo(unit, target);
         if (canMove[index]) {
-            if (isSafe(allDirs[index])) {
-                gc.moveRobot(id, allDirs[index]);
+            if (isSafe(index)) {
+                Wrapper.moveRobot(unit, index);
                 return true;
             }
         }
@@ -154,7 +155,7 @@ public class MovementManager {
         }
         else data = bugpathData.get(id);
         attackRange = unit.attackRange();
-        attacker = dangerousUnit(unit);
+        attacker = dangerousUnit(unit.unitType());
         canMove = new boolean[9];
         for (int i = 0; i < 9; ++i){
             if (gc.canMove(id, allDirs[i])) {
@@ -163,7 +164,7 @@ public class MovementManager {
             else canMove[i] = false;
         }
 
-        Danger.computeDanger(myLoc, canMove);
+        Danger.computeDanger(Data.myUnits[Data.allUnits.get(id)]);
 
         greedyMove();
 
@@ -239,14 +240,12 @@ public class MovementManager {
         }
     }
 
-    boolean isSafe(Direction dir){
-        int ind = Pathfinder.getIndex(dir);
-        //if (Danger.attackers.contains(id)) return (Danger.DPSshort[ind] <= 0);
+    boolean isSafe(int ind){
         return (Danger.DPS[ind] <= 0);
     }
 
-    public boolean dangerousUnit(UnitType unit){
-        return (unit.unitType() == UnitType.Knight || unit.unitType() == UnitType.Mage || unit.unitType() == UnitType.Ranger);
+    public boolean dangerousUnit(UnitType type){
+        return (type == UnitType.Knight || type == UnitType.Mage || type == UnitType.Ranger);
     }
 
 

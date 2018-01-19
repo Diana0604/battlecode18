@@ -8,4 +8,5 @@ public class Utils {
         //System.out.println("Location " + location + " on the map? " + planetMap.onMap(location));
         return planetMap.onMap(location);
     }
+
 }

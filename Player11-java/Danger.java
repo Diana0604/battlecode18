@@ -1,6 +1,6 @@
 
 
-import bc.*;
+import bc.UnitType;
 
 import java.util.HashSet;
 import java.util.*;
@@ -20,11 +20,11 @@ public class Danger {
 
     static final double winningProportion = 1.15;
 
-    static MapLocation[] locUnits, locEnemyUnits;
+    static AuxMapLocation[] locUnits, locEnemyUnits;
     static boolean[] dangUnits, dangEnemyUnits, visitedUnits, visitedEnemyUnits;
 
     //MyLoc = position, canMove = directions you want to compute {9 is center}
-    static void computeDanger(MapLocation myLoc, boolean[] canMove){
+    static void computeDanger(AuxUnit unit){
 
         DPS = new double[9];
         DPSshort = new double[9];
@@ -35,21 +35,23 @@ public class Danger {
             DPSshort[i] = 0;
         }
 
-        VecUnit enemies = UnitManager.gc.senseNearbyUnitsByTeam(myLoc, 100, Data.enemyTeam);
-        for(int i = 0; i < enemies.size(); ++i){
-            Unit enemy = enemies.get(i);
+        AuxMapLocation myLoc = unit.getMaplocation();
+
+        AuxUnit[] enemies = Wrapper.senseUnits(myLoc.x, myLoc.y, 100, false);
+        for(int i = 0; i < enemies.length; ++i){
+            AuxUnit enemy = enemies[i];
             double dps = 0;
             long ar = 0;
             long arshort = 0;
-            if (MovementManager.getInstance().dangerousUnit(enemy)) {
-                dps = (double) enemy.damage() / enemy.attackCooldown();
-                ar = getMaxDanger(enemy);
-                arshort = enemy.attackRange();
+            if (MovementManager.getInstance().dangerousUnit(enemy.getType())) {
+                dps = Wrapper.getDamage(enemy.getType()) / Wrapper.getAttackCooldown(enemy.getType());
+                ar = getMaxDanger(enemy.getType());
+                arshort = Wrapper.getAttackRange(enemy.getType());
             }
             for (int j = 0; j < 9; ++j){
-                if (!canMove[j] && j < 8) continue;
-                MapLocation newLoc = myLoc.add(MovementManager.allDirs[j]);
-                long d = enemy.location().mapLocation().distanceSquaredTo(newLoc);
+                if (!unit.getCanMoveTo(j) && j < 8) continue;
+                AuxMapLocation newLoc = myLoc.add(j);
+                long d = enemy.getMaplocation().distanceSquaredTo(newLoc);
                 if (dps > 0 && d <= ar) DPS[j] += dps;
                 if (dps > 0 && d <= arshort) DPS[j] += dps/1000;
                 minDist[j] = Math.min(minDist[j], (int)d);
@@ -74,8 +76,8 @@ public class Danger {
         int n = Data.myUnits.length;
         int m = Data.enemies.length;
 
-        locUnits = new MapLocation[n];
-        locEnemyUnits = new MapLocation[m];
+        locUnits = new AuxMapLocation[n];
+        locEnemyUnits = new AuxMapLocation[m];
 
         dangUnits = new boolean[n];
         dangEnemyUnits = new boolean[m];
@@ -87,17 +89,16 @@ public class Danger {
 
         for (int i = 0; i < n; ++i){
             AuxUnit unit = Data.myUnits[i];
-            dangUnits[i] = (MovementManager.getInstance().dangerousUnit(unit.getType()) && UnitManager.gc.isMoveReady(unit.id()) && UnitManager.gc.isAttackReady(unit.id()));
-            Location loc = unit.location();
-            if (!loc.isInGarrison()) locUnits[i] = unit.location().mapLocation();
-            else dangUnits[i] = false;
+            dangUnits[i] = (MovementManager.getInstance().dangerousUnit(unit.getType()) && UnitManager.gc.isMoveReady(unit.getID()) && UnitManager.gc.isAttackReady(unit.getID()));
+            locUnits[i] = unit.getMaplocation();
+            if (locUnits[i] == null) dangUnits[i] = false;
             visitedUnits[i] = false;
         }
 
         for (int i = 0; i < m; ++i){
-            Unit unit = Data.enemyUnits.get(i);
-            locEnemyUnits[i] = unit.location().mapLocation();
-            dangEnemyUnits[i] = MovementManager.getInstance().dangerousUnit(unit);
+            AuxUnit unit = Data.enemies[i];
+            locEnemyUnits[i] = unit.getMaplocation();
+            dangEnemyUnits[i] = MovementManager.getInstance().dangerousUnit(unit.getType());
             visitedEnemyUnits[i] = false;
         }
 
@@ -117,25 +118,26 @@ public class Danger {
         Queue<Integer> q = new LinkedList<Integer>();
         visitedUnits[i] = true;
         q.add(encode(i, 0));
-        possibleAttackers.add(Data.units.get(i).id());
+        possibleAttackers.add(Data.myUnits[i].getID());
         while (!q.isEmpty()) {
             int a = q.poll();
             int y = decodeY(a);
             int x = decodeX(a);
             if (y == 0){
-                for (int j = 0; j < Data.enemyUnits.size(); ++j){
-                    if (!visitedEnemyUnits[j] && dangEnemyUnits[j] && locEnemyUnits[j].distanceSquaredTo(locUnits[x]) <= getMaxDanger(Data.enemyUnits.get(j))){
+                for (int j = 0; j < Data.enemies.length; ++j){
+                    if (!visitedEnemyUnits[j] && dangEnemyUnits[j] && locEnemyUnits[j].distanceSquaredTo(locUnits[x]) <= getMaxDanger(Data.enemies[j].getType())){
                         q.add(encode(j, 1));
-                        possibleDefenders.add(Data.enemyUnits.get(j).id());
+                        possibleDefenders.add(Data.enemies[j].getID());
                         visitedEnemyUnits[j] = true;
                     }
                 }
             }
             else{
-                for (int j = 0; j < Data.units.size(); ++j){
-                    if (!visitedUnits[j] && dangUnits[j] && locUnits[j].distanceSquaredTo(locEnemyUnits[x]) <= getMaxDanger(Data.units.get(j))){
+                for (int j = 0; j < Data.myUnits.length; ++j){
+                    if (Data.myUnits[j].isInGarrison()) continue;
+                    if (!visitedUnits[j] && dangUnits[j] && locUnits[j].distanceSquaredTo(locEnemyUnits[x]) <= getMaxDanger(Data.myUnits[j].getType())){
                         q.add(encode(j, 0));
-                        possibleAttackers.add(Data.units.get(j).id());
+                        possibleAttackers.add(Data.myUnits[j].getID());
                         visitedUnits[j] = true;
                     }
                 }

@@ -35,7 +35,7 @@ class UnitManager{
                 Worker.getInstance().play(unit);
             }
             if(unit.unitType() == UnitType.Factory) {
-                Factory.getInstance().play(unit);
+                Factory.getInstance().play(new AuxUnit(unit));
             }
             if(unit.unitType() == UnitType.Ranger) {
                 Ranger.getInstance().play(unit);

@@ -32,7 +32,7 @@ class Data {
     static private final int areaSize = 5;
     static private int[][] locToArea;
     static private final int maxMapSize = 50;
-    static private final Direction[] allDirs = {Direction.North, Direction.Northeast, Direction.East, Direction.Southeast, Direction.South, Direction.Southwest, Direction.West, Direction.Northwest, Direction.Center};
+    static final Direction[] allDirs = {Direction.North, Direction.Northeast, Direction.East, Direction.Southeast, Direction.South, Direction.Southwest, Direction.West, Direction.Northwest, Direction.Center};
 
     static Team myTeam;
     static Team enemyTeam;
@@ -47,13 +47,11 @@ class Data {
     static final int exploreConstant = 1;
 
     static HashMap<Integer, Integer> allUnits;
-    //static VecUnit enemyUnits, units;
+    static VecUnit enemyUnits, units;
     static HashSet<Integer> structures;
 
     static int rangers;
     static int healers;
-
-    static int DEF = 10000;
 
     static Integer karbonite;
 
@@ -62,6 +60,8 @@ class Data {
     static AuxUnit[] myUnits;
     static AuxUnit[] enemies;
     static boolean[][] accessible;
+
+    static int healingPower;
 
     static int getKarbonite(){
         if (karbonite == null){
@@ -115,10 +115,8 @@ class Data {
         }
     }
 
-    private static Integer locationToArea(MapLocation loc){
-        int x = loc.getX();
-        int y = loc.getY();
-        return locToArea[x][y];
+    private static Integer locationToArea(AuxMapLocation loc){
+        return locToArea[loc.x][loc.y];
     }
 
     static int decodeX(Integer c){
@@ -140,12 +138,13 @@ class Data {
         for(int i = 0; i < initialUnits.size(); ++i){
             Unit possibleEnemy = initialUnits.get(i);
             if(possibleEnemy.team() == enemyTeam){
-                Integer enemyArea = locationToArea(possibleEnemy.location().mapLocation());
+                Integer enemyArea = locationToArea((new AuxUnit(possibleEnemy)).getMaplocation());
                 addExploreGrid(enemyArea, enemyBaseValue);
             }
         }
     }
 
+    //ToDo check
     static void initGame(GameController _gc){
         gc = _gc;
 
@@ -284,13 +283,13 @@ class Data {
             for (int j = 0; j < H; ++j) karboMap[i][j] = 0; //ToDO really needed?
         }
         //check enemy units
-        VecUnit enemyUnits = gc.senseNearbyUnitsByTeam(mapCenter, maxRadius, enemyTeam);
+        enemyUnits = gc.senseNearbyUnitsByTeam(mapCenter, maxRadius, enemyTeam);
         enemies = new AuxUnit[(int) enemyUnits.size()];
         for (int i = 0; i < enemies.length; ++i){
             enemies[i] = new AuxUnit(enemyUnits.get(i));
             unitMap[enemies[i].getX()][enemies[i].getY()] = -i-1;
         }
-        VecUnit units = gc.myUnits();
+        units = gc.myUnits();
         myUnits = new AuxUnit[(int) units.size()];
         for (int i = 0; i < myUnits.length; ++i){
             myUnits[i] = new AuxUnit(units.get(i));
@@ -310,6 +309,12 @@ class Data {
 
         Danger.updateAttackers();
         if (!aggro && researchInfo.getLevel(UnitType.Ranger) > 1) aggro = true;
+        if (healingPower < 17){
+            int lvl = (int)researchInfo.getLevel(UnitType.Healer);
+            if (lvl > 1) healingPower = 17;
+            else if (lvl > 0) healingPower = 12;
+            healingPower = 10;
+        }
     }
 
 

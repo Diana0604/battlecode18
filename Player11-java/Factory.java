@@ -1,17 +1,14 @@
 
 
-import bc.*;
+import bc.UnitType;
 
 public class Factory {
 
-    private final Direction[] allDirs = {Direction.North, Direction.Northeast, Direction.East, Direction.Southeast, Direction.South, Direction.Southwest, Direction.West, Direction.Northwest, Direction.Center};
+    //private final Direction[] allDirs = {Direction.North, Direction.Northeast, Direction.East, Direction.Southeast, Direction.South, Direction.Southwest, Direction.West, Direction.Northwest, Direction.Center};
 
     static Factory instance = null;
-    static GameController gc;
     static ConstructionQueue queue;
     int units;
-
-    boolean wait;
 
     static Factory getInstance(){
         if (instance == null){
@@ -21,37 +18,33 @@ public class Factory {
     }
 
     public Factory(){
-        gc = UnitManager.gc;
         queue = Data.queue;
         units = 0;
     }
 
-    void play(Unit unit){
+    void play(AuxUnit unit){
         //if it's still a blueprint return
-        if(unit.structureIsBuilt() == 0) return;
+        if(!unit.getIsBuilt()) return;
         //I don't think we'll actually need a wait for factories
-        wait = false;
         checkGarrison(unit);
         build(unit);
     }
 
-    void checkGarrison(Unit unit){
-        boolean[] aux = new boolean[9];
-        for (int i = 0; i < 9; ++i) aux[i] = true;
-        Danger.computeDanger(unit.location().mapLocation(), aux);
-        for(int i = 0; i < allDirs.length; ++i){
-            if (Danger.DPS[i] > 0) continue;
-            if(gc.canUnload(unit.id(), allDirs[i])) {
-                gc.unload(unit.id(), allDirs[i]);
+    void checkGarrison(AuxUnit unit){
+        Danger.computeDanger(unit);
+        for(int i = 0; i < 9; ++i){
+            //if (Danger.DPS[i] > 0) continue;
+            if(Wrapper.canUnload(unit, i)) {
+                Wrapper.unload(unit, i);
             }
         }
     }
 
-    void build(Unit unit){
-        int id = unit.id();
-        if (queue.needsUnit(UnitType.Worker) && gc.canProduceRobot(id,UnitType.Worker)){
-            gc.produceRobot(id, UnitType.Worker);
+    void build(AuxUnit unit){
+        if (queue.needsUnit(UnitType.Worker) && Wrapper.canProduceUnit(unit,UnitType.Worker)){
+            Wrapper.produceUnit(unit, UnitType.Worker);
             queue.requestUnit(UnitType.Worker,false);
+            return;
         }
         UnitType type = UnitType.Ranger;
         ++Data.rangers;
@@ -61,8 +54,8 @@ public class Factory {
             ++Data.healers;
         }
 
-        if(!gc.canProduceRobot(id, type)) return;
-        gc.produceRobot(unit.id(),type);
+        if(!Wrapper.canProduceUnit(unit, type)) return;
+        Wrapper.produceUnit(unit,type);
         //units = (units+1)%4;
     }
 }

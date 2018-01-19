@@ -338,7 +338,7 @@ public class Worker {
         System.out.println(Data.round + " type to build: " + type);
         boolean[] aux = new boolean[9];
         for (int i = 0; i < 9; ++i) aux[i] = true;
-        Danger.computeDanger(data.loc, aux);
+        Danger.computeDanger(new AuxUnit(unit));
         for (int i = 0; i < 9; ++i){
             Direction d = allDirs[i];
             if (Danger.DPS[i] > 0) continue;

@@ -85,7 +85,7 @@ public class Rocket {
     }
 
     private boolean hasToLeaveByEggs(Unit unit) {
-        Danger.computeDanger(unit.location().mapLocation(), center);
+        Danger.computeDanger(new AuxUnit(unit));
         double danger = Danger.DPS[8];
         return unit.health() <= danger;
     }
@@ -151,7 +151,7 @@ public class Rocket {
     private void checkLaunch(Unit unit, RocketData data) {
         int[] remaining = getRemaining(unit, data);
         if (full(remaining)) {
-            Danger.computeDanger(unit.location().mapLocation(), center);
+            Danger.computeDanger(new AuxUnit(unit));
             double dps = Danger.DPS[8];
             boolean shouldWait = false;
             // calcula quantes rondes podria aguantar amb aquest dps i mira si surt a compte esperar-les

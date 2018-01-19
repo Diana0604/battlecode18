@@ -8,7 +8,7 @@ class Data {
     static Research research;
     static ResearchInfo researchInfo;
     static MarsPlanning marsPlanning;
-    static HashMap<MapLocation, Integer> karboniteAt;
+    static HashMap<AuxMapLocation, Integer> karboniteAt;
     static Planet planet;
     static PlanetMap planetMap;
     static ConstructionQueue queue;
@@ -177,7 +177,7 @@ class Data {
         mapCenter = new MapLocation(gc.planet(), W/2+1, H/2+1);
         maxRadius = mapCenter.distanceSquaredTo(new MapLocation(gc.planet(), 0, 0));
 
-        karboniteAt = new HashMap<MapLocation, Integer>();
+        karboniteAt = new HashMap<AuxMapLocation, Integer>();
 
         queue = new ConstructionQueue();
 
@@ -195,26 +195,27 @@ class Data {
 
 
     private static void updateMines(){
-        Iterator<HashMap.Entry<MapLocation,Integer> > it = karboniteAt.entrySet().iterator();
+        Iterator<HashMap.Entry<AuxMapLocation,Integer> > it = karboniteAt.entrySet().iterator();
         while (it.hasNext()){
-            HashMap.Entry<MapLocation, Integer> entry = it.next();
-            MapLocation location = entry.getKey();
+            HashMap.Entry<AuxMapLocation, Integer> entry = it.next();
+            AuxMapLocation location = entry.getKey();
+            MapLocation mapLocation = new MapLocation(planet, location.x, location.y);
             int value = entry.getValue();
-            if (gc.canSenseLocation(location)){
-                long quant = gc.karboniteAt(location);
+            if (gc.canSenseLocation(mapLocation)){
+                long quant = gc.karboniteAt(mapLocation);
                 if (quant > INF) quant = INF;
                 if (quant > 0){
                     if (quant != value) karboniteAt.put(location, (int) quant);
-                    karboMap[location.getX()][location.getY()] = (int)quant;
+                    karboMap[mapLocation.getX()][mapLocation.getY()] = (int)quant;
                 }else it.remove();
             }
-            else karboMap[location.getX()][location.getY()] = karboniteAt.get(location);
+            else karboMap[mapLocation.getX()][mapLocation.getY()] = karboniteAt.get(location);
         }
 
         if (planet == Planet.Earth) return;
         if (!asteroidPattern.hasAsteroid(round)) return;
         AsteroidStrike strike = asteroidPattern.asteroid(round);
-        MapLocation loc = strike.getLocation();
+        AuxMapLocation loc = new AuxMapLocation(strike.getLocation());
         int karbonite = (int) strike.getKarbonite();
         if (!karboniteAt.containsKey(loc)) karboniteAt.put(loc,karbonite);
         else karboniteAt.put(loc,karbonite + karboniteAt.get(loc));

@@ -89,7 +89,7 @@ public class Worker {
     //Busca un blueprint per construir que estigui a prop del worker
     private boolean searchNearbyBlueprint(AuxMapLocation location){
         for (Integer i : Data.structures){
-            AuxUnit u = Data.units.get(i);
+            AuxUnit u = Data.myUnits[i];
             //UnitType type = u.unitType();
             //if (type != UnitType.Factory && type != UnitType.Rocket) continue;
             if (u.isBlueprint()) continue; //si no es un blueprint, sino una estructura
@@ -109,7 +109,7 @@ public class Worker {
     //Busca una structure per reparar que estigui a prop del worker
     private boolean searchNearbyStructure(AuxMapLocation location){
         for (Integer i : Data.structures){
-            AuxUnit u = Data.units.get(i);
+            AuxUnit u = Data.myUnits[i];
             //UnitType type = u.unitType();
             //if (type != UnitType.Factory && type != UnitType.Rocket) continue;
             if (u.isBlueprint()) continue; //si es un blueprint, suda
@@ -172,7 +172,7 @@ public class Worker {
 
         // mira si hi ha una unit a la target location. Aixo es fa servir per si el target es structure/blueprint
         AuxUnit target_unit = null;
-        if (data.target_id != -1 && Data.allUnits.keySet().contains(data.target_id)) target_unit = Data.units.get(Data.allUnits.get(data.target_id));
+        if (data.target_id != -1 && Data.allUnits.keySet().contains(data.target_id)) target_unit = Data.myUnits[Data.allUnits.get(data.target_id)];
 
         //si te un blueprint de target, mira si el blueprint ja esta construit. Si esta construit, reseteja target.
         if (type == TARGET_BLUEPRINT && target_unit != null) {
@@ -285,7 +285,7 @@ public class Worker {
             }
         }
         for (int i = 0; i < Data.units.size(); i++){
-            AuxUnit u = Data.units.get(i);
+            AuxUnit u = Data.myUnits[i];
             UnitType type = u.getType();
             if (type == UnitType.Worker) {
                 //workers_total++;
@@ -329,7 +329,7 @@ public class Worker {
             if (Danger.DPS[i] > 0) continue;
             if (!Wrapper.canPlaceBlueprint(unit, type, i)) continue;
             Wrapper.placeBlueprint(unit, type, i);
-            if (DEBUG)System.out.println("Worker " + data.id +  "  " + data.loc +" places blueprint " + d);
+            if (DEBUG)System.out.println("Worker " + data.id +  "  " + data.loc +" places blueprint " + i);
             queue.requestUnit(type, false);
             return true;
 

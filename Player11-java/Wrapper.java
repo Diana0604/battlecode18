@@ -144,13 +144,13 @@ public class Wrapper {
         Data.gc.heal(u1.getID(), u2.getID());
     }
 
-<<<<<<< HEAD
-    static boolean canMove(AuxUnit unit, int dir){
+    static boolean canMove(AuxUnit unit, int dir) {
         if (!unit.canMove()) return false;
         AuxMapLocation mloc = unit.getMaplocation();
         AuxMapLocation newLoc = mloc.add(dir);
         return (isAccessible(newLoc));
-=======
+    }
+
     static void build(AuxUnit unit, AuxUnit blueprint){
         blueprint.health += Data.buildingPower;
         int maxHP = getMaxHealth(blueprint.getType());
@@ -164,7 +164,6 @@ public class Wrapper {
         int maxHP = getMaxHealth(structure.getType());
         if (structure.health > maxHP) structure.health = maxHP;
         Data.gc.build(unit.getID(), structure.getID());
->>>>>>> d84dd68186cd811adbb52770e6bf4e691f50a492
     }
 
     static void moveRobot(AuxUnit unit, int dir){
@@ -176,8 +175,6 @@ public class Wrapper {
         Data.unitMap[newLoc.x][newLoc.y] = Data.allUnits.get(unit.getID());
         Data.gc.moveRobot(unit.getID(), Data.allDirs[dir]);
     }
-<<<<<<< HEAD
-=======
 
     static boolean canReplicate(AuxUnit unit, int dir){
         if (Data.karbonite < Data.replicateCost) return false;
@@ -227,6 +224,4 @@ public class Wrapper {
         Data.karboMap[mineLoc.x][mineLoc.y] = newKarboAmount;
         return newKarboAmount;
     }
-
->>>>>>> d84dd68186cd811adbb52770e6bf4e691f50a492
 }

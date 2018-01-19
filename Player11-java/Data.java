@@ -61,19 +61,19 @@ class Data {
 
     private static int[] healingPowers = {10, 12, 17, 17};
     static int healingPower;
-<<<<<<< Updated upstream
     private static int[] buildingPowers = {5, 5, 6, 7, 10};
     static int buildingPower;
     private static int[] repairingPowers = {10, 10, 11, 12, 15};
     static int repairingPower;
     private static int[] harvestingPowers = {3, 4, 4, 4, 4};
     static int harvestingPower;
+    private static int[] mageDamages = {60, 75, 90, 105};
+    static int mageDMG;
 
     static boolean canBuildRockets;
 
     static int replicateCost = 15;
 
-    static int mageDMG;
 
 
     static int getKarbonite(){
@@ -295,28 +295,28 @@ class Data {
         return isOccupied(location.x, location.y);
     }
 
-    static void initTurn(){
+    static void initTurn() {
         round++;
         unitMap = new int[W][H];
-        for (int i = 0; i < W; ++i){
+        for (int i = 0; i < W; ++i) {
             for (int j = 0; j < H; ++j) unitMap[i][j] = 0; //ToDO really needed?
         }
         karboMap = new int[W][H];
-        for (int i = 0; i < W; ++i){
+        for (int i = 0; i < W; ++i) {
             for (int j = 0; j < H; ++j) karboMap[i][j] = 0; //ToDO really needed?
         }
         //check enemy units
         VecUnit enemyUnits = gc.senseNearbyUnitsByTeam(mapCenter, maxRadius, enemyTeam);
         enemies = new AuxUnit[(int) enemyUnits.size()];
-        for (int i = 0; i < enemies.length; ++i){
+        for (int i = 0; i < enemies.length; ++i) {
             enemies[i] = new AuxUnit(enemyUnits.get(i));
-            unitMap[enemies[i].getX()][enemies[i].getY()] = -i-1;
+            unitMap[enemies[i].getX()][enemies[i].getY()] = -i - 1;
         }
         VecUnit units = gc.myUnits();
         myUnits = new AuxUnit[(int) units.size()];
-        for (int i = 0; i < myUnits.length; ++i){
+        for (int i = 0; i < myUnits.length; ++i) {
             myUnits[i] = new AuxUnit(units.get(i));
-            unitMap[myUnits[i].getX()][myUnits[i].getY()] = i+1;
+            unitMap[myUnits[i].getX()][myUnits[i].getY()] = i + 1;
         }
         researchInfo = gc.researchInfo();
         karbonite = null;
@@ -332,32 +332,17 @@ class Data {
 
         Danger.updateAttackers();
         if (!aggro && researchInfo.getLevel(UnitType.Ranger) > 1) aggro = true;
-<<<<<<< Updated upstream
 
-        int workerLevel = (int)researchInfo.getLevel(UnitType.Worker);
-        int healerLevel = (int)researchInfo.getLevel(UnitType.Healer);
-        int rocketLevel = (int)researchInfo.getLevel(UnitType.Rocket);
+        int workerLevel = (int) researchInfo.getLevel(UnitType.Worker);
+        int healerLevel = (int) researchInfo.getLevel(UnitType.Healer);
+        int rocketLevel = (int) researchInfo.getLevel(UnitType.Rocket);
+        int mageLevel = (int) researchInfo.getLevel(UnitType.Mage);
         buildingPower = buildingPowers[workerLevel];
         repairingPower = repairingPowers[workerLevel];
         harvestingPower = harvestingPowers[workerLevel];
         healingPower = healingPowers[healerLevel];
+        mageDMG = mageDamages[mageLevel];
         if (rocketLevel > 0) canBuildRockets = true;
-=======
-        if (healingPower < 17){
-            int lvl = (int)researchInfo.getLevel(UnitType.Healer);
-            if (lvl > 1) healingPower = 17;
-            else if (lvl > 0) healingPower = 12;
-            healingPower = 10;
-        }
-
-        if (mageDMG < 105){
-            int lvl = (int)researchInfo.getLevel(UnitType.Mage);
-            if (lvl > 2) mageDMG = 105;
-            else if (lvl > 1) mageDMG = 90;
-            else if (lvl > 0) mageDMG = 75;
-            else mageDMG = 60;
-        }
->>>>>>> Stashed changes
     }
 
     public static boolean onEarth(){ return planet == Planet.Earth;}

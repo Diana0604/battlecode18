@@ -1,6 +1,4 @@
-
-
-import bc.*;
+import bc.UnitType;
 
 class UnitManager{
     private static UnitManager instance;

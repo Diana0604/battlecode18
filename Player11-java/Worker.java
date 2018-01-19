@@ -284,7 +284,7 @@ public class Worker {
                 buildingwork += missingHealth/workperturn + 1;
             }
         }
-        for (int i = 0; i < Data.units.size(); i++){
+        for (int i = 0; i < Data.myUnits.length; i++){
             AuxUnit u = Data.myUnits[i];
             UnitType type = u.getType();
             if (type == UnitType.Worker) {

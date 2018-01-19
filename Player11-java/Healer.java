@@ -68,7 +68,7 @@ public class Healer {
     AuxMapLocation getBestUnit(AuxMapLocation loc){
         double minDist = 500000;
         AuxMapLocation ans = null;
-        for (int i = 0; i < Data.units.size(); ++i){
+        for (int i = 0; i < Data.myUnits.length; ++i){
             AuxUnit u = Data.myUnits[i];
             if (!Data.structures.contains(i)){
                 if (u.getHealth() < Wrapper.getMaxHealth(u.getType())){

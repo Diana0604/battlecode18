@@ -107,4 +107,6 @@ public class Pathfinder{
         return Nodes[x1][y1][x2][y2];
     }
 
+    public PathfinderNode getNode(AuxMapLocation loc1, AuxMapLocation loc2){ return getNode(loc1.x, loc1.y, loc2.x, loc2.y); }
+
 }

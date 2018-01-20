@@ -26,8 +26,18 @@ def dos2unix(directory):
     pathlist += list(Path(directory).glob("**/*.sh"))
 
     for path in pathlist:
-        with open(str(path), 'r') as f:
-            x = f.read()
+        try:
+            with open(str(path), 'r') as f:
+                x = f.read()
+        except UnicodeDecodeError as e:
+            try:
+                print("Trying Latin encoding...")
+                with open(str(path), 'r', encoding='ISO-8859-1') as f:
+                    x = f.read()
+            except Exception as e2:
+                print(e2)
+                x = 'echo "Unable to read file (please encode as unicode)."'
+
         with open(str(path), 'w') as f:
             f.write(x.replace('\r\n', '\n'))
 
@@ -50,7 +60,12 @@ class AbstractPlayer:
             extract_s3_bucket(s3_bucket, s3_key, self.working_dir)
         elif local_dir:
             # print("Copying files from {} to {}".format(os.path.abspath(local_dir), self.working_dir))
-            copytree(os.path.abspath(local_dir), self.working_dir)
+            try:
+                copytree(os.path.abspath(local_dir), self.working_dir)
+            except Exception as e:
+                print("Failed to copy files from {} to {}\nMake sure you don't have any broken symlinks in your player directory for example" +
+                      " and that your dog didn't eat your hard drive.".format(os.path.abspath(local_dir), self.working_dir))
+                raise
         else:
             raise ValueError("Must provide either S3 key and bucket or local directory for code.")
 
@@ -65,6 +80,9 @@ class AbstractPlayer:
             return 'DARWIN'
         else:
             raise Exception("Unknown os: " + sys.platform)
+
+    def guess_language(self):
+        return "?"
 
     def start(self):
         pass

@@ -1,3 +1,4 @@
+
 import bc.*;
 
 import java.util.ArrayList;
@@ -63,6 +64,7 @@ public class Rocket {
     void play(Unit unit) {
         //if it's still a blueprint return
         if(unit.structureIsBuilt() == 0) return;
+        //System.out.println("Rocket location " + unit.location() + " round " + gc.round());
         if (unit.location().isOnPlanet(Planet.Earth)) {
             if (hasToLeaveByEggs(unit)) {
                 launchRocket(unit);
@@ -70,6 +72,8 @@ public class Rocket {
             }
             RocketData data = mapa.get(unit.id());
             checkLaunch(unit, data);
+        }else{
+            System.out.println("Rocket " + unit.id() + " a l'espai!");
         }
     }
 
@@ -93,7 +97,7 @@ public class Rocket {
             Unit unit_i = myUnits.get(i);
             if (!unit_i.location().isOnMap() || !unit_i.location().isOnPlanet(Planet.Earth)) continue;
             double distance = Pathfinder.getInstance().getNode(unit.location().mapLocation(), unit_i.location().mapLocation()).dist;
-            if (distance == (double)Pathfinder.INF) continue;
+            if (distance == (double) Pathfinder.INF) continue;
             sorted.add(new Pair(distance, unit_i));
         }
         sorted.sort((p1, p2) -> (p1.dist < p2.dist)?-1:1);

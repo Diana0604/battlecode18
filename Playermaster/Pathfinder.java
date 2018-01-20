@@ -1,3 +1,4 @@
+
 import bc.*;
 import java.util.*;
 
@@ -26,33 +27,52 @@ public class Pathfinder{
     private final double[] dists = {1, sqrt2, 1, sqrt2, 1, sqrt2, 1, sqrt2};
     private static final Direction[] allDirs = {Direction.North, Direction.Northeast, Direction.East, Direction.Southeast, Direction.South, Direction.Southwest, Direction.West, Direction.Northwest};
 
+    boolean[][] accessible;
+
+
+
+
     private PathfinderNode[][][][] Nodes;
     private PlanetMap map;
+    private Planet planet;
     int W;
     int H;
 
-
     public Pathfinder(){
         gc = UnitManager.gc;
-        map = gc.startingMap(gc.planet());
+        planet = gc.planet();
+        map = gc.startingMap(planet);
         W = (int)map.getWidth();
         H = (int)map.getHeight();
 
         Nodes  = new PathfinderNode[W][H][W][H];
+        accessible = new boolean[W][H];
+
+        for (int x = 0; x < W; ++x){
+            for (int y = 0; y < H; ++y){
+                if (map.isPassableTerrainAt(new MapLocation(planet, x, y)) > 0){
+                    accessible[x][y] = true;
+                }
+                else accessible[x][y] = false;
+            }
+        }
 
         for(int x = 0; x < W; ++x){
             for(int y = 0; y < H; ++y){
                 //add initial karbonite
                 long a = map.initialKarboniteAt(new MapLocation(gc.planet(), x, y));
                 if (a > INF) a = INF;
-                if (a > 0) UnitManager.getInstance().addMine(x,y,(int)a);
+                if (a > 0) addMine(x,y,(int)a);
                 //bfs
                 bfs(x,y);
             }
         }
     }
 
-
+    static void addMine(int x, int y, int q) {
+        MapLocation loc = new MapLocation(Data.planet,x,y);
+        Data.karboniteAt.put(loc,q);
+    }
 
     private  void bfs(int a,int b){
         PriorityQueue<Integer> queue = new PriorityQueue<Integer>();
@@ -78,7 +98,7 @@ public class Pathfinder{
                 int parsedDist = (int)Math.round(distFactor*newDist);
                 if(newPosX >= W || newPosX < 0 || newPosY >= H || newPosY < 0) continue;
                 if(newDist < Nodes[a][b][newPosX][newPosY].dist) {
-                    if(map.isPassableTerrainAt(new MapLocation(gc.planet(), newPosX, newPosY)) > 0) queue.add((((parsedDist << AUX) | newPosX) << AUX) | newPosY);
+                    if(accessible[newPosX][newPosY]) queue.add((((parsedDist << AUX) | newPosX) << AUX) | newPosY);
 
                     Nodes[a][b][newPosX][newPosY].dist = newDist;
                     if(newDist < 1.8) Nodes[a][b][newPosX][newPosY].dir = allDirs[i];

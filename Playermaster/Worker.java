@@ -1,3 +1,5 @@
+
+
 import bc.*;
 
 import java.util.HashMap;
@@ -20,6 +22,12 @@ public class Worker {
     private static final int TARGET_BLUEPRINT = 3;
     private static final int TARGET_ROCKET = 4;
 
+    // radi de busca de blueprints/structures
+    private static final int SEARCH_RADIUS = 5;
+
+    private final Direction[] allDirs = {Direction.North, Direction.Northeast, Direction.East, Direction.Southeast, Direction.South, Direction.Southwest, Direction.West, Direction.Northwest, Direction.Center};
+
+
     public Worker(){
 
     }
@@ -29,8 +37,8 @@ public class Worker {
             instance = new Worker();
             mapa = new HashMap<>();
             gc = UnitManager.getInstance().gc;
-            queue = UnitManager.queue;
-            myTeam = UnitManager.getInstance().myTeam;
+            queue = Data.queue;
+            myTeam = Data.myTeam;
             myPlanet = gc.planet();
         }
         return instance;
@@ -50,7 +58,7 @@ public class Worker {
     }
 
     private void deleteMine(MapLocation location){
-        UnitManager.getInstance().karboniteAt.remove(location);
+        Data.karboniteAt.remove(location);
     }
 
     private void resetTarget(){
@@ -87,12 +95,10 @@ public class Worker {
 
     //Busca un blueprint per construir que estigui a prop del worker
     private boolean searchNearbyBlueprint(MapLocation location){
-        final int SEARCH_RADIUS = 5;
-        VecUnit v = gc.senseNearbyUnitsByTeam(location,SEARCH_RADIUS*SEARCH_RADIUS,myTeam); //radius * arrel(2)?
-        for (int i = 0; i < v.size(); i++){
-            Unit u = v.get(i);
-            UnitType type = u.unitType();
-            if (type != UnitType.Factory && type != UnitType.Rocket) continue;
+        for (Integer i : Data.structures){
+            Unit u = Data.units.get(i);
+            //UnitType type = u.unitType();
+            //if (type != UnitType.Factory && type != UnitType.Rocket) continue;
             if (u.structureIsBuilt() != 0) continue; //si no es un blueprint, sino una estructura
             MapLocation loc = u.location().mapLocation();
             PathfinderNode node = Pathfinder.getInstance().getNode(location, loc);
@@ -109,12 +115,10 @@ public class Worker {
 
     //Busca una structure per reparar que estigui a prop del worker
     private boolean searchNearbyStructure(MapLocation location){
-        final int SEARCH_RADIUS = 5;
-        VecUnit v = gc.senseNearbyUnitsByTeam(location,SEARCH_RADIUS*SEARCH_RADIUS,myTeam); //radius * arrel(2)?
-        for (int i = 0; i < v.size(); i++){
-            Unit u = v.get(i);
-            UnitType type = u.unitType();
-            if (type != UnitType.Factory && type != UnitType.Rocket) continue;
+        for (Integer i : Data.structures){
+            Unit u = Data.units.get(i);
+            //UnitType type = u.unitType();
+            //if (type != UnitType.Factory && type != UnitType.Rocket) continue;
             if (u.structureIsBuilt() == 0) continue; //si es un blueprint, suda
             if (u.health() == u.maxHealth()) continue; //si no cal reparar-ho
             MapLocation loc = u.location().mapLocation();
@@ -131,10 +135,11 @@ public class Worker {
     }
 
     //Busca la mina mes propera
+    //Todo es pot optimitzar
     private void searchKarbonite(MapLocation location){
         long minDist = 1000000;
         MapLocation ans = null;
-        for (HashMap.Entry<MapLocation, Integer> entry : UnitManager.getInstance().karboniteAt.entrySet()) {
+        for (HashMap.Entry<MapLocation, Integer> entry : Data.karboniteAt.entrySet()) {
             MapLocation mineLoc = entry.getKey();
             //int value = entry.getValue();
             long d = location.distanceSquaredTo(mineLoc);
@@ -150,33 +155,60 @@ public class Worker {
         data.target_loc = ans;
     }
 
-    //cada torn, el worker mira si canvia de target
-    private void updateTarget(Unit unit){
+    private void updateTargetMars(){
+        if (data.safest_direction != null) return; //no fa update si esta en perill
+        int type = data.target_type;
+
+        if (type != TARGET_NONE && type != TARGET_MINE) resetTarget();
+
+        //Si te una mina de target, mira que encara hi quedi karbonite. Si no, reseteja target i elimina la mina de l'array
+        if (type == TARGET_MINE && Data.karboniteAt.get(data.target_loc) == null) resetTarget();
+        if (type == TARGET_MINE) return;
+        searchKarbonite(data.loc);
+    }
+
+    private void updateTargetEarth(){
         if (data.safest_direction != null) return; //no fa update si esta en perill
         int type = data.target_type;
 
         //si un rocket el crida, fa return perque ja te el target mes important
-        boolean found = checkNeededForRocket();
-        if (type == TARGET_ROCKET && !found) resetTarget(); //si el rocket mor, reseteja
-        else if (type == TARGET_ROCKET) return;
+        if (checkNeededForRocket()) return;
+        if (type == TARGET_ROCKET) resetTarget();
 
+        boolean found = false;
+
+        // mira si hi ha una unit a la target location. Aixo es fa servir per si el target es structure/blueprint
         Unit target_unit = null;
-        if (data.target_id != -1 && gc.canSenseUnit(data.target_id)) target_unit = gc.unit(data.target_id);
+        if (data.target_id != -1 && Data.allUnits.keySet().contains(data.target_id)) target_unit = Data.units.get(Data.allUnits.get(data.target_id));
 
         //si te un blueprint de target, mira si el blueprint ja esta construit. Si esta construit, reseteja target.
-        if (type == TARGET_BLUEPRINT && target_unit != null && target_unit.health() == target_unit.maxHealth()) resetTarget();
+        if (type == TARGET_BLUEPRINT && target_unit != null) {
+            if (target_unit.health() == target_unit.maxHealth()) resetTarget();
+            UnitType targetType = target_unit.unitType();
+            if (targetType != UnitType.Factory && targetType != UnitType.Rocket) resetTarget();
+        }
         if (type == TARGET_BLUEPRINT) return;//no fas update si ja tens un blueprint perque es lo mes important
         found = searchNearbyBlueprint(data.loc);
 
         //Si te una structure de target, mira que la structure no estigui full vida. Si ho esta, reseteja
-        if (type == TARGET_STRUCTURE && target_unit != null && target_unit.health() == target_unit.maxHealth()) resetTarget();
+        if (type == TARGET_STRUCTURE && target_unit != null) {
+            if (target_unit.health() == target_unit.maxHealth()) resetTarget();
+            UnitType targetType = target_unit.unitType();
+            if (targetType != UnitType.Factory && targetType != UnitType.Rocket) resetTarget();
+        }
         if (found || type == TARGET_STRUCTURE) return;
         found = searchNearbyStructure(data.loc);
 
         //Si te una mina de target, mira que encara hi quedi karbonite. Si no, reseteja target i elimina la mina de l'array
-        if (type == TARGET_MINE && UnitManager.getInstance().karboniteAt.get(data.target_loc) == null) resetTarget();
+        if (type == TARGET_MINE && Data.karboniteAt.get(data.target_loc) == null) resetTarget();
         if (found || type == TARGET_MINE) return;
         searchKarbonite(data.loc);
+    }
+
+    //cada torn, el worker mira si canvia de target
+    private void updateTarget(){
+        if (gc.planet() == Planet.Earth) updateTargetEarth();
+        else updateTargetMars();
     }
 
     //busca de les 8 caselles adjacents l'estructura amb menys vida, o si no el blueprint amb mes
@@ -213,7 +245,7 @@ public class Worker {
     }
 
     private boolean tryRepairBuild(Unit unit){
-        if (!gc.isAttackReady(data.id)) return false; //no tinc clar que attack sigui lo correcte aqui pero idk
+        if (gc.planet() != Planet.Earth) return false;
         Unit str = findAdjacentStructure(data.loc);
         if (str == null) return false;
         if (str.structureIsBuilt() == 0){
@@ -232,61 +264,79 @@ public class Worker {
 
     private boolean shouldReplicate(Unit unit){
         if (data.safest_direction != null) return false;
-        int search_radius = 2;
-        int work = 0; //turns of work in the area (mining+building+repairing)
+        int search_radius = 8;
+        int miningwork = 0; //turns of work
+        int buildingwork = 0;
+        //int workers_local = 0;
+        //int workers_total = 0;
         int workers = 0;
-        final int WORKPERWORKER = 20;
+        //final int MIN_WORK_LOCAL = 20;
+        //final int MIN_WORK_TOTAL = 30;
+        final int MIN_WORK = 30;
         MapLocation myPos = data.loc;
-        for (int i = -search_radius; i <= search_radius; i++) {
-            for (int j = -search_radius; j <= search_radius; j++) {
-                MapLocation loc = myPos.translate(i, j);
-                if (!Utils.onTheMap(loc, gc)) continue;
-                HashMap<MapLocation,Integer> mapa = UnitManager.getInstance().karboniteAt;
-                if (mapa.containsKey(loc)) work += mapa.get(loc) / unit.workerHarvestAmount() + 1;
-            }
+        for (HashMap.Entry<MapLocation,Integer> entry :Data.karboniteAt.entrySet()){
+            MapLocation loc = entry.getKey();
+            if (myPos.distanceSquaredTo(loc) > search_radius) continue;
+            int karbonite = entry.getValue();
+            if (karbonite > 0) miningwork += karbonite/unit.workerHarvestAmount() + 1;
         }
         VecUnit v = gc.senseNearbyUnitsByTeam(myPos,8, myTeam);
         for (int i = 0; i < v.size(); i++){
             Unit u = v.get(i);
             UnitType type = u.unitType();
-            if (type == UnitType.Worker) workers++;
             int missingHealth = (int) (u.maxHealth() - u.health());
             if ((type == UnitType.Rocket || type == UnitType.Factory) && missingHealth > 0){
                 int workperturn;
                 if (u.structureIsBuilt() == 0) workperturn = (int) unit.workerBuildHealth();
                 else workperturn = (int) unit.workerRepairHealth();
-                work += missingHealth/workperturn + 1;
+                buildingwork += missingHealth/workperturn + 1;
             }
         }
-        return work / ((workers>0)?workers:1 )> WORKPERWORKER;
+        for (int i = 0; i < Data.units.size(); i++){
+            Unit u = Data.units.get(i);
+            UnitType type = u.unitType();
+            if (type == UnitType.Worker) {
+                //workers_total++;
+                if (myPos.distanceSquaredTo(u.location().mapLocation()) <= search_radius) workers++;
+            }
+        }
+        if (workers == 0) workers = 1;
+        //if (workers_total == 0) workers_total = 1;
+        double work_local = buildingwork / workers;
+        double work_total = miningwork / workers;
+        return (work_local + work_total) > MIN_WORK;
+        //return (work_local > MIN_WORK_LOCAL) || (work_total > MIN_WORK_TOTAL);
     }
 
-    private boolean tryReplicate(Unit unit){
-        if (!gc.isAttackReady(data.id)) return false;
-        if (data.safest_direction != null) return false;
-        if (!queue.needsUnit(UnitType.Worker) && !shouldReplicate(unit)) return false;
-        for (Direction d: Direction.values()){
+    private void tryReplicate(Unit unit){
+        if (data.safest_direction != null) return;
+        boolean should = shouldReplicate(unit);
+        //System.out.println(unit.location().mapLocation() + " Should replicate? " + should);
+        if (!queue.needsUnit(UnitType.Worker) && !should) return;
+        for (int i = 0; i < 9; ++i){
+            Direction d = allDirs[i];
             if (gc.canReplicate(data.id, d)) {
                 gc.replicate(data.id,d);
                 if (DEBUG)System.out.println("Worker " + data.id +  "  " + data.loc +" replicates");
                 queue.requestUnit(UnitType.Worker, false);
-                return true;
+                return;
             }
         }
-        return false;
     }
 
     private boolean tryPlaceBlueprint(Unit unit){
-        if (!gc.isAttackReady(data.id)) return false;
         if (data.safest_direction != null) return false;
         UnitType type = null;
-        if (queue.needsUnit(UnitType.Rocket)) type = UnitType.Rocket;
+        if (Data.researchInfo.getLevel(UnitType.Rocket) > 0 && queue.needsUnit(UnitType.Rocket)) type = UnitType.Rocket;
         if (queue.needsUnit(UnitType.Factory)) type = UnitType.Factory;
         if (type == null) return false;
-
-        Danger.computeDanger(data.loc);
-        for (Direction d: Direction.values()){
-            if (Danger.DPS[d.swigValue()] > 0) continue;
+        System.out.println(Data.round + " type to build: " + type);
+        boolean[] aux = new boolean[9];
+        for (int i = 0; i < 9; ++i) aux[i] = true;
+        Danger.computeDanger(data.loc, aux);
+        for (int i = 0; i < 9; ++i){
+            Direction d = allDirs[i];
+            if (Danger.DPS[i] > 0) continue;
             if (!gc.canBlueprint(data.id, type, d)) continue;
 
             gc.blueprint(data.id, type, d);
@@ -298,9 +348,9 @@ public class Worker {
         return false;
     }
 
-    private void tryMine(Unit unit){
-        if (!gc.isAttackReady(data.id)) return;
-        for(Direction d: Direction.values()){
+    private boolean tryMine(Unit unit){
+        for(int i = 0; i < 9; ++i){
+            Direction d = allDirs[i];
             MapLocation karboLoc = data.loc.add(d);
             if (!Utils.onTheMap(karboLoc,gc)) continue;
             int karboAmount = (int) gc.karboniteAt(karboLoc);
@@ -310,18 +360,19 @@ public class Worker {
                 gc.harvest(data.id, d);
                 if (karboAmount <= unit.workerHarvestAmount()) resetTarget();
                 if (DEBUG)System.out.println("Worker " + data.id +  "  " + data.loc + " harvests karbonite " + d);
-                return;
+                return true;
             }
         }
+        return false;
     }
 
     //Aqui decideix si construeix/mina/etc
-    private void doAction(Unit unit){
-        //teoricament el hasMoved no cal
-        boolean hasMoved = tryReplicate(unit);
-        if (!hasMoved) hasMoved = tryRepairBuild(unit);
-        if (!hasMoved) hasMoved = tryPlaceBlueprint(unit);
-        if (!hasMoved) tryMine(unit);
+    private boolean doAction(Unit unit){
+        if (unit.workerHasActed() > 0) return true;
+        if (tryRepairBuild(unit)) return true;
+        if (tryPlaceBlueprint(unit)) return true;
+        if (tryMine(unit)) return true;
+        return false;
     }
 
     void play(Unit unit){
@@ -331,15 +382,14 @@ public class Worker {
             if (unit.location().isInGarrison() || unit.location().isInSpace()) return;
 
             int id = data.id;
-            //System.out.println(id + " ok 1");
             data.safest_direction = checkDanger();
-            //System.out.println(id + " ok 2");
-            updateTarget(unit);
-            //System.out.println(id + " ok 3");
-            if (DEBUG) System.out.println("Worker " + id + "  " + data.loc + " has target " + data.target_loc + ", " + data.target_type);
-            doAction(unit);
-            //System.out.println(id + " ok 4");
+            boolean repl = doAction(unit);
+            tryReplicate(unit);
+            updateTarget();
             move(unit);
+            if (!repl) doAction(unit);
+
+            if (DEBUG) System.out.println("Worker " + id + "  " + data.loc + " has target " + data.target_loc + ", " + data.target_type);
             //System.out.println("Worker " + id + " end round " + gc.round());
         }catch(Exception e){
             System.out.println("CUIDADUUU!!!! Excepcio a worker, probablement perque un worker de dintre un garrison ha intentat fer una accio");

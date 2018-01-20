@@ -8,9 +8,9 @@ public class Wrapper {
     static double getDamage(UnitType type){ //ToDo
         switch(type){
             case Ranger:
-                return 40;
+                return 30;
             case Knight:
-                return 60;
+                return 80;
             case Mage:
                 return Data.mageDMG;
             default:
@@ -67,6 +67,7 @@ public class Wrapper {
     static boolean canUnload(AuxUnit unit, int dir) {
         if (unit.getGarrisonUnits().size() == 0) return false;
         if (!isAccessible(unit.getMaplocation().add(dir))) return false;
+        if (!Data.myUnits[Data.allUnits.get(unit.getGarrisonUnits().get(0))].canMove()) return false;
         return true;
     }
 
@@ -186,6 +187,8 @@ public class Wrapper {
         Data.gc.produceRobot(unit.getID(), type);
         Data.karbonite = Data.getKarbonite() - cost(type);
         unit.canAttack = false;
+        AuxMapLocation mloc = unit.getMaplocation();
+        Data.unitMap[mloc.x][mloc.y] = Data.allUnits.get(unit.getID()) +1;
     }
 
     static void heal(AuxUnit u1, AuxUnit u2){

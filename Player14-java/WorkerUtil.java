@@ -85,10 +85,10 @@ public class WorkerUtil {
         }
         //System.out.println(ans);
 
-        System.err.println("Getting actions");
+        //System.err.println("Getting actions");
 
-        System.err.println(loc.x + " " + loc.y);
-        System.err.println(ans + " " + workers);
+        //System.err.println(loc.x + " " + loc.y);
+        //System.err.println(ans + " " + workers);
 
         return ans/(workers+1+extra_workers);
     }

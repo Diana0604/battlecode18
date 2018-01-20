@@ -296,8 +296,10 @@ class Data {
             }
         }
 
-        if (factories < INITIAL_FACTORIES || getKarbonite() > MIN_KARBONITE_FOR_FACTORY) queue.requestUnit(UnitType.Factory);
-        if (!rocketBuilt && myUnits.length > 8 && researchInfo.getLevel(UnitType.Rocket) > 0) { // aixo es super cutre, canviar!
+        if (factories < 1 || (factories < 2 && getKarbonite() >= 120) || (factories < 3 && getKarbonite() >= 150) || getKarbonite() >= 200) queue.requestUnit(UnitType.Factory);
+        else queue.requestUnit(UnitType.Factory, false);
+
+        if (!rocketBuilt && researchInfo.getLevel(UnitType.Rocket) > 0) { // aixo es super cutre, canviar!
             queue.requestUnit(UnitType.Rocket);
         }
         if (!workerBuilt) queue.requestUnit(UnitType.Worker);

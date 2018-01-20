@@ -233,7 +233,9 @@ public class Wrapper {
         AuxMapLocation loc = unit.getMaplocation();
         AuxMapLocation sloc = structure.getMaplocation();
         int distance = loc.distanceSquaredTo(sloc);
-        //System.out.println("DISTANCE BETWEEN " + loc.x + "," + loc.y + " AND " + sloc.x + "," + sloc.y + " = " + distance + "  " + unit.getID());
+        System.out.println("DISTANCE BETWEEN " + loc.x + "," + loc.y + " AND " + sloc.x + "," + sloc.y + " = " + distance + "  " + unit.getID());
+        System.out.println(unit.unit.location().mapLocation().getX() + " " + unit.unit.location().mapLocation().getY());
+        Unit unitt = Data.gc.unit(structure.getID());
         Data.gc.repair(unit.getID(), structure.getID());
         unit.canAttack = false;
     }
@@ -292,7 +294,7 @@ public class Wrapper {
         AuxMapLocation loc = unit.getMaplocation();
         AuxMapLocation mineLoc = loc.add(dir);
         if (!mineLoc.isOnMap()) return false;
-        return true;
+        return Data.gc.canHarvest(unit.getID(), Data.allDirs[dir]);
     }
 
     // retorna -1 si no fa harvest
@@ -372,6 +374,8 @@ public class Wrapper {
         Data.unitMap[mloc.x][mloc.y] = 0;
         u2.garrison = true;
         u2.mloc = null;
+        u2.canMove = false;
+        u2.canAttack = false;
         u1.getGarrisonUnits().add(u2.getID());
         Data.gc.load(u1.getID(), u2.getID());
     }

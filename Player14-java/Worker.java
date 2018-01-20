@@ -65,8 +65,8 @@ public class Worker {
     boolean shouldReplicate(){
         if (danger) return false;
         int nb_actions = WorkerUtil.getWorkerActions(unit.getMaplocation(), 30);
-        if (Data.onMars() || Data.workers < WorkerUtil.min_nb_workers) return (nb_actions >= 10);
-        return (nb_actions >= 20);
+        if (Data.onMars() || Data.workers < WorkerUtil.min_nb_workers) return (nb_actions >= 12);
+        return (nb_actions >= 30);
     }
 
     boolean tryBuildAndRepair(){
@@ -123,11 +123,12 @@ public class Worker {
     }
 
     boolean tryMine(){
-        //System.out.println("Trying to mine! " + unit.getID());
+        System.out.println("Trying to mine! " + unit.getID());
         int dir = WorkerUtil.getMostKarboLocation(unit.getMaplocation());
         AuxMapLocation newLoc = unit.getMaplocation().add(dir);
         if (Data.karboMap[newLoc.x][newLoc.y] > 0 && Wrapper.canHarvest(unit, dir)){
             Wrapper.harvest(unit, dir);
+            System.out.println(newLoc.x + " " + newLoc.y);
             return true;
         }
         return false;

@@ -187,7 +187,7 @@ public class MovementManager {
     }
 
     int bestIndex(int i, int j){
-        if (!Danger.attackers.contains(id)) {
+        if (true) {
         //if (true){
             if (Danger.DPS[i] > Danger.DPS[j]) return j;
             if (Danger.DPS[i] < Danger.DPS[j]) return i;

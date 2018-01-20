@@ -48,100 +48,187 @@ public class AuxUnit {
     }
 
     public int getID(){
-        if (id == null) id = unit.id();
-        return id;
+        try {
+            if (id == null) id = unit.id();
+            return id;
+        }catch(Exception e) {
+            System.out.println(e);
+            return Integer.parseInt(null);
+        }
     }
 
     public Location getLocation(){
-        if (loc == null) loc = unit.location();
-        return loc;
+        try {
+            if (loc == null) loc = unit.location();
+            return loc;
+        }catch(Exception e) {
+            System.out.println(e);
+            return null;
+        }
     }
 
     public boolean isInGarrison(){
-        if (garrison == null) garrison = getLocation().isInGarrison();
-        return garrison;
+        try {
+            if (garrison == null) garrison = getLocation().isInGarrison();
+            return garrison;
+        } catch(Exception e) {
+            System.out.println(e);
+            return false;
+        }
     }
 
     public boolean isInSpace(){
-        if (inSpace == null) inSpace = getLocation().isInSpace();
-        return inSpace;
+        try {
+            if (inSpace == null) inSpace = getLocation().isInSpace();
+            return inSpace;
+        }catch(Exception e) {
+            System.out.println(e);
+            return false;
+        }
     }
 
     public boolean isBlueprint(){
-        if (blueprint == null) blueprint = (unit.structureIsBuilt() == 0);
-        return blueprint;
+        try {
+            if (blueprint == null) blueprint = (unit.structureIsBuilt() == 0);
+            return blueprint;
+        }catch(Exception e) {
+            System.out.println(e);
+            return false;
+        }
     }
 
     public AuxMapLocation getMaplocation(){
-        if (isInGarrison()) return null;
-        if (mloc == null) mloc = new AuxMapLocation(getLocation().mapLocation());
-        //System.out.println("map location " + mloc);
-        return mloc;
+        try {
+            if (isInGarrison()) return null;
+            if (mloc == null) mloc = new AuxMapLocation(getLocation().mapLocation());
+            //System.out.println("map location " + mloc);
+            return mloc;
+        }catch(Exception e) {
+            System.out.println(e);
+            return null;
+        }
     }
 
     public int getX(){
-        return getMaplocation().x;
+        try {
+            return getMaplocation().x;
+        }catch(Exception e) {
+            System.out.println(e);
+            return Integer.parseInt(null);
+        }
     }
 
     public int getY(){
-        return getMaplocation().y;
+        try {
+            return getMaplocation().y;
+        }catch(Exception e) {
+            System.out.println(e);
+            return Integer.parseInt(null);
+        }
     }
 
     public boolean canMove(){
-        if (canMove == null){
-            if (getType() != UnitType.Factory && getType() != UnitType.Rocket) canMove = Data.gc.isMoveReady(getID());
-            else canMove = false;
+        try {
+            if (canMove == null) {
+                if (getType() != UnitType.Factory && getType() != UnitType.Rocket)
+                    canMove = Data.gc.isMoveReady(getID());
+                else canMove = false;
+            }
+            return canMove;
+        }catch(Exception e) {
+            System.out.println(e);
+            return false;
         }
-        return canMove;
     }
 
     public boolean canAttack(){
-        if (canAttack == null){
-            if (!(getType() == UnitType.Factory || getType() == UnitType.Rocket || getType() == UnitType.Worker || getType() == UnitType.Healer)) canAttack = Data.gc.isAttackReady(getID());
-            else if (getType() == UnitType.Worker) canAttack = (unit.workerHasActed() == 0);
-            else if (getType() == UnitType.Healer) canAttack = Data.gc.isHealReady(getID());
-            else if (getType() == UnitType.Factory) canAttack = (unit.isFactoryProducing() == 0);
-            else canAttack = false;
+        try {
+            if (canAttack == null) {
+                if (!(getType() == UnitType.Factory || getType() == UnitType.Rocket || getType() == UnitType.Worker || getType() == UnitType.Healer))
+                    canAttack = Data.gc.isAttackReady(getID());
+                else if (getType() == UnitType.Worker) canAttack = (unit.workerHasActed() == 0);
+                else if (getType() == UnitType.Healer) canAttack = Data.gc.isHealReady(getID());
+                else if (getType() == UnitType.Factory) canAttack = (unit.isFactoryProducing() == 0);
+                else canAttack = false;
+            }
+            return canAttack;
+        }catch(Exception e) {
+            System.out.println(e);
+            return false;
         }
-        return canAttack;
     }
 
     public boolean canUseAbility(){
-        if (canUseAbility == null) canUseAbility = unit.abilityHeat() < 10;
-        return canUseAbility;
+        try {
+            if (canUseAbility == null) canUseAbility = unit.abilityHeat() < 10;
+            return canUseAbility;
+        }catch(Exception e) {
+            System.out.println(e);
+            return false;
+        }
     }
 
     public UnitType getType(){
-        if (type == null) type = unit.unitType();
-        return type;
+        try {
+            if (type == null) type = unit.unitType();
+            return type;
+        }catch(Exception e) {
+            System.out.println(e);
+            return null;
+        }
     }
 
     public boolean getIsBuilt(){
-        if (isBuilt == null) isBuilt = (unit.structureIsBuilt() > 0);
-        return isBuilt;
+        try {
+            if (isBuilt == null) isBuilt = (unit.structureIsBuilt() > 0);
+            return isBuilt;
+        }catch(Exception e) {
+            System.out.println(e);
+            return true;
+        }
     }
 
     public ArrayList<Integer> getGarrisonUnits(){
-        if (garrisonUnits == null){
-            garrisonUnits = new ArrayList<>();
-            VecUnitID v = unit.structureGarrison();
-            for (int i = 0; i < v.size(); ++i) garrisonUnits.add(v.get(i));
+        try {
+            if (garrisonUnits == null) {
+                garrisonUnits = new ArrayList<>();
+                VecUnitID v = unit.structureGarrison();
+                for (int i = 0; i < v.size(); ++i) garrisonUnits.add(v.get(i));
+            }
+            return garrisonUnits;
+        }catch(Exception e) {
+            System.out.println(e);
+            return null;
         }
-        return garrisonUnits;
     }
 
     public Integer getHealth(){
-        if (health == null) health = (int)unit.health();
-        return health;
+        try {
+            if (health == null) health = (int) unit.health();
+            return health;
+        }catch(Exception e) {
+            System.out.println(e);
+            return null;
+        }
     }
 
     public Integer getMaxHealth(){
-        if (maxHealth == null) maxHealth = (int)unit.maxHealth();
-        return maxHealth;
+        try {
+            if (maxHealth == null) maxHealth = (int) unit.maxHealth();
+            return maxHealth;
+        }catch(Exception e) {
+            System.out.println(e);
+            return null;
+        }
     }
 
-    public boolean isMaxHealth(){
-        return Objects.equals(getHealth(), getMaxHealth()); //no se si funciona amb .equals()?
+    public boolean isMaxHealth() {
+        try {
+            return Objects.equals(getHealth(), getMaxHealth()); //no se si funciona amb .equals()?
+        }catch(Exception e) {
+            System.out.println(e);
+            return false;
+        }
     }
 
 

@@ -26,7 +26,11 @@ public class Research {
     }*/
 
     public void yolo(){
-        for (int i = 0; i < fixedTree.length; ++i) Data.gc.queueResearch(fixedTree[i]);
+        try{
+            for (int i = 0; i < fixedTree.length; ++i) Data.gc.queueResearch(fixedTree[i]);
+        }catch(Exception e) {
+            System.out.println(e);
+        }
     }
 
 }

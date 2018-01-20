@@ -50,7 +50,7 @@ public class MovementManager {
         for (int i = 0; i < 9; ++i){
             if (!canMove[i]) continue;
             AuxMapLocation newLoc = myLoc.add(i);
-            double d = myLoc.distanceBFSTo(newLoc);
+            double d = myLoc.distanceBFSTo(target);
             if (d < mindist){
                 mindist = d;
                 index = i;

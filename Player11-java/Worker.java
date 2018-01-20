@@ -341,6 +341,7 @@ public class Worker {
     }
 
     private boolean tryMine(AuxUnit unit){
+        System.err.println("Trying to mine!");
         for(int i = 0; i < 9; ++i){
             AuxMapLocation karboLoc = unit.getMaplocation().add(i);
             //System.out.println("OK");

@@ -46,4 +46,17 @@ public class AuxMapLocation {
     public int dirBFSTo (AuxMapLocation mloc){
         return Pathfinder.getInstance().getNode(x, y, mloc.x, mloc.y).dir;
     }
+
+    @Override
+    public boolean equals(Object o){
+        if (this == o)
+            return true;
+        if (o == null)
+            return false;
+        if (getClass() != o.getClass())
+            return false;
+        AuxMapLocation mloc = (AuxMapLocation) o;
+        return (this.x == mloc.x && this.y == mloc.y);
+    }
+
 }

@@ -182,6 +182,12 @@ class Data {
         maxRadius = mapCenter.distanceSquaredTo(new MapLocation(gc.planet(), 0, 0));
 
         karboniteAt = new HashMap<AuxMapLocation, Integer>();
+        for (int i = 0; i < W; ++i){
+            for (int j = 0; j < H; ++j){
+                int q = (int)planetMap.initialKarboniteAt(new MapLocation(planet, i, j));
+                if (q > 0) karboniteAt.put(new AuxMapLocation(i,j), q);
+            }
+        }
 
         queue = new ConstructionQueue();
 

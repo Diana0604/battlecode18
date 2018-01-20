@@ -27,13 +27,14 @@ public class Healer {
 
     void heal(AuxUnit unit){
         if (!unit.canAttack()) return;
+        //System.err.println("trying to heal");
         AuxUnit[] v = Wrapper.senseUnits(unit.getX(), unit.getY(), 30, true);
         long maxDiff = 0;
         AuxUnit healed = null;
         for (int i = 0; i < v.length; ++i){
             if (v[i].getType() == UnitType.Factory || v[i].getType() == UnitType.Rocket) continue;
             AuxUnit u = v[i];
-            long d = Wrapper.getMaxHealth(unit.getType()) - u.getHealth();
+            long d = Wrapper.getMaxHealth(u.getType()) - u.getHealth();
             if (d > maxDiff){
                 maxDiff = d;
                 healed = u;

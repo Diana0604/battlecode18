@@ -218,7 +218,22 @@ class Data {
                     karboMap[mapLocation.getX()][mapLocation.getY()] = (int)quant;
                 }else it.remove();
             }
-            else karboMap[mapLocation.getX()][mapLocation.getY()] = karboniteAt.get(location);
+            else karboMap[location.x][location.y] = karboniteAt.get(location);
+
+            AuxUnit unitOnKarbo = getUnit(location.x,location.y,false);
+            if (unitOnKarbo != null){
+                if (unitOnKarbo.getType() == UnitType.Factory || unitOnKarbo.getType() == UnitType.Rocket)
+                    karboMap[location.x][location.y] = 0;
+            }
+        }
+
+
+        it = karboniteAt.entrySet().iterator();
+        while (it.hasNext()){
+            HashMap.Entry<AuxMapLocation, Integer> entry = it.next();
+            AuxMapLocation location = entry.getKey();
+            int karbo = entry.getValue();
+            //if (planet == Planet.Earth) System.out.println(round + " Location " + location.x + "," + location.y + " has karbo " + karbo);
         }
 
         if (planet == Planet.Earth) return;
@@ -228,6 +243,8 @@ class Data {
         int karbonite = (int) strike.getKarbonite();
         if (!karboniteAt.containsKey(loc)) karboniteAt.put(loc,karbonite);
         else karboniteAt.put(loc,karbonite + karboniteAt.get(loc));
+
+
     }
 
 

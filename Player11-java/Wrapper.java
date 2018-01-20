@@ -210,8 +210,9 @@ public class Wrapper {
         blueprint.health += Data.buildingPower;
         int maxHP = getMaxHealth(blueprint.getType());
         if (blueprint.health > maxHP) blueprint.health = maxHP;
-        if (blueprint.health - maxHP == 0) blueprint.blueprint = false;
+        if (blueprint.health == maxHP) blueprint.blueprint = false;
         Data.gc.build(unit.getID(), blueprint.getID());
+        //System.out.println("Remaining build health: " + (maxHP - blueprint.health) +  " max hp? " + blueprint.isMaxHealth());
         unit.canAttack = false;
     }
 
@@ -226,6 +227,10 @@ public class Wrapper {
         structure.health += Data.repairingPower;
         int maxHP = getMaxHealth(structure.getType());
         if (structure.health > maxHP) structure.health = maxHP;
+        AuxMapLocation loc = unit.getMaplocation();
+        AuxMapLocation sloc = structure.getMaplocation();
+        int distance = loc.distanceSquaredTo(sloc);
+        System.out.println("DISTANCE BETWEEN " + loc.x + "," + loc.y + " AND " + sloc.x + "," + sloc.y + " = " + distance);
         Data.gc.repair(unit.getID(), structure.getID());
         unit.canAttack = false;
     }
@@ -249,7 +254,7 @@ public class Wrapper {
         AuxMapLocation mloc = unit.getMaplocation();
         AuxMapLocation newLoc = mloc.add(dir);
         if (!isAccessible(newLoc)) return false;
-        if (!unit.canAttack()) return false;
+        if (!unit.canUseAbility()) return false;
         return true;
     }
 
@@ -283,23 +288,30 @@ public class Wrapper {
         Data.unitMap[newLoc.x][newLoc.y] = Data.allUnits.get(unit.getID()) + 1;
     }
 
+    static boolean canHarvest(AuxUnit unit, int dir){
+        AuxMapLocation loc = unit.getMaplocation();
+        AuxMapLocation mineLoc = loc.add(dir);
+        if (!mineLoc.isOnMap()) return false;
+        return Data.gc.canHarvest(unit.getID(), Direction.values()[dir]);
+    }
+
     // retorna -1 si no fa harvest
     // si fa harvest, retorna la karbo que queda al lloc
     static int harvest(AuxUnit unit, int dir) {
-        System.out.println("Entra harvest ");
+        //System.out.println("Entra harvest ");
         AuxMapLocation loc = unit.getMaplocation();
         AuxMapLocation mineLoc = loc.add(dir);
-        if (!mineLoc.isOnMap()) return -1;
-        int karboAmount = Data.karboniteAt.get(mineLoc);
+        int karboAmount = Data.karboMap[loc.x][loc.y];
         if (karboAmount == 0) return -1;
         Data.gc.harvest(unit.getID(), Data.allDirs[dir]);
-        int newKarboAmount = karboAmount -= Data.harvestingPower;
+        int newKarboAmount = karboAmount - Data.harvestingPower;
         if (newKarboAmount < 0) newKarboAmount = 0;
         if (newKarboAmount > 0) {
             Data.karboniteAt.put(mineLoc, newKarboAmount);
         } else Data.karboniteAt.remove(mineLoc);
         Data.karboMap[mineLoc.x][mineLoc.y] = newKarboAmount;
         unit.canAttack = false;
+        //System.out.println("Karbo after mining: " + newKarboAmount);
         return newKarboAmount;
     }
 

@@ -94,12 +94,13 @@ public class Worker {
             AuxUnit u = Data.myUnits[i];
             //UnitType type = u.unitType();
             //if (type != UnitType.Factory && type != UnitType.Rocket) continue;
-            if (u.isBlueprint()) continue; //si no es un blueprint, sino una estructura
+            if (!u.isBlueprint()) continue; //si no es un blueprint, sino una estructura
             AuxMapLocation loc = u.getMaplocation();
             PathfinderNode node = Pathfinder.getInstance().getNode(location, loc);
             if (node.dist > SEARCH_RADIUS) continue; //si esta massa lluny (ha de fer volta)
 
             //actualitza el target!
+            //System.out.println("Actualitza target a blueprint " + u.getHealth() + "  " + u.getMaxHealth());
             data.target_id = u.getID();
             data.target_type = TARGET_BLUEPRINT;
             data.target_loc = loc;
@@ -121,6 +122,7 @@ public class Worker {
             if (node.dist > SEARCH_RADIUS) continue; //si esta massa lluny (ha de fer volta)
 
             //actualitza el target!
+            //System.out.println("Actualitza target a structure " + u.getHealth() + "  " + u.getMaxHealth());
             data.target_id = u.getID();
             data.target_type = TARGET_STRUCTURE;
             data.target_loc = loc;
@@ -208,7 +210,7 @@ public class Worker {
 
     //busca de les 8 caselles adjacents l'estructura amb menys vida, o si no el blueprint amb mes
     private AuxUnit findAdjacentStructure(AuxMapLocation location){
-        AuxUnit[] v = Wrapper.senseUnits(location,3, true);
+        AuxUnit[] v = Wrapper.senseUnits(location,2, true);
                // gc.senseNearbyUnitsByTeam(location,3,myTeam); //radius * arrel(2)?
         AuxUnit bestStr = null; //volem trobar l'estructura amb menys vida, o el blueprint amb mes
         int bestStrHP = 1000000;
@@ -229,7 +231,7 @@ public class Worker {
                 }
             }else{
                 //si es structure
-                if (hp < bestStrHP && missingHp > 0){
+                if (hp < bestStrHP){
                     bestStr = u;
                     bestStrHP = hp;
                 }
@@ -241,23 +243,26 @@ public class Worker {
 
     private boolean tryRepairBuild(AuxUnit unit){
         if (!Data.onEarth()) return false;
-        AuxUnit str = findAdjacentStructure(data.loc);
+        AuxUnit str = findAdjacentStructure(unit.getMaplocation());
         if (str == null) return false;
+        if (str.isMaxHealth()) {
+            //System.out.println("Resets target after building");
+            if (str.getID() == data.target_id) resetTarget();
+            return false;
+        }
         if (str.isBlueprint()){
             //si es blueprint
             Wrapper.build(unit, str);
-            if (str.isMaxHealth()) resetTarget();
             if (DEBUG)System.out.println("Worker " + data.id + "  " + data.loc + " builds blueprint " + str.getID());
         }else{
             //si es structure
             Wrapper.repair(unit,str);
-            if (str.isMaxHealth()) resetTarget();
             if (DEBUG)System.out.println("Worker " + data.id +  "  " + data.loc +" repairs structure " + str.getID() + ": " + str.getHealth() + "/" + str.getMaxHealth());
         }
         return true;
     }
 
-    private boolean shouldReplicate(AuxUnit unit){
+    private boolean shouldReplicate(){
         if (inDanger) return false;
         int search_radius = 8;
         int miningwork = 0; //turns of work
@@ -267,7 +272,7 @@ public class Worker {
         int workers = 0;
         //final int MIN_WORK_LOCAL = 20;
         //final int MIN_WORK_TOTAL = 30;
-        final int MIN_WORK = 30;
+        final int MIN_WORK = 50;
         AuxMapLocation myPos = data.loc;
         for (HashMap.Entry<AuxMapLocation,Integer> entry : Data.karboniteAt.entrySet()){
             AuxMapLocation loc = entry.getKey();
@@ -298,20 +303,21 @@ public class Worker {
         //if (workers_total == 0) workers_total = 1;
         double work_local = buildingwork / workers;
         double work_total = miningwork / workers;
-        return (work_local + work_total) > MIN_WORK;
+        //System.out.println("Building work " + buildingwork + " mining work " + miningwork + " workers " + workers + " result " + (2*work_local + work_total));
+        return (2*work_local + work_total) > MIN_WORK;
         //return (work_local > MIN_WORK_LOCAL) || (work_total > MIN_WORK_TOTAL);
     }
 
     private void tryReplicate(AuxUnit unit){
         if (inDanger) return;
         if (!unit.canUseAbility()) return;
-        boolean should = shouldReplicate(unit);
-        //System.out.println(unit.location().mapLocation() + " Should replicate? " + should);
+        boolean should = shouldReplicate();
+        //System.out.println(unit.getMaplocation() + " Should replicate? " + should);
         if (!queue.needsUnit(UnitType.Worker) && !should) return;
         for (int i = 0; i < 9; ++i){
             if (Wrapper.canReplicate(unit, i)) {
                 Wrapper.replicate(unit,i);
-                if (DEBUG)System.out.println("Worker " + data.id +  "  " + data.loc +" replicates");
+                //System.out.println("Worker " + data.id +  "  " + data.loc +" replicates");
                 queue.requestUnit(UnitType.Worker, false);
                 return;
             }
@@ -335,28 +341,29 @@ public class Worker {
             if (DEBUG)System.out.println("Worker " + data.id +  "  " + data.loc +" places blueprint " + i);
             queue.requestUnit(type, false);
             return true;
-
         }
         return false;
     }
 
     private boolean tryMine(AuxUnit unit){
-        System.err.println("Trying to mine!");
-        for(int i = 0; i < 9; ++i){
+        //System.err.println("Trying to mine!");
+        int maxDir = -1;
+        int maxKarbo = 0;
+        for(int i = 0; i < 9; ++i) {
             AuxMapLocation karboLoc = unit.getMaplocation().add(i);
-            //System.out.println("OK");
             if (!karboLoc.isOnMap()) continue;
-            HashMap<AuxMapLocation, Integer> mapa = Data.karboniteAt;
-            if (!mapa.containsKey(karboLoc)) continue;
-            int karboAmount = mapa.get(karboLoc);
-            if (karboAmount > 0){
-                //System.out.println("Unit location, dir: " + data.loc + "   " + d);
-                int karboLeft = Wrapper.harvest(unit,i);
-                if (karboLeft == -1) continue; //si no ha pogut minar
-                if (karboLeft == 0) resetTarget();
-                if (DEBUG)System.out.println("Worker " + data.id +  "  " + data.loc + " harvests karbonite " + i);
-                return true;
+            if (!Wrapper.canHarvest(unit, i)) continue;
+            int karboAmount = Data.karboMap[karboLoc.x][karboLoc.y];
+            if (karboAmount > maxKarbo) {
+                maxDir = i;
+                maxKarbo = karboAmount;
             }
+        }
+        if (maxKarbo > 0) {
+            int karboLeft = Wrapper.harvest(unit,maxDir);
+            if (karboLeft == 0) resetTarget();
+            if (DEBUG)System.out.println("Worker " + data.id +  "  " + data.loc + " harvests karbonite " + maxDir);
+            return true;
         }
         return false;
     }
@@ -383,11 +390,11 @@ public class Worker {
             move(unit);
             if (!repl) doAction(unit);
 
-            if (DEBUG) System.out.println("Worker " + id + "  " + data.loc + " has target " + data.target_loc + ", " + data.target_type);
+            //if (data.target_loc != null) System.out.println("Worker " + id + "  " + data.loc.x + "," + data.loc.y + " has target " + data.target_loc.x + "," + data.target_loc.y + ", " + data.target_type);
             //System.out.println("Worker " + id + " end round " + gc.round());
         }catch(Exception e){
             System.out.println("CUIDADUUU!!!! Excepcio a worker, probablement perque un worker de dintre un garrison ha intentat fer una accio");
-            System.out.println(Data.round);
+            System.out.println("-------- ROUND " + Data.round);
             e.printStackTrace();
         }
     }

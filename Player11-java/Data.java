@@ -67,7 +67,7 @@ class Data {
     static int repairingPower;
     private static int[] harvestingPowers = {3, 4, 4, 4, 4};
     static int harvestingPower;
-    private static int[] mageDamages = {60, 75, 90, 105};
+    private static int[] mageDamages = {60, 75, 90, 105, 105};
     static int mageDMG;
 
     static boolean canBuildRockets;
@@ -186,7 +186,6 @@ class Data {
         queue = new ConstructionQueue();
 
         createGrid();
-        Vision.initialize();
 
         myTeam = gc.team();
         if(myTeam == Team.Blue) enemyTeam = Team.Red;
@@ -265,7 +264,7 @@ class Data {
                 ++healers;
             }
         }
-        //Todo: wrappejar gc.karbonite()??
+
         if (factories < INITIAL_FACTORIES || getKarbonite() > MIN_KARBONITE_FOR_FACTORY) queue.requestUnit(UnitType.Factory);
         if (!rocketBuilt && myUnits.length > 8 && researchInfo.getLevel(UnitType.Rocket) > 0) { // aixo es super cutre, canviar!
             queue.requestUnit(UnitType.Rocket);
@@ -283,12 +282,12 @@ class Data {
             if (i > 0) return myUnits[i - 1];
             return null;
         }
-        if (i < 0) return enemies[-i-1];
+        if (i < 0) return enemies[-(i+1)];
         return null;
     }
 
     static boolean isOccupied(int x, int y){
-        return getUnit(x, y, false) != null;
+        return unitMap[x][y] != 0;
     }
 
     static boolean isOccupied(AuxMapLocation location){
@@ -310,13 +309,13 @@ class Data {
         enemies = new AuxUnit[(int) enemyUnits.size()];
         for (int i = 0; i < enemies.length; ++i) {
             enemies[i] = new AuxUnit(enemyUnits.get(i));
-            unitMap[enemies[i].getX()][enemies[i].getY()] = -i - 1;
+            unitMap[enemies[i].getX()][enemies[i].getY()] = -(i + 1);
         }
         VecUnit units = gc.myUnits();
         myUnits = new AuxUnit[(int) units.size()];
         for (int i = 0; i < myUnits.length; ++i) {
             myUnits[i] = new AuxUnit(units.get(i));
-            unitMap[myUnits[i].getX()][myUnits[i].getY()] = i + 1;
+            if (!myUnits[i].isInGarrison()) unitMap[myUnits[i].getX()][myUnits[i].getY()] = i + 1;
         }
         researchInfo = gc.researchInfo();
         karbonite = null;
@@ -343,6 +342,20 @@ class Data {
         healingPower = healingPowers[healerLevel];
         mageDMG = mageDamages[mageLevel];
         if (rocketLevel > 0) canBuildRockets = true;
+
+        //if (Data.round >= 746) printData();
+
+    }
+
+    static void printData(){
+        for (int i = 0; i < H ; ++i){
+            for (int j = 0; j < H; ++j){
+                if (unitMap[i][j] > 0) System.err.print("1");
+                else if (unitMap[i][j] < 0) System.err.print("2");
+                else System.err.print("0");
+            }
+            System.err.println();
+        }
     }
 
     public static boolean onEarth(){ return planet == Planet.Earth;}

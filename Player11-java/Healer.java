@@ -31,6 +31,7 @@ public class Healer {
         long maxDiff = 0;
         AuxUnit healed = null;
         for (int i = 0; i < v.length; ++i){
+            if (v[i].getType() == UnitType.Factory || v[i].getType() == UnitType.Rocket) continue;
             AuxUnit u = v[i];
             long d = Wrapper.getMaxHealth(unit.getType()) - u.getHealth();
             if (d > maxDiff){

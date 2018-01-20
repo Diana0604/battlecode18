@@ -54,7 +54,7 @@ public class Wrapper {
     static AuxUnit[] senseUnits(int x, int y, int r, boolean myTeam){ //Todo check if it is better to iterate over enemies
         ArrayList<AuxUnit> ans = new ArrayList<>();
         for (int i = 0; i < Vision.Mx[r].length; ++i){
-            AuxUnit unit = Data.getUnit(x+Vision.Mx[r][i], y + Vision.Mx[r][i], myTeam);
+            AuxUnit unit = Data.getUnit(x+Vision.Mx[r][i], y + Vision.My[r][i], myTeam);
             if (unit != null) ans.add(unit);
         }
         return ans.toArray(new AuxUnit[ans.size()]);
@@ -71,6 +71,8 @@ public class Wrapper {
     }
 
     static void unload (AuxUnit unit, int dir){
+        //System.err.println ("Unloading!");
+
         int newID = unit.getGarrisonUnits().get(0);
         int posAtArray = Data.allUnits.get(newID);
         AuxMapLocation loc = unit.getMaplocation();
@@ -79,9 +81,9 @@ public class Wrapper {
         unit.garrisonUnits.remove(0);
         Data.gc.unload(unit.getID(), Data.allDirs[dir]);
 
-        Data.myUnits[posAtArray].canMove = false;
-        Data.myUnits[posAtArray].garrison = false;
-        Data.myUnits[posAtArray].mloc = newLoc;
+        //Data.myUnits[posAtArray].canMove = false;
+        //Data.myUnits[posAtArray].garrison = false;
+        //Data.myUnits[posAtArray].mloc = newLoc;
 
     }
 
@@ -175,12 +177,15 @@ public class Wrapper {
 
 
     static boolean canProduceUnit(AuxUnit unit, UnitType type){ //IT DOESNT CHECK IF ALREADY BUILT
+        if (!unit.canAttack()) return false;
+        if (unit.getGarrisonUnits().size() >= 8) return false;
         return (Data.getKarbonite() >= cost(type));
     }
 
     static void produceUnit(AuxUnit unit, UnitType type){
         Data.gc.produceRobot(unit.getID(), type);
         Data.karbonite = Data.getKarbonite() - cost(type);
+        unit.canAttack = false;
     }
 
     static void heal(AuxUnit u1, AuxUnit u2){
@@ -200,25 +205,38 @@ public class Wrapper {
     }
 
     static void build(AuxUnit unit, AuxUnit blueprint){
+        blueprint.getHealth();
+        blueprint.isBlueprint();
         blueprint.health += Data.buildingPower;
         int maxHP = getMaxHealth(blueprint.getType());
         if (blueprint.health > maxHP) blueprint.health = maxHP;
-        if (blueprint.health == maxHP) blueprint.blueprint = false;
+        if (blueprint.health - maxHP == 0) blueprint.blueprint = false;
         Data.gc.build(unit.getID(), blueprint.getID());
         unit.canAttack = false;
     }
 
     static void repair(AuxUnit unit, AuxUnit structure){
+        structure.getHealth();
+        //System.out.println("Repairing");
+        //System.out.println(structure.getHealth());
+        //System.out.println(structure.getType());
+        //System.out.println(structure.unit.health());
+        //System.out.println(structure.unit.unitType());
+        //System.out.println(getMaxHealth(structure.getType()));
         structure.health += Data.repairingPower;
         int maxHP = getMaxHealth(structure.getType());
         if (structure.health > maxHP) structure.health = maxHP;
-        Data.gc.build(unit.getID(), structure.getID());
+        Data.gc.repair(unit.getID(), structure.getID());
         unit.canAttack = false;
     }
 
     static void moveRobot(AuxUnit unit, int dir){
         AuxMapLocation mloc = unit.getMaplocation();
         AuxMapLocation newLoc = mloc.add(dir);
+        if (!isAccessible(newLoc)){
+            System.err.println("User error");
+            return;
+        }
         unit.canMove = false;
         unit.mloc = newLoc;
         Data.unitMap[mloc.x][mloc.y] = 0;
@@ -236,8 +254,12 @@ public class Wrapper {
     }
 
     static void replicate(AuxUnit unit, int dir){
+        AuxMapLocation mloc = unit.getMaplocation();
+        AuxMapLocation newLoc = mloc.add(dir);
         Data.gc.replicate(unit.getID(), Data.allDirs[dir]);
         Data.karbonite = Data.getKarbonite() - Data.replicateCost;
+        Data.unitMap[newLoc.x][newLoc.y] = Data.allUnits.get(unit.getID()) + 1;
+
     }
 
     static boolean canPlaceBlueprint (AuxUnit unit, UnitType type, int dir){
@@ -247,15 +269,18 @@ public class Wrapper {
         //System.out.println("Newloc: " + newLoc.x + "," + newLoc.y + "   " + Data.W + "," + Data.H);
         if (!newLoc.isOnMap()) return false;
         if (!Data.accessible[newLoc.x][newLoc.y]) return false;
-        System.out.println("Ocupada: " + newLoc.x + "," + newLoc.y + " = " + Data.isOccupied(newLoc));
+        //System.out.println("Ocupada: " + newLoc.x + "," + newLoc.y + " = " + Data.isOccupied(newLoc));
         if (Data.isOccupied(newLoc)) return false; //falla perque no detecta els blueprints
         if (type == UnitType.Rocket && !Data.canBuildRockets) return false;
         return true;
     }
 
     static void placeBlueprint(AuxUnit unit, UnitType type, int dir){
+        AuxMapLocation mloc = unit.getMaplocation();
+        AuxMapLocation newLoc = mloc.add(dir);
         Data.gc.blueprint(unit.getID(), type, Direction.values()[dir]);
         Data.karbonite = Data.getKarbonite() - cost(type);
+        Data.unitMap[newLoc.x][newLoc.y] = Data.allUnits.get(unit.getID()) + 1;
     }
 
     // retorna -1 si no fa harvest
@@ -290,7 +315,7 @@ public class Wrapper {
         if (u1.getType() != UnitType.Mage) {
             u2.getHealth();
             u2.health -= (int) getDamage(u1.getType());
-            if (u2.health <= 0) Data.unitMap[u2.getMaplocation().x][u2.getMaplocation().y] = 0;
+            if (u2.health <= 0) Data.unitMap[u2.getX()][u2.getY()] = 0;
             u1.canAttack = false;
             Data.gc.attack(u1.getID(), u2.getID());
         }
@@ -327,6 +352,7 @@ public class Wrapper {
     }
 
     static void load(AuxUnit u1, AuxUnit u2){
+        System.out.println("Loading!");
         AuxMapLocation mloc = u2.getMaplocation();
         Data.unitMap[mloc.x][mloc.y] = 0;
         u2.garrison = true;

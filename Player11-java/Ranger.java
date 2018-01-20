@@ -54,12 +54,15 @@ public class Ranger {
     void attack(AuxUnit unit) {
         AuxUnit bestVictim = null;
         if(!unit.canAttack()) return;
+        //if (Data.round >= 730) System.err.println("Trying to attack!");
         AuxMapLocation myLoc = unit.getMaplocation();
         AuxUnit[] canAttack = Wrapper.senseUnits(myLoc.x, myLoc.y, Wrapper.getAttackRange(unit.getType()), false);
+        //if (Data.round >= 730)System.err.println(canAttack.length);
         for(int i = 0; i < canAttack.length; ++i){
             AuxUnit victim = canAttack[i];
             if (Wrapper.canAttack(unit, victim)) {
                 bestVictim = getBestAttackTarget(bestVictim, victim);
+               // if (Data.round >= 730)System.err.println("Got a victim!! :)");
             }
         }
         if (bestVictim != null) Wrapper.attack(unit, bestVictim);
@@ -103,15 +106,6 @@ public class Ranger {
             if (ans != null) return ans;
         }
         return getBestEnemy(unit.getMaplocation());
-    }
-
-
-    void goToBestEnemy(AuxUnit unit){
-        AuxMapLocation myLoc = unit.getMaplocation();
-        AuxMapLocation target = getBestEnemy(myLoc);
-        if(target == null) return;
-        MovementManager.getInstance().moveTo(unit, target);
-
     }
 
     AuxMapLocation getBestEnemy(AuxMapLocation myLoc){

@@ -218,7 +218,7 @@ public class Worker {
             UnitType type = u.getType();
             if (type != UnitType.Factory && type != UnitType.Rocket) continue;
             int hp = u.getHealth();
-            int maxHp = u.getMaxHealth();
+            int maxHp = Wrapper.getMaxHealth(type);
             int missingHp = maxHp - hp;
             if (u.isBlueprint()){
                 //si es blueprint
@@ -386,6 +386,7 @@ public class Worker {
             //System.out.println("Worker " + id + " end round " + gc.round());
         }catch(Exception e){
             System.out.println("CUIDADUUU!!!! Excepcio a worker, probablement perque un worker de dintre un garrison ha intentat fer una accio");
+            System.out.println(Data.round);
             e.printStackTrace();
         }
     }

@@ -70,7 +70,7 @@ public class MovementManager {
         /*reset if new target*/
         if (data.target == null || (target != null && target.distanceSquaredTo(data.target) > 0)){
             if (data.target != null && target != null && target.distanceSquaredTo(data.target) <= 2){
-                data.minDist = myLoc.distanceSquaredTo(target);
+                data.minDist = myLoc.distanceBFSTo(target);
             }
             else data.soft_reset(myLoc);
         }
@@ -87,30 +87,40 @@ public class MovementManager {
         /*if not an obstacle --->  BFS*/
         if (data.obstacle == null){
             if (moveBFSTo(target)){
-                bugpathData.put(id, data);
+                //bugpathData.put(id, data);
                 return true;
             }
         }
 
         if (BugPath(data)){
-            bugpathData.put(id, data);
+            //bugpathData.put(id, data);
             return true;
         }
+
+        //bugpathData.put(id, data);
         return false;
     }
 
     public boolean BugPath(BugPathfindingData data){
         int dir;
+        if (data.obstacle != null && !data.obstacle.isOnMap()){
+            data.soft_reset(myLoc);
+            System.err.println("User error: out of map obstacle bugpath");
+        }
         if (data.obstacle == null) dir = myLoc.dirBFSTo(data.target);
         else dir = myLoc.dirBFSTo(data.obstacle);
         if (canMove[dir]){
+            if (dir == 8) System.err.println("User error: self-obstacle bugpath");
             data.obstacle = null;
         }
         else {
             int cont = 0;
             while (!canMove[dir] && cont < 20) {
                 AuxMapLocation newLoc = myLoc.add(dir);
-                if (!newLoc.isOnMap()) data.left = !data.left;
+                if (!newLoc.isOnMap()){
+                    data.left = !data.left;
+                    --cont;
+                }
                 data.obstacle = newLoc;
                 if (data.left) dir = (dir + 1)%8;
                 else dir = (dir + 7)%8;

@@ -68,7 +68,7 @@ public class AuxUnit {
     }
 
     public boolean isBlueprint(){
-        if (blueprint == null) blueprint = unit.structureIsBuilt() == 0;
+        if (blueprint == null) blueprint = (unit.structureIsBuilt() == 0);
         return blueprint;
     }
 
@@ -100,6 +100,7 @@ public class AuxUnit {
             if (!(getType() == UnitType.Factory || getType() == UnitType.Rocket || getType() == UnitType.Worker || getType() == UnitType.Healer)) canAttack = Data.gc.isAttackReady(getID());
             else if (getType() == UnitType.Worker) canAttack = (unit.workerHasActed() == 0);
             else if (getType() == UnitType.Healer) canAttack = Data.gc.isHealReady(getID());
+            else if (getType() == UnitType.Factory) canAttack = (unit.isFactoryProducing() == 0);
             else canAttack = false;
         }
         return canAttack;

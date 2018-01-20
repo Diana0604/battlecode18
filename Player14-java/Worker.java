@@ -18,15 +18,19 @@ public class Worker {
 
     private AuxUnit unit;
     boolean danger;
+    boolean wait;
 
     void play(AuxUnit _unit){
-        System.out.println(Data.workers);
+        //System.out.println(Data.workers);
         unit = _unit;
+        wait = false;
         Danger.computeDanger(unit);
         danger = (Danger.DPS[8] > 0);
         boolean acted = doAction();
-        move();
-        if (!acted) doAction();
+        if (!wait && unit.canMove()){
+            move();
+            if (!acted) doAction();
+        }
     }
 
     /*----------- ACTIONS ------------*/
@@ -35,7 +39,10 @@ public class Worker {
         if (!unit.canAttack()) return true;
         if (tryReplicate()) return true;
         if (tryBuildAndRepair()) return true;
-        if (tryPlaceBlueprint()) return true;
+        if (tryPlaceBlueprint()){
+            wait = true;
+            return true;
+        }
         if (tryMine()) return true;
         return false;
     }
@@ -46,6 +53,8 @@ public class Worker {
                 if (Wrapper.canReplicate(unit, i)){
                     Wrapper.replicate(unit, i);
                     Data.workers++;
+                    WorkerUtil.extra_workers++;
+                    Data.queue.requestUnit(UnitType.Worker,false);
                     return true;
                 }
             }
@@ -57,7 +66,7 @@ public class Worker {
         if (danger) return false;
         int nb_actions = WorkerUtil.getWorkerActions(unit.getMaplocation(), 30);
         if (Data.onMars() || Data.workers < WorkerUtil.min_nb_workers) return (nb_actions >= 10);
-        return (nb_actions >= 30);
+        return (nb_actions >= 20);
     }
 
     boolean tryBuildAndRepair(){
@@ -82,11 +91,15 @@ public class Worker {
             }
         }
         if (minDifIndex >= 0){
-            Wrapper.build(unit, adjUnits[minDifIndex]);
+            AuxUnit structure = adjUnits[minDifIndex];
+            Wrapper.build(unit, structure);
+            if (structure.getHealth() < Wrapper.getMaxHealth(structure.getType())) wait = true;
             return true;
         }
         if (minHPIndex >= 0){
+            AuxUnit structure = adjUnits[minHPIndex];
             Wrapper.repair(unit, adjUnits[minHPIndex]);
+            if (structure.getHealth() < Wrapper.getMaxHealth(structure.getType())) wait = true;
             return true;
         }
         return false;
@@ -103,12 +116,14 @@ public class Worker {
             if (!Wrapper.canPlaceBlueprint(unit, type, i)) continue;
             Wrapper.placeBlueprint(unit, type, i);
             Data.queue.requestUnit(type, false);
+            wait = true;
             return true;
         }
         return false;
     }
 
     boolean tryMine(){
+        //System.out.println("Trying to mine! " + unit.getID());
         int dir = WorkerUtil.getMostKarboLocation(unit.getMaplocation());
         AuxMapLocation newLoc = unit.getMaplocation().add(dir);
         if (Data.karboMap[newLoc.x][newLoc.y] > 0 && Wrapper.canHarvest(unit, dir)){
@@ -123,6 +138,8 @@ public class Worker {
     /*-------------- MOVEMENT ---------------*/
 
     void move(){
+        if (!unit.canMove()) return;
+
         ArrayList<Target> targets = new ArrayList<>();
 
         Target rocket = getRocketTarget();
@@ -139,7 +156,8 @@ public class Worker {
 
         targets.sort((a,b) -> targetEval(a) < targetEval(b) ? -1 : targetEval(a) == targetEval(b) ? 0 : 1);
 
-        if (targets.size() > 0){
+
+        if (targets.size() > 0) {
             Target bestTarget = targets.get(0);
             MovementManager.getInstance().moveTo(unit, bestTarget.mloc);
         }
@@ -150,15 +168,15 @@ public class Worker {
         Target ans = null;
         for (HashMap.Entry<Integer, Integer> entry : Data.karboniteAt.entrySet()) {
             AuxMapLocation mineLoc = Data.toLocation(entry.getKey());
+            if (WorkerUtil.blockingBuilding(mineLoc)) continue;
             double d = unit.getMaplocation().distanceBFSTo(mineLoc);
             if (ans == null){
-                ans = new Target(Math.min(1000, entry.getValue()), d, mineLoc);
+                ans = new Target(Math.min(1000, entry.getValue()), d, mineLoc, 3);
                 continue;
             }
-            Target aux = new Target(Math.min(1000, entry.getValue()), d, mineLoc);
+            Target aux = new Target(Math.min(1000, entry.getValue()), d, mineLoc, 3);
             if (targetEval(aux) < targetEval(ans)) ans = aux;
         }
-
         return ans;
     }
 
@@ -169,11 +187,11 @@ public class Worker {
             AuxUnit u = Data.myUnits[a];
             if (!u.isBlueprint()) continue;
             AuxMapLocation mloc = u.getMaplocation();
-            double d = unit.getMaplocation().distanceBFSTo(mloc);
+            double d = Math.max(unit.getMaplocation().distanceBFSTo(mloc) - 1, 0);
             int dif = (Wrapper.getMaxHealth(u.getType()) - u.getHealth()) - (int)(d*WorkerUtil.senseWorkers(u.getMaplocation())*Data.buildingPower);
             if (dif > 0 && d < minDist){
                 minDist = d;
-                ans = new Target(dif*50, d, mloc);
+                ans = new Target(dif*10/Data.buildingPower, d, mloc, 2);
             }
         }
         return ans;
@@ -186,11 +204,11 @@ public class Worker {
             AuxUnit u = Data.myUnits[a];
             if (u.isBlueprint()) continue;
             AuxMapLocation mloc = u.getMaplocation();
-            double d = unit.getMaplocation().distanceBFSTo(mloc);
+            double d = Math.max(unit.getMaplocation().distanceBFSTo(mloc) - 1, 0);
             int dif = (Wrapper.getMaxHealth(u.getType()) - u.getHealth()) - (int)(d*WorkerUtil.senseWorkers(u.getMaplocation())*Data.repairingPower);
             if (dif > 0 && d < minDist){
                 minDist = d;
-                ans = new Target(dif*10, d, mloc);
+                ans = new Target(dif*2/Data.repairingPower, d, mloc, 1);
             }
         }
         return ans;
@@ -199,7 +217,7 @@ public class Worker {
     Target getRocketTarget(){
         AuxMapLocation mloc = Rocket.callsToRocket.get(unit.getID());
         if (mloc == null) return null;
-        return new Target(10000000, unit.getMaplocation().distanceBFSTo(mloc), mloc);
+        return new Target(10000000, unit.getMaplocation().distanceBFSTo(mloc), mloc, 0);
     }
 
 
@@ -212,11 +230,13 @@ public class Worker {
         double value;
         double dist;
         AuxMapLocation mloc;
+        int type;
 
-        public Target(double v, double d, AuxMapLocation loc){
+        public Target(double v, double d, AuxMapLocation loc, int _type){
             value = v;
             dist = d;
             mloc = loc;
+            type = _type;
         }
 
     }

@@ -15,22 +15,29 @@ public class WorkerUtil {
     static int[][] workerActions;
     static int approxMapValue = 0;
     static int min_nb_workers = 3;
+    static int extra_workers;
 
     final static double decrease_rate = 0.95;
 
 
     static void fillWorkerActions(){
+        extra_workers = 0;
         for (int i = 0; i < Data.W; ++i){
             for (int j = 0; j < Data.H; ++j){
-                workerActions[i][j] = (Data.karboMap[i][j] + (Data.harvestingPower-1))/Data.harvestingPower;
                 AuxUnit unit = Data.getUnit(i,j,true);
-                if (unit == null) continue;
+                if (unit == null){
+                    workerActions[i][j] = (Data.karboMap[i][j] + (Data.harvestingPower-1))/Data.harvestingPower;
+                    continue;
+                }
                 if (unit.getType() == UnitType.Factory || unit.getType() == UnitType.Rocket){
                     int dif = Wrapper.getMaxHealth(unit.getType()) - unit.getHealth();
                     if (dif > 0){
-                        if (unit.isBlueprint()) workerActions[i][j] += (dif + Data.buildingPower-1)/Data.buildingPower;
-                        else workerActions[i][j] += (dif + Data.repairingPower-1)/Data.repairingPower;
+                        if (unit.isBlueprint()) workerActions[i][j] = (dif + Data.buildingPower-1)/Data.buildingPower;
+                        else workerActions[i][j] = (dif + Data.repairingPower-1)/Data.repairingPower;
                     }
+                }
+                else {
+                    workerActions[i][j] = (Data.karboMap[i][j] + (Data.harvestingPower-1))/Data.harvestingPower;
                 }
             }
         }
@@ -48,12 +55,19 @@ public class WorkerUtil {
         int bestKarbo = -1;
         for (int i = 0; i < 9; ++i){
             AuxMapLocation newLoc = loc.add(i);
-            if(newLoc.isOnMap() && Data.karboMap[newLoc.x][newLoc.y] > bestKarbo){
+            if(newLoc.isOnMap() && Data.karboMap[newLoc.x][newLoc.y] > bestKarbo && !blockingBuilding(newLoc)){
                 bestKarbo = Data.karboMap[newLoc.x][newLoc.y];
                 bestDir = i;
             }
         }
         return bestDir;
+    }
+
+    static boolean blockingBuilding(AuxMapLocation loc){
+        AuxUnit u = Data.getUnit(loc.x, loc.y, true);
+        if (u == null) u = Data.getUnit(loc.x, loc.y, false);
+        if (u == null) return false;
+        return (u.getType() == UnitType.Factory || u.getType() == UnitType.Rocket);
     }
 
     static int getWorkerActions(AuxMapLocation loc, int r){
@@ -62,12 +76,21 @@ public class WorkerUtil {
         for (int i = 0; i < Vision.Mx[r].length; ++i){
             AuxMapLocation mloc = new AuxMapLocation(loc.x  + Vision.Mx[r][i], loc.y + Vision.My[r][i]);
             if (!mloc.isOnMap()) continue;
+            double d = mloc.distanceBFSTo(loc);
+            if (d*d > r) continue;
             ans += workerActions[mloc.x][mloc.y];
             AuxUnit unit = Data.getUnit(mloc.x, mloc.y, true);
             if(unit == null) continue;
             if (unit.getType() == UnitType.Worker) ++workers;
         }
-        return ans/Math.max(workers, 1);
+        //System.out.println(ans);
+
+        System.err.println("Getting actions");
+
+        System.err.println(loc.x + " " + loc.y);
+        System.err.println(ans + " " + workers);
+
+        return ans/(workers+1+extra_workers);
     }
 
     static void computeApproxMapValue(){

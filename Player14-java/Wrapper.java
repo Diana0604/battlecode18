@@ -292,7 +292,7 @@ public class Wrapper {
         AuxMapLocation loc = unit.getMaplocation();
         AuxMapLocation mineLoc = loc.add(dir);
         if (!mineLoc.isOnMap()) return false;
-        return Data.gc.canHarvest(unit.getID(), Direction.values()[dir]);
+        return true;
     }
 
     // retorna -1 si no fa harvest
@@ -301,7 +301,7 @@ public class Wrapper {
         //System.out.println("Entra harvest ");
         AuxMapLocation loc = unit.getMaplocation();
         AuxMapLocation mineLoc = loc.add(dir);
-        int karboAmount = Data.karboMap[loc.x][loc.y];
+        int karboAmount = Data.karboMap[mineLoc.x][mineLoc.y];
         if (karboAmount == 0) return -1;
         Data.gc.harvest(unit.getID(), Data.allDirs[dir]);
         int newKarboAmount = karboAmount - Data.harvestingPower;

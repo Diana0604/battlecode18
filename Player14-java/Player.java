@@ -18,7 +18,7 @@ public class Player {
 
 
             //long roundTime = System.nanoTime();
-            //System.out.println("Start of round " + gc.round());
+            System.out.println("Start of round " + gc.round());
             Data.initTurn();
 
             //if(Data.onEarth() && Data.round >= 745) System.err.println("Before moving");

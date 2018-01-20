@@ -267,11 +267,7 @@ public class Worker {
         int search_radius = 8;
         int miningwork = 0; //turns of work
         int buildingwork = 0;
-        //int workers_local = 0;
-        //int workers_total = 0;
         int workers = 0;
-        //final int MIN_WORK_LOCAL = 20;
-        //final int MIN_WORK_TOTAL = 30;
         final int MIN_WORK = 50;
         AuxMapLocation myPos = data.loc;
         for (HashMap.Entry<AuxMapLocation,Integer> entry : Data.karboniteAt.entrySet()){
@@ -296,6 +292,7 @@ public class Worker {
             UnitType type = u.getType();
             if (type == UnitType.Worker) {
                 //workers_total++;
+                if (u.isInGarrison()) continue;
                 if (myPos.distanceSquaredTo(u.getMaplocation()) <= search_radius) workers++;
             }
         }

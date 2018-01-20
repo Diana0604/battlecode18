@@ -51,10 +51,6 @@ public class Healer {
         heal(unit);
     }
 
-    //static void moveTo(Unit unit, MapLocation target){
-        //MovementManager.getInstance().moveTo(unit, target);
-    //}
-
 
 
     void move(AuxUnit unit){

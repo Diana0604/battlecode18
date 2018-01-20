@@ -38,6 +38,8 @@ class Data {
     static Integer[] asteroidRounds;
     static AsteroidStrike[] asteroidStrikes;
     private static AsteroidPattern asteroidPattern;
+    static AuxMapLocation[] asteroidLocations;
+    static Integer[] asteroidCarbo;
 
     private static int[][] dangerMatrix;
     private static final double enemyBaseValue = -5;
@@ -45,7 +47,6 @@ class Data {
     static final int exploreConstant = 1;
 
     static HashMap<Integer, Integer> allUnits;
-    //static VecUnit enemyUnits, units;
     static HashSet<Integer> structures;
 
     static int rangers;

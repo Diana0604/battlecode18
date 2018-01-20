@@ -70,7 +70,7 @@ public class Rocket {
             RocketData data = mapa.get(unit.getID());
             checkLaunch(unit, data);
         }else{
-            System.out.println("Rocket " + unit.getID() + " a l'espai!");
+            //System.out.println("Rocket " + unit.getID() + " a l'espai!");
         }
     }
 
@@ -91,14 +91,20 @@ public class Rocket {
         ArrayList<Pair> sorted = new ArrayList<>();
         for (int i = 0; i < Data.myUnits.length; ++i) {
             AuxUnit unit_i = Data.myUnits[i];
-            if (!unit_i.getMaplocation().isOnMap()) continue;
+            if (unit_i.isInGarrison()) continue;
             double distance = unit.getMaplocation().distanceBFSTo(unit_i.getMaplocation());
             if (distance >= (double) Pathfinder.INF) continue;
             sorted.add(new Pair(distance, unit_i));
         }
-        sorted.sort((p1, p2) -> (p1.dist < p2.dist)?-1:1);
+        sorted.sort((a, b) -> a.dist < b.dist ? -1 : a.dist == b.dist ? 0 : 1);
         //if (sorted.size() > 2) System.out.println(sorted.get(0).dist + " " + sorted.get(1).dist + " " + sorted.get(2).dist);
         return sorted;
+    }
+
+    private int comparePairs(Pair a, Pair b){
+        if (a.dist < b.dist) return -1;
+        if (a.dist > b.dist) return 1;
+        return 0;
     }
 
     private int[] getRemaining(AuxUnit unit, RocketData data) {

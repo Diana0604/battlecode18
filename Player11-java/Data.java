@@ -45,7 +45,6 @@ class Data {
     static final int exploreConstant = 1;
 
     static HashMap<Integer, Integer> allUnits;
-    //static VecUnit enemyUnits, units;
     static HashSet<Integer> structures;
 
     static int rangers;

@@ -233,10 +233,10 @@ public class Wrapper {
     static void moveRobot(AuxUnit unit, int dir){
         AuxMapLocation mloc = unit.getMaplocation();
         AuxMapLocation newLoc = mloc.add(dir);
-        if (!isAccessible(newLoc)){
-            System.err.println("User error");
-            return;
-        }
+        //if (!isAccessible(newLoc)){
+            //System.err.println("User error");
+            //return;
+        //}
         unit.canMove = false;
         unit.mloc = newLoc;
         Data.unitMap[mloc.x][mloc.y] = 0;
@@ -263,6 +263,7 @@ public class Wrapper {
     }
 
     static boolean canPlaceBlueprint (AuxUnit unit, UnitType type, int dir){
+        if (Data.planet == Planet.Mars) return false;
         if (Data.getKarbonite() < cost(type)) return false;
         AuxMapLocation mloc = unit.getMaplocation();
         AuxMapLocation newLoc = mloc.add(dir);
@@ -352,7 +353,7 @@ public class Wrapper {
     }
 
     static void load(AuxUnit u1, AuxUnit u2){
-        System.out.println("Loading!");
+        //System.out.println("Loading!");
         AuxMapLocation mloc = u2.getMaplocation();
         Data.unitMap[mloc.x][mloc.y] = 0;
         u2.garrison = true;

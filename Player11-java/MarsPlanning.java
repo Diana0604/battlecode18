@@ -92,21 +92,21 @@ public class MarsPlanning{
 
         // construct asteroid pattern
         ArrayList<Integer> aRounds = new ArrayList<>();
-        ArrayList<AsteroidStrike> aStrikes = new ArrayList<>();
+        //ArrayList<AsteroidStrike> aStrikes = new ArrayList<>();
         ArrayList<Integer> aCarbo = new ArrayList<>();
         ArrayList<AuxMapLocation> locCarbo = new ArrayList<>();
         AsteroidPattern ap = Data.gc.asteroidPattern();
         for (int i = 1; i <= 1000; ++i){ // round numbers are in [0,1000) or (0,1000]??
             if (ap.hasAsteroid(i)) {
                 AsteroidStrike as = ap.asteroid(i);
-                aStrikes.add(as);
+                //aStrikes.add(as);
                 aRounds.add(i);
                 aCarbo.add((int)as.getKarbonite());
                 locCarbo.add(new AuxMapLocation(as.getLocation()));
             }
         }
         Data.asteroidRounds = aRounds.toArray(new Integer[0]);
-        Data.asteroidStrikes = aStrikes.toArray(new AsteroidStrike[0]);
+        //Data.asteroidStrikes = aStrikes.toArray(new AsteroidStrike[0]);
         Data.asteroidCarbo = aCarbo.toArray(new Integer[0]);
         Data.asteroidLocations = locCarbo.toArray(new AuxMapLocation[0]);
     }

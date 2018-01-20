@@ -36,7 +36,7 @@ class Data {
     static Team enemyTeam;
 
     static Integer[] asteroidRounds;
-    static AsteroidStrike[] asteroidStrikes;
+    //static AsteroidStrike[] asteroidStrikes;
     private static AsteroidPattern asteroidPattern;
     static AuxMapLocation[] asteroidLocations;
     static Integer[] asteroidCarbo;

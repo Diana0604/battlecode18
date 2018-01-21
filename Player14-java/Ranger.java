@@ -4,7 +4,7 @@ import bc.UnitType;
 
 import java.util.HashMap;
 
-public class Ranger {
+public class    Ranger {
     final long INFL = 1000000000;
     final int INF = 1000000000;
     final double eps = 0.001;

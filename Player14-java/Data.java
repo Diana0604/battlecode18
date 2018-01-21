@@ -48,6 +48,9 @@ class Data {
 
     static HashMap<Integer, Integer> allUnits;
     static HashSet<Integer> structures;
+    static HashMap<Integer, Integer> blueprintsToPlace;
+    static HashMap<Integer, Integer> blueprintsToBuild;
+    static HashMap<Integer, Integer> structuresToRepair;
 
     static int rangers;
     static int healers;
@@ -307,6 +310,7 @@ class Data {
     }
 
 
+
     static AuxUnit getUnit(int x, int y, boolean myTeam){
         if (x < 0 || x >= W) return null;
         if (y < 0 || y >= H) return null;
@@ -363,6 +367,7 @@ class Data {
         updateCurrentArea();
         //comprova si ha de construir factory o rocket
         checkMyUnits();
+        UnitManager.initWorkerMaps();
 
         Rocket.initTurn();
 

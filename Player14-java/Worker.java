@@ -27,6 +27,7 @@ public class Worker {
         Danger.computeDanger(unit);
         danger = (Danger.DPS[8] > 0);
         boolean acted = doAction();
+        tryReplicate();
         if (!wait && unit.canMove()){
             move();
             if (!acted) doAction();
@@ -37,7 +38,6 @@ public class Worker {
 
     boolean doAction(){
         if (!unit.canAttack()) return true;
-        if (tryReplicate()) return true;
         if (tryBuildAndRepair()) return true;
         if (tryPlaceBlueprint()){
             wait = true;
@@ -69,6 +69,7 @@ public class Worker {
         return (nb_actions >= 30);
     }
 
+    //Intenta reparar o construir una structure adjacent
     boolean tryBuildAndRepair(){
         int minDif = 1000;
         int minDifIndex = -1;
@@ -105,6 +106,7 @@ public class Worker {
         return false;
     }
 
+    //Posen un blueprint en una posicio adjacent (aixo s'ha de canviar quan ho fem global)
     boolean tryPlaceBlueprint(){
         if (danger) return false;
         UnitType type = null;
@@ -122,6 +124,7 @@ public class Worker {
         return false;
     }
 
+    //minen una mina adjacent
     boolean tryMine(){
         System.out.println("Trying to mine! " + unit.getID());
         int dir = WorkerUtil.getMostKarboLocation(unit.getMaplocation());
@@ -157,11 +160,12 @@ public class Worker {
 
         targets.sort((a,b) -> targetEval(a) < targetEval(b) ? -1 : targetEval(a) == targetEval(b) ? 0 : 1);
 
-
+        AuxMapLocation dest;
         if (targets.size() > 0) {
             Target bestTarget = targets.get(0);
-            MovementManager.getInstance().moveTo(unit, bestTarget.mloc);
-        }
+            dest = bestTarget.mloc;
+        }else dest = unit.getMaplocation(); //move to self per evitar perill
+        MovementManager.getInstance().moveTo(unit, dest);
 
     }
 
@@ -182,37 +186,33 @@ public class Worker {
     }
 
     Target getBuildTarget(){
-        double minDist = 1000000;
-        Target ans = null;
-        for (int a : Data.structures){
-            AuxUnit u = Data.myUnits[a];
-            if (!u.isBlueprint()) continue;
-            AuxMapLocation mloc = u.getMaplocation();
-            double d = Math.max(unit.getMaplocation().distanceBFSTo(mloc) - 1, 0);
-            int dif = (Wrapper.getMaxHealth(u.getType()) - u.getHealth()) - (int)(d*WorkerUtil.senseWorkers(u.getMaplocation())*Data.buildingPower);
-            if (dif > 0 && d < minDist){
-                minDist = d;
-                ans = new Target(dif*10/Data.buildingPower, d, mloc, 2);
-            }
+        if (Data.blueprintsToBuild.containsKey(unit.getID())) {
+            int bID = Data.blueprintsToBuild.get(unit.getID());
+
+            int index = Data.allUnits.get(bID);
+            AuxUnit blueprint = Data.myUnits[index];
+
+            AuxMapLocation bLoc = blueprint.getMaplocation();
+            double d = Math.max(unit.getMaplocation().distanceBFSTo(bLoc) - 1, 0);
+            int dif = (Wrapper.getMaxHealth(blueprint.getType()) - blueprint.getHealth()) - (int)(d*WorkerUtil.senseWorkers(blueprint.getMaplocation())*Data.buildingPower);
+            return new Target(dif*10/Data.buildingPower, d, bLoc, 2);
         }
-        return ans;
+        return null;
     }
 
     Target getRepairTarget(){
-        double minDist = 1000000;
-        Target ans = null;
-        for (int a : Data.structures){
-            AuxUnit u = Data.myUnits[a];
-            if (u.isBlueprint()) continue;
-            AuxMapLocation mloc = u.getMaplocation();
-            double d = Math.max(unit.getMaplocation().distanceBFSTo(mloc) - 1, 0);
-            int dif = (Wrapper.getMaxHealth(u.getType()) - u.getHealth()) - (int)(d*WorkerUtil.senseWorkers(u.getMaplocation())*Data.repairingPower);
-            if (dif > 0 && d < minDist){
-                minDist = d;
-                ans = new Target(dif*2/Data.repairingPower, d, mloc, 1);
-            }
+        if (Data.structuresToRepair.containsKey(unit.getID())) {
+            int sID = Data.structuresToRepair.get(unit.getID());
+
+            int index = Data.allUnits.get(sID);
+            AuxUnit structure = Data.myUnits[index];
+
+            AuxMapLocation sLoc = structure.getMaplocation();
+            double d = Math.max(unit.getMaplocation().distanceBFSTo(sLoc) - 1, 0);
+            int dif = (Wrapper.getMaxHealth(structure.getType()) - structure.getHealth()) - (int)(d*WorkerUtil.senseWorkers(structure.getMaplocation())*Data.buildingPower);
+            return new Target(dif*10/Data.buildingPower, d, sLoc, 2);
         }
-        return ans;
+        return null;
     }
 
     Target getRocketTarget(){
@@ -220,8 +220,6 @@ public class Worker {
         if (mloc == null) return null;
         return new Target(10000000, unit.getMaplocation().distanceBFSTo(mloc), mloc, 0);
     }
-
-
 
     double targetEval(Target a){
         return -(a.value/(a.dist+10));

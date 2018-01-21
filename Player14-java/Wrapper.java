@@ -277,12 +277,12 @@ public class Wrapper {
             structure.health += Data.repairingPower;
             int maxHP = getMaxHealth(structure.getType());
             if (structure.health > maxHP) structure.health = maxHP;
-            AuxMapLocation loc = unit.getMaplocation();
-            AuxMapLocation sloc = structure.getMaplocation();
-            int distance = loc.distanceSquaredTo(sloc);
-            System.out.println("DISTANCE BETWEEN " + loc.x + "," + loc.y + " AND " + sloc.x + "," + sloc.y + " = " + distance + "  " + unit.getID());
-            System.out.println(unit.unit.location().mapLocation().getX() + " " + unit.unit.location().mapLocation().getY());
-            Unit unitt = Data.gc.unit(structure.getID());
+            //AuxMapLocation loc = unit.getMaplocation();
+            //AuxMapLocation sloc = structure.getMaplocation();
+            //int distance = loc.distanceSquaredTo(sloc);
+            //System.out.println("DISTANCE BETWEEN " + loc.x + "," + loc.y + " AND " + sloc.x + "," + sloc.y + " = " + distance + "  " + unit.getID());
+            //System.out.println(unit.unit.location().mapLocation().getX() + " " + unit.unit.location().mapLocation().getY());
+            //Unit unitt = Data.gc.unit(structure.getID());
             Data.gc.repair(unit.getID(), structure.getID());
             unit.canAttack = false;
         }catch(Exception e) {

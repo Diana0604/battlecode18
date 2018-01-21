@@ -18,7 +18,7 @@ public class Danger {
     static final int INF = 1000000000;
     static HashSet<Integer> attackers;
 
-    static final double winningProportion = 1.15;
+    static final double winningProportion = 1.05;
 
     static AuxMapLocation[] locUnits, locEnemyUnits;
     static boolean[] dangUnits, dangEnemyUnits, visitedUnits, visitedEnemyUnits;
@@ -146,15 +146,10 @@ public class Danger {
                     }
                 }
             }
-
-            //System.err.println("Possible attackers");
-            //System.err.println(possibleAttackers.size());
-            //System.err.println("Possible defenders");
-            //System.err.println(possibleDefenders.size());
-
-            if ((double) possibleAttackers.size() > (double) possibleDefenders.size() * winningProportion) {
+            if ((double) possibleAttackers.size() > (double) possibleDefenders.size()) {
                 for (Integer a : possibleAttackers) attackers.add(a);
             }
+            Factory.maxRangers = Math.max(Factory.maxRangers, possibleDefenders.size() + 15);
         }catch(Exception e) {
             System.out.println(e);
         }

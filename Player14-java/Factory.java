@@ -10,6 +10,8 @@ public class Factory {
     static ConstructionQueue queue;
     int units;
 
+    static int maxRangers = 50;
+
     static Factory getInstance(){
         if (instance == null){
             instance = new Factory();
@@ -20,6 +22,7 @@ public class Factory {
     public Factory(){
         queue = Data.queue;
         units = 0;
+        maxRangers = (int)(Math.sqrt(2)*Math.max(Data.W, Data.H)) + 25;
     }
 
     void play(AuxUnit unit){
@@ -85,6 +88,9 @@ public class Factory {
                 --Data.rangers;
                 ++Data.healers;
             }
+
+            if (type == UnitType.Ranger && Data.rangers > maxRangers ) return;
+            if (type == UnitType.Healer && Data.healers > maxRangers/3 + 1 ) return;
 
             if (!Wrapper.canProduceUnit(unit, type)) return;
             Wrapper.produceUnit(unit, type);

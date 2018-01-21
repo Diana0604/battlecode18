@@ -154,12 +154,12 @@ public class Worker {
 
     boolean tryMine(){
         try {
-            System.out.println("Trying to mine! " + unit.getID());
+            //System.out.println("Trying to mine! " + unit.getID());
             int dir = WorkerUtil.getMostKarboLocation(unit.getMaplocation());
             AuxMapLocation newLoc = unit.getMaplocation().add(dir);
             if (Data.karboMap[newLoc.x][newLoc.y] > 0 && Wrapper.canHarvest(unit, dir)) {
                 Wrapper.harvest(unit, dir);
-                System.out.println(newLoc.x + " " + newLoc.y);
+                //System.out.println(newLoc.x + " " + newLoc.y);
                 return true;
             }
             return false;
@@ -283,7 +283,7 @@ public class Worker {
 
     double targetEval(Target a){
         try {
-            return -(a.value / (a.dist + 10));
+            return -(a.value / (a.dist + 1));
         }catch(Exception e) {
             System.out.println(e);
             return Double.parseDouble(null);

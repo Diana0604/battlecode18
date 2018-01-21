@@ -17,7 +17,9 @@ public class WorkerUtil {
     static int min_nb_workers = 3;
     static int extra_workers;
 
-    final static double decrease_rate = 0.95;
+    static double worker_value = 50;
+
+    final static double decrease_rate = 0.90;
 
 
     static void fillWorkerActions(){
@@ -155,7 +157,7 @@ public class WorkerUtil {
 
             approxMapValue /= 2;
 
-            min_nb_workers = Math.max(min_nb_workers, approxMapValue / 60);
+            min_nb_workers = (int)Math.max(min_nb_workers, approxMapValue / worker_value);
 
             System.out.println(approxMapValue + " " + min_nb_workers);
 

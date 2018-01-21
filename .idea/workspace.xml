@@ -62,11 +62,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="UnitManager.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="UnitManager.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Player14-java/UnitManager.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="175">
-              <caret line="58" column="12" lean-forward="false" selection-start-line="58" selection-start-column="12" selection-end-line="58" selection-end-column="12" />
+            <state relative-caret-position="307">
+              <caret line="82" column="52" lean-forward="false" selection-start-line="82" selection-start-column="52" selection-end-line="82" selection-end-column="52" />
               <folding />
             </state>
           </provider>
@@ -82,7 +82,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Worker.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="Worker.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Player14-java/Worker.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="298">
@@ -202,10 +202,10 @@
         <option value="$PROJECT_DIR$/Player14-java/Player.java" />
         <option value="$PROJECT_DIR$/Player14-java/Ranger.java" />
         <option value="$PROJECT_DIR$/Player14-java/Research.java" />
-        <option value="$PROJECT_DIR$/Player14-java/UnitManager.java" />
         <option value="$PROJECT_DIR$/Player14-java/WorkerUtil.java" />
         <option value="$PROJECT_DIR$/Player14-java/Wrapper.java" />
         <option value="$PROJECT_DIR$/Player14-java/Worker.java" />
+        <option value="$PROJECT_DIR$/Player14-java/UnitManager.java" />
       </list>
     </option>
   </component>
@@ -895,14 +895,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Player14-java/UnitManager.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="175">
-          <caret line="58" column="12" lean-forward="false" selection-start-line="58" selection-start-column="12" selection-end-line="58" selection-end-column="12" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Player14-java/WorkerUtil.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="306">
@@ -923,6 +915,14 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="298">
           <caret line="118" column="33" lean-forward="false" selection-start-line="118" selection-start-column="28" selection-end-line="118" selection-end-column="33" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Player14-java/UnitManager.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="307">
+          <caret line="82" column="52" lean-forward="false" selection-start-line="82" selection-start-column="52" selection-end-line="82" selection-end-column="52" />
           <folding />
         </state>
       </provider>

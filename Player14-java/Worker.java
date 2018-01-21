@@ -99,6 +99,7 @@ public class Worker {
             for (int i = 0; i < adjUnits.length; ++i) {
                 AuxUnit u = adjUnits[i];
                 if (!(u.getType() == UnitType.Factory || u.getType() == UnitType.Rocket)) continue;
+                if (u.isMaxHealth()) continue;
                 int health = u.getHealth();
                 int maxHealth = Wrapper.getMaxHealth(u.getType());
                 boolean bp = u.isBlueprint();
@@ -114,12 +115,17 @@ public class Worker {
             if (minDifIndex >= 0) {
                 AuxUnit structure = adjUnits[minDifIndex];
                 Wrapper.build(unit, structure);
+                //System.out.println("Worker " + unit.getID() + " loc " + unit.getMaplocation().x + "," + unit.getMaplocation().y +
+                //        " fa build");
+
                 if (structure.getHealth() < Wrapper.getMaxHealth(structure.getType())) wait = true;
                 return true;
             }
             if (minHPIndex >= 0) {
                 AuxUnit structure = adjUnits[minHPIndex];
                 Wrapper.repair(unit, adjUnits[minHPIndex]);
+                //System.out.println("Worker " + unit.getID() + " loc " + unit.getMaplocation().x + "," + unit.getMaplocation().y +
+                //        " fa repair");
                 if (structure.getHealth() < Wrapper.getMaxHealth(structure.getType())) wait = true;
                 return true;
             }
@@ -201,6 +207,7 @@ public class Worker {
                 Target bestTarget = targets.get(0);
                 dest = bestTarget.mloc;
             }else dest = unit.getMaplocation(); //move to self per evitar perill
+            //System.out.println("Worker " + unit.getID() + " loc " + unit.getMaplocation().x + "," + unit.getMaplocation().y + " va a " + dest.x + "," + dest.y + "   " + wait);
             MovementManager.getInstance().moveTo(unit, dest);
 
         }catch(Exception e) {

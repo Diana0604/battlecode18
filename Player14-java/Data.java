@@ -72,6 +72,8 @@ class Data {
     private static int[] mageDamages = {60, 75, 90, 105, 105};
     static int mageDMG;
 
+    static int rocketCapacity;
+    private static int[] rocketCapacities = {8, 8, 8, 12};
     static boolean canBuildRockets;
 
 
@@ -174,8 +176,7 @@ class Data {
         researchInfo = gc.researchInfo();
         canBuildRockets = false;
 
-        //MarsPlanning.initialize(gc); //calcula els asteroids
-        marsPlanning = MarsPlanning.getInstance();
+        marsPlanning = MarsPlanning.getInstance(); //calcula els asteroids
         asteroidPattern = gc.asteroidPattern();
 
         planet = gc.planet();
@@ -379,6 +380,7 @@ class Data {
         harvestingPower = harvestingPowers[workerLevel];
         healingPower = healingPowers[healerLevel];
         mageDMG = mageDamages[mageLevel];
+        rocketCapacity = rocketCapacities[rocketLevel];
         if (rocketLevel > 0) canBuildRockets = true;
 
         WorkerUtil.fillWorkerActions();

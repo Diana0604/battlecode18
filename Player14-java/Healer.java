@@ -26,61 +26,85 @@ public class Healer {
     }
 
     void heal(AuxUnit unit){
-        if (!unit.canAttack()) return;
-        //System.err.println("trying to heal");
-        AuxUnit[] v = Wrapper.senseUnits(unit.getX(), unit.getY(), 30, true);
-        long maxDiff = 0;
-        AuxUnit healed = null;
-        for (int i = 0; i < v.length; ++i){
-            if (v[i].getType() == UnitType.Factory || v[i].getType() == UnitType.Rocket) continue;
-            AuxUnit u = v[i];
-            long d = Wrapper.getMaxHealth(u.getType()) - u.getHealth();
-            if (d > maxDiff){
-                maxDiff = d;
-                healed = u;
+        try {
+            if (!unit.canAttack()) return;
+            //System.err.println("trying to heal");
+            AuxUnit[] v = Wrapper.senseUnits(unit.getX(), unit.getY(), 30, true);
+            long maxDiff = 0;
+            AuxUnit healed = null;
+            for (int i = 0; i < v.length; ++i) {
+                if (v[i].getType() == UnitType.Factory || v[i].getType() == UnitType.Rocket) continue;
+                AuxUnit u = v[i];
+                long d = Wrapper.getMaxHealth(u.getType()) - u.getHealth();
+                if (d > maxDiff) {
+                    maxDiff = d;
+                    healed = u;
+                }
             }
-        }
-        if (healed != null){
-            Wrapper.heal(unit, healed);
+            if (healed != null) {
+                Wrapper.heal(unit, healed);
+            }
+        }catch(Exception e) {
+            e.printStackTrace();
         }
     }
 
     void play(AuxUnit unit){
-        heal(unit);
-        move(unit);
-        heal(unit);
+        try {
+            heal(unit);
+            move(unit);
+            heal(unit);
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
     }
 
 
 
-    void move(AuxUnit unit){
-        AuxMapLocation target = getBestTarget(unit);
-        if (target != null) MovementManager.getInstance().moveTo(unit, target);
+    void move(AuxUnit unit) {
+        try {
+            AuxMapLocation target = getBestTarget(unit);
+            if (target != null) MovementManager.getInstance().moveTo(unit, target);
+            else Explore.explore(unit);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    AuxMapLocation getBestTarget(AuxUnit unit){
-        if (Rocket.callsToRocket.containsKey(unit.getID())) return Rocket.callsToRocket.get(unit.getID());
-        return getBestUnit(unit.getMaplocation());
+    AuxMapLocation getBestTarget(AuxUnit unit) {
+        try {
+            if (Rocket.callsToRocket.containsKey(unit.getID())) return Rocket.callsToRocket.get(unit.getID());
+            return getBestUnit(unit.getMaplocation());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
+
 
     AuxMapLocation getBestUnit(AuxMapLocation loc){
-        double minDist = 500000;
-        AuxMapLocation ans = null;
-        for (int i = 0; i < Data.myUnits.length; ++i){
-            AuxUnit u = Data.myUnits[i];
-            if (!Data.structures.contains(i)){
-                if (u.getHealth() < Wrapper.getMaxHealth(u.getType())){
-                    AuxMapLocation mLoc = u.getMaplocation();
-                    if (mLoc != null){
-                        double d = mLoc.distanceBFSTo(loc);
-                        if (d < minDist){
-                            ans = mLoc;
-                            minDist = d;
+        try {
+            double minDist = 500000;
+            AuxMapLocation ans = null;
+            for (int i = 0; i < Data.myUnits.length; ++i) {
+                AuxUnit u = Data.myUnits[i];
+                if (!Data.structures.contains(i)) {
+                    if (u.getHealth() < Wrapper.getMaxHealth(u.getType())) {
+                        AuxMapLocation mLoc = u.getMaplocation();
+                        if (mLoc != null) {
+                            double d = mLoc.distanceBFSTo(loc);
+                            if (d < minDist) {
+                                ans = mLoc;
+                                minDist = d;
+                            }
                         }
                     }
                 }
             }
+            return ans;
+        }catch(Exception e) {
+            e.printStackTrace();
+            return null;
         }
-        return ans;
     }
 }

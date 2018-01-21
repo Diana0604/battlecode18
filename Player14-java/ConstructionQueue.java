@@ -35,15 +35,28 @@ public class ConstructionQueue {
     }
 
     boolean needsUnit(UnitType type){
-        return needed[typeToInt(type)];
+        try {
+            return needed[typeToInt(type)];
+        }catch(Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     void requestUnit(UnitType type, boolean b){
-        needed[typeToInt(type)] = b;
+        try {
+            needed[typeToInt(type)] = b;
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
     }
 
     void requestUnit(UnitType type){
-        requestUnit(type,true);
+        try {
+            requestUnit(type, true);
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
     }
 
 

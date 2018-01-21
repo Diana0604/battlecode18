@@ -65,6 +65,7 @@ public class Healer {
         try {
             AuxMapLocation target = getBestTarget(unit);
             if (target != null) MovementManager.getInstance().moveTo(unit, target);
+            else Explore.explore(unit);
         } catch (Exception e) {
             System.out.println(e);
         }

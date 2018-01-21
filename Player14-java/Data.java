@@ -216,6 +216,8 @@ class Data {
 
             createGrid();
 
+            Explore.initialize();
+
             myTeam = gc.team();
             if (myTeam == Team.Blue) enemyTeam = Team.Red;
             else enemyTeam = Team.Blue;
@@ -223,6 +225,7 @@ class Data {
             dangerMatrix = new int[W][H];
             //get location of enemy base
             getLocationEnemyBase();
+
         }catch(Exception e) {
             System.out.println(e);
         }

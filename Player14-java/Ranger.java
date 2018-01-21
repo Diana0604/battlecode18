@@ -6,10 +6,7 @@ import java.util.HashMap;
 
 public class Ranger {
     final long INFL = 1000000000;
-    final int INF = 1000000000;
-    final double eps = 0.001;
     static Ranger instance = null;
-    private UnitManager unitManager;
 
     HashMap<Integer, Integer> objectiveArea;
 
@@ -21,7 +18,6 @@ public class Ranger {
     }
 
     public Ranger(){
-        unitManager = UnitManager.getInstance();
         objectiveArea = new HashMap();
     }
 
@@ -86,7 +82,7 @@ public class Ranger {
             else {
                 ConstructionQueue queue = Data.queue;
                 queue.requestUnit(UnitType.Rocket);
-                explore(unit);
+                Explore.explore(unit);
             }
         }catch(Exception e) {
             System.out.println(e);
@@ -147,59 +143,6 @@ public class Ranger {
         }catch(Exception e) {
             System.out.println(e);
             return null;
-        }
-    }
-
-    static AuxMapLocation areaToLocation(Integer area){
-        try {
-            int x = Data.areaToLocX[Data.decodeX(area)];
-            int y = Data.areaToLocY[Data.decodeY(area)];
-            return new AuxMapLocation(x, y);
-        }catch(Exception e) {
-            System.out.println(e);
-            return null;
-        }
-    }
-
-    AuxMapLocation findExploreObjective(AuxUnit unit){
-        try {
-            Integer current = Data.currentArea.get(unit.getID());
-            Integer obj = null;
-            double minExplored = INF;
-            AuxMapLocation myLoc = unit.getMaplocation();
-            if (objectiveArea.containsKey(unit.getID()) && current.intValue() != objectiveArea.get(unit.getID()).intValue()) {
-                return areaToLocation(objectiveArea.get(unit.getID()));
-            }
-            for (int i = 0; i < Data.exploreSizeX; ++i) {
-                for (int j = 0; j < Data.exploreSizeY; ++j) {
-                    if (current.intValue() == Data.encode(i, j).intValue()) continue;
-                    Integer area = Data.encode(i, j);
-                    AuxMapLocation areaLoc = areaToLocation(area);
-                    if (myLoc.distanceBFSTo(areaLoc) >= INF) continue;
-                    if (Data.exploreGrid[i][j] < minExplored) {
-                        minExplored = Data.exploreGrid[i][j];
-                        obj = area;
-                    }
-                }
-            }
-            if (obj != null) {
-                Data.addExploreGrid(obj, Data.exploreConstant);
-                objectiveArea.put(unit.getID(), obj);
-            }
-            if (obj != null) return areaToLocation(obj);
-        }catch(Exception e) {
-            System.out.println(e);
-            return null;
-        }
-        return null;
-    }
-
-    void explore(AuxUnit unit) {
-        try {
-            AuxMapLocation obj = findExploreObjective(unit);
-            if (obj != null) MovementManager.getInstance().moveTo(unit, obj);
-        } catch (Exception e) {
-            System.out.println(e);
         }
     }
 }

@@ -67,7 +67,7 @@ public class Worker {
                         Wrapper.replicate(unit, i);
                         Data.unitTypeCount.put(UnitType.Worker, Data.unitTypeCount.get(UnitType.Worker) + 1);
                         WorkerUtil.extra_workers++;
-                        Data.queue.requestUnit(UnitType.Worker, false);
+                        //Data.queue.requestUnit(UnitType.Worker, false);
                         return true;
                     }
                 }
@@ -168,7 +168,7 @@ public class Worker {
             int i = WorkerUtil.getBestFactoryLocation(unit);
             if (i < 8) {
                 Wrapper.placeBlueprint(unit, type, i);
-                Data.queue.requestUnit(type, false);
+                //Data.queue.requestUnit(type, false);
                 wait = true;
                 return true;
             }

@@ -65,7 +65,7 @@ public class Worker {
                 for (int i = 0; i < 8; ++i) {
                     if (Wrapper.canReplicate(unit, i)) {
                         Wrapper.replicate(unit, i);
-                        Data.workers++;
+                        Data.unitTypeCount.put(UnitType.Worker, Data.unitTypeCount.get(UnitType.Worker) + 1);
                         WorkerUtil.extra_workers++;
                         Data.queue.requestUnit(UnitType.Worker, false);
                         return true;
@@ -88,7 +88,7 @@ public class Worker {
         try {
             if (danger) return false;
             int nb_actions = WorkerUtil.getWorkerActions(unit.getMaplocation(), 30);
-            if (Data.onMars() || Data.workers < WorkerUtil.min_nb_workers) return (nb_actions >= 12);
+            if (Data.unitTypeCount.get(UnitType.Worker) < WorkerUtil.min_nb_workers) return (nb_actions >= 12);
             return (nb_actions >= 30);
         }catch(Exception e) {
             e.printStackTrace();
@@ -99,7 +99,7 @@ public class Worker {
     private boolean shouldReplicateMars(){
         if (Data.round > 750) return true;
         if (Data.getKarbonite() > 120) return true;
-        if (Data.karbonite < 40) return false; //no se si aixo va be o no
+        //if (Data.karbonite < 40) return false; //no se si aixo va be o no
         HashMap<Integer, Integer> tasks = Data.asteroidTasksLocs;
         HashMap<Integer, Integer> karboAt = Data.karboniteAt;
         for(Integer encoding: karboAt.keySet()){
@@ -159,10 +159,10 @@ public class Worker {
         try {
             if (Data.onMars()) return false;
             if (danger) return false;
+            final int MAX_FACTORIES = 8;
             UnitType type = null;
-            if (Data.researchInfo.getLevel(UnitType.Rocket) > 0 && Data.queue.needsUnit(UnitType.Rocket))
-                type = UnitType.Rocket;
-            if (type == null && Data.queue.needsUnit(UnitType.Factory)) type = UnitType.Factory;
+            if (Data.unitTypeCount.get(UnitType.Factory) < MAX_FACTORIES) type = UnitType.Factory;
+            else if (Data.researchInfo.getLevel(UnitType.Rocket) > 0) type = UnitType.Rocket;
             if (type == null) return false;
 
             int i = WorkerUtil.getBestFactoryLocation(unit);
@@ -252,18 +252,13 @@ public class Worker {
                 //si ja tinc mina assignada, hi vaig
                 int encoding = tasksIDs.get(id);
                 AuxMapLocation location = Data.toLocation(encoding);
-                if (!location.isOnMap()){
-                    System.out.println("Location " + location.x + "," + location.y + " out of map. Encoding " + encoding);
-                    return;
-                }
                 if (!Data.karboniteAt.containsKey(encoding)){
                     //si la mina ja esta buida, trec la task
-                    System.out.println(Data.round + " worker " + id + " removes mine " + location.x + "," + location.y);
+                    //System.out.println(Data.round + " worker " + id + " removes mine " + location.x + "," + location.y);
                     tasksLocs.remove(encoding);
                     tasksIDs.remove(id);
                 }
                 destination = location;
-                MovementManager.getInstance().moveTo(unit, destination);
             }else {
                 double minDist = 100000000;
                 AuxMapLocation minLoc = null;
@@ -285,10 +280,6 @@ public class Worker {
                     minLoc = null;
                     for (Integer encoding : tasksLocs.keySet()) {
                         AuxMapLocation loc = Data.toLocation(encoding);
-                        if (!loc.isOnMap()){
-                            System.out.println("Location " + loc.x + "," + loc.y + " out of map. Encoding " + encoding);
-                            return;
-                        }
                         double dist = unit.getMaplocation().distanceSquaredTo(loc);
                         if (dist < minDist){
                             minDist = dist;
@@ -297,24 +288,21 @@ public class Worker {
                     }
                     if (minLoc == null) destination = unit.getMaplocation();
                     else destination = minLoc;
-                    MovementManager.getInstance().moveTo(unit, destination);
                 }else{
                     //ha trobat una mina buida, se l'assigna
                     int encoding = Data.encodeOcc(minLoc.x, minLoc.y);
-                    System.out.println(Data.round + " worker " + id + " s'assigna la mina " + minLoc.x + "," + minLoc.y + "   " + tasksLocs.get(encoding));
+                    //System.out.println(Data.round + " worker " + id + " s'assigna la mina " + minLoc.x + "," + minLoc.y + "   " + tasksLocs.get(encoding));
                     tasksIDs.put(id, encoding);
                     tasksLocs.put(encoding, id);
                     destination = minLoc;
-                    MovementManager.getInstance().moveTo(unit, destination);
                 }
             }
             if (destination == null){
                 System.out.println(Data.round + " worker " + unit.getID() + " destination null!");
                 destination = unit.getMaplocation();
             }
-            //AuxMapLocation l = Data.toLocation(Data.encodeOcc(destination.x, destination.y));
             //System.out.println("Worker moves to position " + destination.x + "," + destination.y + "  //  " + l.x + "," + l.y);
-            //MovementManager.getInstance().moveTo(unit, destination);
+            MovementManager.getInstance().moveTo(unit, destination);
         }catch (Exception e){
             e.printStackTrace();
         }

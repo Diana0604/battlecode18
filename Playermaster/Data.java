@@ -50,15 +50,12 @@ class Data {
     static final int exploreConstant = 1;
 
     static HashMap<Integer, Integer> allUnits; //allUnits.get(id) = index de myUnits
+    static HashMap<UnitType, Integer> unitTypeCount;
     static HashSet<Integer> structures;
     static HashMap<Integer, Integer> blueprintsToPlace;
     static HashMap<Integer, Integer> blueprintsToBuild;
     static HashMap<Integer, Integer> structuresToRepair;
 
-    static int rangers;
-    static int healers;
-    static int workers;
-    static int knights;
     static boolean blueprint;
 
     static Integer karbonite;
@@ -221,6 +218,7 @@ class Data {
             karboniteAt = new HashMap<>(); //filled in pathfinder
             asteroidTasksLocs = new HashMap<>();
             asteroidTasksIDs = new HashMap<>();
+            unitTypeCount = new HashMap<>();
 
             queue = new ConstructionQueue();
 
@@ -319,7 +317,7 @@ class Data {
             if (karboniteAt.containsKey(encodeOcc(loc.x, loc.y)))
                 putValue(loc.x, loc.y, karboniteAt.get(encodeOcc(loc.x, loc.y)) + karbonite);
             else putValue(loc.x, loc.y, karbonite);
-
+/*
             System.out.println("");
             System.out.println("====================== TASK ARRAY " + round + " ====================== ");
             for (Map.Entry<Integer,Integer> entry: asteroidTasksLocs.entrySet()){
@@ -333,7 +331,7 @@ class Data {
                 AuxMapLocation l = toLocation(entry.getValue());
                 System.out.println("Worker " + id + " has location " + l.x + "," + l.y);
             }
-            System.out.println("");
+            System.out.println("");*/
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -359,14 +357,15 @@ class Data {
         try {
             allUnits = new HashMap<>();
             structures = new HashSet<>();
-            rangers = 0;
-            healers = 0;
-            workers = 0;
-            knights = 0;
             blueprint = false;
+            int rangers = 0;
+            int healers = 0;
+            int workers = 0;
+            int mages = 0;
+            int knights = 0;
+            int factories = 0;
             int MIN_KARBONITE_FOR_FACTORY = 200;
             int INITIAL_FACTORIES = 3;
-            int factories = 0;
             boolean rocketBuilt = false;
             boolean workerBuilt = false;
             for (int i = 0; i < myUnits.length; i++) {
@@ -387,10 +386,18 @@ class Data {
                     ++rangers;
                 } else if (type == UnitType.Healer) {
                     ++healers;
+                } else if (type == UnitType.Mage) {
+                    ++mages;
                 } else if (type == UnitType.Knight) {
                     ++knights;
                 }
             }
+            unitTypeCount.put(UnitType.Factory,factories);
+            unitTypeCount.put(UnitType.Worker, workers);
+            unitTypeCount.put(UnitType.Ranger, rangers);
+            unitTypeCount.put(UnitType.Healer, healers);
+            unitTypeCount.put(UnitType.Mage,   mages);
+            unitTypeCount.put(UnitType.Knight, knights);
 
             if (factories < 1 || (factories < 2 && getKarbonite() >= 120) || (factories < 3 && getKarbonite() >= 150) || getKarbonite() >= 200)
                 queue.requestUnit(UnitType.Factory);

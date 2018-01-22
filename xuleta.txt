@@ -25,6 +25,13 @@
 [Pau] git push --set-upstream origin Pau 		[em crea la branch al remote i fa push de la local]
 
 
+---------- Com esborrar fitxers perquè no se sincronitzin, si son massa grans, (p.ex replays)
+[Pau] git add .									
+[Pau] git commit -m "missatge"					
+[Pau] git reset --soft HEAD^					[reverteix el commit (torna el HEAD 1 commit enrere)]
+[Pau] git rm <filename>							[esborra el fitxer. Si no he fet commit, es l'unica comanda necessaria]
+
+
 
 
 

@@ -55,6 +55,7 @@ class Data {
     static int rangers;
     static int healers;
     static int workers;
+    static int knights;
 
     static Integer karbonite;
 
@@ -288,10 +289,18 @@ class Data {
                 }*/
             }
 
+            //mars stuff
             if (planet == Planet.Earth) return;
             if (!asteroidPattern.hasAsteroid(round)) return;
             AsteroidStrike strike = asteroidPattern.asteroid(round);
             AuxMapLocation loc = new AuxMapLocation(strike.getLocation());
+            boolean canAccess = false;
+            for (int i = 0; i < 8; i++){
+                //si el meteorit cau al mig de la muntanya, suda d'afegir-lo
+                AuxMapLocation adjLoc = loc.add(i);
+                if (adjLoc.isOnMap() && accessible[loc.x][loc.y]) canAccess = true;
+            }
+            if (!canAccess) return;
             int karbonite = (int) strike.getKarbonite();
             if (!karboniteAt.containsKey(encodeOcc(loc.x, loc.y))) putValue(loc.x, loc.y, karbonite);
             else putValue(loc.x, loc.y, karboniteAt.get(encodeOcc(loc.x, loc.y)) + karbonite);
@@ -324,6 +333,7 @@ class Data {
             rangers = 0;
             healers = 0;
             workers = 0;
+            knights = 0;
             int MIN_KARBONITE_FOR_FACTORY = 200;
             int INITIAL_FACTORIES = 3;
             int factories = 0;
@@ -346,6 +356,8 @@ class Data {
                     ++rangers;
                 } else if (type == UnitType.Healer) {
                     ++healers;
+                } else if (type == UnitType.Knight) {
+                    ++knights;
                 }
             }
 

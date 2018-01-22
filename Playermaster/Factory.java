@@ -86,6 +86,10 @@ public class Factory {
                 type = UnitType.Healer;
             }
 
+            /*if (Data.round <= 170 && Data.rangers > 4 * (Data.knights + 1)) {
+                type = UnitType.Knight;
+            }*/
+
             if (type == UnitType.Ranger && Data.rangers > maxRangers ){
                 type = UnitType.Mage;
             };
@@ -93,10 +97,15 @@ public class Factory {
                 type = UnitType.Mage;
             }
 
+            if (type == UnitType.Knight && Data.knights > maxRangers/4 + 1 ){
+                type = UnitType.Mage;
+            }
+
             if (!Wrapper.canProduceUnit(unit, type)) return;
 
             if (type == UnitType.Ranger) ++Data.rangers;
             if (type == UnitType.Healer) ++Data.healers;
+            if (type == UnitType.Knight) ++Data.knights;
 
             Wrapper.produceUnit(unit, type);
             //units = (units+1)%4;

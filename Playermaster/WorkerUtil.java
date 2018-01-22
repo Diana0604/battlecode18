@@ -1,8 +1,6 @@
 import bc.*;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Queue;
 
 /**
  * Created by Ivan on 1/20/2018.
@@ -21,7 +19,8 @@ public class WorkerUtil {
 
     final static double decrease_rate = 0.90;
 
-
+    //emplena la matriu worker actions
+    //worker actions[i][j] = quantes accions de worker hi ha a la posicio (i,j)
     static void fillWorkerActions(){
         try {
             extra_workers = 0;
@@ -49,11 +48,12 @@ public class WorkerUtil {
         }
     }
 
-    static int senseWorkers(AuxMapLocation mloc){
+    //quants workers adjacents hi ha a la posicio mLoc
+    static int getAdjacentWorkers(AuxMapLocation mLoc){
         try {
             int ans = 0;
-            AuxUnit[] v = Wrapper.senseUnits(mloc, 2, true);
-            for (int i = 0; i < v.length; ++i) if (v[i].getType() == UnitType.Worker) ++ans;
+            AuxUnit[] units = Wrapper.senseUnits(mLoc, 2, true);
+            for (AuxUnit unit : units) if (unit.getType() == UnitType.Worker) ++ans;
             return ans;
         }catch(Exception e) {
             System.out.println(e);
@@ -61,13 +61,14 @@ public class WorkerUtil {
         }
     }
 
+    //retorna la direccio on hi ha mes karbo (nomes adjacent)
     static int getMostKarboLocation(AuxMapLocation loc){
         try {
             int bestDir = 0;
             int bestKarbo = -1;
             for (int i = 0; i < 9; ++i) {
                 AuxMapLocation newLoc = loc.add(i);
-                if (newLoc.isOnMap() && Data.karboMap[newLoc.x][newLoc.y] > bestKarbo && !blockingBuilding(newLoc)) {
+                if (newLoc.isOnMap() && Data.karboMap[newLoc.x][newLoc.y] > bestKarbo && !buildingAt(newLoc)) {
                     bestKarbo = Data.karboMap[newLoc.x][newLoc.y];
                     bestDir = i;
                 }
@@ -79,7 +80,8 @@ public class WorkerUtil {
         }
     }
 
-    static boolean blockingBuilding(AuxMapLocation loc) {
+    //si hi ha un building a la posicio (per no tenir en compte la karbonite)
+    static boolean buildingAt(AuxMapLocation loc) {
         try {
             AuxUnit u = Data.getUnit(loc.x, loc.y, true);
             if (u == null) u = Data.getUnit(loc.x, loc.y, false);
@@ -91,33 +93,28 @@ public class WorkerUtil {
         }
     }
 
+    //compta les workerActions/#workers en un radi r (30)
     static int getWorkerActions(AuxMapLocation loc, int r){
         try {
             int ans = 0;
             int workers = 0;
             for (int i = 0; i < Vision.Mx[r].length; ++i) {
-                AuxMapLocation mloc = new AuxMapLocation(loc.x + Vision.Mx[r][i], loc.y + Vision.My[r][i]);
-                if (!mloc.isOnMap()) continue;
-                double d = mloc.distanceBFSTo(loc);
+                AuxMapLocation mLoc = new AuxMapLocation(loc.x + Vision.Mx[r][i], loc.y + Vision.My[r][i]);
+                if (!mLoc.isOnMap()) continue;
+                double d = mLoc.distanceBFSTo(loc);
                 if (d * d > r) continue;
-                ans += workerActions[mloc.x][mloc.y];
-                AuxUnit unit = Data.getUnit(mloc.x, mloc.y, true);
+                ans += workerActions[mLoc.x][mLoc.y];
+                AuxUnit unit = Data.getUnit(mLoc.x, mLoc.y, true);
                 if (unit == null) continue;
                 if (unit.getType() == UnitType.Worker) ++workers;
             }
-            //System.out.println(ans);
-
-            //System.err.println("Getting actions");
-
-            //System.err.println(loc.x + " " + loc.y);
-            //System.err.println(ans + " " + workers);
-
             return ans / (workers + 1 + extra_workers);
         }catch(Exception e) {
             System.out.println(e);
             return 0;
         }
     }
+
 
     static void computeApproxMapValue() {
         try {

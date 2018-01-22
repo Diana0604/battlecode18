@@ -13,7 +13,7 @@ public class Danger {
 
 
     static double[] DPS;
-    static double[] DPSshort;
+    static double[] DPSlong;
     static int [] minDist;
     static final int INF = 1000000000;
     static HashSet<Integer> attackers;
@@ -27,12 +27,12 @@ public class Danger {
     static void computeDanger(AuxUnit unit){
         try {
             DPS = new double[9];
-            DPSshort = new double[9];
+            DPSlong = new double[9];
             minDist = new int[9];
             for (int i = 0; i < 9; ++i) {
                 DPS[i] = 0;
                 minDist[i] = INF;
-                DPSshort[i] = 0;
+                DPSlong[i] = 0;
             }
 
             AuxMapLocation myLoc = unit.getMaplocation();
@@ -42,8 +42,10 @@ public class Danger {
                 AuxUnit enemy = enemies[i];
                 double dps = 0;
                 long arshort = 0;
+                long arslong = 0;
                 if (MovementManager.getInstance().dangerousUnit(enemy.getType())) {
                     dps = Wrapper.getDamage(enemy.getType()) / Wrapper.getAttackCooldown(enemy.getType());
+                    arslong = Wrapper.getAttackRangeLong(enemy.getType());
                     arshort = Wrapper.getAttackRangeSafe(enemy.getType());
                 }
                 for (int j = 0; j < 9; ++j) {
@@ -51,6 +53,7 @@ public class Danger {
                     AuxMapLocation newLoc = myLoc.add(j);
                     long d = enemy.getMaplocation().distanceSquaredTo(newLoc);
                     if (dps > 0 && d <= arshort) DPS[j] += dps;
+                    if (dps > 0 && d <= arslong) DPSlong[j] += dps;
                     minDist[j] = Math.min(minDist[j], (int) d);
                 }
             }

@@ -38,7 +38,20 @@ public class Wrapper {
             case Knight:
                 return 2;
             case Mage:
-                return 45;
+                return 30;
+            default:
+                return 0;
+        }
+    }
+
+    static int getAttackRangeSafe(UnitType type){ //ToDo
+        switch(type){
+            case Ranger:
+                return 50;
+            case Knight:
+                return 8;
+            case Mage:
+                return 30;
             default:
                 return 0;
         }
@@ -65,7 +78,7 @@ public class Wrapper {
             if (Data.occupiedPositions.contains(Data.encodeOcc(loc.x, loc.y))) return false;
             return true;
         }catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             return false;
         }
     }
@@ -79,7 +92,7 @@ public class Wrapper {
             }
             return ans.toArray(new AuxUnit[ans.size()]);
         }catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             return null;
         }
     }
@@ -88,7 +101,7 @@ public class Wrapper {
         try {
             return senseUnits(loc.x, loc.y, r, myTeam);
         }catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             return null;
         }
     }
@@ -100,7 +113,7 @@ public class Wrapper {
             if (!Data.myUnits[Data.allUnits.get(unit.getGarrisonUnits().get(0))].canMove()) return false;
             return true;
         }catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             return false;
         }
     }
@@ -116,7 +129,7 @@ public class Wrapper {
             unit.garrisonUnits.remove(0);
             Data.gc.unload(unit.getID(), Data.allDirs[dir]);
         }catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
     }
 
@@ -215,7 +228,7 @@ public class Wrapper {
             if (unit.getGarrisonUnits().size() >= 8) return false;
             return (Data.getKarbonite() >= cost(type));
         }catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             return false;
         }
     }
@@ -226,7 +239,7 @@ public class Wrapper {
             Data.karbonite = Data.getKarbonite() - cost(type);
             unit.canAttack = false;
         }catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
     }
 
@@ -239,7 +252,7 @@ public class Wrapper {
             u1.canAttack = false;
             Data.gc.heal(u1.getID(), u2.getID());
         }catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
     }
 
@@ -250,7 +263,7 @@ public class Wrapper {
             AuxMapLocation newLoc = mloc.add(dir);
             return (isAccessible(newLoc));
         }catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             return false;
         }
     }
@@ -267,7 +280,7 @@ public class Wrapper {
             //System.out.println("Remaining build health: " + (maxHP - blueprint.health) +  " max hp? " + blueprint.isMaxHealth());
             unit.canAttack = false;
         }catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
     }
 
@@ -286,7 +299,7 @@ public class Wrapper {
             Data.gc.repair(unit.getID(), structure.getID());
             unit.canAttack = false;
         }catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
     }
 
@@ -304,7 +317,7 @@ public class Wrapper {
             Data.unitMap[newLoc.x][newLoc.y] = Data.allUnits.get(unit.getID()) + 1;
             Data.gc.moveRobot(unit.getID(), Data.allDirs[dir]);
         }catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
     }
 
@@ -315,8 +328,9 @@ public class Wrapper {
             Data.unitMap[loc.x][loc.y] = 0;
             Data.unitMap[mloc.x][mloc.y] = Data.allUnits.get(unit.getID()) + 1;
             Data.gc.blink(unit.getID(), new MapLocation(Data.planet, mloc.x, mloc.y));
+            unit.mloc = mloc;
         }catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
     }
 
@@ -329,7 +343,7 @@ public class Wrapper {
             if (!unit.canUseAbility()) return false;
             return true;
         }catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             return false;
         }
     }
@@ -342,7 +356,7 @@ public class Wrapper {
             Data.karbonite = Data.getKarbonite() - Data.replicateCost;
             Data.occupiedPositions.add(Data.encodeOcc(newLoc.x, newLoc.y));
         }catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
     }
 
@@ -356,7 +370,7 @@ public class Wrapper {
             if (type == UnitType.Rocket && !Data.canBuildRockets) return false;
             return true;
         }catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             return false;
         }
     }
@@ -369,7 +383,7 @@ public class Wrapper {
             Data.karbonite = Data.getKarbonite() - cost(type);
             Data.occupiedPositions.add(Data.encodeOcc(newLoc.x, newLoc.y));
         }catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
     }
 
@@ -380,7 +394,7 @@ public class Wrapper {
             if (!mineLoc.isOnMap()) return false;
             return Data.gc.canHarvest(unit.getID(), Data.allDirs[dir]);
         }catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             return false;
         }
     }
@@ -405,7 +419,7 @@ public class Wrapper {
             //System.out.println("Karbo after mining: " + newKarboAmount);
             return newKarboAmount;
         }catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             return -1;
         }
     }
@@ -418,7 +432,7 @@ public class Wrapper {
             if (unit.getType() == UnitType.Ranger && d <= 10) return false;
             return (getAttackRange(unit.getType()) >= d);
         }catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             return false;
         }
     }
@@ -429,8 +443,6 @@ public class Wrapper {
                 u2.getHealth();
                 u2.health -= (int) getDamage(u1.getType());
                 if (u2.health <= 0) Data.unitMap[u2.getX()][u2.getY()] = 0;
-                u1.canAttack = false;
-                Data.gc.attack(u1.getID(), u2.getID());
             } else {
                 AuxMapLocation mloc = u2.getMaplocation();
                 for (int i = 0; i < 9; ++i) {
@@ -440,13 +452,13 @@ public class Wrapper {
                         unit2.getHealth();
                         unit2.health -= (int) getDamage(u1.getType());
                         if (unit2.health <= 0) Data.unitMap[unit2.getMaplocation().x][unit2.getMaplocation().y] = 0;
-                        u1.canAttack = false;
-                        Data.gc.attack(u1.getID(), unit2.getID());
                     }
                 }
             }
+            u1.canAttack = false;
+            Data.gc.attack(u1.getID(), u2.getID());
         }catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
     }
 
@@ -454,7 +466,7 @@ public class Wrapper {
         try {
             return (int) Data.gc.orbitPattern().duration(round);
         }catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             return Integer.parseInt(null);
         }
     }
@@ -467,7 +479,7 @@ public class Wrapper {
             Data.unitMap[mloc.x][mloc.y] = 0;
             Data.structures.remove(unit.getID());
         }catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
     }
 
@@ -478,7 +490,7 @@ public class Wrapper {
             if (u2.isInGarrison()) return false;
             return (u1.getMaplocation().distanceSquaredTo(u2.getMaplocation()) <= 2);
         } catch (Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             return false;
         }
     }
@@ -495,7 +507,7 @@ public class Wrapper {
             u1.getGarrisonUnits().add(u2.getID());
             Data.gc.load(u1.getID(), u2.getID());
         }catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
     }
 

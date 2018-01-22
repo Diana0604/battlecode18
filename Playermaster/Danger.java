@@ -44,7 +44,7 @@ public class Danger {
                 long arshort = 0;
                 if (MovementManager.getInstance().dangerousUnit(enemy.getType())) {
                     dps = Wrapper.getDamage(enemy.getType()) / Wrapper.getAttackCooldown(enemy.getType());
-                    arshort = Wrapper.getAttackRange(enemy.getType());
+                    arshort = Wrapper.getAttackRangeSafe(enemy.getType());
                 }
                 for (int j = 0; j < 9; ++j) {
                     if (!Wrapper.canMove(unit, j) && j < 8) continue;

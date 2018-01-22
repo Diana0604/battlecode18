@@ -200,23 +200,45 @@ public class MovementManager {
         }
     }
 
+    boolean shouldAggro(){
+        if (!dangerousUnit(unit.getType())) return false;
+        if (!unit.canAttack()) return false;
+        if (unit.getType() == UnitType.Mage){
+            //if (!Data.canBlink) return false;
+            //if (!unit.canUseAbility()) return false;
+            return false;
+        }
+        if (Danger.attackers.contains(id)) return true;
+        if (Data.onEarth() && Data.canBlink) return true;
+        return false;
+    }
+
+    double danger(int i){
+        if (unit.getType() == UnitType.Knight) return 0;
+        if (unit.getType() == UnitType.Ranger) return Danger.DPS[i];
+        if (unit.getType() == UnitType.Mage && Data.canBlink) return Danger.DPS[i];
+        return Danger.DPSlong[i]/3 + Danger.DPS[i];
+    }
+
     int bestIndex(int i, int j){
         try {
-            if (Danger.attackers.contains(id) || (unit.getType() == UnitType.Mage && unit.canUseAbility() == false)){
-                if (Danger.minDist[i] > attackRange && Danger.minDist[j] <= attackRange) return j;
-                if (Danger.minDist[i] <= attackRange && Danger.minDist[j] > attackRange) return i;
-                if (Danger.minDist[i] <= attackRange) {
-                    if (Danger.DPS[i] > Danger.DPS[j]) return j;
-                    if (Danger.DPS[i] < Danger.DPS[j]) return i;
-                    if (Danger.minDist[i] >= Danger.minDist[j]) return i;
-                    return j;
-                } else {
-                    if (i != 8) {
-                        if (Danger.minDist[i] <= Danger.minDist[j]) return i;
+            if (unit.canAttack()) {
+                if ((Data.onEarth() && Data.canBlink) || Danger.attackers.contains(id) || (unit.getType() == UnitType.Mage && unit.canUseAbility() == false)) {
+                    if (Danger.minDist[i] > attackRange && Danger.minDist[j] <= attackRange) return j;
+                    if (Danger.minDist[i] <= attackRange && Danger.minDist[j] > attackRange) return i;
+                    if (Danger.minDist[i] <= attackRange) {
+                        if (Danger.DPS[i] + Danger.DPSlong[i]/3 > Danger.DPS[j] + Danger.DPSlong[j]/3) return j;
+                        if (Danger.DPS[i] < Danger.DPS[j]) return i;
+                        if (Danger.minDist[i] >= Danger.minDist[j]) return i;
                         return j;
+                    } else {
+                        if (i != 8) {
+                            if (Danger.minDist[i] <= Danger.minDist[j]) return i;
+                            return j;
+                        }
                     }
+                    return i;
                 }
-                return i;
             }
             //if (true){
             if (Danger.DPS[i] > Danger.DPS[j]) return j;
@@ -261,10 +283,7 @@ public class MovementManager {
 
     boolean isSafe(int ind){
         try {
-            if (unit.getType() == UnitType.Knight) return true;
-            if (unit.getType() == UnitType.Healer) return (Danger.DPSlong[ind] <= 0);
-            if (unit.getType() == UnitType.Mage && !Data.canBlink) return (Danger.DPSlong[ind] <= 0);
-            return (Danger.DPS[ind] <= 0);
+            return (danger(ind) <= 0);
         }catch(Exception e) {
             e.printStackTrace();
             return false;

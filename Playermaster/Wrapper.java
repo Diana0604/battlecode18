@@ -60,9 +60,9 @@ public class Wrapper {
     static int getAttackRangeLong(UnitType type){ //ToDo
         switch(type){
             case Ranger:
-                return 68;
+                return 100;
             case Knight:
-                return 8;
+                return 68;
             case Mage:
                 return 65;
             default:

@@ -1,6 +1,9 @@
 import bc.*;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Queue;
 
 /**
  * Created by Ivan on 1/20/2018.
@@ -15,14 +18,22 @@ public class WorkerUtil {
     static int min_nb_workers = 3;
     static int extra_workers;
 
-    static double worker_value = 50;
+    static boolean[] connectivityArray;
+    static int[][] workerAreas;
+    static final int workerRadius = 16;
+
+    static AuxMapLocation bestFactoryLocation;
+
+    static double worker_value = 45;
 
     final static double decrease_rate = 0.90;
 
     //emplena la matriu worker actions
     //worker actions[i][j] = quantes accions de worker hi ha a la posicio (i,j)
+    //also puts in the map where workers are close
     static void fillWorkerActions(){
         try {
+            workerAreas = new int[Data.W][Data.H];
             extra_workers = 0;
             for (int i = 0; i < Data.W; ++i) {
                 for (int j = 0; j < Data.H; ++j) {
@@ -39,6 +50,12 @@ public class WorkerUtil {
                             else workerActions[i][j] = (dif + Data.repairingPower - 1) / Data.repairingPower;
                         }
                     } else {
+                        if (unit.getType() == UnitType.Worker){
+                            for (int k = 0; k < Vision.Mx[workerRadius].length; ++k){
+                                AuxMapLocation newLoc = new AuxMapLocation(i,j).add(new AuxMapLocation(Vision.Mx[workerRadius][k], Vision.My[workerRadius][k]));
+                                if (newLoc.isOnMap()) ++workerAreas[newLoc.x][newLoc.y];
+                            }
+                        }
                         workerActions[i][j] = (Data.karboMap[i][j] + (Data.harvestingPower - 1)) / Data.harvestingPower;
                     }
                 }
@@ -47,6 +64,55 @@ public class WorkerUtil {
             System.out.println(e);
         }
     }
+
+    static void preComputeConnectivity(){
+        connectivityArray = new boolean[(1 << 9)-1];
+        for (int i = 0; i < (1 << 9) - 1; ++i){
+            connectivityArray[i] = computeConnectivity(i);
+        }
+
+        //for (int i = 0; i < 32; ++i) System.out.println(connectivityArray[i]);
+
+    }
+
+    static boolean computeConnectivity(int s){
+        Queue<Integer> q = new LinkedList<>();
+        for (int i = 0; i < 8; ++i) {
+            if (((s >> i)&1) > 0){
+                q.add(i);
+                s = s & (~(1 << i));
+                break;
+            }
+        }
+        while (!q.isEmpty()){
+            int t = q.poll();
+            int x = 2;
+            if (t%2 == 1) x = 1;
+            for (int i = -x; i <= x; ++i){
+                int newT = (t+8-i)%8;
+                if (((s >> newT)&1) > 0){
+                    q.add(newT);
+                    s = s &(~(1 << newT));
+                }
+            }
+        }
+        return s == 0;
+    }
+
+    /*
+    static AuxMapLocation getBestFactoryLocation(){
+        bestFactoryLocation = null;
+
+        HashSet<Integer> locations = new HashSet<Integer>();
+        for (int i = 0; i < Data.myUnits.length; ++i){
+            if (Data.myUnits[i].getType() != UnitType.Worker) continue;
+            AuxMapLocation loc = Data.myUnits[i].getMaplocation();
+            if (loc != null){
+                locations.add(Data.encodeOcc(loc.x, loc.y));
+            }
+        }
+
+    }*/
 
     //quants workers adjacents hi ha a la posicio mLoc
     static int getAdjacentWorkers(AuxMapLocation mLoc){
@@ -158,6 +224,8 @@ public class WorkerUtil {
 
             System.out.println(approxMapValue + " " + min_nb_workers);
 
+
+            preComputeConnectivity();
             /*
             while(queue.size() > 0){
                 int data = queue.poll();
@@ -183,6 +251,65 @@ public class WorkerUtil {
         } catch (Exception e) {
             System.out.println(e);
         }
+    }
+
+    static boolean getConnectivity(AuxMapLocation loc){
+        int a = 0;
+        for (int i = 0; i < 8; ++i){
+            AuxMapLocation newLoc = loc.add(i);
+            if (Wrapper.isAccessible(newLoc)){
+                a = a|(1 << i);
+            }
+            else if (newLoc.isOnMap()){
+                AuxUnit unit = Data.getUnit(newLoc.x, newLoc.y, true);
+                if (unit == null) unit = Data.getUnit(newLoc.x, newLoc.y, false);
+                if (unit != null){
+                    if (unit.getType() != UnitType.Factory && unit.getType() != UnitType.Rocket) a = a|(1 << i);
+                }
+            }
+        }
+        return connectivityArray[a];
+    }
+
+    static int getBestFactoryLocation(AuxUnit unit){
+        int ans = 8;
+        FactoryData bestFactory = null;
+        for (int i = 0; i < 8; ++i) {
+            if (Wrapper.canPlaceBlueprint(unit, UnitType.Factory, i)){
+                FactoryData fd = new FactoryData(unit.getMaplocation().add(i));
+                if (fd.isBetter(bestFactory)){
+                    bestFactory = fd;
+                    ans = i;
+                }
+            }
+        }
+        return ans;
+    }
+
+    static class FactoryData{
+        AuxMapLocation loc;
+        boolean connectivity;
+        double distToWalls;
+        double workersNear;
+
+        public FactoryData(AuxMapLocation _loc){
+            loc = _loc;
+            if (!loc.isOnMap()) return;
+            connectivity = getConnectivity(loc);
+            distToWalls = Pathfinder.distToWalls[loc.x][loc.y];
+            if (distToWalls > 3) distToWalls = 3;
+            workersNear = workerAreas[loc.x][loc.y];
+        }
+
+        public boolean isBetter(FactoryData B){
+            if (B == null) return true;
+            if (connectivity && !B.connectivity) return true;
+            if (B.connectivity && !connectivity) return false;
+            if (distToWalls > B.distToWalls) return true;
+            if (B.distToWalls < distToWalls) return false;
+            return workersNear > B.workersNear;
+        }
+
     }
 
 }

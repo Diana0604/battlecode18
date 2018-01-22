@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Mage {
-    final int min_group = 2;
+    final int min_group = 3;
     final long INFL = 1000000000;
     static Mage instance = null;
     AuxMapLocation bestEnemy;
@@ -74,7 +74,7 @@ public class Mage {
     void play(AuxUnit _unit){
         unit = _unit;
         bestEnemy = getBestEnemy(unit.getMaplocation());
-        if (bestEnemy == null || bestEnemy.distanceSquaredTo(unit.getMaplocation()) < 90){
+        if (bestEnemy != null && bestEnemy.distanceSquaredTo(unit.getMaplocation()) < 90){
             if (trySpecialMove()) return;
         }
         MageMove();
@@ -89,6 +89,7 @@ public class Mage {
 
     boolean trySpecialMove(){
         try {
+            if ((Data.round % 12) > 2) return false;
             if (!Data.canBlink) return false;
             if (!unit.canAttack()) return false;
             if (!unit.canUseAbility()) return false;
@@ -245,17 +246,10 @@ public class Mage {
 
     void attack() {
         try {
-            AuxUnit bestVictim = null;
             if (!unit.canAttack()) return;
-            AuxMapLocation myLoc = unit.getMaplocation();
-            AuxUnit[] canAttack = Wrapper.senseUnits(myLoc.x, myLoc.y, Wrapper.getAttackRange(unit.getType()), false);
-            for (int i = 0; i < canAttack.length; ++i) {
-                AuxUnit victim = canAttack[i];
-                if (Wrapper.canAttack(unit, victim)) {
-                    bestVictim = getBestAttackTarget(bestVictim, victim);
-                }
-            }
-            if (bestVictim != null) Wrapper.attack(unit, bestVictim);
+            MageMovement m = new MageMovement(new AuxMapLocation(0,0), 8, true);
+            m.getValue();
+            if (m.bestTarget != null) Wrapper.attack(unit, m.bestTarget);
         }catch(Exception e) {
             e.printStackTrace();
         }
@@ -321,8 +315,8 @@ public class Mage {
         if (!B.isOnMap()) return false;
         int a = multitargetArraY[A.x][A.y];
         int b = multitargetArraY[B.x][B.y];
-        if (b < 3 && a > b) return true;
-        if (a < 3 && a < b) return false;
+        if (b < min_group && a > b) return true;
+        if (a < min_group && a < b) return false;
         return (myLoc.distanceBFSTo(A) < myLoc.distanceBFSTo(B));
     }
 

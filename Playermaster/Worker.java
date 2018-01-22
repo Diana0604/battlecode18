@@ -29,7 +29,7 @@ public class Worker {
             unit = _unit;
             wait = false;
             Danger.computeDanger(unit);
-            danger = (Danger.DPS[8] > 0);
+            danger = (Danger.DPSlong[8] > 0);
             boolean acted = doAction();
             tryReplicate();
             if (!wait && unit.canMove()) {
@@ -164,9 +164,9 @@ public class Worker {
                 type = UnitType.Rocket;
             if (type == null && Data.queue.needsUnit(UnitType.Factory)) type = UnitType.Factory;
             if (type == null) return false;
-            for (int i = 0; i < 8; ++i) {
-                if (Danger.DPS[i] > 0) continue;
-                if (!Wrapper.canPlaceBlueprint(unit, type, i)) continue;
+
+            int i = WorkerUtil.getBestFactoryLocation(unit);
+            if (i < 8) {
                 Wrapper.placeBlueprint(unit, type, i);
                 Data.queue.requestUnit(type, false);
                 wait = true;

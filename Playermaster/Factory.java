@@ -11,6 +11,7 @@ public class Factory {
     int units;
 
     static int maxRangers = 50;
+    static int diag;
 
     static Factory getInstance(){
         if (instance == null){
@@ -22,7 +23,8 @@ public class Factory {
     public Factory(){
         queue = Data.queue;
         units = 0;
-        maxRangers = (int)(Math.sqrt(2)*Math.max(Data.W, Data.H)) + 15;
+        diag = (int) Math.sqrt(Data.H*Data.H + Data.W*Data.W);
+        maxRangers = Math.max(3*diag/2, diag + 20);
     }
 
     void play(AuxUnit unit){
@@ -80,6 +82,8 @@ public class Factory {
             }
 
             if (mustSaveMoney()) return;
+
+            if (Data.mageDMG > 100) maxRangers = diag;
 
             UnitType type = UnitType.Ranger;
             if (Data.rangers > 3 * (Data.healers + 1)) {

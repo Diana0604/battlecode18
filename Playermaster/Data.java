@@ -59,6 +59,7 @@ class Data {
     static int healers;
     static int workers;
     static int knights;
+    static boolean blueprint;
 
     static Integer karbonite;
 
@@ -362,6 +363,7 @@ class Data {
             healers = 0;
             workers = 0;
             knights = 0;
+            blueprint = false;
             int MIN_KARBONITE_FOR_FACTORY = 200;
             int INITIAL_FACTORIES = 3;
             int factories = 0;
@@ -375,6 +377,7 @@ class Data {
                     factories++;
                     structures.add(i);
                 } else if (type == UnitType.Rocket) {
+                    if (u.isBlueprint()) blueprint = true;
                     rocketBuilt = true;
                     structures.add(i);
                 } else if (type == UnitType.Worker) {

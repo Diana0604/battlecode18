@@ -74,6 +74,8 @@ class Data {
     static int harvestingPower;
     private static int[] mageDamages = {60, 75, 90, 105, 105};
     static int mageDMG;
+    private static int[] rocketCapacities = {8, 8, 8, 12};
+    static int rocketCapacity;
 
     static boolean canBuildRockets;
 
@@ -643,6 +645,7 @@ class Data {
             harvestingPower = harvestingPowers[workerLevel];
             healingPower = healingPowers[healerLevel];
             mageDMG = mageDamages[mageLevel];
+            rocketCapacity = rocketCapacities[rocketLevel];
             if (rocketLevel > 0) canBuildRockets = true;
 
             WorkerUtil.fillWorkerActions();

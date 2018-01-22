@@ -287,10 +287,18 @@ class Data {
                 }*/
             }
 
+            //mars stuff
             if (planet == Planet.Earth) return;
             if (!asteroidPattern.hasAsteroid(round)) return;
             AsteroidStrike strike = asteroidPattern.asteroid(round);
             AuxMapLocation loc = new AuxMapLocation(strike.getLocation());
+            boolean canAccess = false;
+            for (int i = 0; i < 8; i++){
+                //si el meteorit cau al mig de la muntanya, suda d'afegir-lo
+                AuxMapLocation adjLoc = loc.add(i);
+                if (adjLoc.isOnMap() && accessible[loc.x][loc.y]) canAccess = true;
+            }
+            if (!canAccess) return;
             int karbonite = (int) strike.getKarbonite();
             if (!karboniteAt.containsKey(encodeOcc(loc.x, loc.y))) putValue(loc.x, loc.y, karbonite);
             else putValue(loc.x, loc.y, karboniteAt.get(encodeOcc(loc.x, loc.y)) + karbonite);

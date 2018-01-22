@@ -81,6 +81,7 @@ class UnitManager{
                 if (bp.isMaxHealth()) continue;
                 if (!bp.isBlueprint()) continue;
 
+                final int WORKERS_TO_CALL = 6;
                 ArrayList<Pair> sorted = new ArrayList<>();
                 for (AuxUnit worker : workers) {
                     AuxMapLocation workerloc = worker.getMaplocation();
@@ -89,7 +90,7 @@ class UnitManager{
                     sorted.add(p);
                 }
                 sorted.sort((a, b) -> a.dist < b.dist ? -1 : a.dist == b.dist ? 0 : 1);
-                List<Pair> cut = sorted.subList(0, Math.min(8, sorted.size())); //no se si funciona si hi ha menys de 8 workers total
+                List<Pair> cut = sorted.subList(0, Math.min(WORKERS_TO_CALL, sorted.size())); //no se si funciona si hi ha menys de 8 workers total
                 for (Pair p : cut) {
                     int key = p.unit.getID();
                     int value = bp.getID();

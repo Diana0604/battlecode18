@@ -1,13 +1,9 @@
-
-
-import bc.*;
-
 class PathfinderNode{
 
-    Direction dir;
+    int dir;
     double dist;
 
-    PathfinderNode(Direction dir, int dist){
+    PathfinderNode(int dir, int dist){
         this.dir = dir;
         this.dist = dist;
     }

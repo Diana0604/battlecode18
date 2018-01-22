@@ -1,5 +1,3 @@
-
-
 import bc.*;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -13,7 +11,6 @@ import java.util.Queue;
 public class MarsPlanning{
 
     static MarsPlanning instance;
-    static GameController gc;
 
     private final int AUX = 6;
     private final int base = 0x3F;
@@ -32,7 +29,6 @@ public class MarsPlanning{
     int[] optimArrivalTime = new int[1001];
 
     public static void initialize(GameController _gc){
-        gc = _gc;
     }
 
     static MarsPlanning getInstance(){
@@ -41,12 +37,11 @@ public class MarsPlanning{
     }
 
     private MarsPlanning(){
-        gc = UnitManager.gc;
         init();
     }
 
     private void init(){
-        map = gc.startingMap(Planet.Mars);
+        map = Data.gc.startingMap(Planet.Mars);
         W = (int)map.getWidth();
         H = (int)map.getHeight();
 
@@ -55,14 +50,21 @@ public class MarsPlanning{
         ccs = 0;
         for (int x = 0; x < W; ++x) {
             for (int y = 0; y < H; ++y) {
-                if (cc[x][y] != 0) continue;
+                //if (cc[x][y] != 0) continue;
                 if (map.isPassableTerrainAt(new MapLocation(Planet.Mars, x, y)) == 0) cc[x][y] = -1;
+                //else bfs(x, y);
+            }
+        }
+
+        for (int x = 0; x < W; ++x) {
+            for (int y = 0; y < H; ++y) {
+                if (cc[x][y] != 0) continue;
                 else bfs(x, y);
             }
         }
 
         // compute times from earth to mars
-        OrbitPattern op = gc.orbitPattern();
+        OrbitPattern op = Data.gc.orbitPattern();
         //System.out.println("orbites: "+ op.getCenter() + " " + op.getAmplitude() + " " + op.getPeriod());
         orbitPeriod = (int)op.getPeriod();
         for (int i = 1; i <= 1000; ++i) {
@@ -90,17 +92,23 @@ public class MarsPlanning{
 
         // construct asteroid pattern
         ArrayList<Integer> aRounds = new ArrayList<>();
-        ArrayList<AsteroidStrike> aStrikes = new ArrayList<>();
-        AsteroidPattern ap = gc.asteroidPattern();
+        //ArrayList<AsteroidStrike> aStrikes = new ArrayList<>();
+        ArrayList<Integer> aCarbo = new ArrayList<>();
+        ArrayList<AuxMapLocation> locCarbo = new ArrayList<>();
+        AsteroidPattern ap = Data.gc.asteroidPattern();
         for (int i = 1; i <= 1000; ++i){ // round numbers are in [0,1000) or (0,1000]??
             if (ap.hasAsteroid(i)) {
-                aStrikes.add(ap.asteroid(i));
+                AsteroidStrike as = ap.asteroid(i);
+                //aStrikes.add(as);
                 aRounds.add(i);
+                aCarbo.add((int)as.getKarbonite());
+                locCarbo.add(new AuxMapLocation(as.getLocation()));
             }
         }
         Data.asteroidRounds = aRounds.toArray(new Integer[0]);
-        Data.asteroidStrikes = aStrikes.toArray(new AsteroidStrike[0]);
-
+        //Data.asteroidStrikes = aStrikes.toArray(new AsteroidStrike[0]);
+        Data.asteroidCarbo = aCarbo.toArray(new Integer[0]);
+        Data.asteroidLocations = locCarbo.toArray(new AuxMapLocation[0]);
     }
 
     private void bfs(int a, int b){
@@ -117,11 +125,8 @@ public class MarsPlanning{
                 int newPosY = myPosY + Y[i];
                 if(newPosX >= W || newPosX < 0 || newPosY >= H || newPosY < 0) continue;
                 if(cc[newPosX][newPosY] != 0) continue;
-                if(map.isPassableTerrainAt(new MapLocation(Planet.Mars, newPosX, newPosY)) != 0) {
-                    queue.add((newPosX << AUX) | newPosY);
-                    cc[newPosX][newPosY] = cc[a][b];
-                }
-                else cc[newPosX][newPosY] = -1;
+                queue.add((newPosX << AUX) | newPosY);
+                cc[newPosX][newPosY] = cc[a][b];
             }
         }
     }
@@ -139,37 +144,41 @@ public class MarsPlanning{
         return false;
     }
 
-    public MapLocation bestPlaceForRound(int round) {
+    boolean isOnMars (AuxMapLocation loc){
+        if (loc.x < 0 || loc.x >= W) return false;
+        if (loc.y < 0 || loc.y >= H) return false;
+        return true;
+    }
+
+    public AuxMapLocation bestPlaceForRound(int round) {
 
         int[] ccKarbonite = new int[ccs+1];
         int[][] locKarbonite = new int[W][H];
         for (int i = 0; i < Data.asteroidRounds.length; ++i) {
             int round_i = Data.asteroidRounds[i];
             if (round_i-round > 50) break;
-            AsteroidStrike strike = Data.asteroidStrikes[i];
-            MapLocation loc = strike.getLocation();
+            AuxMapLocation loc = Data.asteroidLocations[i];
             boolean[] seen_cc = new boolean[ccs+1];
-            for (Direction dir: MovementManager.allDirs) {
-                if (dir == Direction.Center) continue;
-                MapLocation newLoc = loc.add(dir);
-                if (!map.onMap(newLoc)) continue;
-                if (map.isPassableTerrainAt(newLoc) == 0) continue;
-                int comp = cc[newLoc.getX()][newLoc.getY()];
-                if (!seen_cc[comp]) ccKarbonite[comp] += strike.getKarbonite();
+            for (int j = 0; j < 8; ++j) {
+                AuxMapLocation newLoc = loc.add(j);
+                if (!isOnMars(newLoc)) continue;
+                if (cc[newLoc.x][newLoc.y] < 0) continue;
+                int comp = cc[newLoc.x][newLoc.y];
+                if (!seen_cc[comp]) ccKarbonite[comp] += Data.asteroidCarbo[i];
                 seen_cc[comp] = true;
-                locKarbonite[newLoc.getX()][newLoc.getY()] += strike.getKarbonite();
+                locKarbonite[newLoc.x][newLoc.y] += Data.asteroidCarbo[i];
             }
         }
         int best_cc = 1;
         for (int i = 2; i <= ccs; ++i) {
             if (ccKarbonite[i] > ccKarbonite[best_cc]) best_cc = i;
         }
-        MapLocation bestLoc = null;
+        AuxMapLocation bestLoc = null;
         for (int x = 0; x < W; ++x) {
             for (int y = 0; y < H; ++y) {
                 if (cc[x][y] != best_cc) continue;
-                if (bestLoc == null) bestLoc = new MapLocation(Planet.Mars, x, y);
-                if (locKarbonite[x][y] > locKarbonite[bestLoc.getX()][bestLoc.getY()]) bestLoc = new MapLocation(Planet.Mars, x, y);
+                if (bestLoc == null) bestLoc = new AuxMapLocation(x, y);
+                if (locKarbonite[x][y] > locKarbonite[bestLoc.x][bestLoc.y]) bestLoc = new AuxMapLocation(x, y);
             }
         }
         return bestLoc;

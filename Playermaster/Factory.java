@@ -22,7 +22,7 @@ public class Factory {
     public Factory(){
         queue = Data.queue;
         units = 0;
-        maxRangers = (int)(Math.sqrt(2)*Math.max(Data.W, Data.H)) + 25;
+        maxRangers = (int)(Math.sqrt(2)*Math.max(Data.W, Data.H)) + 15;
     }
 
     void play(AuxUnit unit){

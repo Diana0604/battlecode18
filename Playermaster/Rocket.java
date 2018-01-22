@@ -71,6 +71,7 @@ public class Rocket {
     private void launchRocket(AuxUnit unit) {
         int arrivalRound = Wrapper.getArrivalRound(Data.round);
         AuxMapLocation arrivalLoc = MarsPlanning.getInstance().bestPlaceForRound(arrivalRound);
+        System.out.println(arrivalLoc.x + " " + arrivalLoc.y);
         rocketLandingsLocs.add(arrivalLoc);
         rocketLandingsCcs[MarsPlanning.getInstance().cc[arrivalLoc.x][arrivalLoc.y]]++;
         Wrapper.launchRocket(unit, arrivalLoc);
@@ -78,7 +79,7 @@ public class Rocket {
 
     private boolean hasToLeaveByEggs(AuxUnit unit) {
         if (Data.round == 749) return true;
-        if (unit.garrisonUnits.size() == 0) return false;
+        if (unit.getGarrisonUnits().size() == 0) return false;
         Danger.computeDanger(unit);
         double danger = Danger.DPS[8];
         return unit.getHealth() <= 2.2*danger;
@@ -101,7 +102,7 @@ public class Rocket {
 
     private void aSopar(AuxUnit unit, ArrayList<Pair> sorted) {
         // cridar els que faltin
-        int remaining = Data.rocketCapacity - unit.garrisonUnits.size();
+        int remaining = Data.rocketCapacity - unit.getGarrisonUnits().size();
         for (int i = 0; i < sorted.size(); ++i) {
             if (remaining == 0) break;
             AuxUnit unit_i = sorted.get(i).unit;
@@ -114,7 +115,7 @@ public class Rocket {
 
     private void loadRobots(AuxUnit unit, ArrayList<Pair> sorted) {
         for (Pair p:sorted) {
-            if (p.dist > 2 || unit.garrisonUnits.size() == 0) break;
+            if (p.dist > 2 || unit.getGarrisonUnits().size() == Data.rocketCapacity) break;
             AuxUnit unit_i = p.unit;
             if (Wrapper.canLoad(unit, unit_i)) {
                 Wrapper.load(unit, unit_i);
@@ -123,7 +124,8 @@ public class Rocket {
     }
 
     private boolean shouldLaunch(AuxUnit unit) {
-        if (Data.rocketCapacity > unit.garrisonUnits.size()) return false;
+        //System.out.println(Data.rocketCapacity + " " + unit.getGarrisonUnits().size());
+        if (Data.rocketCapacity > unit.getGarrisonUnits().size()) return false;
         //Danger.computeDanger(unit);
         double dps = Danger.DPS[8];
         boolean shouldWait;

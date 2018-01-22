@@ -51,7 +51,7 @@ public class MarsPlanning{
         passable = new boolean[W][H];
         for (int x = 0; x < W; ++x) {
             for (int y = 0; y < H; ++y) {
-                passable[x][y] = map.isPassableTerrainAt(new MapLocation(Planet.Mars, x, y)) == 0;
+                passable[x][y] = map.isPassableTerrainAt(new MapLocation(Planet.Mars, x, y)) != 0;
                 if (!passable[x][y]) cc[x][y] = -1;
             }
         }
@@ -165,21 +165,23 @@ public class MarsPlanning{
     }
 
     private void addPriority(double[][] priority, AuxMapLocation initLoc, int depth, double value, boolean addValueToAdj) {
-        HashSet<AuxMapLocation> seen = new HashSet<>();
+        HashSet<Integer> seen = new HashSet<>();
         Queue<AuxMapLocation> queue = new LinkedList<>();
-        seen.add(initLoc);
+        seen.add(initLoc.x << 6 | initLoc.y);
         queue.offer(initLoc);
         while (!queue.isEmpty()) {
+            //System.out.print(queue.size());
             AuxMapLocation loc = queue.poll();
+            //System.out.println(" " + queue.size());
             for (int d = 0; d < 8; ++d) {
                 AuxMapLocation newLoc = loc.add(d);
                 if (!isOnMars(newLoc)) continue;
                 if (!passable[newLoc.x][newLoc.y]) continue;
-                int dist = loc.distanceSquaredTo(newLoc);
+                int dist = initLoc.distanceSquaredTo(newLoc);
                 if (dist > depth) continue;
-                if (seen.contains(newLoc)) continue;
-                seen.add(newLoc);
-                queue.offer(newLoc);
+                if (seen.contains(newLoc.x << 6 | newLoc.y)) continue;
+                seen.add(newLoc.x << 6 | newLoc.y);
+                queue.add(newLoc);
                 if (addValueToAdj || dist > 2) priority[newLoc.x][newLoc.y] += value;
             }
         }

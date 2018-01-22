@@ -48,6 +48,7 @@ public class MarsPlanning{
         // fill cc
         cc = new int[W][H];
         ccs = 0;
+        passable = new boolean[W][H];
         for (int x = 0; x < W; ++x) {
             for (int y = 0; y < H; ++y) {
                 passable[x][y] = map.isPassableTerrainAt(new MapLocation(Planet.Mars, x, y)) == 0;

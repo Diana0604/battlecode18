@@ -17,8 +17,8 @@ public class Worker {
     }
 
     private AuxUnit unit;
-    boolean danger;
-    boolean wait;
+    private boolean danger;
+    private boolean wait;
 
     void play(AuxUnit _unit){
         try {
@@ -40,7 +40,7 @@ public class Worker {
 
     /*----------- ACTIONS ------------*/
 
-    boolean doAction(){
+    private boolean doAction(){
         try {
             if (!unit.canAttack()) return true;
             if (tryBuildAndRepair()) return true;
@@ -56,7 +56,7 @@ public class Worker {
         }
     }
 
-    boolean tryReplicate(){
+    private boolean tryReplicate(){
         try {
             if (Data.queue.needsUnit(UnitType.Worker) || shouldReplicate()) {
                 for (int i = 0; i < 8; ++i) {
@@ -76,7 +76,7 @@ public class Worker {
         }
     }
 
-    boolean shouldReplicate(){
+    private boolean shouldReplicate(){
         try {
             if (danger) return false;
             int nb_actions = WorkerUtil.getWorkerActions(unit.getMaplocation(), 30);
@@ -89,7 +89,7 @@ public class Worker {
     }
 
     //Intenta reparar o construir una structure adjacent
-    boolean tryBuildAndRepair(){
+    private boolean tryBuildAndRepair(){
         try {
             int minDif = 1000;
             int minDifIndex = -1;
@@ -132,7 +132,7 @@ public class Worker {
     }
 
     //Posen un blueprint en una posicio adjacent (aixo s'ha de canviar quan ho fem global)
-    boolean tryPlaceBlueprint(){
+    private boolean tryPlaceBlueprint(){
         try {
             if (danger) return false;
             UnitType type = null;
@@ -156,7 +156,7 @@ public class Worker {
     }
 
     //minen una mina adjacent
-    boolean tryMine(){
+    private boolean tryMine(){
         try {
             //System.out.println("Trying to mine! " + unit.getID());
             int dir = WorkerUtil.getMostKarboLocation(unit.getMaplocation());
@@ -210,7 +210,7 @@ public class Worker {
         }
     }
 
-    Target getKarboniteTarget(){
+    private Target getKarboniteTarget(){
         try {
             Target ans = null;
             for (HashMap.Entry<Integer, Integer> entry : Data.karboniteAt.entrySet()) {
@@ -231,7 +231,7 @@ public class Worker {
         }
     }
 
-    Target getBuildTarget() {
+    private Target getBuildTarget() {
         try {
             if (Data.blueprintsToBuild.containsKey(unit.getID())) {
                 int bID = Data.blueprintsToBuild.get(unit.getID());
@@ -252,7 +252,7 @@ public class Worker {
     }
 
 
-    Target getRepairTarget(){
+    private Target getRepairTarget(){
         try{
             if (Data.structuresToRepair.containsKey(unit.getID())) {
                 int sID = Data.structuresToRepair.get(unit.getID());
@@ -272,18 +272,18 @@ public class Worker {
         }
     }
 
-    Target getRocketTarget() {
+    private Target getRocketTarget() {
         try {
-            AuxMapLocation mloc = Rocket.callsToRocket.get(unit.getID());
-            if (mloc == null) return null;
-            return new Target(10000000, unit.getMaplocation().distanceBFSTo(mloc), mloc, 0);
+            AuxMapLocation mLoc = Rocket.callsToRocket.get(unit.getID());
+            if (mLoc == null) return null;
+            return new Target(10000000, unit.getMaplocation().distanceBFSTo(mLoc), mLoc, 0);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
     }
 
-    double targetEval(Target a){
+    private double targetEval(Target a){
         try {
             return -(a.value / (a.dist + 1));
         }catch(Exception e) {

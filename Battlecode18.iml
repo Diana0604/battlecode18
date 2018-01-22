@@ -6,6 +6,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Playermaster" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/Old players" />
       <excludeFolder url="file://$MODULE_DIR$/Player01-java" />
       <excludeFolder url="file://$MODULE_DIR$/Player02-java" />
       <excludeFolder url="file://$MODULE_DIR$/Player03-java" />
@@ -23,6 +24,7 @@
       <excludeFolder url="file://$MODULE_DIR$/Player15-java" />
       <excludeFolder url="file://$MODULE_DIR$/Player16-java" />
       <excludeFolder url="file://$MODULE_DIR$/Player17-java" />
+      <excludeFolder url="file://$MODULE_DIR$/Player18-java" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

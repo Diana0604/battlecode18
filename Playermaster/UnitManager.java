@@ -64,6 +64,14 @@ class UnitManager{
         }
     }
 
+// de moment aixo no cal pq ja ho fem en un altre lloc
+    static void countUnits(){
+        int[] count = {0,0,0,0,0,0,0};
+        for (AuxUnit unit: Data.myUnits) count[unit.getType().swigValue()]++;
+        HashMap<UnitType, Integer> mapa = new HashMap<UnitType, Integer>();
+        for (UnitType type: UnitType.values()) mapa.put(type,count[type.swigValue()]);
+        Data.unitTypeCount = mapa;
+    }
 
     static void initWorkerMaps(){
         try {

@@ -1,0 +1,7 @@
+WORKERS TODO:
+
+- limitar el rang de crida dels workers a construir/reparar (ok?)
+- limitar el numero de workers cridats si hi ha parets (ho he posat a 6)
+- Triar la location de les noves factories (ivan)
+- fer que els workers per construir, prioritzin estar en diagonal al blueprint (perque els altres puguin passar)
+- fer que un cop estan minant algo ho minin fins al final (mes importancia al 3x3?)

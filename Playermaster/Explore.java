@@ -19,7 +19,7 @@ public class Explore {
             AuxMapLocation obj = findExploreObjective(unit);
             if (obj != null) MovementManager.getInstance().moveTo(unit, obj);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println(e);
         }
     }
 
@@ -29,7 +29,7 @@ public class Explore {
             int y = Data.areaToLocY[Data.decodeY(area)];
             return new AuxMapLocation(x, y);
         }catch(Exception e) {
-            e.printStackTrace();
+            System.out.println(e);
             return null;
         }
     }
@@ -61,7 +61,7 @@ public class Explore {
             }
             if (obj != null) return areaToLocation(obj);
         }catch(Exception e) {
-            e.printStackTrace();
+            System.out.println(e);
             return null;
         }
         return null;

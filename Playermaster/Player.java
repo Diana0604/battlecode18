@@ -38,11 +38,19 @@ public class Player {
                     //if (usedTime > 10000000) System.out.println("Round time: " + usedTime + "    Total time: " + (endTime - initTime));
                     gc.nextTurn();
                 }catch(Exception e) {
+<<<<<<< HEAD
                     e.printStackTrace();
                 }
             }
         }catch(Exception e) {
             e.printStackTrace();
+=======
+                    System.out.println(e);
+                }
+            }
+        }catch(Exception e) {
+            System.out.println(e);
+>>>>>>> 5a2a7ab... master
         }
     }
 }

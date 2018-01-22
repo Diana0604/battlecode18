@@ -91,6 +91,45 @@ class Data {
         return karbonite;
     }
 
+    static int rangers;
+    static int healers;
+    static int workers;
+
+    static Integer karbonite;
+
+    static int[][] unitMap;
+    static int[][] karboMap;
+    static AuxUnit[] myUnits;
+    static AuxUnit[] enemies;
+    static boolean[][] accessible;
+
+    private static int[] healingPowers = {10, 12, 17, 17};
+    static int healingPower;
+    private static int[] buildingPowers = {5, 5, 6, 7, 10};
+    static int buildingPower;
+    private static int[] repairingPowers = {10, 10, 11, 12, 15};
+    static int repairingPower;
+    private static int[] harvestingPowers = {3, 4, 4, 4, 4};
+    static int harvestingPower;
+    private static int[] mageDamages = {60, 75, 90, 105, 105};
+    static int mageDMG;
+
+    static boolean canBuildRockets;
+
+
+
+    static int replicateCost = 30;
+
+    static HashSet<Integer> occupiedPositions;
+
+
+    static int getKarbonite(){
+        if (karbonite == null){
+            karbonite = (int)gc.karbonite();
+        }
+        return karbonite;
+    }
+
     static Integer encode(int i, int j){
         return i*maxMapSize+j;
     }
@@ -105,7 +144,11 @@ class Data {
                 if (planetMap.isPassableTerrainAt(fakeCenter) > 0) return fakeCenter;
             }
         }catch(Exception e) {
+<<<<<<< HEAD
             e.printStackTrace();
+=======
+            System.out.println(e);
+>>>>>>> 5a2a7ab... master
         }
         return null;
     }
@@ -140,7 +183,11 @@ class Data {
                 }
             }
         }catch(Exception e) {
+<<<<<<< HEAD
             e.printStackTrace();
+=======
+            System.out.println(e);
+>>>>>>> 5a2a7ab... master
         }
     }
 
@@ -148,7 +195,11 @@ class Data {
         try {
             return locToArea[loc.x][loc.y];
         }catch(Exception e) {
+<<<<<<< HEAD
             e.printStackTrace();
+=======
+            System.out.println(e);
+>>>>>>> 5a2a7ab... master
             return null;
         }
     }
@@ -167,7 +218,11 @@ class Data {
             int y = decodeY(area);
             exploreGrid[x][y] += value;
         }catch(Exception e) {
+<<<<<<< HEAD
             e.printStackTrace();
+=======
+            System.out.println(e);
+>>>>>>> 5a2a7ab... master
         }
     }
 
@@ -182,7 +237,11 @@ class Data {
                 }
             }
         }catch(Exception e) {
+<<<<<<< HEAD
             e.printStackTrace();
+=======
+            System.out.println(e);
+>>>>>>> 5a2a7ab... master
         }
     }
 
@@ -193,6 +252,7 @@ class Data {
 
             round = 1;
             aggro = false;
+<<<<<<< HEAD
 
             research = Research.getInstance();
             research.yolo();
@@ -221,6 +281,36 @@ class Data {
 
             Explore.initialize();
 
+=======
+
+            research = Research.getInstance();
+            research.yolo();
+            researchInfo = gc.researchInfo();
+            canBuildRockets = false;
+
+            //MarsPlanning.initialize(gc); //calcula els asteroids
+            marsPlanning = MarsPlanning.getInstance();
+            asteroidPattern = gc.asteroidPattern();
+
+            planet = gc.planet();
+            planetMap = gc.startingMap(planet);
+
+            W = (int) planetMap.getWidth();
+            H = (int) planetMap.getHeight();
+            mapCenter = new MapLocation(gc.planet(), W / 2 + 1, H / 2 + 1);
+            maxRadius = mapCenter.distanceSquaredTo(new MapLocation(gc.planet(), 0, 0));
+
+            karboniteAt = new HashMap<Integer, Integer>(); //filled in pathfinder
+
+            queue = new ConstructionQueue();
+
+            WorkerUtil.workerActions = new int[W][H];
+
+            createGrid();
+
+            Explore.initialize();
+
+>>>>>>> 5a2a7ab... master
             myTeam = gc.team();
             if (myTeam == Team.Blue) enemyTeam = Team.Red;
             else enemyTeam = Team.Blue;
@@ -230,7 +320,11 @@ class Data {
             getLocationEnemyBase();
 
         }catch(Exception e) {
+<<<<<<< HEAD
             e.printStackTrace();
+=======
+            System.out.println(e);
+>>>>>>> 5a2a7ab... master
         }
     }
 
@@ -238,7 +332,11 @@ class Data {
         try {
             return new AuxMapLocation(x >> 12, x & 0xFFF);
         }catch(Exception e) {
+<<<<<<< HEAD
             e.printStackTrace();
+=======
+            System.out.println(e);
+>>>>>>> 5a2a7ab... master
             return null;
         }
     }
@@ -248,6 +346,7 @@ class Data {
             int encoding = encodeOcc(x, y);
             karboniteAt.put(encoding, v);
         }catch(Exception e) {
+<<<<<<< HEAD
             e.printStackTrace();
         }
     }
@@ -263,6 +362,23 @@ class Data {
     }
 
 
+=======
+            System.out.println(e);
+        }
+    }
+
+    static Integer getValue(AuxMapLocation mloc){
+        try {
+            int encoding = encodeOcc(mloc.x, mloc.y);
+            return karboniteAt.get(encoding);
+        }catch(Exception e) {
+            System.out.println(e);
+            return 0;
+        }
+    }
+
+
+>>>>>>> 5a2a7ab... master
     private static void updateMines() {
         try {
             Iterator<HashMap.Entry<Integer, Integer>> it = karboniteAt.entrySet().iterator();
@@ -296,7 +412,11 @@ class Data {
             if (!karboniteAt.containsKey(encodeOcc(loc.x, loc.y))) putValue(loc.x, loc.y, karbonite);
             else putValue(loc.x, loc.y, karboniteAt.get(encodeOcc(loc.x, loc.y)) + karbonite);
         } catch (Exception e) {
+<<<<<<< HEAD
             e.printStackTrace();
+=======
+            System.out.println(e);
+>>>>>>> 5a2a7ab... master
         }
     }
 
@@ -312,11 +432,63 @@ class Data {
                 addExploreGrid(current, exploreConstant);
             }
         }catch(Exception e) {
+<<<<<<< HEAD
             e.printStackTrace();
+=======
+            System.out.println(e);
         }
     }
 
 
+    private static void checkMyUnits() {
+        try {
+            allUnits = new HashMap<>();
+            structures = new HashSet<>();
+            rangers = 0;
+            healers = 0;
+            workers = 0;
+            int MIN_KARBONITE_FOR_FACTORY = 200;
+            int INITIAL_FACTORIES = 3;
+            int factories = 0;
+            boolean rocketBuilt = false;
+            boolean workerBuilt = false;
+            for (int i = 0; i < myUnits.length; i++) {
+                AuxUnit u = myUnits[i];
+                allUnits.put(u.getID(), i);
+                UnitType type = u.getType();
+                if (type == UnitType.Factory) {
+                    factories++;
+                    structures.add(i);
+                } else if (type == UnitType.Rocket) {
+                    rocketBuilt = true;
+                    structures.add(i);
+                } else if (type == UnitType.Worker) {
+                    if (!u.isInGarrison()) workerBuilt = true;
+                    ++workers;
+                } else if (type == UnitType.Ranger) {
+                    ++rangers;
+                } else if (type == UnitType.Healer) {
+                    ++healers;
+                }
+            }
+
+            if (factories < 1 || (factories < 2 && getKarbonite() >= 120) || (factories < 3 && getKarbonite() >= 150) || getKarbonite() >= 200)
+                queue.requestUnit(UnitType.Factory);
+            else queue.requestUnit(UnitType.Factory, false);
+
+            if (!rocketBuilt && researchInfo.getLevel(UnitType.Rocket) > 0) { // aixo es super cutre, canviar!
+                queue.requestUnit(UnitType.Rocket);
+            }
+            if (!workerBuilt) queue.requestUnit(UnitType.Worker);
+            //System.out.println(round + " Factory requested: " + queue.needsUnit(UnitType.Factory));
+        }catch(Exception e) {
+            System.out.println(e);
+>>>>>>> 5a2a7ab... master
+        }
+    }
+
+
+<<<<<<< HEAD
     private static void checkMyUnits() {
         try {
             allUnits = new HashMap<>();
@@ -365,6 +537,8 @@ class Data {
 
 
 
+=======
+>>>>>>> 5a2a7ab... master
     static AuxUnit getUnit(int x, int y, boolean myTeam){
         try {
             if (x < 0 || x >= W) return null;
@@ -376,7 +550,11 @@ class Data {
             }
             if (i < 0) return enemies[-(i + 1)];
         }catch(Exception e) {
+<<<<<<< HEAD
             e.printStackTrace();
+=======
+            System.out.println(e);
+>>>>>>> 5a2a7ab... master
             return null;
         }
         return null;
@@ -386,7 +564,11 @@ class Data {
         try {
             return unitMap[x][y] != 0;
         }catch(Exception e) {
+<<<<<<< HEAD
             e.printStackTrace();
+=======
+            System.out.println(e);
+>>>>>>> 5a2a7ab... master
             return true;
         }
     }
@@ -395,7 +577,11 @@ class Data {
         try {
             return isOccupied(location.x, location.y);
         }catch(Exception e) {
+<<<<<<< HEAD
             e.printStackTrace();
+=======
+            System.out.println(e);
+>>>>>>> 5a2a7ab... master
             return true;
         }
     }
@@ -437,7 +623,10 @@ class Data {
             updateCurrentArea();
             //comprova si ha de construir factory o rocket
             checkMyUnits();
+<<<<<<< HEAD
             UnitManager.initWorkerMaps();
+=======
+>>>>>>> 5a2a7ab... master
 
             Rocket.initTurn();
 
@@ -460,7 +649,11 @@ class Data {
 
             //if (Data.round >= 746) printData();
         }catch(Exception e) {
+<<<<<<< HEAD
             e.printStackTrace();
+=======
+            System.out.println(e);
+>>>>>>> 5a2a7ab... master
         }
     }
 
@@ -475,7 +668,11 @@ class Data {
                 System.err.println();
             }
         }catch(Exception e) {
+<<<<<<< HEAD
             e.printStackTrace();
+=======
+            System.out.println(e);
+>>>>>>> 5a2a7ab... master
         }
     }
 
@@ -489,7 +686,11 @@ class Data {
             int y = location.y;
             return x >= 0 && x < W && y >= 0 && y < H;
         }catch(Exception e) {
+<<<<<<< HEAD
             e.printStackTrace();
+=======
+            System.out.println(e);
+>>>>>>> 5a2a7ab... master
             return false;
         }
     }

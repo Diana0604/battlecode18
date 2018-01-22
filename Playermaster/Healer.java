@@ -45,7 +45,7 @@ public class Healer {
                 Wrapper.heal(unit, healed);
             }
         }catch(Exception e) {
-            e.printStackTrace();
+            System.out.println(e);
         }
     }
 
@@ -55,7 +55,7 @@ public class Healer {
             move(unit);
             heal(unit);
         }catch(Exception e) {
-            e.printStackTrace();
+            System.out.println(e);
         }
     }
 
@@ -67,7 +67,7 @@ public class Healer {
             if (target != null) MovementManager.getInstance().moveTo(unit, target);
             else Explore.explore(unit);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println(e);
         }
     }
 
@@ -76,7 +76,7 @@ public class Healer {
             if (Rocket.callsToRocket.containsKey(unit.getID())) return Rocket.callsToRocket.get(unit.getID());
             return getBestUnit(unit.getMaplocation());
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println(e);
             return null;
         }
     }
@@ -103,7 +103,7 @@ public class Healer {
             }
             return ans;
         }catch(Exception e) {
-            e.printStackTrace();
+            System.out.println(e);
             return null;
         }
     }

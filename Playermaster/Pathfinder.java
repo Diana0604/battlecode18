@@ -62,7 +62,11 @@ public class Pathfinder{
                 }
             }
         }catch(Exception e) {
+<<<<<<< HEAD
             e.printStackTrace();
+=======
+            System.out.println(e);
+>>>>>>> 5a2a7ab... master
         }
     }
 
@@ -70,7 +74,11 @@ public class Pathfinder{
         try {
             Data.putValue(x, y, q);
         }catch(Exception e) {
+<<<<<<< HEAD
             e.printStackTrace();
+=======
+            System.out.println(e);
+>>>>>>> 5a2a7ab... master
         }
     }
 
@@ -108,7 +116,11 @@ public class Pathfinder{
                 }
             }
         }catch(Exception e) {
+<<<<<<< HEAD
             e.printStackTrace();
+=======
+            System.out.println(e);
+>>>>>>> 5a2a7ab... master
         }
     }
 
@@ -117,7 +129,11 @@ public class Pathfinder{
         try{
             return Nodes[x1][y1][x2][y2];
         }catch(Exception e) {
+<<<<<<< HEAD
             e.printStackTrace();
+=======
+            System.out.println(e);
+>>>>>>> 5a2a7ab... master
             return null;
         }
     }
@@ -126,7 +142,11 @@ public class Pathfinder{
         try {
             return getNode(loc1.x, loc1.y, loc2.x, loc2.y);
         } catch (Exception e) {
+<<<<<<< HEAD
             e.printStackTrace();
+=======
+            System.out.println(e);
+>>>>>>> 5a2a7ab... master
             return null;
         }
     }

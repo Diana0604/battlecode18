@@ -38,7 +38,11 @@ public class ConstructionQueue {
         try {
             return needed[typeToInt(type)];
         }catch(Exception e) {
+<<<<<<< HEAD
             e.printStackTrace();
+=======
+            System.out.println(e);
+>>>>>>> 5a2a7ab... master
             return false;
         }
     }
@@ -47,7 +51,11 @@ public class ConstructionQueue {
         try {
             needed[typeToInt(type)] = b;
         }catch(Exception e) {
+<<<<<<< HEAD
             e.printStackTrace();
+=======
+            System.out.println(e);
+>>>>>>> 5a2a7ab... master
         }
     }
 
@@ -55,7 +63,11 @@ public class ConstructionQueue {
         try {
             requestUnit(type, true);
         }catch(Exception e) {
+<<<<<<< HEAD
             e.printStackTrace();
+=======
+            System.out.println(e);
+>>>>>>> 5a2a7ab... master
         }
     }
 

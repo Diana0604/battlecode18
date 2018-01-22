@@ -47,7 +47,11 @@ public class    Ranger {
             if (B.getType() == UnitType.Worker) return B;
             return B;
         }catch(Exception e) {
+<<<<<<< HEAD
             e.printStackTrace();
+=======
+            System.out.println(e);
+>>>>>>> 5a2a7ab... master
             return A;
         }
     }
@@ -69,7 +73,11 @@ public class    Ranger {
             }
             if (bestVictim != null) Wrapper.attack(unit, bestVictim);
         }catch(Exception e) {
+<<<<<<< HEAD
             e.printStackTrace();
+=======
+            System.out.println(e);
+>>>>>>> 5a2a7ab... master
         }
     }
 
@@ -85,7 +93,11 @@ public class    Ranger {
                 Explore.explore(unit);
             }
         }catch(Exception e) {
+<<<<<<< HEAD
             e.printStackTrace();
+=======
+            System.out.println(e);
+>>>>>>> 5a2a7ab... master
         }
     }
 
@@ -108,7 +120,11 @@ public class    Ranger {
             }
             return ans;
         }catch(Exception e) {
+<<<<<<< HEAD
             e.printStackTrace();
+=======
+            System.out.println(e);
+>>>>>>> 5a2a7ab... master
             return null;
         }
     }
@@ -122,18 +138,31 @@ public class    Ranger {
             }
             return getBestEnemy(unit.getMaplocation());
         }catch(Exception e) {
+<<<<<<< HEAD
             e.printStackTrace();
+=======
+            System.out.println(e);
+>>>>>>> 5a2a7ab... master
             return null;
         }
     }
 
     AuxMapLocation getBestEnemy(AuxMapLocation myLoc){
         try {
+<<<<<<< HEAD
             long minDist = INFL;
             AuxMapLocation target = null;
             for (int i = 0; i < Data.enemies.length; ++i) {
                 AuxMapLocation enemyLocation = Data.enemies[i].getMaplocation();
                 long d = enemyLocation.distanceSquaredTo(myLoc);
+=======
+            double minDist = INFL;
+            AuxMapLocation target = null;
+            for (int i = 0; i < Data.enemies.length; ++i) {
+                if (Data.enemies[i].getHealth() <= 0) continue;
+                AuxMapLocation enemyLocation = Data.enemies[i].getMaplocation();
+                double d = enemyLocation.distanceBFSTo(myLoc);
+>>>>>>> 5a2a7ab... master
                 if (d < minDist) {
                     minDist = d;
                     target = enemyLocation;
@@ -141,7 +170,11 @@ public class    Ranger {
             }
             return target;
         }catch(Exception e) {
+<<<<<<< HEAD
             e.printStackTrace();
+=======
+            System.out.println(e);
+>>>>>>> 5a2a7ab... master
             return null;
         }
     }

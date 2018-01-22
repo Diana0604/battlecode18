@@ -8,7 +8,7 @@ class Data {
     static Research research;
     static ResearchInfo researchInfo;
     static MarsPlanning marsPlanning;
-    static HashMap<MapLocation, Integer> karboniteAt;
+    static HashMap<Integer, Integer> karboniteAt;
     static Planet planet;
     static PlanetMap planetMap;
     static ConstructionQueue queue;
@@ -30,14 +30,16 @@ class Data {
     static private final int areaSize = 5;
     static private int[][] locToArea;
     static private final int maxMapSize = 50;
-    static private final Direction[] allDirs = {Direction.North, Direction.Northeast, Direction.East, Direction.Southeast, Direction.South, Direction.Southwest, Direction.West, Direction.Northwest, Direction.Center};
+    static final Direction[] allDirs = {Direction.North, Direction.Northeast, Direction.East, Direction.Southeast, Direction.South, Direction.Southwest, Direction.West, Direction.Northwest, Direction.Center};
 
     static Team myTeam;
     static Team enemyTeam;
 
     static Integer[] asteroidRounds;
-    static AsteroidStrike[] asteroidStrikes;
+    //static AsteroidStrike[] asteroidStrikes;
     private static AsteroidPattern asteroidPattern;
+    static AuxMapLocation[] asteroidLocations;
+    static Integer[] asteroidCarbo;
 
     private static int[][] dangerMatrix;
     private static final double enemyBaseValue = -5;
@@ -45,58 +47,107 @@ class Data {
     static final int exploreConstant = 1;
 
     static HashMap<Integer, Integer> allUnits;
-    static VecUnit enemyUnits, units;
     static HashSet<Integer> structures;
+
+    static int rangers;
+    static int healers;
+    static int workers;
+
+    static Integer karbonite;
+
+    static int[][] unitMap;
+    static int[][] karboMap;
+    static AuxUnit[] myUnits;
+    static AuxUnit[] enemies;
+    static boolean[][] accessible;
+
+    private static int[] healingPowers = {10, 12, 17, 17};
+    static int healingPower;
+    private static int[] buildingPowers = {5, 5, 6, 7, 10};
+    static int buildingPower;
+    private static int[] repairingPowers = {10, 10, 11, 12, 15};
+    static int repairingPower;
+    private static int[] harvestingPowers = {3, 4, 4, 4, 4};
+    static int harvestingPower;
+    private static int[] mageDamages = {60, 75, 90, 105, 105};
+    static int mageDMG;
+
+    static boolean canBuildRockets;
+
+
+
+    static int replicateCost = 30;
+
+    static HashSet<Integer> occupiedPositions;
+
+
+    static int getKarbonite(){
+        if (karbonite == null){
+            karbonite = (int)gc.karbonite();
+        }
+        return karbonite;
+    }
 
     static Integer encode(int i, int j){
         return i*maxMapSize+j;
     }
 
     static private MapLocation getAccesLocation(int xCenter, int yCenter){
-        MapLocation realCenter = new MapLocation(gc.planet(), xCenter, yCenter);
-        //TODO check apart from passable accessible from origin in earth
-        if(planetMap.isPassableTerrainAt(realCenter) > 0) return realCenter;
-        for(int i = 0; i < allDirs.length; ++i){
-            MapLocation fakeCenter = realCenter.add(allDirs[i]);
-            if(planetMap.isPassableTerrainAt(fakeCenter) > 0) return fakeCenter;
+        try {
+            MapLocation realCenter = new MapLocation(gc.planet(), xCenter, yCenter);
+            //TODO check apart from passable accessible from origin in earth
+            if (planetMap.isPassableTerrainAt(realCenter) > 0) return realCenter;
+            for (int i = 0; i < allDirs.length; ++i) {
+                MapLocation fakeCenter = realCenter.add(allDirs[i]);
+                if (planetMap.isPassableTerrainAt(fakeCenter) > 0) return fakeCenter;
+            }
+        }catch(Exception e) {
+            System.out.println(e);
         }
         return null;
     }
 
     private static void createGrid(){
-        currentArea = new HashMap<>();
-        exploreSizeX = W/areaSize;
-        exploreSizeY = H/areaSize;
-        double auxiliarX = (double)W/exploreSizeX;
-        double auxiliarY = (double)H/exploreSizeY;
-        exploreGrid = new double[exploreSizeX][exploreSizeY];
-        locToArea = new int[W][H];
-        areaToLocX = new int[exploreSizeX];
-        areaToLocY = new int[exploreSizeY];
-        for(int i = 0; i < exploreSizeX; ++i){
-            for(int j  = 0; j < exploreSizeY; ++j){
-                for(int x = (int)Math.floor(i*auxiliarX); x < Math.floor((i+1)*auxiliarX); ++x){
-                    for(int y = (int)Math.floor(j*auxiliarY); y < Math.floor((j+1)*auxiliarY); ++y){
-                        locToArea[x][y] = encode(i,j);
+        try {
+            currentArea = new HashMap<>();
+            exploreSizeX = W / areaSize;
+            exploreSizeY = H / areaSize;
+            double auxiliarX = (double) W / exploreSizeX;
+            double auxiliarY = (double) H / exploreSizeY;
+            exploreGrid = new double[exploreSizeX][exploreSizeY];
+            locToArea = new int[W][H];
+            areaToLocX = new int[exploreSizeX];
+            areaToLocY = new int[exploreSizeY];
+            for (int i = 0; i < exploreSizeX; ++i) {
+                for (int j = 0; j < exploreSizeY; ++j) {
+                    for (int x = (int) Math.floor(i * auxiliarX); x < Math.floor((i + 1) * auxiliarX); ++x) {
+                        for (int y = (int) Math.floor(j * auxiliarY); y < Math.floor((j + 1) * auxiliarY); ++y) {
+                            locToArea[x][y] = encode(i, j);
+                        }
                     }
+                    int xCenter = (int) Math.floor(i * auxiliarX) + areaSize / 2;
+                    int yCenter = (int) Math.floor(j * auxiliarY) + areaSize / 2;
+                    MapLocation centerArea = getAccesLocation(xCenter, yCenter);
+                    if (centerArea != null) {
+                        areaToLocX[i] = centerArea.getX();
+                        areaToLocY[j] = centerArea.getY();
+                        continue;
+                    }
+                    exploreGrid[i][j] = INF;
                 }
-                int xCenter = (int)Math.floor(i*auxiliarX) + areaSize/2;
-                int yCenter = (int)Math.floor(j*auxiliarY) + areaSize/2;
-                MapLocation centerArea = getAccesLocation(xCenter, yCenter);
-                if(centerArea != null) {
-                    areaToLocX[i] = centerArea.getX();
-                    areaToLocY[j] = centerArea.getY();
-                    continue;
-                }
-                exploreGrid[i][j] = INF;
             }
+        }catch(Exception e) {
+            System.out.println(e);
         }
     }
 
-    private static Integer locationToArea(MapLocation loc){
-        int x = loc.getX();
-        int y = loc.getY();
-        return locToArea[x][y];
+    private static Integer locationToArea(AuxMapLocation loc){
+        try {
+            return locToArea[loc.x][loc.y];
+        }catch(Exception e) {
+            System.out.println(e);
+            return null;
+        }
     }
 
     static int decodeX(Integer c){
@@ -108,146 +159,338 @@ class Data {
     }
 
     static void addExploreGrid(Integer area, double value) {
-        int x = decodeX(area);
-        int y = decodeY(area);
-        exploreGrid[x][y] += value;
+        try {
+            int x = decodeX(area);
+            int y = decodeY(area);
+            exploreGrid[x][y] += value;
+        }catch(Exception e) {
+            System.out.println(e);
+        }
     }
 
     private static void getLocationEnemyBase(){
-        VecUnit initialUnits = planetMap.getInitial_units();
-        for(int i = 0; i < initialUnits.size(); ++i){
-            Unit possibleEnemy = initialUnits.get(i);
-            if(possibleEnemy.team() == enemyTeam){
-                Integer enemyArea = locationToArea(possibleEnemy.location().mapLocation());
-                addExploreGrid(enemyArea, enemyBaseValue);
+        try {
+            VecUnit initialUnits = planetMap.getInitial_units();
+            for (int i = 0; i < initialUnits.size(); ++i) {
+                Unit possibleEnemy = initialUnits.get(i);
+                if (possibleEnemy.team() == enemyTeam) {
+                    Integer enemyArea = locationToArea((new AuxUnit(possibleEnemy)).getMaplocation());
+                    addExploreGrid(enemyArea, enemyBaseValue);
+                }
             }
+        }catch(Exception e) {
+            System.out.println(e);
         }
     }
 
+    //ToDo check
     static void initGame(GameController _gc){
-        gc = _gc;
+        try {
+            gc = _gc;
 
-        round = 1;
-        aggro = false;
-        Research.initialize(gc);
-        research = Research.getInstance();
-        research.yolo();
-        researchInfo = gc.researchInfo();
+            round = 1;
+            aggro = false;
 
-        MarsPlanning.initialize(gc); //calcula els asteroids
-        marsPlanning = MarsPlanning.getInstance();
-        asteroidPattern = gc.asteroidPattern();
+            research = Research.getInstance();
+            research.yolo();
+            researchInfo = gc.researchInfo();
+            canBuildRockets = false;
 
-        planet = gc.planet();
-        planetMap = gc.startingMap(planet);
+            //MarsPlanning.initialize(gc); //calcula els asteroids
+            marsPlanning = MarsPlanning.getInstance();
+            asteroidPattern = gc.asteroidPattern();
 
-        W = (int)planetMap.getWidth();
-        H = (int)planetMap.getHeight();
-        mapCenter = new MapLocation(gc.planet(), W/2, H/2);
-        maxRadius = mapCenter.distanceSquaredTo(new MapLocation(gc.planet(), 0, 0));
+            planet = gc.planet();
+            planetMap = gc.startingMap(planet);
 
-        karboniteAt = new HashMap<MapLocation, Integer>();
+            W = (int) planetMap.getWidth();
+            H = (int) planetMap.getHeight();
+            mapCenter = new MapLocation(gc.planet(), W / 2 + 1, H / 2 + 1);
+            maxRadius = mapCenter.distanceSquaredTo(new MapLocation(gc.planet(), 0, 0));
 
-        queue = new ConstructionQueue();
+            karboniteAt = new HashMap<Integer, Integer>(); //filled in pathfinder
 
-        createGrid();
+            queue = new ConstructionQueue();
 
+            WorkerUtil.workerActions = new int[W][H];
 
-        myTeam = gc.team();
-        if(myTeam == Team.Blue) enemyTeam = Team.Red;
-        else enemyTeam = Team.Blue;
-        //danger matrix TODO implementation
-        dangerMatrix = new int[W][H];
-        //get location of enemy base
-        getLocationEnemyBase();
+            createGrid();
+
+            Explore.initialize();
+
+            myTeam = gc.team();
+            if (myTeam == Team.Blue) enemyTeam = Team.Red;
+            else enemyTeam = Team.Blue;
+            //danger matrix TODO implementation
+            dangerMatrix = new int[W][H];
+            //get location of enemy base
+            getLocationEnemyBase();
+
+        }catch(Exception e) {
+            System.out.println(e);
+        }
+    }
+
+    static AuxMapLocation toLocation(int x){
+        try {
+            return new AuxMapLocation(x >> 12, x & 0xFFF);
+        }catch(Exception e) {
+            System.out.println(e);
+            return null;
+        }
+    }
+
+    static void putValue(int x, int y, int v){
+        try {
+            int encoding = encodeOcc(x, y);
+            karboniteAt.put(encoding, v);
+        }catch(Exception e) {
+            System.out.println(e);
+        }
+    }
+
+    static Integer getValue(AuxMapLocation mloc){
+        try {
+            int encoding = encodeOcc(mloc.x, mloc.y);
+            return karboniteAt.get(encoding);
+        }catch(Exception e) {
+            System.out.println(e);
+            return 0;
+        }
     }
 
 
-    private static void updateMines(){
-        Iterator<HashMap.Entry<MapLocation,Integer> > it = karboniteAt.entrySet().iterator();
-        while (it.hasNext()){
-            HashMap.Entry<MapLocation, Integer> entry = it.next();
-            MapLocation location = entry.getKey();
-            int value = entry.getValue();
-            if (gc.canSenseLocation(location)){
-                long quant = gc.karboniteAt(location);
-                if (quant > INF) quant = INF;
-                if (quant > 0){
-                    if (quant != value) karboniteAt.put(location, (int) quant);
-                }else it.remove();
+    private static void updateMines() {
+        try {
+            Iterator<HashMap.Entry<Integer, Integer>> it = karboniteAt.entrySet().iterator();
+            while (it.hasNext()) {
+                HashMap.Entry<Integer, Integer> entry = it.next();
+                AuxMapLocation location = toLocation(entry.getKey());
+                MapLocation mapLocation = new MapLocation(planet, location.x, location.y);
+                int value = entry.getValue();
+                if (gc.canSenseLocation(mapLocation)) {
+                    long quant = gc.karboniteAt(mapLocation);
+                    if (quant > INF) quant = INF;
+                    if (quant > 0) {
+                        if (quant != value) putValue(location.x, location.y, (int) quant);
+                    } else it.remove();
+                }
+                //else karboMap[location.x][location.y] = karboniteAt.get(location);
+                /*
+                AuxUnit unitOnKarbo = getUnit(location.x,location.y,false);
+                if (unitOnKarbo == null) unitOnKarbo = getUnit(location.x, location.y, true);
+                if (unitOnKarbo != null){
+                    if (unitOnKarbo.getType() == UnitType.Factory || unitOnKarbo.getType() == UnitType.Rocket)
+                        karboMap[location.x][location.y] = 0;
+                }*/
             }
-        }
 
-        if (planet == Planet.Earth) return;
-        if (!asteroidPattern.hasAsteroid(round)) return;
-        AsteroidStrike strike = asteroidPattern.asteroid(round);
-        MapLocation loc = strike.getLocation();
-        int karbonite = (int) strike.getKarbonite();
-        karboniteAt.put(loc,karbonite);
+            if (planet == Planet.Earth) return;
+            if (!asteroidPattern.hasAsteroid(round)) return;
+            AsteroidStrike strike = asteroidPattern.asteroid(round);
+            AuxMapLocation loc = new AuxMapLocation(strike.getLocation());
+            int karbonite = (int) strike.getKarbonite();
+            if (!karboniteAt.containsKey(encodeOcc(loc.x, loc.y))) putValue(loc.x, loc.y, karbonite);
+            else putValue(loc.x, loc.y, karboniteAt.get(encodeOcc(loc.x, loc.y)) + karbonite);
+        } catch (Exception e) {
+            System.out.println(e);
+        }
     }
 
 
     private static void updateCurrentArea(){
-        for(int i = 0; i < units.size(); ++i){
-            Unit unit = units.get(i);
-            if(unit.location().isInGarrison()) continue;
-            int id = unit.id();
-            Integer current = locationToArea(unit.location().mapLocation());
-            if(currentArea.containsKey(id) && currentArea.get(id) == current) continue;
-            currentArea.put(id,current);
-            addExploreGrid(current,exploreConstant);
+        try {
+            for (int i = 0; i < myUnits.length; ++i) {
+                AuxUnit unit = myUnits[i];
+                if (unit.isInGarrison()) continue;
+                Integer current = locationToArea(unit.getMaplocation());
+                if (currentArea.containsKey(unit.getID()) && currentArea.get(unit.getID()) == current) continue;
+                currentArea.put(unit.getID(), current);
+                addExploreGrid(current, exploreConstant);
+            }
+        }catch(Exception e) {
+            System.out.println(e);
         }
     }
 
 
-    private static void checkMyUnits(){
-        allUnits = new HashMap<>();
-        structures = new HashSet<>();
-        int MIN_KARBONITE_FOR_FACTORY = 200;
-        int INITIAL_FACTORIES = 3;
-        int factories = 0;
-        boolean rocketBuilt = false;
-        boolean workerBuilt = false;
-        for (int i = 0; i < units.size(); i++){
-            Unit u = units.get(i);
-            allUnits.put(u.id(), i);
-            UnitType type = u.unitType();
-            if (type == UnitType.Factory){
-                factories++;
-                structures.add(i);
-            }else if (type == UnitType.Rocket){
-                rocketBuilt = true;
-                structures.add(i);
-            }else if (type == UnitType.Worker && !u.location().isInGarrison()) workerBuilt = true;
+    private static void checkMyUnits() {
+        try {
+            allUnits = new HashMap<>();
+            structures = new HashSet<>();
+            rangers = 0;
+            healers = 0;
+            workers = 0;
+            int MIN_KARBONITE_FOR_FACTORY = 200;
+            int INITIAL_FACTORIES = 3;
+            int factories = 0;
+            boolean rocketBuilt = false;
+            boolean workerBuilt = false;
+            for (int i = 0; i < myUnits.length; i++) {
+                AuxUnit u = myUnits[i];
+                allUnits.put(u.getID(), i);
+                UnitType type = u.getType();
+                if (type == UnitType.Factory) {
+                    factories++;
+                    structures.add(i);
+                } else if (type == UnitType.Rocket) {
+                    rocketBuilt = true;
+                    structures.add(i);
+                } else if (type == UnitType.Worker) {
+                    if (!u.isInGarrison()) workerBuilt = true;
+                    ++workers;
+                } else if (type == UnitType.Ranger) {
+                    ++rangers;
+                } else if (type == UnitType.Healer) {
+                    ++healers;
+                }
+            }
+
+            if (factories < 1 || (factories < 2 && getKarbonite() >= 120) || (factories < 3 && getKarbonite() >= 150) || getKarbonite() >= 200)
+                queue.requestUnit(UnitType.Factory);
+            else queue.requestUnit(UnitType.Factory, false);
+
+            if (!rocketBuilt && researchInfo.getLevel(UnitType.Rocket) > 0) { // aixo es super cutre, canviar!
+                queue.requestUnit(UnitType.Rocket);
+            }
+            if (!workerBuilt) queue.requestUnit(UnitType.Worker);
+            //System.out.println(round + " Factory requested: " + queue.needsUnit(UnitType.Factory));
+        }catch(Exception e) {
+            System.out.println(e);
         }
-        if (factories < INITIAL_FACTORIES || gc.karbonite() > MIN_KARBONITE_FOR_FACTORY) queue.requestUnit(UnitType.Factory);
-        if (!rocketBuilt && units.size() > 8 && gc.researchInfo().getLevel(UnitType.Rocket) > 0) { // aixo es super cutre, canviar!
-            queue.requestUnit(UnitType.Rocket);
-        }
-        if (!workerBuilt) queue.requestUnit(UnitType.Worker);
-        //System.out.println(round + " Factory requested: " + queue.needsUnit(UnitType.Factory));
     }
 
 
-    static void initTurn(){
-        round++;
-        //check enemy units
-        enemyUnits = gc.senseNearbyUnitsByTeam(mapCenter, maxRadius, enemyTeam);
-        units = gc.myUnits();
-        //check mines
-        updateMines();
-        //update areas explored
-        updateCurrentArea();
-        //comprova si ha de construir factory o rocket
-        checkMyUnits();
-        Rocket.initTurn();
-
-        researchInfo = gc.researchInfo();
-
-        Danger.updateAttackers();
-        if (!aggro && gc.researchInfo().getLevel(UnitType.Ranger) > 1) aggro = true;
+    static AuxUnit getUnit(int x, int y, boolean myTeam){
+        try {
+            if (x < 0 || x >= W) return null;
+            if (y < 0 || y >= H) return null;
+            int i = unitMap[x][y];
+            if (myTeam) {
+                if (i > 0) return myUnits[i - 1];
+                return null;
+            }
+            if (i < 0) return enemies[-(i + 1)];
+        }catch(Exception e) {
+            System.out.println(e);
+            return null;
+        }
+        return null;
     }
 
+    static boolean isOccupied(int x, int y){
+        try {
+            return unitMap[x][y] != 0;
+        }catch(Exception e) {
+            System.out.println(e);
+            return true;
+        }
+    }
 
+    static boolean isOccupied(AuxMapLocation location){
+        try {
+            return isOccupied(location.x, location.y);
+        }catch(Exception e) {
+            System.out.println(e);
+            return true;
+        }
+    }
+
+    static void initTurn() {
+        try {
+            occupiedPositions = new HashSet<>();
+            round++;
+            unitMap = new int[W][H];
+            for (int i = 0; i < W; ++i) {
+                for (int j = 0; j < H; ++j) unitMap[i][j] = 0; //ToDO really needed?
+            }
+            karboMap = new int[W][H];
+            //check enemy units
+            VecUnit enemyUnits = gc.senseNearbyUnitsByTeam(mapCenter, maxRadius, enemyTeam);
+            enemies = new AuxUnit[(int) enemyUnits.size()];
+            for (int i = 0; i < enemies.length; ++i) {
+                enemies[i] = new AuxUnit(enemyUnits.get(i));
+                unitMap[enemies[i].getX()][enemies[i].getY()] = -(i + 1);
+            }
+            VecUnit units = gc.myUnits();
+            myUnits = new AuxUnit[(int) units.size()];
+            for (int i = 0; i < myUnits.length; ++i) {
+                myUnits[i] = new AuxUnit(units.get(i));
+                if (!myUnits[i].isInGarrison()) unitMap[myUnits[i].getX()][myUnits[i].getY()] = i + 1;
+            }
+            researchInfo = gc.researchInfo();
+            karbonite = null;
+            //check mines
+            updateMines();
+            for (int i = 0; i < W; ++i) {
+                for (int j = 0; j < H; ++j) karboMap[i][j] = 0;
+            }
+            for (Integer a : karboniteAt.keySet()) {
+                AuxMapLocation mloc = toLocation(a);
+                karboMap[mloc.x][mloc.y] = karboniteAt.get(a);
+            }
+            //update areas explored
+            updateCurrentArea();
+            //comprova si ha de construir factory o rocket
+            checkMyUnits();
+
+            Rocket.initTurn();
+
+
+            Danger.updateAttackers();
+            if (!aggro && researchInfo.getLevel(UnitType.Ranger) > 1) aggro = true;
+
+            int workerLevel = (int) researchInfo.getLevel(UnitType.Worker);
+            int healerLevel = (int) researchInfo.getLevel(UnitType.Healer);
+            int rocketLevel = (int) researchInfo.getLevel(UnitType.Rocket);
+            int mageLevel = (int) researchInfo.getLevel(UnitType.Mage);
+            buildingPower = buildingPowers[workerLevel];
+            repairingPower = repairingPowers[workerLevel];
+            harvestingPower = harvestingPowers[workerLevel];
+            healingPower = healingPowers[healerLevel];
+            mageDMG = mageDamages[mageLevel];
+            if (rocketLevel > 0) canBuildRockets = true;
+
+            WorkerUtil.fillWorkerActions();
+
+            //if (Data.round >= 746) printData();
+        }catch(Exception e) {
+            System.out.println(e);
+        }
+    }
+
+    static void printData(){
+        try {
+            for (int i = 0; i < H; ++i) {
+                for (int j = 0; j < H; ++j) {
+                    if (unitMap[i][j] > 0) System.err.print("1");
+                    else if (unitMap[i][j] < 0) System.err.print("2");
+                    else System.err.print("0");
+                }
+                System.err.println();
+            }
+        }catch(Exception e) {
+            System.out.println(e);
+        }
+    }
+
+    public static boolean onEarth(){ return planet == Planet.Earth;}
+
+    public static boolean onMars(){ return planet == Planet.Mars;}
+
+    public static boolean onTheMap(AuxMapLocation location){
+        try {
+            int x = location.x;
+            int y = location.y;
+            return x >= 0 && x < W && y >= 0 && y < H;
+        }catch(Exception e) {
+            System.out.println(e);
+            return false;
+        }
+    }
+
+    static int encodeOcc(int x, int y){
+        return ((x << 12) | y);
+    }
 
 }

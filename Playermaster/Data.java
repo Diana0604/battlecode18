@@ -55,6 +55,7 @@ class Data {
     static int rangers;
     static int healers;
     static int workers;
+    static int knights;
 
     static Integer karbonite;
 
@@ -322,6 +323,7 @@ class Data {
             rangers = 0;
             healers = 0;
             workers = 0;
+            knights = 0;
             int MIN_KARBONITE_FOR_FACTORY = 200;
             int INITIAL_FACTORIES = 3;
             int factories = 0;
@@ -344,6 +346,8 @@ class Data {
                     ++rangers;
                 } else if (type == UnitType.Healer) {
                     ++healers;
+                } else if (type == UnitType.Knight) {
+                    ++knights;
                 }
             }
 

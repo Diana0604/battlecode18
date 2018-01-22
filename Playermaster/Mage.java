@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Mage {
-    final int min_group = 3;
+    final int min_group = 2;
     final long INFL = 1000000000;
     static Mage instance = null;
     AuxMapLocation bestEnemy;
@@ -151,8 +151,10 @@ public class Mage {
             for (int i = 0; i < 9; ++i) {
                 if (!unit.canMove() && i != 8) continue;
                 MageMovement m = new MageMovement(origin.add(i), i, true);
-                if (Wrapper.isAccessible(unit.getMaplocation().add(i))) firstMoves.add(m);
-                myMoves[3 + m.mloc.x][3 + m.mloc.y] = true;
+                if (Wrapper.isAccessible(unit.getMaplocation().add(i))){
+                    firstMoves.add(m);
+                    myMoves[3 + m.mloc.x][3 + m.mloc.y] = true;
+                }
             }
             for (int i = -2; i <= 2; ++i) {
                 for (int j = -2; j <= 2; ++j) {
@@ -363,7 +365,7 @@ public class Mage {
 
         public int computeValue() {
             AuxMapLocation finalLoc = unit.getMaplocation().add(dir).add(mloc);
-            if (expandedTargetArray[finalLoc.x][finalLoc.y] <= min_group) return 0;
+            if (expandedTargetArray[finalLoc.x][finalLoc.y] < min_group) return 0;
             int mostenemies = 0;
             for (int j = 0; j < Vision.Mx[30].length; ++j) {
                 AuxMapLocation newLoc = finalLoc.add(new AuxMapLocation(Vision.Mx[30][j], Vision.My[30][j]));

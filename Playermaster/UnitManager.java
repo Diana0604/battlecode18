@@ -46,7 +46,7 @@ class UnitManager{
                 if (unit.getType() == UnitType.Factory) {
                     Factory.getInstance().play(unit);
                 }
-                if (unit.getType() == UnitType.Ranger) {
+                if (unit.getType() == UnitType.Ranger || unit.getType() == UnitType.Knight) { //LOLZ
                     Ranger.getInstance().play(unit);
                 }
                 if (unit.getType() == UnitType.Rocket) {

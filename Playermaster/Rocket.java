@@ -1,4 +1,5 @@
 import bc.Planet;
+import bc.UnitType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -100,25 +101,49 @@ public class Rocket {
         return sorted;
     }
 
+    private boolean hasWorker(AuxUnit unit) {
+        for (int id:unit.getGarrisonUnits()) {
+            if (Data.myUnits[Data.allUnits.get(id)].getType() == UnitType.Worker) return true;
+        }
+        return false;
+    }
+
     private void aSopar(AuxUnit unit, ArrayList<Pair> sorted) {
         // cridar els que faltin
         int remaining = Data.rocketCapacity - unit.getGarrisonUnits().size();
+        boolean hasWorker = hasWorker(unit);
         for (int i = 0; i < sorted.size(); ++i) {
             if (remaining == 0) break;
             AuxUnit unit_i = sorted.get(i).unit;
             if (!callsToRocket.containsKey(unit_i.getID())) {
-                callsToRocket.put(unit_i.getID(), unit.getMaplocation());
-                remaining--;
+                if (unit_i.getType() == UnitType.Worker) {
+                    if (!hasWorker) {
+                        callsToRocket.put(unit_i.getID(), unit.getMaplocation());
+                        remaining--;
+                        hasWorker = true;
+                    }
+                }
+                else {
+                    callsToRocket.put(unit_i.getID(), unit.getMaplocation());
+                    remaining--;
+                }
             }
         }
     }
 
     private void loadRobots(AuxUnit unit, ArrayList<Pair> sorted) {
+        boolean hasWorker = hasWorker(unit);
         for (Pair p:sorted) {
             if (p.dist > 2 || unit.getGarrisonUnits().size() == Data.rocketCapacity) break;
             AuxUnit unit_i = p.unit;
             if (Wrapper.canLoad(unit, unit_i)) {
-                Wrapper.load(unit, unit_i);
+                if (unit_i.getType() == UnitType.Worker) {
+                    if (!hasWorker) {
+                        Wrapper.load(unit, unit_i);
+                        hasWorker = true;
+                    }
+                }
+                else Wrapper.load(unit, unit_i);
             }
         }
     }

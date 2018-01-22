@@ -4,11 +4,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 
-// segons els parametres de les orbites, hi haura un moment que ja no es podra arribar a mart. Si aquest moment es abans
-// del torn 750, hauriem d'anar amb compte amb aixo, perque tot lo que es quedi a la terra a partir d'aquell moment es
-// inutil
-// TODO: tenir en compte aixo ^
-
 public class MarsPlanning{
 
     static MarsPlanning instance;
@@ -164,6 +159,18 @@ public class MarsPlanning{
         return ret;
     }
 
+    private void addKarboCC(double[] karbo_cc, AuxMapLocation loc, double value) {
+        boolean[] seen_cc = new boolean[ccs+1];
+        for (int d = 0; d < 8; ++d) {
+            AuxMapLocation newLoc = loc.add(d);
+            if (!isOnMars(newLoc)) continue;
+            int comp = cc[newLoc.x][newLoc.y];
+            if (comp < 0) continue;
+            if (!seen_cc[comp]) karbo_cc[comp] += value;
+            seen_cc[comp] = true;
+        }
+    }
+
     private void addPriority(double[][] priority, AuxMapLocation initLoc, int depth, double value, boolean addValueToAdj, boolean addValueToCenter) {
         if (addValueToCenter) priority[initLoc.x][initLoc.y] += value;
         HashSet<Integer> seen = new HashSet<>();
@@ -183,7 +190,7 @@ public class MarsPlanning{
                 if (seen.contains(newLoc.x << 6 | newLoc.y)) continue;
                 seen.add(newLoc.x << 6 | newLoc.y);
                 queue.add(newLoc);
-                if (addValueToAdj || dist > 2) priority[newLoc.x][newLoc.y] += value;
+                if (addValueToAdj || dist > 2) priority[newLoc.x][newLoc.y] += value*(depth-dist)/depth;
             }
         }
     }
@@ -201,6 +208,7 @@ public class MarsPlanning{
          */
 
         double[][] priority = new double[W][H];
+        double[] karbo_cc = new double[ccs+1];
         for (int i = 0; i < Data.asteroidRounds.length; ++i) {
             int round_i = Data.asteroidRounds[i];
             if (round_i-round > 50) break;
@@ -209,17 +217,24 @@ public class MarsPlanning{
             double value = (double)Data.asteroidCarbo[i] / ((double)rocketsInAdjCCs+1);
             boolean addValueToAdj = passable[loc.x][loc.y];
             addPriority(priority, loc, DEPTH, value, addValueToAdj, false);
+            addKarboCC(karbo_cc, loc, 100*value);
         }
         for (AuxMapLocation loc:Rocket.rocketLandingsLocs) {
             double value = priority[loc.x][loc.y];
             addPriority(priority, loc, DEPTH*2, -value, true, true);
+            priority[loc.x][loc.y] = -10000;
         }
 
         AuxMapLocation bestLoc = null;
+        double best_priority = 0;
         for (int x = 0; x < W; ++x) {
             for (int y = 0; y < H; ++y) {
                 if (bestLoc == null) bestLoc = new AuxMapLocation(x, y);
-                if (priority[x][y] > priority[bestLoc.x][bestLoc.y]) bestLoc = new AuxMapLocation(x, y);
+                double priority_xy = priority[x][y] + karbo_cc[cc[x][y]];
+                if (priority_xy > best_priority){
+                    best_priority = priority_xy;
+                    bestLoc = new AuxMapLocation(x, y);
+                }
             }
         }
         return bestLoc;

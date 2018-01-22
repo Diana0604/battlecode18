@@ -2,6 +2,7 @@ import bc.*;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 
 class Data {
     static GameController gc;
@@ -9,6 +10,8 @@ class Data {
     static ResearchInfo researchInfo;
     static MarsPlanning marsPlanning;
     static HashMap<Integer, Integer> karboniteAt;
+    static HashMap<Integer, Integer> asteroidTasksLocs; //karbo location -> ID worker assignat
+    static HashMap<Integer, Integer> asteroidTasksIDs;  //ID worker -> karbo location assignada
     static Planet planet;
     static PlanetMap planetMap;
     static ConstructionQueue queue;
@@ -46,7 +49,7 @@ class Data {
     static boolean aggro;
     static final int exploreConstant = 1;
 
-    static HashMap<Integer, Integer> allUnits;
+    static HashMap<Integer, Integer> allUnits; //allUnits.get(id) = index de myUnits
     static HashSet<Integer> structures;
     static HashMap<Integer, Integer> blueprintsToPlace;
     static HashMap<Integer, Integer> blueprintsToBuild;
@@ -61,7 +64,7 @@ class Data {
 
     static int[][] unitMap;
     static int[][] karboMap;
-    static AuxUnit[] myUnits;
+    static AuxUnit[] myUnits; //myUnits[i] retorna una unit random meva
     static AuxUnit[] enemies;
     static boolean[][] accessible;
 
@@ -215,6 +218,8 @@ class Data {
             maxRadius = mapCenter.distanceSquaredTo(new MapLocation(gc.planet(), 0, 0));
 
             karboniteAt = new HashMap<>(); //filled in pathfinder
+            asteroidTasksLocs = new HashMap<>();
+            asteroidTasksIDs = new HashMap<>();
 
             queue = new ConstructionQueue();
 
@@ -291,6 +296,13 @@ class Data {
 
             //mars stuff
             if (planet == Planet.Earth) return;
+            Iterator<Map.Entry<Integer, Integer>> it2 = asteroidTasksIDs.entrySet().iterator();
+            while (it2.hasNext()) {
+                //esborra workers morts del hashmap
+                Map.Entry<Integer, Integer> entry = it2.next();
+                int assignedID = entry.getKey();
+                if (!Data.allUnits.containsKey(assignedID)) it2.remove();
+            }
             if (!asteroidPattern.hasAsteroid(round)) return;
             AsteroidStrike strike = asteroidPattern.asteroid(round);
             AuxMapLocation loc = new AuxMapLocation(strike.getLocation());
@@ -298,12 +310,29 @@ class Data {
             for (int i = 0; i < 8; i++){
                 //si el meteorit cau al mig de la muntanya, suda d'afegir-lo
                 AuxMapLocation adjLoc = loc.add(i);
-                if (adjLoc.isOnMap() && accessible[loc.x][loc.y]) canAccess = true;
+                if (adjLoc.isOnMap() && accessible[adjLoc.x][adjLoc.y]) canAccess = true;
             }
             if (!canAccess) return;
+            asteroidTasksLocs.put(encodeOcc(loc.x, loc.y), -1);
             int karbonite = (int) strike.getKarbonite();
-            if (!karboniteAt.containsKey(encodeOcc(loc.x, loc.y))) putValue(loc.x, loc.y, karbonite);
-            else putValue(loc.x, loc.y, karboniteAt.get(encodeOcc(loc.x, loc.y)) + karbonite);
+            if (karboniteAt.containsKey(encodeOcc(loc.x, loc.y)))
+                putValue(loc.x, loc.y, karboniteAt.get(encodeOcc(loc.x, loc.y)) + karbonite);
+            else putValue(loc.x, loc.y, karbonite);
+
+            System.out.println("");
+            System.out.println("====================== TASK ARRAY " + round + " ====================== ");
+            for (Map.Entry<Integer,Integer> entry: asteroidTasksLocs.entrySet()){
+                AuxMapLocation l = toLocation(entry.getKey());
+                int id = entry.getValue();
+                System.out.println("Location " + l.x + "," + l.y + " has worker " + id);
+            }
+            System.out.println("");
+            for (Map.Entry<Integer,Integer> entry: asteroidTasksIDs.entrySet()){
+                int id = entry.getKey();
+                AuxMapLocation l = toLocation(entry.getValue());
+                System.out.println("Worker " + id + " has location " + l.x + "," + l.y);
+            }
+            System.out.println("");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -312,8 +341,7 @@ class Data {
 
     private static void updateCurrentArea(){
         try {
-            for (int i = 0; i < myUnits.length; ++i) {
-                AuxUnit unit = myUnits[i];
+            for (AuxUnit unit : myUnits) {
                 if (unit.isInGarrison()) continue;
                 Integer current = locationToArea(unit.getMaplocation());
                 if (currentArea.containsKey(unit.getID()) && currentArea.get(unit.getID()) == current) continue;

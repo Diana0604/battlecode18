@@ -1,7 +1,10 @@
+import bc.Planet;
 import bc.UnitType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 public class Worker {
 
@@ -77,6 +80,11 @@ public class Worker {
     }
 
     private boolean shouldReplicate(){
+        if (Data.onEarth()) return shouldReplicateEarth();
+        else return shouldReplicateMars();
+    }
+
+    private boolean shouldReplicateEarth(){
         try {
             if (danger) return false;
             int nb_actions = WorkerUtil.getWorkerActions(unit.getMaplocation(), 30);
@@ -88,9 +96,24 @@ public class Worker {
         }
     }
 
+    private boolean shouldReplicateMars(){
+        if (Data.round > 750) return true;
+        if (Data.getKarbonite() > 120) return true;
+        if (Data.karbonite < 40) return false; //no se si aixo va be o no
+        HashMap<Integer, Integer> tasks = Data.asteroidTasksLocs;
+        HashMap<Integer, Integer> karboAt = Data.karboniteAt;
+        for(Integer encoding: karboAt.keySet()){
+            if (!tasks.containsKey(encoding)) continue; //no hauria de passar mai pero just in case
+            int assignedID = tasks.get(encoding);
+            if (!Data.allUnits.containsKey(assignedID)) return true; //ha trobat una mina sense assignar, crea worker per enviar-li
+        }
+        return false;
+    }
+
     //Intenta reparar o construir una structure adjacent
     private boolean tryBuildAndRepair(){
         try {
+            if (Data.onMars()) return false;
             int minDif = 1000;
             int minDifIndex = -1;
             int minHP = 1000;
@@ -134,6 +157,7 @@ public class Worker {
     //Posen un blueprint en una posicio adjacent (aixo s'ha de canviar quan ho fem global)
     private boolean tryPlaceBlueprint(){
         try {
+            if (Data.onMars()) return false;
             if (danger) return false;
             UnitType type = null;
             if (Data.researchInfo.getLevel(UnitType.Rocket) > 0 && Data.queue.needsUnit(UnitType.Rocket))
@@ -178,6 +202,11 @@ public class Worker {
     /*-------------- MOVEMENT ---------------*/
 
     void move(){
+        if(Data.onEarth()) moveEarth();
+        else moveMars();
+    }
+
+    private void moveEarth(){
         try {
             if (!unit.canMove()) return;
 
@@ -206,6 +235,87 @@ public class Worker {
             MovementManager.getInstance().moveTo(unit, dest);
 
         }catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    void moveMars(){
+        try{
+            if (!unit.canMove()) return;
+            //asteroidTasks.get(positiu) retorna el worker assignat a la location codificada
+            //asteroidTasks.get(negatiu) retorna la location assignada al worker amb id -negatiu
+            HashMap<Integer, Integer> tasksLocs = Data.asteroidTasksLocs;
+            HashMap<Integer, Integer> tasksIDs = Data.asteroidTasksIDs;
+            AuxMapLocation destination;
+            int id = unit.getID();
+            if (tasksIDs.containsKey(id)){
+                //si ja tinc mina assignada, hi vaig
+                int encoding = tasksIDs.get(id);
+                AuxMapLocation location = Data.toLocation(encoding);
+                if (!location.isOnMap()){
+                    System.out.println("Location " + location.x + "," + location.y + " out of map. Encoding " + encoding);
+                    return;
+                }
+                if (!Data.karboniteAt.containsKey(encoding)){
+                    //si la mina ja esta buida, trec la task
+                    System.out.println(Data.round + " worker " + id + " removes mine " + location.x + "," + location.y);
+                    tasksLocs.remove(encoding);
+                    tasksIDs.remove(id);
+                }
+                destination = location;
+                MovementManager.getInstance().moveTo(unit, destination);
+            }else {
+                double minDist = 100000000;
+                AuxMapLocation minLoc = null;
+                for (Map.Entry<Integer, Integer> entry : tasksLocs.entrySet()) {
+                    AuxMapLocation loc = Data.toLocation(entry.getKey());
+                    int assignedID = entry.getValue();
+                    if (Data.allUnits.containsKey(assignedID)) continue; //si ja esta assignada suda
+                    //if (assignedID != -1) continue;
+                    double dist = unit.getMaplocation().distanceBFSTo(loc);
+                    if (dist >= Pathfinder.INF) continue; //si no esta accessible
+                    if (dist < minDist) {
+                        minDist = dist;
+                        minLoc = loc;
+                    }
+                }
+                if (minLoc == null){
+                    //si no queda cap mina accessible per assignar, va a la mes propera
+                    minDist = 100000000;
+                    minLoc = null;
+                    for (Integer encoding : tasksLocs.keySet()) {
+                        AuxMapLocation loc = Data.toLocation(encoding);
+                        if (!loc.isOnMap()){
+                            System.out.println("Location " + loc.x + "," + loc.y + " out of map. Encoding " + encoding);
+                            return;
+                        }
+                        double dist = unit.getMaplocation().distanceSquaredTo(loc);
+                        if (dist < minDist){
+                            minDist = dist;
+                            minLoc = loc;
+                        }
+                    }
+                    if (minLoc == null) destination = unit.getMaplocation();
+                    else destination = minLoc;
+                    MovementManager.getInstance().moveTo(unit, destination);
+                }else{
+                    //ha trobat una mina buida, se l'assigna
+                    int encoding = Data.encodeOcc(minLoc.x, minLoc.y);
+                    System.out.println(Data.round + " worker " + id + " s'assigna la mina " + minLoc.x + "," + minLoc.y + "   " + tasksLocs.get(encoding));
+                    tasksIDs.put(id, encoding);
+                    tasksLocs.put(encoding, id);
+                    destination = minLoc;
+                    MovementManager.getInstance().moveTo(unit, destination);
+                }
+            }
+            if (destination == null){
+                System.out.println(Data.round + " worker " + unit.getID() + " destination null!");
+                destination = unit.getMaplocation();
+            }
+            //AuxMapLocation l = Data.toLocation(Data.encodeOcc(destination.x, destination.y));
+            //System.out.println("Worker moves to position " + destination.x + "," + destination.y + "  //  " + l.x + "," + l.y);
+            //MovementManager.getInstance().moveTo(unit, destination);
+        }catch (Exception e){
             e.printStackTrace();
         }
     }

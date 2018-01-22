@@ -74,7 +74,7 @@ public class Mage {
     void play(AuxUnit _unit){
         unit = _unit;
         bestEnemy = getBestEnemy(unit.getMaplocation());
-        if (unit.canAttack() && (bestEnemy == null || bestEnemy.distanceSquaredTo(unit.getMaplocation()) < 90)){
+        if (bestEnemy == null || bestEnemy.distanceSquaredTo(unit.getMaplocation()) < 90){
             if (trySpecialMove()) return;
         }
         MageMove();
@@ -362,8 +362,8 @@ public class Mage {
         }
 
         public int computeValue() {
-            if (expandedTargetArray[mloc.x][mloc.y] <= min_group) return 0;
             AuxMapLocation finalLoc = unit.getMaplocation().add(dir).add(mloc);
+            if (expandedTargetArray[finalLoc.x][finalLoc.y] <= min_group) return 0;
             int mostenemies = 0;
             for (int j = 0; j < Vision.Mx[30].length; ++j) {
                 AuxMapLocation newLoc = finalLoc.add(new AuxMapLocation(Vision.Mx[30][j], Vision.My[30][j]));

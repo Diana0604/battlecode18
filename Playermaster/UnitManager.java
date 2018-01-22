@@ -55,6 +55,9 @@ class UnitManager{
                 if (unit.getType() == UnitType.Healer) {
                     Healer.getInstance().play(unit);
                 }
+                if (unit.getType() == UnitType.Mage) {
+                    Mage.getInstance().play(unit);
+                }
             }
         }catch(Exception e) {
             e.printStackTrace();

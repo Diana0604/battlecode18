@@ -164,7 +164,8 @@ public class MarsPlanning{
         return ret;
     }
 
-    private void addPriority(double[][] priority, AuxMapLocation initLoc, int depth, double value, boolean addValueToAdj) {
+    private void addPriority(double[][] priority, AuxMapLocation initLoc, int depth, double value, boolean addValueToAdj, boolean addValueToCenter) {
+        if (addValueToCenter) priority[initLoc.x][initLoc.y] += value;
         HashSet<Integer> seen = new HashSet<>();
         Queue<AuxMapLocation> queue = new LinkedList<>();
         seen.add(initLoc.x << 6 | initLoc.y);
@@ -207,11 +208,11 @@ public class MarsPlanning{
             int rocketsInAdjCCs = getRocketsInAdjCCs(loc);
             double value = (double)Data.asteroidCarbo[i] / ((double)rocketsInAdjCCs+1);
             boolean addValueToAdj = passable[loc.x][loc.y];
-            addPriority(priority, loc, DEPTH, value, addValueToAdj);
+            addPriority(priority, loc, DEPTH, value, addValueToAdj, false);
         }
         for (AuxMapLocation loc:Rocket.rocketLandingsLocs) {
             double value = priority[loc.x][loc.y];
-            addPriority(priority, loc, DEPTH*2, -value, true);
+            addPriority(priority, loc, DEPTH*2, -value, true, true);
         }
 
         AuxMapLocation bestLoc = null;

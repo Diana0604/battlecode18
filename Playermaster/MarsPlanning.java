@@ -1,6 +1,5 @@
 import bc.*;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -15,7 +14,6 @@ public class MarsPlanning{
 
     private final int AUX = 6;
     private final int base = 0x3F;
-    private final int DEPTH = 15;
     private final int[] X = {0, 1, 1, 1, 0, -1, -1, -1};
     private final int[] Y = {1, 1, 0, -1, -1, -1, 0, 1};
 
@@ -25,11 +23,13 @@ public class MarsPlanning{
     int[][] cc; // va entre [1,ccs]
     int ccs;
     int orbitPeriod;
-    boolean[][] passable;
 
     int[] arrivalTime = new int[1001];
     int[] departTime = new int[1001];
     int[] optimArrivalTime = new int[1001];
+
+    public static void initialize(GameController _gc){
+    }
 
     static MarsPlanning getInstance(){
         if (instance == null) instance = new MarsPlanning();
@@ -50,17 +50,18 @@ public class MarsPlanning{
         ccs = 0;
         for (int x = 0; x < W; ++x) {
             for (int y = 0; y < H; ++y) {
-                passable[x][y] = map.isPassableTerrainAt(new MapLocation(Planet.Mars, x, y)) == 0;
-                if (!passable[x][y]) cc[x][y] = -1;
+                //if (cc[x][y] != 0) continue;
+                if (map.isPassableTerrainAt(new MapLocation(Planet.Mars, x, y)) == 0) cc[x][y] = -1;
+                //else bfs(x, y);
             }
         }
+
         for (int x = 0; x < W; ++x) {
             for (int y = 0; y < H; ++y) {
                 if (cc[x][y] != 0) continue;
                 else bfs(x, y);
             }
         }
-        Rocket.rocketLandingsCcs = new int[ccs+1];
 
         // compute times from earth to mars
         OrbitPattern op = Data.gc.orbitPattern();
@@ -149,76 +150,38 @@ public class MarsPlanning{
         return true;
     }
 
-    private int getRocketsInAdjCCs(AuxMapLocation loc) {
-        int ret = 0;
-        boolean[] seen_cc = new boolean[ccs+1];
-        for (int d = 0; d < 8; ++d) {
-            AuxMapLocation newLoc = loc.add(d);
-            if (!isOnMars(newLoc)) continue;
-            int comp = cc[newLoc.x][newLoc.y];
-            if (comp < 0) continue;
-            if (!seen_cc[comp]) ret += Rocket.rocketLandingsCcs[comp];
-            seen_cc[comp] = true;
-        }
-        return ret;
-    }
-
-    private void addPriority(double[][] priority, AuxMapLocation initLoc, int depth, double value, boolean addValueToAdj) {
-        HashSet<AuxMapLocation> seen = new HashSet<>();
-        Queue<AuxMapLocation> queue = new LinkedList<>();
-        seen.add(initLoc);
-        queue.offer(initLoc);
-        while (!queue.isEmpty()) {
-            AuxMapLocation loc = queue.poll();
-            for (int d = 0; d < 8; ++d) {
-                AuxMapLocation newLoc = loc.add(d);
-                if (!isOnMars(newLoc)) continue;
-                if (!passable[newLoc.x][newLoc.y]) continue;
-                int dist = loc.distanceSquaredTo(newLoc);
-                if (dist > depth) continue;
-                if (seen.contains(newLoc)) continue;
-                seen.add(newLoc);
-                queue.offer(newLoc);
-                if (addValueToAdj || dist > 2) priority[newLoc.x][newLoc.y] += value;
-            }
-        }
-    }
-
     public AuxMapLocation bestPlaceForRound(int round) {
-        /**
-         * Per cada casella amb karbonite hauria de fer un bfs al voltant, amb una profunditat maxima
-         * A cada posicio de les que passi el bfs li dono una prioritat. Si la casella inicial era habitable, començo
-         * a donar prioritat a partir de les adjacents. Si la casella inicial no era habitable començo a donar prioritat
-         * a les que estan a distancia 2
-         * Per cada coet que ha caigut, redueixo la prioritat de les caselles al seu voltant. Tambe es pot fer amb bfs
-         * Al comptar la karbonite he de dividir-la entre el nombre de coets que han caigut a la seva cc (si toca mes
-         * d'una cc, compto els que han caigut a les dues)
-         *
-         */
 
-        double[][] priority = new double[W][H];
+        int[] ccKarbonite = new int[ccs+1];
+        int[][] locKarbonite = new int[W][H];
         for (int i = 0; i < Data.asteroidRounds.length; ++i) {
             int round_i = Data.asteroidRounds[i];
             if (round_i-round > 50) break;
             AuxMapLocation loc = Data.asteroidLocations[i];
-            int rocketsInAdjCCs = getRocketsInAdjCCs(loc);
-            double value = (double)Data.asteroidCarbo[i] / ((double)rocketsInAdjCCs+1);
-            boolean addValueToAdj = passable[loc.x][loc.y];
-            addPriority(priority, loc, DEPTH, value, addValueToAdj);
+            boolean[] seen_cc = new boolean[ccs+1];
+            for (int j = 0; j < 8; ++j) {
+                AuxMapLocation newLoc = loc.add(j);
+                if (!isOnMars(newLoc)) continue;
+                if (cc[newLoc.x][newLoc.y] < 0) continue;
+                int comp = cc[newLoc.x][newLoc.y];
+                if (!seen_cc[comp]) ccKarbonite[comp] += Data.asteroidCarbo[i];
+                seen_cc[comp] = true;
+                locKarbonite[newLoc.x][newLoc.y] += Data.asteroidCarbo[i];
+            }
         }
-        for (AuxMapLocation loc:Rocket.rocketLandingsLocs) {
-            double value = priority[loc.x][loc.y];
-            addPriority(priority, loc, DEPTH*2, -value, true);
+        int best_cc = 1;
+        for (int i = 2; i <= ccs; ++i) {
+            if (ccKarbonite[i] > ccKarbonite[best_cc]) best_cc = i;
         }
-
         AuxMapLocation bestLoc = null;
         for (int x = 0; x < W; ++x) {
             for (int y = 0; y < H; ++y) {
+                if (cc[x][y] != best_cc) continue;
                 if (bestLoc == null) bestLoc = new AuxMapLocation(x, y);
-                if (priority[x][y] > priority[bestLoc.x][bestLoc.y]) bestLoc = new AuxMapLocation(x, y);
+                if (locKarbonite[x][y] > locKarbonite[bestLoc.x][bestLoc.y]) bestLoc = new AuxMapLocation(x, y);
             }
         }
         return bestLoc;
     }
-
+    
 }

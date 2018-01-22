@@ -65,11 +65,7 @@ public class MovementManager {
             }
             return false;
         }catch(Exception e) {
-<<<<<<< HEAD
             e.printStackTrace();
-=======
-            System.out.println(e);
->>>>>>> 5a2a7ab... master
             return false;
         }
     }
@@ -108,11 +104,7 @@ public class MovementManager {
             //bugpathData.put(id, data);
             return false;
         }catch(Exception e) {
-<<<<<<< HEAD
             e.printStackTrace();
-=======
-            System.out.println(e);
->>>>>>> 5a2a7ab... master
             return false;
         }
     }
@@ -151,11 +143,7 @@ public class MovementManager {
             }
             return false;
         }catch(Exception e) {
-<<<<<<< HEAD
             e.printStackTrace();
-=======
-            System.out.println(e);
->>>>>>> 5a2a7ab... master
             return false;
         }
     }
@@ -208,11 +196,7 @@ public class MovementManager {
 
             bugpathData.put(id, data);
         }catch(Exception e) {
-<<<<<<< HEAD
             e.printStackTrace();
-=======
-            System.out.println(e);
->>>>>>> 5a2a7ab... master
         }
     }
 
@@ -252,11 +236,7 @@ public class MovementManager {
             }
             return i;
         }catch(Exception e) {
-<<<<<<< HEAD
             e.printStackTrace();
-=======
-            System.out.println(e);
->>>>>>> 5a2a7ab... master
             return Integer.parseInt(null);
         }
     }
@@ -274,11 +254,7 @@ public class MovementManager {
                 data.soft_reset(myLoc);
             }
         }catch(Exception e) {
-<<<<<<< HEAD
             e.printStackTrace();
-=======
-            System.out.println(e);
->>>>>>> 5a2a7ab... master
         }
     }
 
@@ -286,11 +262,7 @@ public class MovementManager {
         try {
             return (Danger.DPS[ind] <= 0);
         }catch(Exception e) {
-<<<<<<< HEAD
             e.printStackTrace();
-=======
-            System.out.println(e);
->>>>>>> 5a2a7ab... master
             return false;
         }
     }
@@ -299,11 +271,7 @@ public class MovementManager {
         try {
             return (type == UnitType.Knight || type == UnitType.Mage || type == UnitType.Ranger);
         } catch (Exception e) {
-<<<<<<< HEAD
             e.printStackTrace();
-=======
-            System.out.println(e);
->>>>>>> 5a2a7ab... master
             return false;
         }
     }

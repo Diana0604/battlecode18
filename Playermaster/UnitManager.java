@@ -22,27 +22,19 @@ class UnitManager{
         try{
             Data.initGame(gc);
         }catch(Exception e) {
-<<<<<<< HEAD
             e.printStackTrace();
-=======
-            System.out.println(e);
->>>>>>> 5a2a7ab... master
         }
     }
 
     void moveUnits() {
         try {
-<<<<<<< HEAD
-=======
             Mage.getInstance().computeMultiTarget();
->>>>>>> 5a2a7ab... master
             for (int i = 0; i < Data.myUnits.length; i++) {
                 AuxUnit unit = Data.myUnits[i];
                 //if (unit.getType() == UnitType.Factory) System.err.println("I'm a factory! :D");
                 if (unit.getType() == UnitType.Rocket) {
                     Rocket.getInstance().playFirst(unit);
                 }
-<<<<<<< HEAD
             }
             for (int i = 0; i < Data.myUnits.length; i++) {
                 //System.err.println("playing unit " + Data.myUnits[i].getType());
@@ -113,6 +105,8 @@ class UnitManager{
                 for (AuxUnit worker : workers) {
                     //no fiquem workers si ja son cridats per un blueprint
                     if (Data.blueprintsToBuild.containsKey(worker.getID())) continue;
+                    AuxMapLocation workerLoc = worker.getMaplocation();
+                    if (workerLoc == null) continue;
                     Pair p = new Pair(s.getMaplocation().distanceSquaredTo(worker.getMaplocation()), worker);
                     sorted.add(p);
                 }
@@ -126,34 +120,6 @@ class UnitManager{
             }
         }catch(Exception e){
             e.printStackTrace();
-=======
-            }
-            for (int i = 0; i < Data.myUnits.length; i++) {
-                //System.err.println("playing unit " + Data.myUnits[i].getType());
-                AuxUnit unit = Data.myUnits[i];
-                if (unit.isInGarrison()) continue;
-                if (unit.getType() == UnitType.Worker) {
-                    Worker.getInstance().play(unit);
-                }
-                if (unit.getType() == UnitType.Factory) {
-                    Factory.getInstance().play(unit);
-                }
-                if (unit.getType() == UnitType.Ranger) {
-                    Ranger.getInstance().play(unit);
-                }
-                if (unit.getType() == UnitType.Rocket) {
-                    Rocket.getInstance().play(unit);
-                }
-                if (unit.getType() == UnitType.Healer) {
-                    Healer.getInstance().play(unit);
-                }
-                if (unit.getType() == UnitType.Mage) {
-                    Mage.getInstance().play(unit);
-                }
-            }
-        }catch(Exception e) {
-            System.out.println(e);
->>>>>>> 5a2a7ab... master
         }
     }
 

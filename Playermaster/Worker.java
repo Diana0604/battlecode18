@@ -28,21 +28,13 @@ public class Worker {
             Danger.computeDanger(unit);
             danger = (Danger.DPS[8] > 0);
             boolean acted = doAction();
-<<<<<<< HEAD
             tryReplicate();
-=======
->>>>>>> 5a2a7ab... master
             if (!wait && unit.canMove()) {
                 move();
                 if (!acted) doAction();
             }
-<<<<<<< HEAD
         }catch(Exception e){
                 e.printStackTrace();
-=======
-        }catch(Exception e) {
-            System.out.println(e);
->>>>>>> 5a2a7ab... master
         }
     }
 
@@ -51,10 +43,6 @@ public class Worker {
     boolean doAction(){
         try {
             if (!unit.canAttack()) return true;
-<<<<<<< HEAD
-=======
-            if (tryReplicate()) return true;
->>>>>>> 5a2a7ab... master
             if (tryBuildAndRepair()) return true;
             if (tryPlaceBlueprint()) {
                 wait = true;
@@ -63,11 +51,7 @@ public class Worker {
             if (tryMine()) return true;
             return false;
         }catch(Exception e) {
-<<<<<<< HEAD
             e.printStackTrace();
-=======
-            System.out.println(e);
->>>>>>> 5a2a7ab... master
             return false;
         }
     }
@@ -87,11 +71,7 @@ public class Worker {
             }
             return false;
         }catch(Exception e) {
-<<<<<<< HEAD
             e.printStackTrace();
-=======
-            System.out.println(e);
->>>>>>> 5a2a7ab... master
             return false;
         }
     }
@@ -103,19 +83,12 @@ public class Worker {
             if (Data.onMars() || Data.workers < WorkerUtil.min_nb_workers) return (nb_actions >= 12);
             return (nb_actions >= 30);
         }catch(Exception e) {
-<<<<<<< HEAD
             e.printStackTrace();
-=======
-            System.out.println(e);
->>>>>>> 5a2a7ab... master
             return false;
         }
     }
 
-<<<<<<< HEAD
     //Intenta reparar o construir una structure adjacent
-=======
->>>>>>> 5a2a7ab... master
     boolean tryBuildAndRepair(){
         try {
             int minDif = 1000;
@@ -126,10 +99,7 @@ public class Worker {
             for (int i = 0; i < adjUnits.length; ++i) {
                 AuxUnit u = adjUnits[i];
                 if (!(u.getType() == UnitType.Factory || u.getType() == UnitType.Rocket)) continue;
-<<<<<<< HEAD
                 if (u.isMaxHealth()) continue;
-=======
->>>>>>> 5a2a7ab... master
                 int health = u.getHealth();
                 int maxHealth = Wrapper.getMaxHealth(u.getType());
                 boolean bp = u.isBlueprint();
@@ -145,41 +115,23 @@ public class Worker {
             if (minDifIndex >= 0) {
                 AuxUnit structure = adjUnits[minDifIndex];
                 Wrapper.build(unit, structure);
-<<<<<<< HEAD
-                //System.out.println("Worker " + unit.getID() + " loc " + unit.getMaplocation().x + "," + unit.getMaplocation().y +
-                //        " fa build");
-
-=======
->>>>>>> 5a2a7ab... master
                 if (structure.getHealth() < Wrapper.getMaxHealth(structure.getType())) wait = true;
                 return true;
             }
             if (minHPIndex >= 0) {
                 AuxUnit structure = adjUnits[minHPIndex];
                 Wrapper.repair(unit, adjUnits[minHPIndex]);
-<<<<<<< HEAD
-                //System.out.println("Worker " + unit.getID() + " loc " + unit.getMaplocation().x + "," + unit.getMaplocation().y +
-                //        " fa repair");
-=======
->>>>>>> 5a2a7ab... master
                 if (structure.getHealth() < Wrapper.getMaxHealth(structure.getType())) wait = true;
                 return true;
             }
             return false;
         }catch(Exception e) {
-<<<<<<< HEAD
             e.printStackTrace();
-=======
-            System.out.println(e);
->>>>>>> 5a2a7ab... master
             return false;
         }
     }
 
-<<<<<<< HEAD
     //Posen un blueprint en una posicio adjacent (aixo s'ha de canviar quan ho fem global)
-=======
->>>>>>> 5a2a7ab... master
     boolean tryPlaceBlueprint(){
         try {
             if (danger) return false;
@@ -198,19 +150,12 @@ public class Worker {
             }
             return false;
         }catch(Exception e) {
-<<<<<<< HEAD
             e.printStackTrace();
-=======
-            System.out.println(e);
->>>>>>> 5a2a7ab... master
             return false;
         }
     }
 
-<<<<<<< HEAD
     //minen una mina adjacent
-=======
->>>>>>> 5a2a7ab... master
     boolean tryMine(){
         try {
             //System.out.println("Trying to mine! " + unit.getID());
@@ -223,11 +168,7 @@ public class Worker {
             }
             return false;
         }catch(Exception e) {
-<<<<<<< HEAD
             e.printStackTrace();
-=======
-            System.out.println(e);
->>>>>>> 5a2a7ab... master
             return false;
         }
     }
@@ -256,7 +197,6 @@ public class Worker {
 
             targets.sort((a, b) -> targetEval(a) < targetEval(b) ? -1 : targetEval(a) == targetEval(b) ? 0 : 1);
 
-<<<<<<< HEAD
             AuxMapLocation dest;
             if (targets.size() > 0) {
                 Target bestTarget = targets.get(0);
@@ -287,86 +227,12 @@ public class Worker {
             return ans;
         }catch(Exception e) {
             e.printStackTrace();
-=======
-
-            if (targets.size() > 0) {
-                Target bestTarget = targets.get(0);
-                MovementManager.getInstance().moveTo(unit, bestTarget.mloc);
-            }
-        }catch(Exception e) {
-            System.out.println(e);
-        }
-    }
-
-    Target getKarboniteTarget(){
-        try {
-            Target ans = null;
-            for (HashMap.Entry<Integer, Integer> entry : Data.karboniteAt.entrySet()) {
-                AuxMapLocation mineLoc = Data.toLocation(entry.getKey());
-                if (WorkerUtil.blockingBuilding(mineLoc)) continue;
-                double d = unit.getMaplocation().distanceBFSTo(mineLoc);
-                if (ans == null) {
-                    ans = new Target(Math.min(1000, entry.getValue()), d, mineLoc, 3);
-                    continue;
-                }
-                Target aux = new Target(Math.min(1000, entry.getValue()), d, mineLoc, 3);
-                if (targetEval(aux) < targetEval(ans)) ans = aux;
-            }
-            return ans;
-        }catch(Exception e) {
-            System.out.println(e);
             return null;
         }
     }
 
-    Target getBuildTarget(){
+    Target getBuildTarget() {
         try {
-            double minDist = 1000000;
-            Target ans = null;
-            for (int a : Data.structures) {
-                AuxUnit u = Data.myUnits[a];
-                if (!u.isBlueprint()) continue;
-                AuxMapLocation mloc = u.getMaplocation();
-                double d = Math.max(unit.getMaplocation().distanceBFSTo(mloc) - 1, 0);
-                int dif = (Wrapper.getMaxHealth(u.getType()) - u.getHealth()) - (int) (d * WorkerUtil.senseWorkers(u.getMaplocation()) * Data.buildingPower);
-                if (dif > 0 && d < minDist) {
-                    minDist = d;
-                    ans = new Target(dif * 10 / Data.buildingPower, d, mloc, 2);
-                }
-            }
-            return ans;
-        }catch(Exception e) {
-            System.out.println(e);
-            return null;
-        }
-    }
-
-    Target getRepairTarget(){
-        try {
-            double minDist = 1000000;
-            Target ans = null;
-            for (int a : Data.structures) {
-                AuxUnit u = Data.myUnits[a];
-                if (u.isBlueprint()) continue;
-                AuxMapLocation mloc = u.getMaplocation();
-                double d = Math.max(unit.getMaplocation().distanceBFSTo(mloc) - 1, 0);
-                int dif = (Wrapper.getMaxHealth(u.getType()) - u.getHealth()) - (int) (d * WorkerUtil.senseWorkers(u.getMaplocation()) * Data.repairingPower);
-                if (dif > 0 && d < minDist) {
-                    minDist = d;
-                    ans = new Target(dif * 2 / Data.repairingPower, d, mloc, 1);
-                }
-            }
-            return ans;
-        }catch(Exception e) {
-            System.out.println(e);
->>>>>>> 5a2a7ab... master
-            return null;
-        }
-    }
-
-<<<<<<< HEAD
-    Target getBuildTarget(){
-        try{
             if (Data.blueprintsToBuild.containsKey(unit.getID())) {
                 int bID = Data.blueprintsToBuild.get(unit.getID());
 
@@ -375,27 +241,17 @@ public class Worker {
 
                 AuxMapLocation bLoc = blueprint.getMaplocation();
                 double d = Math.max(unit.getMaplocation().distanceBFSTo(bLoc) - 1, 0);
-                int dif = (Wrapper.getMaxHealth(blueprint.getType()) - blueprint.getHealth()) - (int)(d*WorkerUtil.senseWorkers(blueprint.getMaplocation())*Data.buildingPower);
-                return new Target(dif*10/Data.buildingPower, d, bLoc, 2);
+                int dif = (Wrapper.getMaxHealth(blueprint.getType()) - blueprint.getHealth()) - (int) (d * WorkerUtil.senseWorkers(blueprint.getMaplocation()) * Data.buildingPower);
+                return new Target(dif * 10 / Data.buildingPower, d, bLoc, 2);
             }
             return null;
-        }catch(Exception e) {
-            e.printStackTrace();
-=======
-    Target getRocketTarget() {
-        try {
-            AuxMapLocation mloc = Rocket.callsToRocket.get(unit.getID());
-            if (mloc == null) return null;
-            return new Target(10000000, unit.getMaplocation().distanceBFSTo(mloc), mloc, 0);
         } catch (Exception e) {
-            System.out.println(e);
->>>>>>> 5a2a7ab... master
+            e.printStackTrace();
             return null;
         }
-
     }
 
-<<<<<<< HEAD
+
     Target getRepairTarget(){
         try{
             if (Data.structuresToRepair.containsKey(unit.getID())) {
@@ -451,32 +307,5 @@ public class Worker {
 
     }
 
-=======
 
-
-    double targetEval(Target a){
-        try {
-            return -(a.value / (a.dist + 1));
-        }catch(Exception e) {
-            System.out.println(e);
-            return Double.parseDouble(null);
-        }
-    }
-
-    private class Target {
-        double value;
-        double dist;
-        AuxMapLocation mloc;
-        int type;
-
-        public Target(double v, double d, AuxMapLocation loc, int _type){
-            value = v;
-            dist = d;
-            mloc = loc;
-            type = _type;
-        }
-
-    }
-
->>>>>>> 5a2a7ab... master
 }

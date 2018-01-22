@@ -44,7 +44,7 @@ public class Danger {
                 long arshort = 0;
                 if (MovementManager.getInstance().dangerousUnit(enemy.getType())) {
                     dps = Wrapper.getDamage(enemy.getType()) / Wrapper.getAttackCooldown(enemy.getType());
-                    arshort = Wrapper.getAttackRange(enemy.getType());
+                    arshort = Wrapper.getAttackRangeSafe(enemy.getType());
                 }
                 for (int j = 0; j < 9; ++j) {
                     if (!Wrapper.canMove(unit, j) && j < 8) continue;
@@ -55,11 +55,7 @@ public class Danger {
                 }
             }
         }catch(Exception e) {
-<<<<<<< HEAD
             e.printStackTrace();
-=======
-            System.out.println(e);
->>>>>>> 5a2a7ab... master
         }
     }
 
@@ -112,11 +108,7 @@ public class Danger {
                 if (dangUnits[i]) BFS(i);
             }
         }catch(Exception e) {
-<<<<<<< HEAD
             e.printStackTrace();
-=======
-            System.out.println(e);
->>>>>>> 5a2a7ab... master
         }
 
     }
@@ -159,11 +151,7 @@ public class Danger {
             }
             Factory.maxRangers = Math.max(Factory.maxRangers, possibleDefenders.size() + 15);
         }catch(Exception e) {
-<<<<<<< HEAD
             e.printStackTrace();
-=======
-            System.out.println(e);
->>>>>>> 5a2a7ab... master
         }
     }
 
@@ -171,11 +159,7 @@ public class Danger {
         try {
             return (type == UnitType.Knight || type == UnitType.Mage || type == UnitType.Ranger);
         }catch(Exception e) {
-<<<<<<< HEAD
             e.printStackTrace();
-=======
-            System.out.println(e);
->>>>>>> 5a2a7ab... master
             return true;
         }
     }

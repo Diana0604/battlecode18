@@ -105,6 +105,8 @@ class UnitManager{
                 for (AuxUnit worker : workers) {
                     //no fiquem workers si ja son cridats per un blueprint
                     if (Data.blueprintsToBuild.containsKey(worker.getID())) continue;
+                    AuxMapLocation workerLoc = worker.getMaplocation();
+                    if (workerLoc == null) continue;
                     Pair p = new Pair(s.getMaplocation().distanceSquaredTo(worker.getMaplocation()), worker);
                     sorted.add(p);
                 }

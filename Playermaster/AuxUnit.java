@@ -52,7 +52,7 @@ public class AuxUnit {
             if (id == null) id = unit.id();
             return id;
         }catch(Exception e) {
-            e.printStackTrace();
+            System.out.println(e);
             return Integer.parseInt(null);
         }
     }
@@ -62,7 +62,7 @@ public class AuxUnit {
             if (loc == null) loc = unit.location();
             return loc;
         }catch(Exception e) {
-            e.printStackTrace();
+            System.out.println(e);
             return null;
         }
     }
@@ -72,7 +72,7 @@ public class AuxUnit {
             if (garrison == null) garrison = getLocation().isInGarrison();
             return garrison;
         } catch(Exception e) {
-            e.printStackTrace();
+            System.out.println(e);
             return false;
         }
     }
@@ -82,7 +82,7 @@ public class AuxUnit {
             if (inSpace == null) inSpace = getLocation().isInSpace();
             return inSpace;
         }catch(Exception e) {
-            e.printStackTrace();
+            System.out.println(e);
             return false;
         }
     }
@@ -92,7 +92,7 @@ public class AuxUnit {
             if (blueprint == null) blueprint = (unit.structureIsBuilt() == 0);
             return blueprint;
         }catch(Exception e) {
-            e.printStackTrace();
+            System.out.println(e);
             return false;
         }
     }
@@ -104,7 +104,7 @@ public class AuxUnit {
             //System.out.println("map location " + mloc);
             return mloc;
         }catch(Exception e) {
-            e.printStackTrace();
+            System.out.println(e);
             return null;
         }
     }
@@ -113,7 +113,7 @@ public class AuxUnit {
         try {
             return getMaplocation().x;
         }catch(Exception e) {
-            e.printStackTrace();
+            System.out.println(e);
             return Integer.parseInt(null);
         }
     }
@@ -122,7 +122,7 @@ public class AuxUnit {
         try {
             return getMaplocation().y;
         }catch(Exception e) {
-            e.printStackTrace();
+            System.out.println(e);
             return Integer.parseInt(null);
         }
     }
@@ -136,7 +136,7 @@ public class AuxUnit {
             }
             return canMove;
         }catch(Exception e) {
-            e.printStackTrace();
+            System.out.println(e);
             return false;
         }
     }
@@ -153,7 +153,7 @@ public class AuxUnit {
             }
             return canAttack;
         }catch(Exception e) {
-            e.printStackTrace();
+            System.out.println(e);
             return false;
         }
     }
@@ -163,7 +163,7 @@ public class AuxUnit {
             if (canUseAbility == null) canUseAbility = unit.abilityHeat() < 10;
             return canUseAbility;
         }catch(Exception e) {
-            e.printStackTrace();
+            System.out.println(e);
             return false;
         }
     }
@@ -173,7 +173,7 @@ public class AuxUnit {
             if (type == null) type = unit.unitType();
             return type;
         }catch(Exception e) {
-            e.printStackTrace();
+            System.out.println(e);
             return null;
         }
     }
@@ -183,7 +183,7 @@ public class AuxUnit {
             if (isBuilt == null) isBuilt = (unit.structureIsBuilt() > 0);
             return isBuilt;
         }catch(Exception e) {
-            e.printStackTrace();
+            System.out.println(e);
             return true;
         }
     }
@@ -197,7 +197,7 @@ public class AuxUnit {
             }
             return garrisonUnits;
         }catch(Exception e) {
-            e.printStackTrace();
+            System.out.println(e);
             return null;
         }
     }
@@ -207,7 +207,7 @@ public class AuxUnit {
             if (health == null) health = (int) unit.health();
             return health;
         }catch(Exception e) {
-            e.printStackTrace();
+            System.out.println(e);
             return null;
         }
     }
@@ -217,7 +217,7 @@ public class AuxUnit {
             if (maxHealth == null) maxHealth = (int) unit.maxHealth();
             return maxHealth;
         }catch(Exception e) {
-            e.printStackTrace();
+            System.out.println(e);
             return null;
         }
     }
@@ -226,7 +226,7 @@ public class AuxUnit {
         try {
             return Objects.equals(getHealth(), getMaxHealth()); //no se si funciona amb .equals()?
         }catch(Exception e) {
-            e.printStackTrace();
+            System.out.println(e);
             return false;
         }
     }

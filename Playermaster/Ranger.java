@@ -129,11 +129,12 @@ public class    Ranger {
 
     AuxMapLocation getBestEnemy(AuxMapLocation myLoc){
         try {
-            long minDist = INFL;
+            double minDist = INFL;
             AuxMapLocation target = null;
             for (int i = 0; i < Data.enemies.length; ++i) {
+                if (Data.enemies[i].getHealth() <= 0) continue;
                 AuxMapLocation enemyLocation = Data.enemies[i].getMaplocation();
-                long d = enemyLocation.distanceSquaredTo(myLoc);
+                double d = enemyLocation.distanceBFSTo(myLoc);
                 if (d < minDist) {
                     minDist = d;
                     target = enemyLocation;

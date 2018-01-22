@@ -193,7 +193,6 @@ class Data {
 
             round = 1;
             aggro = false;
-
             research = Research.getInstance();
             research.yolo();
             researchInfo = gc.researchInfo();
@@ -220,7 +219,6 @@ class Data {
             createGrid();
 
             Explore.initialize();
-
             myTeam = gc.team();
             if (myTeam == Team.Blue) enemyTeam = Team.Red;
             else enemyTeam = Team.Blue;
@@ -261,7 +259,6 @@ class Data {
             return 0;
         }
     }
-
 
     private static void updateMines() {
         try {
@@ -362,8 +359,6 @@ class Data {
             e.printStackTrace();
         }
     }
-
-
 
     static AuxUnit getUnit(int x, int y, boolean myTeam){
         try {

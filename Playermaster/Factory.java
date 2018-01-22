@@ -82,17 +82,22 @@ public class Factory {
             if (mustSaveMoney()) return;
 
             UnitType type = UnitType.Ranger;
-            ++Data.rangers;
             if (Data.rangers > 3 * (Data.healers + 1)) {
                 type = UnitType.Healer;
-                --Data.rangers;
-                ++Data.healers;
             }
 
-            if (type == UnitType.Ranger && Data.rangers > maxRangers ) return;
-            if (type == UnitType.Healer && Data.healers > maxRangers/3 + 1 ) return;
+            if (type == UnitType.Ranger && Data.rangers > maxRangers ){
+                type = UnitType.Mage;
+            };
+            if (type == UnitType.Healer && Data.healers > maxRangers/3 + 1 ){
+                type = UnitType.Mage;
+            }
 
             if (!Wrapper.canProduceUnit(unit, type)) return;
+
+            if (type == UnitType.Ranger) ++Data.rangers;
+            if (type == UnitType.Healer) ++Data.healers;
+
             Wrapper.produceUnit(unit, type);
             //units = (units+1)%4;
         }catch(Exception e) {
@@ -114,5 +119,4 @@ public class Factory {
             return false;
         }
     }
-
 }

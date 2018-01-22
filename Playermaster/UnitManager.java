@@ -28,6 +28,7 @@ class UnitManager{
 
     void moveUnits() {
         try {
+            Mage.getInstance().computeMultiTarget();
             for (int i = 0; i < Data.myUnits.length; i++) {
                 AuxUnit unit = Data.myUnits[i];
                 //if (unit.getType() == UnitType.Factory) System.err.println("I'm a factory! :D");

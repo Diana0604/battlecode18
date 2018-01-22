@@ -45,7 +45,7 @@ public class WorkerUtil {
                 }
             }
         }catch(Exception e) {
-            e.printStackTrace();
+            System.out.println(e);
         }
     }
 
@@ -56,7 +56,7 @@ public class WorkerUtil {
             for (int i = 0; i < v.length; ++i) if (v[i].getType() == UnitType.Worker) ++ans;
             return ans;
         }catch(Exception e) {
-            e.printStackTrace();
+            System.out.println(e);
             return 0;
         }
     }
@@ -74,7 +74,7 @@ public class WorkerUtil {
             }
             return bestDir;
         }catch(Exception e) {
-            e.printStackTrace();
+            System.out.println(e);
             return 0;
         }
     }
@@ -86,7 +86,7 @@ public class WorkerUtil {
             if (u == null) return false;
             return (u.getType() == UnitType.Factory || u.getType() == UnitType.Rocket);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println(e);
             return false;
         }
     }
@@ -114,7 +114,7 @@ public class WorkerUtil {
 
             return ans / (workers + 1 + extra_workers);
         }catch(Exception e) {
-            e.printStackTrace();
+            System.out.println(e);
             return 0;
         }
     }
@@ -184,7 +184,7 @@ public class WorkerUtil {
 
             //return approxMapValue;
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println(e);
         }
     }
 

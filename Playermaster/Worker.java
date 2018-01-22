@@ -115,17 +115,12 @@ public class Worker {
             if (minDifIndex >= 0) {
                 AuxUnit structure = adjUnits[minDifIndex];
                 Wrapper.build(unit, structure);
-                //System.out.println("Worker " + unit.getID() + " loc " + unit.getMaplocation().x + "," + unit.getMaplocation().y +
-                //        " fa build");
-
                 if (structure.getHealth() < Wrapper.getMaxHealth(structure.getType())) wait = true;
                 return true;
             }
             if (minHPIndex >= 0) {
                 AuxUnit structure = adjUnits[minHPIndex];
                 Wrapper.repair(unit, adjUnits[minHPIndex]);
-                //System.out.println("Worker " + unit.getID() + " loc " + unit.getMaplocation().x + "," + unit.getMaplocation().y +
-                //        " fa repair");
                 if (structure.getHealth() < Wrapper.getMaxHealth(structure.getType())) wait = true;
                 return true;
             }
@@ -236,8 +231,8 @@ public class Worker {
         }
     }
 
-    Target getBuildTarget(){
-        try{
+    Target getBuildTarget() {
+        try {
             if (Data.blueprintsToBuild.containsKey(unit.getID())) {
                 int bID = Data.blueprintsToBuild.get(unit.getID());
 
@@ -246,16 +241,16 @@ public class Worker {
 
                 AuxMapLocation bLoc = blueprint.getMaplocation();
                 double d = Math.max(unit.getMaplocation().distanceBFSTo(bLoc) - 1, 0);
-                int dif = (Wrapper.getMaxHealth(blueprint.getType()) - blueprint.getHealth()) - (int)(d*WorkerUtil.senseWorkers(blueprint.getMaplocation())*Data.buildingPower);
-                return new Target(dif*10/Data.buildingPower, d, bLoc, 2);
+                int dif = (Wrapper.getMaxHealth(blueprint.getType()) - blueprint.getHealth()) - (int) (d * WorkerUtil.senseWorkers(blueprint.getMaplocation()) * Data.buildingPower);
+                return new Target(dif * 10 / Data.buildingPower, d, bLoc, 2);
             }
             return null;
-        }catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
-
     }
+
 
     Target getRepairTarget(){
         try{
@@ -311,5 +306,6 @@ public class Worker {
         }
 
     }
+
 
 }

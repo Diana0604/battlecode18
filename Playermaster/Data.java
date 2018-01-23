@@ -47,6 +47,7 @@ class Data {
     private static int[][] dangerMatrix;
     private static final double enemyBaseValue = -5;
     static boolean aggro;
+    static boolean firstRocket = true;
     static final int exploreConstant = 1;
 
     static HashMap<Integer, Integer> allUnits; //allUnits.get(id) = index de myUnits
@@ -317,7 +318,7 @@ class Data {
             if (karboniteAt.containsKey(encodeOcc(loc.x, loc.y)))
                 putValue(loc.x, loc.y, karboniteAt.get(encodeOcc(loc.x, loc.y)) + karbonite);
             else putValue(loc.x, loc.y, karbonite);
-/*
+
             System.out.println("");
             System.out.println("====================== TASK ARRAY " + round + " ====================== ");
             for (Map.Entry<Integer,Integer> entry: asteroidTasksLocs.entrySet()){
@@ -331,7 +332,7 @@ class Data {
                 AuxMapLocation l = toLocation(entry.getValue());
                 System.out.println("Worker " + id + " has location " + l.x + "," + l.y);
             }
-            System.out.println("");*/
+            System.out.println("");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -364,6 +365,7 @@ class Data {
             int mages = 0;
             int knights = 0;
             int factories = 0;
+            int rockets = 0;
             int MIN_KARBONITE_FOR_FACTORY = 200;
             int INITIAL_FACTORIES = 3;
             boolean rocketBuilt = false;
@@ -377,7 +379,7 @@ class Data {
                     structures.add(i);
                 } else if (type == UnitType.Rocket) {
                     if (u.isBlueprint()) blueprint = true;
-                    rocketBuilt = true;
+                    rockets++;
                     structures.add(i);
                 } else if (type == UnitType.Worker) {
                     if (!u.isInGarrison()) workerBuilt = true;
@@ -393,17 +395,13 @@ class Data {
                 }
             }
             unitTypeCount.put(UnitType.Factory,factories);
+            unitTypeCount.put(UnitType.Rocket, rockets);
             unitTypeCount.put(UnitType.Worker, workers);
             unitTypeCount.put(UnitType.Ranger, rangers);
             unitTypeCount.put(UnitType.Healer, healers);
             unitTypeCount.put(UnitType.Mage,   mages);
             unitTypeCount.put(UnitType.Knight, knights);
 
-
-            if (!rocketBuilt && researchInfo.getLevel(UnitType.Rocket) > 0) { // aixo es super cutre, canviar!
-                queue.requestUnit(UnitType.Rocket);
-            }
-            if (!workerBuilt) queue.requestUnit(UnitType.Worker);
             //System.out.println(round + " Factory requested: " + queue.needsUnit(UnitType.Factory));
         }catch(Exception e) {
             e.printStackTrace();

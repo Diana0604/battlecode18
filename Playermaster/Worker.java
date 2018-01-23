@@ -22,6 +22,7 @@ public class Worker {
     private AuxUnit unit;
     private boolean danger;
     private boolean wait;
+    final int MAX_FACTORIES = 5;
 
     void play(AuxUnit _unit){
         try {
@@ -159,10 +160,7 @@ public class Worker {
         try {
             if (Data.onMars()) return false;
             if (danger) return false;
-            final int MAX_FACTORIES = 8;
-            UnitType type = null;
-            if (Data.unitTypeCount.get(UnitType.Factory) < MAX_FACTORIES) type = UnitType.Factory;
-            else if (Data.researchInfo.getLevel(UnitType.Rocket) > 0) type = UnitType.Rocket;
+            UnitType type = chooseStructure();
             if (type == null) return false;
 
             int i = WorkerUtil.getBestFactoryLocation(unit);
@@ -177,6 +175,16 @@ public class Worker {
             e.printStackTrace();
             return false;
         }
+    }
+
+    private UnitType chooseStructure(){
+        boolean canRocket = Data.researchInfo.getLevel(UnitType.Rocket) > 0;
+        boolean first = Data.firstRocket && Data.unitTypeCount.get(UnitType.Rocket) == 0;
+        if (canRocket && first) return UnitType.Rocket;
+        int numFactories = Data.unitTypeCount.get(UnitType.Factory);
+        if (numFactories < MAX_FACTORIES) return UnitType.Factory;
+        if (canRocket) return UnitType.Rocket;
+        return null;
     }
 
     //minen una mina adjacent

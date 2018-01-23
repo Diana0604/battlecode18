@@ -489,6 +489,7 @@ public class Wrapper {
             //System.out.println("Launching at " + unit.getX() + " " + unit.getY());
             Data.gc.launchRocket(unit.getID(), new MapLocation(Planet.Mars, loc.x, loc.y));
             AuxMapLocation mloc = unit.getMaplocation();
+            Data.firstRocket = false;
             Data.unitMap[mloc.x][mloc.y] = 0;
             Data.structures.remove(unit.getID());
         }catch(Exception e) {

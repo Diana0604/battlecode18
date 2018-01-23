@@ -5,3 +5,6 @@ WORKERS TODO:
 - Triar la location de les noves factories (ivan)
 - fer que els workers per construir, prioritzin estar en diagonal al blueprint (perque els altres puguin passar)
 - fer que un cop estan minant algo ho minin fins al final (mes importancia al 3x3?)
+
+
+- Que el first rocket nomes porti 1 worker i 1 ranger

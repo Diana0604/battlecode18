@@ -72,7 +72,7 @@ public class Danger {
                     AuxMapLocation newLoc = myLoc.add(j);
                     long d = enemy.getMaplocation().distanceSquaredTo(newLoc);
                     if (dps > 0 && d <= arshort) data.DPS[j] += dps;
-                    if (dps > 0 && d <= arslong) data.DPSlong[j] += dps;
+                    if (dps > 0 && d <= arslong) data.DPSlong[j] += dps/(d+1);
                     data.minDist[j] = Math.min(data.minDist[j], (int) d);
                 }
             }

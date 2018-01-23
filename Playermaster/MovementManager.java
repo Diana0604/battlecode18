@@ -176,7 +176,8 @@ public class MovementManager {
             if (!unit.canMove()) return 8;
 
             this.unit = unit;
-            this.attackRange = Wrapper.getAttackRange(unit.getType());
+            attackRange = Wrapper.getAttackRange(unit.getType());
+            attacker = dangerousUnit(unit.getType());
 
             AuxMapLocation myLoc = unit.getMaplocation();
 
@@ -231,8 +232,6 @@ public class MovementManager {
             if (!bugpathData.keySet().contains(id)) {
                 data = new BugPathfindingData();
             } else data = bugpathData.get(id);
-            attackRange = Wrapper.getAttackRange(unit.getType());
-            attacker = dangerousUnit(unit.getType());
             canMove = new boolean[9];
             for (int i = 0; i < 9; ++i) {
                 if (Wrapper.canMove(unit, i)) {

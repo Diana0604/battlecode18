@@ -1,8 +1,6 @@
 import bc.*;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
+
+import java.util.*;
 
 class Data {
     static GameController gc;
@@ -33,6 +31,9 @@ class Data {
     static private final int areaSize = 5;
     static private int[][] locToArea;
     static private final int maxMapSize = 50;
+    static private final double neutralZoneDistance = 20;
+    static private final double karboniteBfsDepth = 4;
+    static private final double baseKarboniteMatrix = 0.75;
     static final Direction[] allDirs = {Direction.North, Direction.Northeast, Direction.East, Direction.Southeast, Direction.South, Direction.Southwest, Direction.West, Direction.Northwest, Direction.Center};
 
     static Team myTeam;
@@ -45,6 +46,9 @@ class Data {
     static Integer[] asteroidCarbo;
 
     private static int[][] dangerMatrix;
+    private static double[][] initialDistToAllies;
+    private static double[][] initialDistToEnemies;
+    private static double[][] karboMatrix;
     private static final double enemyBaseValue = -5;
     static boolean aggro;
     static boolean firstRocket = true;
@@ -244,6 +248,84 @@ class Data {
         }catch(Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static void initGameAfterPathfinder() {
+        if (planet == Planet.Earth) {
+            computeInitialDists();
+            computeKarboMatrix();
+        }
+    }
+
+    private static void computeInitialDists() {
+        initialDistToAllies = new double[W][H];
+        initialDistToEnemies = new double[W][H];
+        for (int x = 0; x < W; ++x) {
+            for (int y = 0; y < H; ++y) {
+                initialDistToAllies[x][y] = -1;
+                initialDistToEnemies[x][y] = -1;
+            }
+        }
+        VecUnit vec = planetMap.getInitial_units();
+        for (int i = 0; i < vec.size(); ++i) {
+            Unit unit_i = vec.get(i);
+            MapLocation loc = unit_i.location().mapLocation();
+            int locX = loc.getX(); // per evitar api calls¿?¿?¿?
+            int locY = loc.getY();
+            if (unit_i.team().equals(myTeam)) {
+                for (int x = 0; x < W; ++x) {
+                    for (int y = 0; y < H; ++y) {
+                        double dist = Pathfinder.getInstance().getNode(locX, locY, x, y).dist;
+                        if (initialDistToAllies[x][y] == -1 || dist < initialDistToAllies[x][y]) {
+                            initialDistToAllies[x][y] = dist;
+                        }
+                    }
+                }
+            }
+            else {
+                for (int x = 0; x < W; ++x) {
+                    for (int y = 0; y < H; ++y) {
+                        double dist = Pathfinder.getInstance().getNode(locX, locY, x, y).dist;
+                        if (initialDistToEnemies[x][y] == -1 || dist < initialDistToEnemies[x][y]) {
+                            initialDistToEnemies[x][y] = dist;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private static void addValue(double[][] mat, double value, AuxMapLocation initLoc, double depth) {
+        HashSet<Integer> seen = new HashSet<>();
+        Queue<AuxMapLocation> queue = new LinkedList<>();
+        seen.add(initLoc.x << 6 | initLoc.y);
+        queue.offer(initLoc);
+        while (!queue.isEmpty()) {
+            AuxMapLocation loc = queue.poll();
+            for (int d = 0; d < 8; ++d) {
+                AuxMapLocation newLoc = loc.add(d);
+                if (!onTheMap(newLoc)) continue;
+                if (!accessible[newLoc.x][newLoc.y]) continue;
+                double dist = initLoc.dirBFSTo(newLoc);
+                if (dist > depth) continue;
+                if (seen.contains(newLoc.x << 6 | newLoc.y)) continue;
+                seen.add(newLoc.x << 6 | newLoc.y);
+                queue.add(newLoc);
+                mat[newLoc.x][newLoc.y] += value*Math.pow(baseKarboniteMatrix, dist);
+            }
+        }
+    }
+
+    private static void computeKarboMatrix() {
+        karboMatrix = new double[W][H];
+        for (int x = 0; x < W; ++x) {
+            for (int y = 0; y < H; ++y) {
+                if (initialDistToEnemies[x][y] - initialDistToAllies[x][y] <= neutralZoneDistance) continue;
+                double value = karboMap[x][y];
+                addValue(karboMatrix, value, new AuxMapLocation(x,y), karboniteBfsDepth);
+            }
+        }
+
     }
 
     static AuxMapLocation toLocation(int x){

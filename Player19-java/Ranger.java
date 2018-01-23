@@ -21,6 +21,12 @@ public class    Ranger {
         objectiveArea = new HashMap();
     }
 
+    void play(AuxUnit unit){
+        attack(unit);
+        move(unit);
+        attack(unit);
+    }
+
     AuxUnit getBestAttackTarget(AuxUnit A, AuxUnit B){
         try {
             if (A == null) return B;
@@ -67,6 +73,22 @@ public class    Ranger {
         }
     }
 
+
+
+    void move(AuxUnit unit){
+        try {
+            AuxMapLocation target = getBestTarget(unit);
+            if (target != null) MovementManager.getInstance().moveTo(unit, target);
+            else {
+                ConstructionQueue queue = Data.queue;
+                queue.requestUnit(UnitType.Rocket);
+                Explore.explore(unit);
+            }
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     AuxMapLocation getBestHealer(AuxMapLocation loc){
         try {
             double minDist = 100000;
@@ -91,16 +113,14 @@ public class    Ranger {
         }
     }
 
-    AuxMapLocation getTarget(AuxUnit unit){
+    AuxMapLocation getBestTarget(AuxUnit unit){
         try {
             if (Rocket.callsToRocket.containsKey(unit.getID())) return Rocket.callsToRocket.get(unit.getID());
             if (unit.getHealth() < 100) {
                 AuxMapLocation ans = getBestHealer(unit.getMaplocation());
                 if (ans != null) return ans;
             }
-            AuxMapLocation ans = getBestEnemy(unit.getMaplocation());
-            if (ans != null) return ans;
-            return Explore.findExploreObjective(unit);
+            return getBestEnemy(unit.getMaplocation());
         }catch(Exception e) {
             e.printStackTrace();
             return null;

@@ -29,11 +29,6 @@ public class AuxUnit {
 
     public ArrayList<Integer> garrisonUnits;
 
-    //MOVEMENT STUFF
-    public AuxMapLocation target;
-    public boolean exploretarget;
-    public boolean visited;
-
     public AuxUnit(Unit _unit){
         unit = _unit;
         id = null;
@@ -50,10 +45,6 @@ public class AuxUnit {
         garrisonUnits = null;
         health = null;
         maxHealth = null;
-
-        exploretarget = false;
-        target = null;
-        visited = false;
     }
 
     public int getID(){

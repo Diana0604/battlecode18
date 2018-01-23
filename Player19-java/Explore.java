@@ -14,6 +14,15 @@ public class Explore {
         objectiveArea = new HashMap<>();
     }
 
+    static void explore(AuxUnit unit) {
+        try {
+            AuxMapLocation obj = findExploreObjective(unit);
+            if (obj != null) MovementManager.getInstance().moveTo(unit, obj);
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    }
+
     static AuxMapLocation areaToLocation(Integer area){
         try {
             int x = Data.areaToLocX[Data.decodeX(area)];

@@ -49,13 +49,32 @@ public class Healer {
         }
     }
 
+    void play(AuxUnit unit){
+        try {
+            heal(unit);
+            move(unit);
+            heal(unit);
+        }catch(Exception e) {
+            System.out.println(e);
+        }
+    }
 
-    AuxMapLocation getTarget(AuxUnit unit) {
+
+
+    void move(AuxUnit unit) {
+        try {
+            AuxMapLocation target = getBestTarget(unit);
+            if (target != null) MovementManager.getInstance().moveTo(unit, target);
+            else Explore.explore(unit);
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    }
+
+    AuxMapLocation getBestTarget(AuxUnit unit) {
         try {
             if (Rocket.callsToRocket.containsKey(unit.getID())) return Rocket.callsToRocket.get(unit.getID());
-            AuxMapLocation ans = getBestUnit(unit.getMaplocation());
-            if (ans != null) return ans;
-            return Explore.findExploreObjective(unit);
+            return getBestUnit(unit.getMaplocation());
         } catch (Exception e) {
             System.out.println(e);
             return null;

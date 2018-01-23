@@ -24,6 +24,7 @@
       <excludeFolder url="file://$MODULE_DIR$/Player16-java" />
       <excludeFolder url="file://$MODULE_DIR$/Player17-java" />
       <excludeFolder url="file://$MODULE_DIR$/Player18-java" />
+      <excludeFolder url="file://$MODULE_DIR$/Player19-java" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

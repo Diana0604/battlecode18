@@ -28,6 +28,9 @@ class UnitManager{
 
     void moveUnits() {
         try {
+
+            Danger.reset();
+
             Mage.getInstance().computeMultiTarget();
             for (int i = 0; i < Data.myUnits.length; i++) {
                 AuxUnit unit = Data.myUnits[i];
@@ -36,29 +39,11 @@ class UnitManager{
                     Rocket.getInstance().playFirst(unit);
                 }
             }
-            for (int i = 0; i < Data.myUnits.length; i++) {
-                //System.err.println("playing unit " + Data.myUnits[i].getType());
-                AuxUnit unit = Data.myUnits[i];
-                if (unit.isInGarrison()) continue;
-                if (unit.getType() == UnitType.Worker) {
-                    Worker.getInstance().play(unit);
-                }
-                if (unit.getType() == UnitType.Factory) {
-                    Factory.getInstance().play(unit);
-                }
-                if (unit.getType() == UnitType.Ranger || unit.getType() == UnitType.Knight) { //LOLZ
-                    Ranger.getInstance().play(unit);
-                }
-                if (unit.getType() == UnitType.Rocket) {
-                    Rocket.getInstance().play(unit);
-                }
-                if (unit.getType() == UnitType.Healer) {
-                    Healer.getInstance().play(unit);
-                }
-                if (unit.getType() == UnitType.Mage) {
-                    Mage.getInstance().play(unit);
-                }
-            }
+
+            selectTargets();
+            actUnits();
+            moveAllUnits();
+            actUnits2();
         }catch(Exception e) {
             e.printStackTrace();
         }
@@ -72,6 +57,126 @@ class UnitManager{
         for (UnitType type: UnitType.values()) mapa.put(type,count[type.swigValue()]);
         Data.unitTypeCount = mapa;
     }
+
+    static void selectTargets(){
+        for (int i = 0; i < Data.myUnits.length; i++) {
+            //System.err.println("playing unit " + Data.myUnits[i].getType());
+            AuxUnit unit = Data.myUnits[i];
+            if (unit.isInGarrison()) continue;
+            if (unit.getType() == UnitType.Worker) {
+                unit.target = Worker.getInstance().getTarget(unit);
+            }
+            if (unit.getType() == UnitType.Ranger || unit.getType() == UnitType.Knight) { //LOLZ
+                unit.target = Ranger.getInstance().getTarget(unit);
+            }
+            if (unit.getType() == UnitType.Healer) {
+                unit.target = Healer.getInstance().getTarget(unit);
+            }
+            if (unit.getType() == UnitType.Mage) {
+                unit.target = Mage.getInstance().getTarget(unit);
+            }
+        }
+    }
+
+    static int move(AuxUnit unit){
+        /*
+        if (unit.visited) return 8;
+        unit.visited = true;
+
+        int dirBFS = unit.getMaplocation().dirBFSTo(unit.target);
+        if (dirBFS == 8) return 8;
+
+        //can move :)
+        if (Wrapper.canMove(unit, dirBFS)){
+            Wrapper.moveRobot(unit, dirBFS);
+            MovementManager.getInstance().reset(unit);
+            return dirBFS;
+        }
+
+        AuxMapLocation newLoc = unit.getMaplocation().add(dirBFS);
+        AuxUnit u = Data.getUnit(newLoc.x, newLoc.y, true);
+        if (u != null){
+            if (move(u) != 8){
+                Wrapper.moveRobot(unit, dirBFS);
+                MovementManager.getInstance().reset(unit);
+                return dirBFS;
+            }
+        }
+
+        int dir = MovementManager.getInstance().moveTo(unit, unit.target);
+        if (dir != 8){
+            Wrapper.moveRobot(unit, dir);
+        }
+
+        return dir;
+        */
+        MovementManager.getInstance().moveTo(unit);
+        return 0;
+    }
+
+    static void moveAllUnits(){
+        for (int i = 0; i < Data.myUnits.length; i++) {
+
+            AuxUnit unit = Data.myUnits[i];
+            if (unit.isInGarrison()) continue;
+            if (!unit.canMove()) continue;
+            if (unit.target == null) continue;
+
+            if (unit.getType() == UnitType.Factory || unit.getType() == UnitType.Rocket) {
+                continue;
+            }
+
+            move(unit);
+        }
+    }
+
+
+    static void actUnits(){
+        for (int i = 0; i < Data.myUnits.length; i++) {
+            //System.err.println("playing unit " + Data.myUnits[i].getType());
+            AuxUnit unit = Data.myUnits[i];
+            if (unit.isInGarrison()) continue;
+            if (unit.getType() == UnitType.Worker) {
+                Worker.getInstance().doAction(unit);
+            }
+            if (unit.getType() == UnitType.Ranger || unit.getType() == UnitType.Knight) { //LOLZ
+                Ranger.getInstance().attack(unit);
+            }
+            if (unit.getType() == UnitType.Healer) {
+                Healer.getInstance().heal(unit);
+            }
+            if (unit.getType() == UnitType.Mage) {
+                Mage.getInstance().doAction(unit);
+            }
+        }
+    }
+
+    static void actUnits2(){
+        for (int i = 0; i < Data.myUnits.length; i++) {
+            //System.err.println("playing unit " + Data.myUnits[i].getType());
+            AuxUnit unit = Data.myUnits[i];
+            if (unit.isInGarrison()) continue;
+            if (unit.getType() == UnitType.Worker) {
+                Worker.getInstance().doAction(unit);
+            }
+            if (unit.getType() == UnitType.Factory) {
+                Factory.getInstance().play(unit);
+            }
+            if (unit.getType() == UnitType.Ranger || unit.getType() == UnitType.Knight) { //LOLZ
+                Ranger.getInstance().attack(unit);
+            }
+            if (unit.getType() == UnitType.Rocket) {
+                Rocket.getInstance().play(unit);
+            }
+            if (unit.getType() == UnitType.Healer) {
+                Healer.getInstance().heal(unit);
+            }
+            if (unit.getType() == UnitType.Mage) {
+                Mage.getInstance().doAction(unit);
+            }
+        }
+    }
+
 
     static void initWorkerMaps(){
         try {

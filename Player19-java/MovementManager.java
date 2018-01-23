@@ -36,22 +36,14 @@ public class MovementManager {
         bugpathData = new HashMap<>();
     }
 
-    public void reset(AuxUnit unit){
-        id = unit.getID();
-        if (!bugpathData.keySet().contains(id)) {
-            data = new BugPathfindingData();
-        } else data = bugpathData.get(id);
-        data.reset();
-    }
-
-    public int moveBFSTo(AuxMapLocation target) {
+    public boolean moveBFSTo(AuxMapLocation target) {
         try {
             int index = myLoc.dirBFSTo(target);
             //Direction dir = dirTo(unit, target);
             if (canMove[index]) {
                 if (isSafe(index)) {
                     Wrapper.moveRobot(unit, index);
-                    return index;
+                    return true;
                 }
             }
             index = -1;
@@ -68,17 +60,17 @@ public class MovementManager {
             if (index >= 0) {
                 if (isSafe(index)) {
                     Wrapper.moveRobot(unit, index);
-                    return index;
+                    return true;
                 }
             }
-            return 8;
+            return false;
         }catch(Exception e) {
             e.printStackTrace();
-            return 8;
+            return false;
         }
     }
 
-    public int naiveMoveTo(AuxMapLocation target){
+    public boolean naiveMoveTo(AuxMapLocation target){
         try {
             /*reset if new target*/
             if (data.target == null || (target != null && target.distanceSquaredTo(data.target) > 0)) {
@@ -98,27 +90,26 @@ public class MovementManager {
 
             /*if not an obstacle --->  BFS*/
             if (data.obstacle == null) {
-                int ans = moveBFSTo(target);
-                if (ans != 8) return ans;
+                if (moveBFSTo(target)) {
+                    //bugpathData.put(id, data);
+                    return true;
+                }
             }
 
-
-            int ans = BugPath(data);
-
-            if (ans != 8) {
+            if (BugPath(data)) {
                 //bugpathData.put(id, data);
-                return ans;
+                return true;
             }
 
             //bugpathData.put(id, data);
-            return 8;
+            return false;
         }catch(Exception e) {
             e.printStackTrace();
-            return 8;
+            return false;
         }
     }
 
-    public int BugPath(BugPathfindingData data){
+    public boolean BugPath(BugPathfindingData data){
         try {
             int dir;
             if (data.obstacle != null && !data.obstacle.isOnMap()) {
@@ -147,87 +138,27 @@ public class MovementManager {
             if (canMove[dir]) {
                 if (isSafe(dir)) {
                     Wrapper.moveRobot(unit, dir);
-                    return dir;
+                    return true;
                 }
             }
-            return 8;
+            return false;
         }catch(Exception e) {
             e.printStackTrace();
-            return 8;
+            return false;
         }
     }
 
-    BugPathfindingData getData(AuxUnit unit){
-        BugPathfindingData data;
-        if (!bugpathData.keySet().contains(unit.getID())) {
-            data = new BugPathfindingData();
-            bugpathData.put(unit.getID(), data);
-        } else data = bugpathData.get(unit.getID());
-        return data;
-    }
 
 
-
-    public int moveTo(AuxUnit unit){
+    public void moveTo(AuxUnit _unit, AuxMapLocation target){
         try {
-            if (unit.visited) return 8;
-            unit.visited = true;
-            if (unit.target == null) return 8;
-            if (!unit.canMove()) return 8;
-
-            this.unit = unit;
-            this.attackRange = Wrapper.getAttackRange(unit.getType());
-
-            AuxMapLocation myLoc = unit.getMaplocation();
-
-            Danger.computeDanger(unit);
-
-            int dirGreedy = greedyMove(unit);
-            if (dirGreedy != 8){
-                Wrapper.moveRobot(unit, dirGreedy);
-                getData(unit).soft_reset(myLoc);
-                return dirGreedy;
-            }
+            if (target == null) return;
+            if (!_unit.canMove()) return;
+            unit = _unit;
 
 
-            int dirBFS = myLoc.dirBFSTo(unit.target);
-            if (dirBFS == 8) return 8;
-            if (!isSafe(dirBFS)) return 8;
-            if (Wrapper.canMove(unit, dirBFS)){
-                Wrapper.moveRobot(unit, dirBFS);
-                getData(unit).soft_reset(myLoc);
-                return dirBFS;
-            }
-
-            AuxMapLocation newLoc = myLoc.add(dirBFS);
-
-            AuxUnit u = Data.getUnit(newLoc.x, newLoc.y, true);
-            if (u != null){
-                if (u.getType() != UnitType.Factory && u.getType() != UnitType.Rocket) {
-                    if (moveTo(u) != 8) {
-                        Wrapper.moveRobot(unit, dirBFS);
-                        getData(unit).soft_reset(myLoc);
-                        return dirBFS;
-                    }
-                }
-            }
-
-            long d = unit.getMaplocation().distanceSquaredTo(unit.target);
-            if (d == 0) return 8;
-            if (d <= 2) {
-                int dir = unit.getMaplocation().dirBFSTo(unit.target);
-                //System.err.println(dir);
-                //System.err.println(Pathfinder.getIndex(dir));
-                if (Wrapper.canMove(unit, dir)){
-                    Wrapper.moveRobot(unit, dir);
-                    return dir;
-                }
-                return 8;
-            }
-
-            this.unit = unit;
             id = unit.getID();
-            this.myLoc = unit.getMaplocation();
+            myLoc = unit.getMaplocation();
             if (!bugpathData.keySet().contains(id)) {
                 data = new BugPathfindingData();
             } else data = bugpathData.get(id);
@@ -242,14 +173,31 @@ public class MovementManager {
 
             Danger.computeDanger(unit);
 
-            int ans =  naiveMoveTo(unit.target);
-            bugpathData.put(id, data);
+            greedyMove();
 
-            return ans;
+
+            if (!unit.canMove()) return;
+
+            //for (int i = 0; i < 9; ++i) if(Danger.DPS[i] > 0) canMove[i] = false;
+
+            long d = myLoc.distanceSquaredTo(target);
+            if (d == 0) return;
+            if (d <= 2) {
+                int dir = myLoc.dirBFSTo(target);
+                //System.err.println(dir);
+                //System.err.println(Pathfinder.getIndex(dir));
+                if (canMove[dir]) Wrapper.moveRobot(unit, dir);
+                return;
+            }
+
+            naiveMoveTo(target);
+
+            //safeMoveTo(unit, target);
+
+            bugpathData.put(id, data);
         }catch(Exception e) {
             e.printStackTrace();
         }
-        return 8;
     }
 
     boolean shouldAggro(){
@@ -274,21 +222,23 @@ public class MovementManager {
 
     int bestIndex(int i, int j){
         try {
-            if (shouldAggro()) {
-                if (Danger.minDist[i] > attackRange && Danger.minDist[j] <= attackRange) return j;
-                if (Danger.minDist[i] <= attackRange && Danger.minDist[j] > attackRange) return i;
-                if (Danger.minDist[i] <= attackRange) {
-                    if (Danger.DPS[i] + Danger.DPSlong[i] / 3 > Danger.DPS[j] + Danger.DPSlong[j] / 3) return j;
-                    if (Danger.DPS[i] < Danger.DPS[j]) return i;
-                    if (Danger.minDist[i] >= Danger.minDist[j]) return i;
-                    return j;
-                } else {
-                    if (i != 8) {
-                        if (Danger.minDist[i] <= Danger.minDist[j]) return i;
+            if (unit.canAttack()) {
+                if ((Data.onEarth() && Data.canBlink) || Danger.attackers.contains(id) || (unit.getType() == UnitType.Mage && unit.canUseAbility() == false)) {
+                    if (Danger.minDist[i] > attackRange && Danger.minDist[j] <= attackRange) return j;
+                    if (Danger.minDist[i] <= attackRange && Danger.minDist[j] > attackRange) return i;
+                    if (Danger.minDist[i] <= attackRange) {
+                        if (Danger.DPS[i] + Danger.DPSlong[i]/3 > Danger.DPS[j] + Danger.DPSlong[j]/3) return j;
+                        if (Danger.DPS[i] < Danger.DPS[j]) return i;
+                        if (Danger.minDist[i] >= Danger.minDist[j]) return i;
                         return j;
+                    } else {
+                        if (i != 8) {
+                            if (Danger.minDist[i] <= Danger.minDist[j]) return i;
+                            return j;
+                        }
                     }
+                    return i;
                 }
-                return i;
             }
             //if (true){
             if (Danger.DPS[i] > Danger.DPS[j]) return j;
@@ -313,21 +263,22 @@ public class MovementManager {
         }
     }
 
-    int greedyMove(AuxUnit unit){
-        if (unit.getType() == UnitType.Knight) return 8;
+    void greedyMove(){
+        if (unit.getType() == UnitType.Knight) return;
         try {
+            if (!unit.canMove()) return;
             int index = 8;
-            for (int i = 0; i < 8; ++i) if (Wrapper.canMove(unit, i)) index = bestIndex(index, i);
+            for (int i = 0; i < 8; ++i) if (canMove[i]) index = bestIndex(index, i);
 
             //System.err.println(index);
 
             if (index != 8) {
-                return index;
+                Wrapper.moveRobot(unit, index);
+                data.soft_reset(myLoc);
             }
         }catch(Exception e) {
             e.printStackTrace();
         }
-        return 8;
     }
 
     boolean isSafe(int ind){

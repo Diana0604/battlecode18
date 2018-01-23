@@ -9,8 +9,7 @@ public class Mage {
     final int min_group = 3;
     final long INFL = 1000000000;
     static Mage instance = null;
-
-
+    AuxMapLocation bestEnemy;
     public AuxUnit unit;
 
     int[][] multitargetArraY;
@@ -69,21 +68,23 @@ public class Mage {
 
     public Mage(){
         objectiveArea = new HashMap();
+        multitargetArraY = new int[Data.W][Data.H];
     }
 
-    AuxMapLocation getTarget(AuxUnit _unit){
-        AuxMapLocation ans = getBestTarget(_unit);
-        if (ans != null) return ans;
-        _unit.exploretarget = true;
-        return Explore.findExploreObjective(_unit);
-    }
-
-    void doAction(AuxUnit _unit){
+    void play(AuxUnit _unit){
         unit = _unit;
-        if (unit.target != null && !unit.exploretarget && unit.target.distanceSquaredTo(unit.getMaplocation()) < 90){
+        bestEnemy = getBestEnemy(unit.getMaplocation());
+        if (bestEnemy != null && bestEnemy.distanceSquaredTo(unit.getMaplocation()) < 90){
             if (trySpecialMove()) return;
         }
+        MageMove();
         attack();
+    }
+
+    void MageMove(){
+        if (!unit.canMove()) return;
+        move(unit);
+        return;
     }
 
     boolean trySpecialMove(){
@@ -218,12 +219,53 @@ public class Mage {
 
     }
 
+    AuxUnit getBestAttackTarget(AuxUnit A, AuxUnit B){
+        try {
+            if (A == null) return B;
+            if (B == null) return A;
+            if (A.getType() == B.getType()) {
+                if (A.getHealth() < B.getHealth()) return A;
+                return B;
+            }
+            if (A.getType() == UnitType.Mage) return A;
+            if (B.getType() == UnitType.Mage) return B;
+            if (A.getType() == UnitType.Healer) return A;
+            if (B.getType() == UnitType.Healer) return B;
+            if (A.getType() == UnitType.Ranger) return A;
+            if (B.getType() == UnitType.Ranger) return B;
+            if (A.getType() == UnitType.Knight) return A;
+            if (B.getType() == UnitType.Knight) return B;
+            if (A.getType() == UnitType.Worker) return A;
+            if (B.getType() == UnitType.Worker) return B;
+            return B;
+        }catch(Exception e) {
+            e.printStackTrace();
+            return A;
+        }
+    }
+
     void attack() {
         try {
             if (!unit.canAttack()) return;
             MageMovement m = new MageMovement(new AuxMapLocation(0,0), 8, true);
             m.getValue();
             if (m.bestTarget != null) Wrapper.attack(unit, m.bestTarget);
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
+    void move(AuxUnit unit){
+        try {
+            AuxMapLocation target = getBestTarget(unit);
+            if (target != null) MovementManager.getInstance().moveTo(unit, target);
+            else {
+                ConstructionQueue queue = Data.queue;
+                queue.requestUnit(UnitType.Rocket);
+                Explore.explore(unit);
+            }
         }catch(Exception e) {
             e.printStackTrace();
         }
@@ -253,14 +295,14 @@ public class Mage {
         }
     }
 
-    AuxMapLocation getBestTarget(AuxUnit _unit){
+    AuxMapLocation getBestTarget(AuxUnit unit){
         try {
-            if (Rocket.callsToRocket.containsKey(_unit.getID())) return Rocket.callsToRocket.get(_unit.getID());
+            if (Rocket.callsToRocket.containsKey(unit.getID())) return Rocket.callsToRocket.get(unit.getID());
             /*if (unit.getHealth() < 100) {
                 AuxMapLocation ans = getBestHealer(unit.getMaplocation());
                 if (ans != null) return ans;
             }*/
-            return getBestEnemy(_unit.getMaplocation());
+            return bestEnemy;
         }catch(Exception e) {
             e.printStackTrace();
             return null;

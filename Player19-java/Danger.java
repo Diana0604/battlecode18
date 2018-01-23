@@ -18,43 +18,24 @@ public class Danger {
     static final int INF = 1000000000;
     static HashSet<Integer> attackers;
 
-    static HashMap<Integer, DangerData> dangerData;
-
     static final double winningProportion = 1.05;
 
     static AuxMapLocation[] locUnits, locEnemyUnits;
     static boolean[] dangUnits, dangEnemyUnits, visitedUnits, visitedEnemyUnits;
 
-    static void reset(){
-        dangerData = new HashMap<>();
-    }
-
     //MyLoc = position, canMove = directions you want to compute {9 is center}
     static void computeDanger(AuxUnit unit){
         try {
-            AuxMapLocation myLoc = unit.getMaplocation();
-            if (myLoc == null) return;
-
-            int enc = Data.encodeOcc(myLoc.x, myLoc.y);
-
-            if (dangerData.containsKey(enc)){
-                DangerData data = dangerData.get(enc);
-                DPS = data.DPS;
-                DPSlong = data.DPSlong;
-                minDist = data.minDist;
-                return;
-            }
-
-            DangerData data = new DangerData();
-
-            data.DPS = new double[9];
-            data.DPSlong = new double[9];
-            data.minDist = new int[9];
+            DPS = new double[9];
+            DPSlong = new double[9];
+            minDist = new int[9];
             for (int i = 0; i < 9; ++i) {
-                data.DPS[i] = 0;
-                data.minDist[i] = INF;
-                data.DPSlong[i] = 0;
+                DPS[i] = 0;
+                minDist[i] = INF;
+                DPSlong[i] = 0;
             }
+
+            AuxMapLocation myLoc = unit.getMaplocation();
 
             AuxUnit[] enemies = Wrapper.senseUnits(myLoc.x, myLoc.y, 100, false);
             for (int i = 0; i < enemies.length; ++i) {
@@ -71,17 +52,11 @@ public class Danger {
                     if (!Wrapper.canMove(unit, j) && j < 8) continue;
                     AuxMapLocation newLoc = myLoc.add(j);
                     long d = enemy.getMaplocation().distanceSquaredTo(newLoc);
-                    if (dps > 0 && d <= arshort) data.DPS[j] += dps;
-                    if (dps > 0 && d <= arslong) data.DPSlong[j] += dps;
-                    data.minDist[j] = Math.min(data.minDist[j], (int) d);
+                    if (dps > 0 && d <= arshort) DPS[j] += dps;
+                    if (dps > 0 && d <= arslong) DPSlong[j] += dps;
+                    minDist[j] = Math.min(minDist[j], (int) d);
                 }
             }
-
-            dangerData.put(enc, data);
-            DPS = data.DPS;
-            DPSlong = data.DPSlong;
-            minDist = data.minDist;
-
         }catch(Exception e) {
             e.printStackTrace();
         }
@@ -190,12 +165,6 @@ public class Danger {
             e.printStackTrace();
             return true;
         }
-    }
-
-    static class DangerData{
-        double[] DPS;
-        double[] DPSlong;
-        int[] minDist;
     }
 
 }

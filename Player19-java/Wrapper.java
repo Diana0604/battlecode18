@@ -368,8 +368,6 @@ public class Wrapper {
             Data.gc.replicate(unit.getID(), Data.allDirs[dir]);
             Data.karbonite = Data.getKarbonite() - Data.replicateCost;
             Data.occupiedPositions.add(Data.encodeOcc(newLoc.x, newLoc.y));
-            unit.canUseAbility = false;
-            unit.canAttack = false;
         }catch(Exception e) {
             e.printStackTrace();
         }

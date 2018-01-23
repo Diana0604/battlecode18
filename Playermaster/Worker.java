@@ -34,11 +34,11 @@ public class Worker {
             tryReplicate(_unit);
             if (!unit.canAttack()) return true;
             if (tryBuildAndRepair()) return true;
-            if (tryMine()) return true;
             if (tryPlaceBlueprint()) {
                 unit.canMove = false;
                 return true;
             }
+            if (tryMine()) return true;
             return false;
         }catch(Exception e) {
             e.printStackTrace();

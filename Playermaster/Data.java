@@ -269,13 +269,11 @@ class Data {
         VecUnit vec = planetMap.getInitial_units();
         for (int i = 0; i < vec.size(); ++i) {
             Unit unit_i = vec.get(i);
-            MapLocation loc = unit_i.location().mapLocation();
-            int locX = loc.getX(); // per evitar api calls¿?¿?¿?
-            int locY = loc.getY();
+            AuxMapLocation loc = new AuxMapLocation(unit_i.location().mapLocation());
             if (unit_i.team().equals(myTeam)) {
                 for (int x = 0; x < W; ++x) {
                     for (int y = 0; y < H; ++y) {
-                        double dist = Pathfinder.getInstance().getNode(locX, locY, x, y).dist;
+                        double dist = loc.dirBFSTo(new AuxMapLocation(x,y));
                         if (initialDistToAllies[x][y] == -1 || dist < initialDistToAllies[x][y]) {
                             initialDistToAllies[x][y] = dist;
                         }
@@ -285,7 +283,7 @@ class Data {
             else {
                 for (int x = 0; x < W; ++x) {
                     for (int y = 0; y < H; ++y) {
-                        double dist = Pathfinder.getInstance().getNode(locX, locY, x, y).dist;
+                        double dist = loc.dirBFSTo(new AuxMapLocation(x,y));
                         if (initialDistToEnemies[x][y] == -1 || dist < initialDistToEnemies[x][y]) {
                             initialDistToEnemies[x][y] = dist;
                         }

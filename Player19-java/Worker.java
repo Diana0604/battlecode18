@@ -253,12 +253,12 @@ public class Worker {
                 int encoding = tasksIDs.get(id);
                 AuxMapLocation location = Data.toLocation(encoding);
                 if (!location.isOnMap()){
-                    System.out.println("Location " + location.x + "," + location.y + " out of map. Encoding " + encoding);
+                    //System.out.println("Location " + location.x + "," + location.y + " out of map. Encoding " + encoding);
                     return;
                 }
                 if (!Data.karboniteAt.containsKey(encoding)){
                     //si la mina ja esta buida, trec la task
-                    System.out.println(Data.round + " worker " + id + " removes mine " + location.x + "," + location.y);
+                    //System.out.println(Data.round + " worker " + id + " removes mine " + location.x + "," + location.y);
                     tasksLocs.remove(encoding);
                     tasksIDs.remove(id);
                 }
@@ -286,7 +286,7 @@ public class Worker {
                     for (Integer encoding : tasksLocs.keySet()) {
                         AuxMapLocation loc = Data.toLocation(encoding);
                         if (!loc.isOnMap()){
-                            System.out.println("Location " + loc.x + "," + loc.y + " out of map. Encoding " + encoding);
+                            //System.out.println("Location " + loc.x + "," + loc.y + " out of map. Encoding " + encoding);
                             return;
                         }
                         double dist = unit.getMaplocation().distanceSquaredTo(loc);
@@ -301,7 +301,7 @@ public class Worker {
                 }else{
                     //ha trobat una mina buida, se l'assigna
                     int encoding = Data.encodeOcc(minLoc.x, minLoc.y);
-                    System.out.println(Data.round + " worker " + id + " s'assigna la mina " + minLoc.x + "," + minLoc.y + "   " + tasksLocs.get(encoding));
+                    //System.out.println(Data.round + " worker " + id + " s'assigna la mina " + minLoc.x + "," + minLoc.y + "   " + tasksLocs.get(encoding));
                     tasksIDs.put(id, encoding);
                     tasksLocs.put(encoding, id);
                     destination = minLoc;
@@ -309,7 +309,7 @@ public class Worker {
                 }
             }
             if (destination == null){
-                System.out.println(Data.round + " worker " + unit.getID() + " destination null!");
+                //System.out.println(Data.round + " worker " + unit.getID() + " destination null!");
                 destination = unit.getMaplocation();
             }
             //AuxMapLocation l = Data.toLocation(Data.encodeOcc(destination.x, destination.y));

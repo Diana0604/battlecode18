@@ -1,5 +1,3 @@
-
-
 import bc.UnitType;
 
 import java.util.HashMap;
@@ -31,7 +29,7 @@ public class Factory {
 
         //rangers + healers + mags + knights
         //falta canviar-ho si hem aniquilat l'enemic
-        diag = (int) Math.sqrt(Data.H*Data.H + Data.W*Data.W);
+        diag = (int) Math.sqrt(Data.H* Data.H + Data.W* Data.W);
         maxRangers = (int) Math.max(1.25*diag, diag + 20);
     }
 
@@ -109,7 +107,7 @@ public class Factory {
             Wrapper.produceUnit(unit, type);
             if (type == UnitType.Mage) Data.magesBuilt++;
             //System.out.println("Built " + type);
-            Data.unitTypeCount.put(type,Data.unitTypeCount.get(type) + 1);
+            Data.unitTypeCount.put(type, Data.unitTypeCount.get(type) + 1);
         }
     }
 

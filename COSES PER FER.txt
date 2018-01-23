@@ -8,3 +8,4 @@ WORKERS TODO:
 
 
 - Que el first rocket nomes porti 1 worker i 1 ranger
+- Spawnejar les unitats cap a on esta l'enemic 

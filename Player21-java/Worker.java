@@ -1,10 +1,7 @@
 import bc.Planet;
 import bc.UnitType;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 public class Worker {
 
@@ -17,14 +14,14 @@ public class Worker {
 
     public Worker(){
         WorkerUtil.computeApproxMapValue();
+        WorkerUtil.fillKarboniteAround();
+        WorkerUtil.getKarboConstants();
+        WorkerUtil.ExploreMap = new HashMap<Integer, Integer>();
     }
 
     private AuxUnit unit;
     private boolean danger;
     private boolean wait;
-    final int MAX_FACTORIES = 5;
-
-
 
     /*----------- ACTIONS ------------*/
 
@@ -190,7 +187,7 @@ public class Worker {
         int numFactories = Data.unitTypeCount.get(UnitType.Factory);
         if (numFactories == 0) return UnitType.Factory;
         int roundsOver100Karbo = Data.round - Data.lastRoundUnder100Karbo;
-        if (numFactories < MAX_FACTORIES && roundsOver100Karbo >= 5) return UnitType.Factory;
+        if (numFactories < WorkerUtil.MAX_FACTORIES && roundsOver100Karbo >= 5) return UnitType.Factory;
         if (canBuildRocket) return UnitType.Rocket;
         return null;
     }
@@ -217,6 +214,18 @@ public class Worker {
 
     /*-------------- Targets ---------------*/
 
+    Boolean canKarbo(AuxMapLocation myLoc, AuxMapLocation newLoc){
+        try {
+            if (!newLoc.isOnMap()) return false;
+            if (!Data.accessible[newLoc.x][newLoc.y]) return false;
+            if (newLoc.distanceBFSTo(myLoc) > WorkerUtil.KARBO_DISTANCE) return false;
+            return true;
+        } catch(Exception e){
+            System.out.println(e);
+        }
+        return false;
+    }
+
     AuxMapLocation getTarget(AuxUnit _unit){
         unit = _unit;
         if (Data.onEarth()) return earthTarget();
@@ -226,7 +235,19 @@ public class Worker {
     private AuxMapLocation earthTarget(){
         try {
             if (!unit.canMove()) return null;
-
+            if(Data.round < WorkerUtil.EXPLORE_ROUND) {
+                System.out.println(WorkerUtil.EXPLORE_ROUND);
+                System.out.print("ronda: ");
+                System.out.println(Data.round);
+                AuxMapLocation target = getFirstTarget();
+                if(target!= null) {
+                    System.out.print("target: ");
+                    System.out.print(target.x);
+                    System.out.print(" ");
+                    System.out.println(target.y);
+                    return target;
+                }
+            }
             ArrayList<Target> targets = new ArrayList<>();
 
             Target rocket = getRocketTarget();
@@ -329,6 +350,46 @@ public class Worker {
         return null;
     }
 
+    //target for first rounds
+    AuxMapLocation getFirstTarget(){
+        try {
+            AuxMapLocation myLoc = unit.getMaplocation();
+            int encodeLoc = Data.encodeOcc(myLoc.x, myLoc.y);
+            if (WorkerUtil.ExploreMap.containsKey(unit.getID())) {
+                int encodeTarget = WorkerUtil.ExploreMap.get(unit.getID());
+                if (encodeLoc == encodeTarget) return null;
+                return Data.toLocation(encodeTarget);
+            }
+
+            boolean[][] visited = new boolean[Data.W][Data.H];
+            visited[myLoc.x][myLoc.y] = true;
+            Queue<AuxMapLocation> q = new LinkedList<AuxMapLocation>();
+            q.add(myLoc);
+            AuxMapLocation target = myLoc;
+            int maxKarbo = 0;
+            while (!q.isEmpty()) {
+                AuxMapLocation oldLoc = q.poll();
+                //we want to go as far as possible without going to an empty space
+                if (WorkerUtil.karboniteAround[oldLoc.x][oldLoc.y] <= maxKarbo && WorkerUtil.karboniteAround[oldLoc.x][oldLoc.y] > 0) {
+                    target = oldLoc;
+                }
+                for (int i = 0; i < 9; ++i) {
+                    AuxMapLocation newLoc = oldLoc.add(i);
+                    if (canKarbo(myLoc, newLoc) && !visited[newLoc.x][newLoc.y]) {
+                        q.add(newLoc);
+                        visited[newLoc.x][newLoc.y] = true;
+                    }
+                }
+            }
+            WorkerUtil.decreaseKarboniteAround(target, 8);
+            WorkerUtil.ExploreMap.put(unit.getID(), Data.encodeOcc(target.x, target.y));
+            return target;
+        } catch (Exception e){
+            System.out.println(e);
+            return null;
+        }
+    }
+
     //value = worker turns, capat a 50
     private Target getKarboniteTarget(){
         try {
@@ -338,7 +399,7 @@ public class Worker {
                 AuxMapLocation mineLoc = Data.toLocation(entry.getKey());
                 Danger.computeDanger(unit);
                 if (Danger.DPS[8] > 0) continue; //nomes van a mines no perilloses
-                int workerTurns = Math.min(50, entry.getValue()/Data.harvestingPower);
+                int workerTurns = Math.min(50, entry.getValue()/ Data.harvestingPower);
                 int value = workerTurns * KARBONITE_MULTIPLIER;
                 if (WorkerUtil.buildingAt(mineLoc)) continue;
                 double dist = unit.getMaplocation().distanceBFSTo(mineLoc);
@@ -374,7 +435,7 @@ public class Worker {
                 int remainingHP = (Wrapper.getMaxHealth(blueprint.getType()) - blueprint.getHealth())
                         - (int) (dist * WorkerUtil.getAdjacentWorkers(blueprint.getMaplocation()) * Data.buildingPower);
                 if (remainingHP <= 0) return null;
-                int workerTurns = remainingHP/Data.buildingPower + 1;
+                int workerTurns = remainingHP/ Data.buildingPower + 1;
                 int value = workerTurns * BLUEPRINT_MULTIPLIER;
                 return new Target(value, dist, bLoc, 2);
             }
@@ -398,9 +459,9 @@ public class Worker {
                 AuxMapLocation sLoc = structure.getMaplocation();
                 double dist = Math.max(unit.getMaplocation().distanceBFSTo(sLoc) - 1, 0);
                 int missingHP = (Wrapper.getMaxHealth(structure.getType()) - structure.getHealth())
-                        - (int)(dist*WorkerUtil.getAdjacentWorkers(structure.getMaplocation())*Data.repairingPower);
+                        - (int)(dist* WorkerUtil.getAdjacentWorkers(structure.getMaplocation())* Data.repairingPower);
                 if (missingHP <= 0) return null;
-                int workerTurns = missingHP/Data.repairingPower + 1;
+                int workerTurns = missingHP/ Data.repairingPower + 1;
                 int value = workerTurns * STRUCTURE_MULTIPLIER;
                 return new Target(value, dist, sLoc, 2);
             }

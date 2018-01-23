@@ -26,6 +26,9 @@ public class MarsPlanning{
     int[] departTime = new int[1001];
     int[] optimArrivalTime = new int[1001];
 
+    double[][] initialPriority;
+    double[] initialKarboCC;
+
     static MarsPlanning getInstance(){
         if (instance == null) instance = new MarsPlanning();
         return instance;
@@ -97,6 +100,18 @@ public class MarsPlanning{
         //Data.asteroidStrikes = aStrikes.toArray(new AsteroidStrike[0]);
         Data.asteroidCarbo = aCarbo.toArray(new Integer[0]);
         Data.asteroidLocations = locCarbo.toArray(new AuxMapLocation[0]);
+
+        // fill initialKarbo
+        initialPriority = new double[W][H];
+        initialKarboCC = new double[ccs+1];
+        for (int x = 0; x < W; ++x) {
+            for (int y = 0; y < H; ++y) {
+                AuxMapLocation loc = new AuxMapLocation(x,y);
+                double value = map.initialKarboniteAt(new MapLocation(Planet.Mars,x,y));
+                addKarboCC(initialKarboCC, loc, 100*value);
+                addPriority(initialPriority, loc ,DEPTH, value, passable[x][y],false);
+            }
+        }
     }
 
     private void bfs(int a, int b){
@@ -224,7 +239,7 @@ public class MarsPlanning{
             for (int y = 0; y < H; ++y) {
                 if (!passable[x][y]) continue;
                 if (bestLoc == null) bestLoc = new AuxMapLocation(x, y);
-                double priority_xy = priority[x][y] + karbo_cc[cc[x][y]];
+                double priority_xy = initialPriority[x][y] + initialKarboCC[cc[x][y]] + priority[x][y] + karbo_cc[cc[x][y]];
                 if (priority_xy > best_priority){
                     best_priority = priority_xy;
                     bestLoc = new AuxMapLocation(x, y);

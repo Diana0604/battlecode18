@@ -277,8 +277,8 @@ public class MovementManager {
                 if (Danger.minDist[i] > attackRange && Danger.minDist[j] <= attackRange) return j;
                 if (Danger.minDist[i] <= attackRange && Danger.minDist[j] > attackRange) return i;
                 if (Danger.minDist[i] <= attackRange) {
-                    if (danger(i) > danger(j)) return j;
-                    if (danger(i) < danger(j)) return i;
+                    if (Danger.DPS[i] + Danger.DPSlong[i] / 3 > Danger.DPS[j] + Danger.DPSlong[j] / 3) return j;
+                    if (Danger.DPS[i] < Danger.DPS[j]) return i;
                     if (Danger.minDist[i] >= Danger.minDist[j]) return i;
                     return j;
                 } else {
@@ -290,8 +290,8 @@ public class MovementManager {
                 return i;
             }
             //if (true){
-            if (danger(i) >  danger(j)) return j;
-            if (danger(i) <  danger(j)) return i;
+            if (Danger.DPS[i] > Danger.DPS[j]) return j;
+            if (Danger.DPS[i] < Danger.DPS[j]) return i;
             if (attacker) {
                 if (Danger.minDist[i] > attackRange && Danger.minDist[j] <= attackRange) return j;
                 if (Danger.minDist[i] <= attackRange && Danger.minDist[j] > attackRange) return i;

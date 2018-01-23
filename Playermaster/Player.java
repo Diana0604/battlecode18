@@ -14,6 +14,7 @@ public class Player {
             UnitManager.initialize(gc);
             UnitManager unitManager = UnitManager.getInstance();
             Pathfinder.getInstance();
+            Data.initGameAfterPathfinder();
 
             while (true) {
                 try {

@@ -50,7 +50,7 @@ public class Worker {
                         Wrapper.replicate(unit, i);
                         Data.unitTypeCount.put(UnitType.Worker, Data.unitTypeCount.get(UnitType.Worker) + 1);
                         WorkerUtil.extra_workers++;
-                        Data.queue.requestUnit(UnitType.Worker, false);
+                        //Data.queue.requestUnit(UnitType.Worker, false);
                         return true;
                     }
                 }

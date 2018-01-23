@@ -229,6 +229,7 @@ public class MarsPlanning{
         double best_priority = 0;
         for (int x = 0; x < W; ++x) {
             for (int y = 0; y < H; ++y) {
+                if (!passable[x][y]) continue;
                 if (bestLoc == null) bestLoc = new AuxMapLocation(x, y);
                 double priority_xy = priority[x][y] + karbo_cc[cc[x][y]];
                 if (priority_xy > best_priority){

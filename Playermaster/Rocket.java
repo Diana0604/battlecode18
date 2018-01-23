@@ -1,5 +1,4 @@
 import bc.Planet;
-import bc.UnitType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,6 +10,8 @@ public class Rocket {
 
     public static HashMap<Integer, AuxMapLocation> callsToRocket; // hauria de ser Integer,Integer amb els ids, pero per minimitzar calls al gc...
     public static HashSet<AuxMapLocation> rocketTakeoffs;
+
+    static int[] maxRobots = {1, 12, 12, 12, 12, 12, 12};
 
     static HashSet<AuxMapLocation> rocketLandingsLocs;
     static int[] rocketLandingsCcs; // s'instancia a MarsPlanning despres de calculars les ccs
@@ -38,8 +39,9 @@ public class Rocket {
 
         if (unit.getLocation().isOnPlanet(Planet.Earth)) {
             ArrayList<Pair> sorted = getSorted(unit);
-            loadRobots(unit, sorted);
-            aSopar(unit, sorted);
+            int[] robots = getRobotsInGarrison(unit);
+            loadRobots(unit, sorted, robots, maxRobots);
+            aSopar(unit, sorted, robots, maxRobots);
             boolean willLaunch = hasToLeaveByEggs(unit);
             if (!willLaunch) willLaunch = shouldLaunch(unit);
             if (willLaunch) rocketTakeoffs.add(unit.getMaplocation());
@@ -97,53 +99,43 @@ public class Rocket {
             sorted.add(new Pair(distance, unit_i));
         }
         sorted.sort((a, b) -> a.dist < b.dist ? -1 : a.dist == b.dist ? 0 : 1);
-        //if (sorted.size() > 2) System.out.println(sorted.get(0).dist + " " + sorted.get(1).dist + " " + sorted.get(2).dist);
         return sorted;
     }
 
-    private boolean hasWorker(AuxUnit unit) {
+    private int[] getRobotsInGarrison(AuxUnit unit) {
+        int[] ret = new int[7];
         for (int id:unit.getGarrisonUnits()) {
-            if (Data.myUnits[Data.allUnits.get(id)].getType() == UnitType.Worker) return true;
+            AuxUnit unit_i = Data.myUnits[Data.allUnits.get(id)];
+            ret[unit_i.getType().swigValue()]++;
         }
-        return false;
+        return ret;
     }
 
-    private void aSopar(AuxUnit unit, ArrayList<Pair> sorted) {
+    private void aSopar(AuxUnit unit, ArrayList<Pair> sorted, int[] robots, int[] maxRobots) {
         // cridar els que faltin
         int remaining = Data.rocketCapacity - unit.getGarrisonUnits().size();
-        boolean hasWorker = hasWorker(unit);
         for (int i = 0; i < sorted.size(); ++i) {
             if (remaining == 0) break;
             AuxUnit unit_i = sorted.get(i).unit;
+            int swig = unit_i.getType().swigValue();
+            if (robots[swig] >= maxRobots[swig]) continue;
             if (!callsToRocket.containsKey(unit_i.getID())) {
-                if (unit_i.getType() == UnitType.Worker) {
-                    if (!hasWorker) {
-                        callsToRocket.put(unit_i.getID(), unit.getMaplocation());
-                        remaining--;
-                        hasWorker = true;
-                    }
-                }
-                else {
-                    callsToRocket.put(unit_i.getID(), unit.getMaplocation());
-                    remaining--;
-                }
+                callsToRocket.put(unit_i.getID(), unit.getMaplocation());
+                remaining--;
+                robots[swig]++;
             }
         }
     }
 
-    private void loadRobots(AuxUnit unit, ArrayList<Pair> sorted) {
-        boolean hasWorker = hasWorker(unit);
+    private void loadRobots(AuxUnit unit, ArrayList<Pair> sorted, int[] robots, int[] maxRobots) {
         for (Pair p:sorted) {
             if (p.dist > 2 || unit.getGarrisonUnits().size() == Data.rocketCapacity) break;
             AuxUnit unit_i = p.unit;
+            int swig = unit_i.getType().swigValue();
+            if (robots[swig] >= maxRobots[swig]) continue;
             if (Wrapper.canLoad(unit, unit_i)) {
-                if (unit_i.getType() == UnitType.Worker) {
-                    if (!hasWorker) {
-                        Wrapper.load(unit, unit_i);
-                        hasWorker = true;
-                    }
-                }
-                else Wrapper.load(unit, unit_i);
+                Wrapper.load(unit, unit_i);
+                robots[swig]++;
             }
         }
     }

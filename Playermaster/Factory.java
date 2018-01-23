@@ -14,9 +14,8 @@ public class Factory {
 
     AuxUnit unit;
 
-    private static int maxUnits;
-    static int maxRangers = 50;
-    static int diag;
+    static int maxRangers;
+    private static int diag;
 
     static Factory getInstance(){
         if (instance == null){
@@ -32,7 +31,7 @@ public class Factory {
         //rangers + healers + mags + knights
         //falta canviar-ho si hem aniquilat l'enemic
         diag = (int) Math.sqrt(Data.H*Data.H + Data.W*Data.W);
-        maxUnits = 3 * (int)(Math.sqrt(2)*diag);
+        maxRangers = (int) (1.25*diag);
     }
 
 
@@ -70,50 +69,16 @@ public class Factory {
     }
 
     private UnitType chooseNextUnit(){
-        if (Data.unitTypeCount.get(UnitType.Worker) == 0) return UnitType.Worker; //potser millor si workers < 2-3?
-        //rangers : healers : mages : knights
-        int[] ratio1 = {3, 1, 0, 0}; //before mages1
-        int[] ratio2 = {9, 4, 2, 0}; //after mages1, before mages2
-        int[] ratio3 = {9, 4, 9, 0}; //after mages2 (<175 turns to blink)
-        int[] idealRatio;
-        int mageLevel = (int) Data.researchInfo.getLevel(UnitType.Mage);
-        if (mageLevel < 1) idealRatio = ratio1;
-        else if (mageLevel < 2) idealRatio = ratio2;
-        else idealRatio = ratio3;
-
-
+        if (Data.getKarbonite() < 30) return null;
         HashMap<UnitType, Integer> typeCount = Data.unitTypeCount;
-        UnitType[] types = {UnitType.Ranger, UnitType.Healer, UnitType.Mage, UnitType.Knight};
-        int[] counts = {0,0,0,0};
-        int totalCount = 0;
+        if (typeCount.get(UnitType.Worker) == 0) return UnitType.Worker; //potser millor si workers < 2-3?
 
-        for (int i = 0; i < types.length; i++){
-            int c = typeCount.get(types[i]);
-            counts[i] = c;
-            totalCount += c;
-        }
+        int rangers = typeCount.get(UnitType.Ranger);
+        int healers = typeCount.get(UnitType.Healer);
 
-        if (totalCount > maxUnits) return null;
-
-        double[] ratios = {0,0,0,0};
-        for (int i = 0; i < ratios.length; i++) {
-            if (idealRatio[i] == 0) ratios[i] = 100000;
-            else ratios[i] = (double)typeCount.get(types[i])/ (double) idealRatio[i];
-        }
-        double minRatio = 100000;
-        int minIndex = -1;
-        for (int i = 0; i < ratios.length; i++) {
-            if (ratios[i] < minRatio){
-                minRatio = ratios[i];
-                minIndex = i;
-            }
-        }
-        /*for (int i = 0; i < types.length; i++){
-            UnitType type = types[i];
-            System.out.println(type + " ideal " + idealRatio[i] + " count " + Data.unitTypeCount.get(types[i]) + " ratio " + ratios[i]);
-        }
-        System.out.println("Best type: " + types[minIndex]);*/
-        return types[minIndex];
+        if (3 * healers < rangers) return UnitType.Healer;
+        if (rangers < maxRangers)  return UnitType.Ranger;
+        return UnitType.Mage;
     }
 
     void build(UnitType type){

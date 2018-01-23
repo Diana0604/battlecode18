@@ -65,7 +65,9 @@ class Data {
     static int[][] karboMap;
     static AuxUnit[] myUnits; //myUnits[i] retorna una unit random meva
     static AuxUnit[] enemies;
+    static int lastRoundEnemySeen;
     static boolean[][] accessible;
+    static int lastRoundUnder100Karbo;
 
     private static int[] healingPowers = {10, 12, 17, 17};
     static int healingPower;
@@ -198,6 +200,7 @@ class Data {
             gc = _gc;
 
             round = 1;
+            lastRoundEnemySeen = 1;
             aggro = false;
             research = Research.getInstance();
             research.yolo();
@@ -318,7 +321,7 @@ class Data {
             if (karboniteAt.containsKey(encodeOcc(loc.x, loc.y)))
                 putValue(loc.x, loc.y, karboniteAt.get(encodeOcc(loc.x, loc.y)) + karbonite);
             else putValue(loc.x, loc.y, karbonite);
-
+/*
             System.out.println("");
             System.out.println("====================== TASK ARRAY " + round + " ====================== ");
             for (Map.Entry<Integer,Integer> entry: asteroidTasksLocs.entrySet()){
@@ -332,7 +335,7 @@ class Data {
                 AuxMapLocation l = toLocation(entry.getValue());
                 System.out.println("Worker " + id + " has location " + l.x + "," + l.y);
             }
-            System.out.println("");
+            System.out.println("");*/
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -366,10 +369,6 @@ class Data {
             int knights = 0;
             int factories = 0;
             int rockets = 0;
-            int MIN_KARBONITE_FOR_FACTORY = 200;
-            int INITIAL_FACTORIES = 3;
-            boolean rocketBuilt = false;
-            boolean workerBuilt = false;
             for (int i = 0; i < myUnits.length; i++) {
                 AuxUnit u = myUnits[i];
                 allUnits.put(u.getID(), i);
@@ -382,7 +381,7 @@ class Data {
                     rockets++;
                     structures.add(i);
                 } else if (type == UnitType.Worker) {
-                    if (!u.isInGarrison()) workerBuilt = true;
+                    //if (!u.isInGarrison()) workerBuilt = true;
                     ++workers;
                 } else if (type == UnitType.Ranger) {
                     ++rangers;
@@ -459,6 +458,7 @@ class Data {
                 enemies[i] = new AuxUnit(enemyUnits.get(i));
                 unitMap[enemies[i].getX()][enemies[i].getY()] = -(i + 1);
             }
+            if (enemyUnits.size() != 0) lastRoundEnemySeen = round;
             VecUnit units = gc.myUnits();
             myUnits = new AuxUnit[(int) units.size()];
             for (int i = 0; i < myUnits.length; ++i) {
@@ -484,6 +484,8 @@ class Data {
 
             Rocket.initTurn();
 
+            karbonite = (int)gc.karbonite();
+            if (karbonite < 100) lastRoundUnder100Karbo = round;
 
             Danger.updateAttackers();
             if (!aggro && researchInfo.getLevel(UnitType.Ranger) > 1) aggro = true;

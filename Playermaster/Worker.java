@@ -169,12 +169,16 @@ public class Worker {
     }
 
     private UnitType chooseStructure(){
-        boolean canRocket = Data.researchInfo.getLevel(UnitType.Rocket) > 0;
-        boolean first = Data.firstRocket && Data.unitTypeCount.get(UnitType.Rocket) == 0;
-        if (canRocket && first) return UnitType.Rocket;
+        boolean canBuildRocket = Data.researchInfo.getLevel(UnitType.Rocket) > 0;
+        boolean isFirstRocket = Data.firstRocket && Data.unitTypeCount.get(UnitType.Rocket) == 0;
+
+        if (canBuildRocket && isFirstRocket) return UnitType.Rocket;
         int numFactories = Data.unitTypeCount.get(UnitType.Factory);
+        if (numFactories == 0) return UnitType.Factory;
+        int roundsOver100Karbo = Data.round - Data.lastRoundUnder100Karbo;
+        if (roundsOver100Karbo < 5) return null;
         if (numFactories < MAX_FACTORIES) return UnitType.Factory;
-        if (canRocket) return UnitType.Rocket;
+        if (canBuildRocket) return UnitType.Rocket;
         return null;
     }
 

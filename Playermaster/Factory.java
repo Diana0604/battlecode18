@@ -15,6 +15,7 @@ public class Factory {
     AuxUnit unit;
 
     static int maxRangers;
+    static int maxUnits;
     private static int diag;
 
     static Factory getInstance(){
@@ -71,10 +72,18 @@ public class Factory {
     private UnitType chooseNextUnit(){
         if (Data.getKarbonite() < 30) return null;
         HashMap<UnitType, Integer> typeCount = Data.unitTypeCount;
-        if (typeCount.get(UnitType.Worker) == 0) return UnitType.Worker; //potser millor si workers < 2-3?
-
         int rangers = typeCount.get(UnitType.Ranger);
         int healers = typeCount.get(UnitType.Healer);
+        int mages = typeCount.get(UnitType.Mage);
+        int workers = typeCount.get(UnitType.Worker);
+
+        if (workers < 2) return UnitType.Worker; //potser millor si workers < 2-3?
+
+        int roundsEnemyUnseen = Data.round - Data.lastRoundEnemySeen;
+        if (Data.round > 100 && roundsEnemyUnseen > 10) {
+            if (workers < 5) return UnitType.Worker;
+            if (rangers + healers + mages > 30) return null;
+        }
 
         if (3 * healers < rangers) return UnitType.Healer;
         if (rangers < maxRangers)  return UnitType.Ranger;
@@ -89,72 +98,7 @@ public class Factory {
             Data.unitTypeCount.put(type,Data.unitTypeCount.get(type) + 1);
         }
     }
-/*
-    void build(AuxUnit unit){
-        try {
-            if (queue.needsUnit(UnitType.Worker) && Wrapper.canProduceUnit(unit, UnitType.Worker)) {
-                Wrapper.produceUnit(unit, UnitType.Worker);
-                queue.requestUnit(UnitType.Worker, false);
-                return;
-            }
-            if (queue.needsUnit(UnitType.Ranger) && Wrapper.canProduceUnit(unit, UnitType.Ranger)) {
-                Wrapper.produceUnit(unit, UnitType.Ranger);
-                queue.requestUnit(UnitType.Ranger, false);
-                return;
-            }
-            if (queue.needsUnit(UnitType.Mage) && Wrapper.canProduceUnit(unit, UnitType.Mage)) {
-                Wrapper.produceUnit(unit, UnitType.Mage);
-                queue.requestUnit(UnitType.Mage, false);
-                return;
-            }
-            if (queue.needsUnit(UnitType.Knight) && Wrapper.canProduceUnit(unit, UnitType.Knight)) {
-                Wrapper.produceUnit(unit, UnitType.Knight);
-                queue.requestUnit(UnitType.Knight, false);
-                return;
-            }
-            if (queue.needsUnit(UnitType.Healer) && Wrapper.canProduceUnit(unit, UnitType.Healer)) {
-                Wrapper.produceUnit(unit, UnitType.Healer);
-                queue.requestUnit(UnitType.Healer, false);
-                return;
-            }
 
-            if (mustSaveMoney()) return;
-
-            if (Data.mageDMG > 100) maxRangers = diag;
-
-            UnitType type = UnitType.Ranger;
-            if (Data.rangers > 3 * (Data.healers + 1)) {
-                type = UnitType.Healer;
-            }
-
-            /*if (Data.round <= 170 && Data.rangers > 4 * (Data.knights + 1)) {
-                type = UnitType.Knight;
-            }
-
-            if (type == UnitType.Ranger && Data.rangers > maxRangers ){
-                type = UnitType.Mage;
-            }
-            if (type == UnitType.Healer && Data.healers > maxRangers/3 + 1 ){
-                type = UnitType.Mage;
-            }
-
-            if (type == UnitType.Knight && Data.knights > maxRangers/4 + 1 ){
-                type = UnitType.Mage;
-            }
-
-            if (!Wrapper.canProduceUnit(unit, type)) return;
-
-            if (type == UnitType.Ranger) ++Data.rangers;
-            if (type == UnitType.Healer) ++Data.healers;
-            if (type == UnitType.Knight) ++Data.knights;
-
-            Wrapper.produceUnit(unit, type);
-            //units = (units+1)%4;
-        }catch(Exception e) {
-            e.printStackTrace();
-        }
-    }
-*/
     private UnitType[] types = {UnitType.Worker, UnitType.Knight, UnitType.Ranger, UnitType.Mage, UnitType.Healer, UnitType.Rocket, UnitType.Factory};
 
     private boolean mustSaveMoney(){

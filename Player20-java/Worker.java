@@ -34,11 +34,11 @@ public class Worker {
             tryReplicate(_unit);
             if (!unit.canAttack()) return true;
             if (tryBuildAndRepair()) return true;
-            if (tryMine()) return true;
             if (tryPlaceBlueprint()) {
                 unit.canMove = false;
                 return true;
             }
+            if (tryMine()) return true;
             return false;
         }catch(Exception e) {
             e.printStackTrace();
@@ -50,21 +50,9 @@ public class Worker {
         try {
             if (!unit.canUseAbility()) return false;
             if (Data.queue.needsUnit(UnitType.Worker) || shouldReplicate()) {
-                int dir = 0;
-                if (unit.target != null) dir = unit.getMaplocation().dirBFSTo(unit.target);
-                for (int i = 0; i <= 4; ++i) {
-                    int newDir = (dir + i)%8;
-                    if (Wrapper.canReplicate(unit, newDir)) {
-                        Wrapper.replicate(unit, newDir);
-                        Data.unitTypeCount.put(UnitType.Worker, Data.unitTypeCount.get(UnitType.Worker) + 1);
-                        WorkerUtil.extra_workers++;
-                        //Data.queue.requestUnit(UnitType.Worker, false);
-                        return true;
-                    }
-                    if (i == 0 || i == 4) continue;
-                    newDir = (dir + 8 - i)%8;
-                    if (Wrapper.canReplicate(unit, newDir)) {
-                        Wrapper.replicate(unit, newDir);
+                for (int i = 0; i < 8; ++i) {
+                    if (Wrapper.canReplicate(unit, i)) {
+                        Wrapper.replicate(unit, i);
                         Data.unitTypeCount.put(UnitType.Worker, Data.unitTypeCount.get(UnitType.Worker) + 1);
                         WorkerUtil.extra_workers++;
                         //Data.queue.requestUnit(UnitType.Worker, false);

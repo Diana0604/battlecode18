@@ -11,7 +11,8 @@ public class Rocket {
     public static HashMap<Integer, AuxMapLocation> callsToRocket; // hauria de ser Integer,Integer amb els ids, pero per minimitzar calls al gc...
     public static HashSet<AuxMapLocation> rocketTakeoffs;
 
-    static int[] maxRobots = {1, 12, 12, 12, 12, 12, 12};
+    //worker knight ranger mage healer factory rocket
+    private static int[] maxRobots = {1, 12, 12, 12, 12, 0, 0};
 
     static HashSet<AuxMapLocation> rocketLandingsLocs;
     static int[] rocketLandingsCcs; // s'instancia a MarsPlanning despres de calculars les ccs
@@ -40,8 +41,11 @@ public class Rocket {
         if (unit.getLocation().isOnPlanet(Planet.Earth)) {
             ArrayList<Pair> sorted = getSorted(unit);
             int[] robots = getRobotsInGarrison(unit);
-            loadRobots(unit, sorted, robots, maxRobots);
-            aSopar(unit, sorted, robots, maxRobots);
+            int[] max;
+            if (Data.firstRocket) max = new int[] {1, 0, 1, 0, 0, 0, 0};
+            else max = maxRobots;
+            loadRobots(unit, sorted, robots, max);
+            aSopar(unit, sorted, robots, max);
             boolean willLaunch = hasToLeaveByEggs(unit);
             if (!willLaunch) willLaunch = shouldLaunch(unit);
             if (willLaunch) rocketTakeoffs.add(unit.getMaplocation());
@@ -140,9 +144,15 @@ public class Rocket {
         }
     }
 
+    private boolean isFull(AuxUnit unit){
+        int count = unit.getGarrisonUnits().size();
+        if (Data.firstRocket) return count == 2;
+        return count == Data.rocketCapacity;
+    }
+
     private boolean shouldLaunch(AuxUnit unit) {
         //System.out.println(Data.rocketCapacity + " " + unit.getGarrisonUnits().size());
-        if (Data.rocketCapacity > unit.getGarrisonUnits().size()) return false;
+        if (!isFull(unit)) return false;
         //Danger.computeDanger(unit);
         double dps = Danger.DPS[8];
         boolean shouldWait;

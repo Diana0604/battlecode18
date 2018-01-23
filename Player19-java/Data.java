@@ -319,7 +319,7 @@ class Data {
             if (karboniteAt.containsKey(encodeOcc(loc.x, loc.y)))
                 putValue(loc.x, loc.y, karboniteAt.get(encodeOcc(loc.x, loc.y)) + karbonite);
             else putValue(loc.x, loc.y, karbonite);
-
+/*
             System.out.println("");
             System.out.println("====================== TASK ARRAY " + round + " ====================== ");
             for (Map.Entry<Integer,Integer> entry: asteroidTasksLocs.entrySet()){
@@ -333,7 +333,7 @@ class Data {
                 AuxMapLocation l = toLocation(entry.getValue());
                 System.out.println("Worker " + id + " has location " + l.x + "," + l.y);
             }
-            System.out.println("");
+            System.out.println("");*/
         } catch (Exception e) {
             e.printStackTrace();
         }

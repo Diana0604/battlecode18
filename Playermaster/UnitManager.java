@@ -203,7 +203,9 @@ class UnitManager{
                     sorted.add(p);
                 }
                 sorted.sort((a, b) -> a.dist < b.dist ? -1 : a.dist == b.dist ? 0 : 1);
-                List<Pair> cut = sorted.subList(0, Math.min(WORKERS_TO_CALL, sorted.size())); //no se si funciona si hi ha menys de 8 workers total
+                int workersCalled = Math.min(sorted.size() - 1, Math.min(WORKERS_TO_CALL, sorted.size()));
+                if (workersCalled <= 0) workersCalled = 1;
+                List<Pair> cut = sorted.subList(0, workersCalled); //no se si funciona si hi ha menys de 8 workers total
                 for (Pair p : cut) {
                     int key = p.unit.getID();
                     int value = bp.getID();

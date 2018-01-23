@@ -58,6 +58,8 @@ class Data {
     static HashMap<Integer, Integer> structuresToRepair;
 
     static boolean blueprint;
+    static int magesBuilt = 0; //fem un rocket per cada 10 mages
+    static int rocketsBuilt = 0;
 
     static Integer karbonite;
 
@@ -70,14 +72,14 @@ class Data {
     static int lastRoundUnder100Karbo;
 
     private static int[] healingPowers = {10, 12, 17, 17};
-    static int healingPower;
     private static int[] buildingPowers = {5, 5, 6, 7, 10};
-    static int buildingPower;
     private static int[] repairingPowers = {10, 10, 11, 12, 15};
-    static int repairingPower;
     private static int[] harvestingPowers = {3, 4, 4, 4, 4};
-    static int harvestingPower;
     private static int[] mageDamages = {60, 75, 90, 105, 105};
+    static int healingPower;
+    static int buildingPower;
+    static int repairingPower;
+    static int harvestingPower;
     static int mageDMG;
     static boolean canBlink = false;
     static int rocketCapacity;
@@ -444,6 +446,7 @@ class Data {
 
     static void initTurn() {
         try {
+            //System.out.println(round + " mages " + magesBuilt + " rockets " + rocketsBuilt);
             occupiedPositions = new HashSet<>();
             round++;
             unitMap = new int[W][H];

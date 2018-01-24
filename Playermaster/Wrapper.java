@@ -236,17 +236,20 @@ public class Wrapper {
         }
     }
 
-    static void replicate(AuxUnit unit, int dir){
+    static AuxUnit replicate(AuxUnit unit, int dir){
         try {
             AuxMapLocation mloc = unit.getMapLocation();
             AuxMapLocation newLoc = mloc.add(dir);
             GC.gc.replicate(unit.getID(), Const.allDirs[dir]);
+            Unit newWorker = GC.gc.senseUnitAtLocation(new MapLocation(Mapa.planet, newLoc.x, newLoc.y));
             Utils.karbonite -= Const.replicateCost;
             Units.newOccupiedPositions.add(newLoc.encode());
             unit.canUseAbility = false;
             unit.canAttack = false;
+            return new AuxUnit(newWorker, true);
         }catch(Exception e) {
             e.printStackTrace();
+            return null;
         }
     }
 
@@ -270,6 +273,8 @@ public class Wrapper {
             AuxMapLocation mloc = unit.getMapLocation();
             AuxMapLocation newLoc = mloc.add(dir);
             GC.gc.blueprint(unit.getID(), type, Const.allDirs[dir]);
+
+            unit.canAttack = false;
             Utils.karbonite -= Units.getCost(type);
             Units.newOccupiedPositions.add(newLoc.encode());
         }catch(Exception e) {
@@ -319,7 +324,7 @@ public class Wrapper {
         try {
             if (!unit.canAttack()) return false;
             int d = unit.getMapLocation().distanceSquaredTo(unit2.getMapLocation());
-            if (unit.getType() == UnitType.Ranger && d <= 10) return false;
+            if (unit.getType() == UnitType.Ranger && d <= Const.rangerMinAttackRange) return false;
             return (Units.getAttackRange(unit.getType()) >= d);
         }catch(Exception e) {
             e.printStackTrace();

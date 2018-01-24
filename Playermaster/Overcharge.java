@@ -13,7 +13,7 @@ public class Overcharge {
     static void generateMatrix(){
         try {
             if (!Units.canOverCharge || Utils.round % 10 != 0) return;
-            int n = Units.myUnits.length;
+            int n = Units.myUnits.size();
 
             adjMatrix = (ArrayList<Integer>[]) new ArrayList[n];
 
@@ -22,13 +22,15 @@ public class Overcharge {
             int MAX_RANGE = 30;
 
             for (int i = 0; i < n; ++i) {
-                if (!Units.myUnits[i].isInGarrison()) {
-                    if (Units.myUnits[i].getType() == UnitType.Ranger) {
+                AuxUnit unit1 = Units.myUnits.get(i);
+                if (!unit1.isInGarrison()) {
+                    if (unit1.getType() == UnitType.Ranger) { //todo tenir arrays per healers i rangers
                         for (int j = 0; j < n; ++j) {
-                            if (Units.myUnits[j].isInGarrison()) continue;
-                            if (Units.myUnits[j].getType() == UnitType.Healer) {
-                                if (!Units.myUnits[j].canUseAbility()) continue;
-                                int l = (Units.myUnits[i].getMapLocation().distanceSquaredTo(Units.myUnits[j].getMapLocation()));
+                            AuxUnit unit2 = Units.myUnits.get(j);
+                            if (unit2.isInGarrison()) continue;
+                            if (unit2.getType() == UnitType.Healer) {
+                                if (!unit2.canUseAbility()) continue;
+                                int l = (unit1.getMapLocation().distanceSquaredTo(unit2.getMapLocation()));
                                 if (l <= MAX_RANGE) adjMatrix[i].add(j);
                             }
                         }
@@ -45,11 +47,11 @@ public class Overcharge {
             if (!Units.canOverCharge || Utils.round % 10 != 0) return false;
             if (adjMatrix[i].size() <= 0) return false;
             int j = adjMatrix[i].get(0);
-            if (!Units.myUnits[j].canUseAbility()) {
+            if (!Units.myUnits.get(j).canUseAbility()) {
                 adjMatrix[i].remove(0);
                 return false;
             }
-            Wrapper.overcharge(Units.myUnits[j], Units.myUnits[i]);
+            Wrapper.overcharge(Units.myUnits.get(j), Units.myUnits.get(i));
             return true;
         } catch(Exception e) {
             e.printStackTrace();
@@ -60,7 +62,7 @@ public class Overcharge {
     static boolean canGetOvercharged(int i){
         try {
             if (!Units.canOverCharge || Utils.round % 10 != 0) return false;
-            while (adjMatrix[i].size() > 0 && !Units.myUnits[adjMatrix[i].get(0)].canUseAbility()) {
+            while (adjMatrix[i].size() > 0 && !Units.myUnits.get(adjMatrix[i].get(0)).canUseAbility()) {
                 adjMatrix[i].remove(0);
             }
             return (adjMatrix[i].size() > 0);

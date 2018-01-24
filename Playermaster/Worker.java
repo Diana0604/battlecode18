@@ -52,22 +52,10 @@ public class Worker {
                 if (unit.target != null) dir = unit.getMapLocation().dirBFSTo(unit.target);
                 for (int i = 0; i <= 4; ++i) {
                     int newDir = (dir + i)%8;
-                    if (Wrapper.canReplicate(unit, newDir)) {
-                        Wrapper.replicate(unit, newDir);
-                        Units.unitTypeCount.put(UnitType.Worker, Units.unitTypeCount.get(UnitType.Worker) + 1);
-                        WorkerUtil.extra_workers++;
-                        //GC.queue.requestUnit(UnitType.Worker, false);
-                        return true;
-                    }
+                    if (tryReplicateDir(unit, newDir)) return true;
                     if (i == 0 || i == 4) continue;
                     newDir = (dir + 8 - i)%8;
-                    if (Wrapper.canReplicate(unit, newDir)) {
-                        Wrapper.replicate(unit, newDir);
-                        Units.unitTypeCount.put(UnitType.Worker, Units.unitTypeCount.get(UnitType.Worker) + 1);
-                        WorkerUtil.extra_workers++;
-                        //GC.queue.requestUnit(UnitType.Worker, false);
-                        return true;
-                    }
+                    if (tryReplicateDir(unit, newDir)) return true;
                 }
             }
             return false;
@@ -75,6 +63,32 @@ public class Worker {
             e.printStackTrace();
             return false;
         }
+    }
+
+    private boolean tryReplicateDir(AuxUnit unit, int dir){
+        if (Wrapper.canReplicate(unit, dir)) {
+            AuxUnit newWorker = Wrapper.replicate(unit, dir);
+            Units.unitTypeCount.put(UnitType.Worker, Units.unitTypeCount.get(UnitType.Worker) + 1);
+            WorkerUtil.extra_workers++;
+
+            int index = Units.myUnits.size();
+            int newID = newWorker.getID();
+            //System.out.println(Utils.round + "  " + newWorker.getID() + " creat per replicate");
+            Units.myUnits.add(newWorker);
+            //System.out.println(Utils.round + "  " + newWorker.getID() + " afegit a myunits");
+            Units.allUnits.put(newID, index); //aixo dona exception pero segueix executant
+            //System.out.println(Utils.round + "  " + newWorker.getID() + " afegit a allunits");
+            Units.workers.add(index);
+            //System.out.println(Utils.round + "  " + newWorker.getID() + " afegit a workers");
+            Units.unitMap[newWorker.getX()][newWorker.getY()] = index + 1;
+            newWorker.target = getTarget(newWorker);
+            doAction(newWorker);
+            UnitManager.move(newWorker);
+            doAction(newWorker);
+            //System.out.println(Utils.round + "  " + newWorker.getID() + " mogut");
+            return true;
+        }
+        return false;
     }
 
     private boolean shouldReplicate(){
@@ -355,8 +369,7 @@ public class Worker {
             if (Units.blueprintsToBuild.containsKey(unit.getID())) {
                 int bID = Units.blueprintsToBuild.get(unit.getID());
 
-                int index = Units.allUnits.get(bID);
-                AuxUnit blueprint = Units.myUnits[index];
+                AuxUnit blueprint = Units.getUnitByID(bID);
 
                 AuxMapLocation bLoc = blueprint.getMapLocation();
                 double dist = Math.max(unit.getMapLocation().distanceBFSTo(bLoc) - 1, 0);
@@ -382,8 +395,7 @@ public class Worker {
             if (Units.structuresToRepair.containsKey(unit.getID())) {
                 int sID = Units.structuresToRepair.get(unit.getID());
 
-                int index = Units.allUnits.get(sID);
-                AuxUnit structure = Units.myUnits[index];
+                AuxUnit structure = Units.getUnitByID(sID);
 
                 AuxMapLocation sLoc = structure.getMapLocation();
                 double dist = Math.max(unit.getMapLocation().distanceBFSTo(sLoc) - 1, 0);

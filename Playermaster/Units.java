@@ -19,12 +19,13 @@ public class Units {
     static HashMap<UnitType, Integer> unitTypeCount;
     static HashSet<Integer> structures;
     static HashSet<Integer> rockets;
-    private static HashSet<Integer> workers;
+    static HashSet<Integer> workers;
+    static HashSet<Integer> newUnits;
     static HashMap<Integer, Integer> blueprintsToBuild;
     static HashMap<Integer, Integer> structuresToRepair;
     static int[][] unitMap;
-    static AuxUnit[] myUnits; //myUnits[i] retorna una unit random meva
-    static AuxUnit[] enemies;
+    static ArrayList<AuxUnit> myUnits; //myUnits.get(i) retorna una unit random meva
+    static ArrayList<AuxUnit> enemies;
     static int lastRoundEnemySeen;
     static int lastRoundUnder100Karbo;
     static int healingPower;
@@ -57,6 +58,13 @@ public class Units {
 
     public static void initTurn(){
         newOccupiedPositions = new HashSet<>();
+        allUnits = new HashMap<>();
+        myUnits = new ArrayList<>();
+        enemies = new ArrayList<>();
+        rockets = new HashSet<>();
+        structures = new HashSet<>();
+        workers = new HashSet<>();
+        unitTypeCount = new HashMap<>();
         unitMap = new int[Mapa.W][Mapa.H];
         if (Utils.karbonite < 100) lastRoundUnder100Karbo = Utils.round;
         updateUnitPowers();
@@ -111,18 +119,15 @@ public class Units {
         MapLocation center = new MapLocation(Mapa.planet, mapCenter.x, mapCenter.y);
         VecUnit enemyUnits = GC.gc.senseNearbyUnitsByTeam(center, maxRadius, Utils.enemyTeam);
 
-
         int size = (int) enemyUnits.size();
-        ArrayList<AuxUnit> sortedUnits = new ArrayList<>();
-        for (int i = 0; i < size; ++i) sortedUnits.add(new AuxUnit(enemyUnits.get(i), false));
-        //First to last: Mage - Ranger - Healer - Knight - Worker - Rocket - Factory
-        sortedUnits.sort((a, b) -> priority(a) < priority(b) ? -1 : priority(a) == priority(b) ? 0 : 1);
-        enemies = sortedUnits.toArray(new AuxUnit[size]);
+        enemies = new ArrayList<>();
+        for (int i = 0; i < size; ++i) enemies.add(new AuxUnit(enemyUnits.get(i), false));
 
 
-        for (int i = 0; i < enemies.length; ++i) {
-            enemies[i] = new AuxUnit(enemyUnits.get(i), false); //TODO: NO ENTENC PER QUE SERVEIX AIXO
-            unitMap[enemies[i].getX()][enemies[i].getY()] = -(i + 1);
+        for (int i = 0; i < enemies.size(); ++i) {
+            AuxUnit enemy = enemies.get(i);
+            //allUnits.put(enemy.getID(), i);
+            unitMap[enemy.getX()][enemy.getY()] = -(i + 1);
         }
         if (enemyUnits.size() != 0) lastRoundEnemySeen = Utils.round;
     }
@@ -135,25 +140,20 @@ public class Units {
         for (int i = 0; i < size; ++i) sortedUnits.add(new AuxUnit(vecMyUnits.get(i), true));
         //First to last: Mage - Ranger - Healer - Knight - Worker - Rocket - Factory
         sortedUnits.sort((a, b) -> priority(a) < priority(b) ? -1 : priority(a) == priority(b) ? 0 : 1);
-        myUnits = sortedUnits.toArray(new AuxUnit[size]);
+        myUnits = sortedUnits;
 
-        allUnits = new HashMap<>();
-        for (int i = 0; i < myUnits.length; ++i) {
-            myUnits[i] = new AuxUnit(vecMyUnits.get(i), true); //TODO: NO ENTENC PER QUE SERVEIX AIXO
-            allUnits.put(myUnits[i].getID(), i);
-            if (!myUnits[i].isInGarrison()) unitMap[myUnits[i].getX()][myUnits[i].getY()] = i + 1;
+        for (int i = 0; i < myUnits.size(); ++i) {
+            AuxUnit unit = myUnits.get(i);
+            allUnits.put(unit.getID(), i);
+            if (!unit.isInGarrison()) unitMap[unit.getX()][unit.getY()] = i + 1;
         }
     }
 
     static void updateStructures(){
-        structures = new HashSet<>();
-        rockets = new HashSet<>();
-        for (int i = 0; i < myUnits.length; i++) {
-            UnitType type = myUnits[i].getType();
-            if (type == UnitType.Rocket) {
-                rockets.add(i);
-                if (type == UnitType.Factory) structures.add(i);
-            }
+        for (int i = 0; i < myUnits.size(); i++) {
+            UnitType type = myUnits.get(i).getType();
+            if (type == UnitType.Rocket || type == UnitType.Factory) structures.add(i);
+            if (type == UnitType.Rocket) rockets.add(i);
         }
     }
 
@@ -166,9 +166,7 @@ public class Units {
             int knights = 0;
             int factories = 0;
             int rockets = 0;
-            for (int i = 0; i < myUnits.length; i++) {
-                AuxUnit u = myUnits[i];
-                allUnits.put(u.getID(), i);
+            for (AuxUnit u: myUnits) {
                 UnitType type = u.getType();
                 if (type == UnitType.Factory) factories++;
                 else if (type == UnitType.Rocket) rockets++;
@@ -194,8 +192,8 @@ public class Units {
 
     static void updateWorkers(){
         workers = new HashSet<>();
-        for (int i = 0; i < myUnits.length; i++) {
-            if (myUnits[i].getType() == UnitType.Worker) workers.add(i);
+        for (int i = 0; i < myUnits.size(); i++) {
+            if (myUnits.get(i).getType() == UnitType.Worker) workers.add(i);
         }
     }
 
@@ -205,13 +203,13 @@ public class Units {
 
         for (int index : structures) {
             //Per cada blueprint, crida els 6 workers mes propers a construir-lo
-            AuxUnit bp = myUnits[index];
+            AuxUnit bp = myUnits.get(index);
             if (bp.isBuilt()) continue;
             if (bp.isMaxHealth()) continue;
 
             ArrayList<Pair> sorted = new ArrayList<>();
             for (int index2 : workers) {
-                AuxUnit worker = myUnits[index2];
+                AuxUnit worker = myUnits.get(index2);
                 AuxMapLocation workerLoc = worker.getMapLocation();
                 if (workerLoc == null) continue;
                 Pair p = new Pair(bp.getMapLocation().distanceSquaredTo(worker.getMapLocation()), worker);
@@ -235,13 +233,13 @@ public class Units {
 
         for (int index : structures) {
             //Per cada blueprint, crida els 8 workers mes propers a construir-lo
-            AuxUnit s = myUnits[index];
+            AuxUnit s = myUnits.get(index);
             if (!s.isBuilt()) continue;
             if (s.isMaxHealth()) continue;
 
             ArrayList<Pair> sorted = new ArrayList<>();
             for (int index2 : workers) {
-                AuxUnit worker = myUnits[index2];
+                AuxUnit worker = myUnits.get(index2);
                 //no fiquem workers si ja son cridats per un blueprint
                 if (blueprintsToBuild.containsKey(worker.getID())) continue;
                 AuxMapLocation workerLoc = worker.getMapLocation();
@@ -252,6 +250,7 @@ public class Units {
             sorted.sort((a, b) -> a.dist < b.dist ? -1 : a.dist == b.dist ? 0 : 1);
             int workersToCall =  Math.min(MAX_WORKERS_TO_CALL, sorted.size() - 1);
             if (workersToCall == 0) workersToCall = 1;
+            if (workersToCall <= 0) workersToCall = 0;
             List<Pair> cut = sorted.subList(0, workersToCall);
             for (Pair p : cut) {
                 int key = p.unit.getID();
@@ -276,7 +275,7 @@ public class Units {
             System.out.println("ERROR: a Units.getUnitByID, id no trobada: " + id);
         }
         int index = allUnits.get(id);
-        return myUnits[index];
+        return myUnits.get(index);
     }
 
     public static int getDamage(UnitType type){

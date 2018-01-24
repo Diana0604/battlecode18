@@ -57,13 +57,13 @@ public class Healer {
         }
     }
 
-
+    // todo arreglar aixo, que prioritzi tropes o algo
     AuxMapLocation getBestUnit(AuxMapLocation loc){
         try {
             double minDist = 500000;
             AuxMapLocation ans = null;
-            for (int i = 0; i < Units.myUnits.length; ++i) {
-                AuxUnit u = Units.myUnits[i];
+            for (int i = 0; i < Units.myUnits.size(); ++i) {
+                AuxUnit u = Units.myUnits.get(i);
                 if (!Units.structures.contains(i)) {
                     if (u.getHealth() < Units.getMaxHealth(u.getType())) {
                         AuxMapLocation mLoc = u.getMapLocation();

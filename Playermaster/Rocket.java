@@ -11,7 +11,7 @@ public class Rocket {
     public static HashMap<Integer, AuxMapLocation> callsToRocket; // hauria de ser Integer,Integer amb els ids, pero per minimitzar calls al gc...
     public static HashSet<AuxMapLocation> rocketTakeoffs;
 
-    static int[] maxUnitTypes = {1, 12, 12, 12, 12, 12, 12};
+    static int[] maxUnitTypes = {1, 12, 12, 12, 12, 0, 0};
 
     static HashSet<AuxMapLocation> rocketLandingsLocs;
     static int[] rocketLandingsCcs; // s'instancia a MarsPlanning despres de calculars les ccs
@@ -27,16 +27,30 @@ public class Rocket {
         rocketLandingsLocs = new HashSet<>();
     }
 
+    static void initGame(){
+        rocketLandingsLocs = new HashSet<>();
+    }
+
     static void initTurn() {
         callsToRocket = new HashMap<>();
         rocketTakeoffs = new HashSet<>();
         for (int index: Units.rockets){
-            AuxUnit unit = Units.myUnits[index];
-            instance.initTurn(unit);
+            AuxUnit unit = Units.myUnits.get(index);
+            initTurn(unit);
         }
+        /*
+        System.out.println("");
+        System.out.println("====================== ROCKET CALLS " + Utils.round + " ====================== ");
+        for (HashMap.Entry<Integer,AuxMapLocation> entry: callsToRocket.entrySet()){
+            int id = entry.getKey();
+            AuxUnit unit = Units.getUnitByID(id);
+            AuxMapLocation target = entry.getValue();
+            System.out.println(unit.getType() + " with ID " + id + " location " + unit.getMapLocation() + " has target " + target);
+        }
+        */
     }
 
-    void initTurn(AuxUnit rocket){
+    static void initTurn(AuxUnit rocket){
         try {
             if (!rocket.isBuilt()) return;
             if (rocket.isInSpace()) return;
@@ -60,12 +74,11 @@ public class Rocket {
     }
 
     // Retorna totes les meves unitats ordenades per distancia a mi
-    private ArrayList<Pair> getSortedUnits(AuxUnit rocket) {
+    private static ArrayList<Pair> getSortedUnits(AuxUnit rocket) {
         try {
             //if (GC.planet != Planet.Earth) return new ArrayList<>();
             ArrayList<Pair> sorted = new ArrayList<>();
-            for (int i = 0; i < Units.myUnits.length; ++i) {
-                AuxUnit unit = Units.myUnits[i]; //Todo fer tots els garrisons al principi de torn
+            for (AuxUnit unit: Units.myUnits) {
                 if (unit.isInGarrison()) continue;
                 double distance = rocket.getMapLocation().distanceBFSTo(unit.getMapLocation());
                 if (distance >= Const.INF) continue;
@@ -79,7 +92,7 @@ public class Rocket {
         return null;
     }
 
-    private int[] getUnitTypesGarrison(AuxUnit rocket) {
+    private static int[] getUnitTypesGarrison(AuxUnit rocket) {
         try {
             int[] ret = new int[7];
             for (int id : rocket.getGarrisonUnits()) {
@@ -94,12 +107,12 @@ public class Rocket {
     }
 
     // crida els robots que falten perque vinguin
-    private void callRemainingRobots(AuxUnit rocket, ArrayList<Pair> sorted, int[] unitTypes, int[] maxUnitTypes) {
+    private static void callRemainingRobots(AuxUnit rocket, ArrayList<Pair> sorted, int[] unitTypes, int[] maxUnitTypes) {
         aSopar(rocket, sorted, unitTypes, maxUnitTypes);
     }
 
     // joder mama, un altre cop verdura??
-    private void aSopar(AuxUnit rocket, ArrayList<Pair> sorted, int[] unitTypes, int[] maxUnitTypes) {
+    private static void aSopar(AuxUnit rocket, ArrayList<Pair> sorted, int[] unitTypes, int[] maxUnitTypes) {
         try {
             int remaining = Units.rocketCapacity - rocket.getGarrisonUnits().size();
             for (int i = 0; i < sorted.size(); ++i) {
@@ -119,7 +132,7 @@ public class Rocket {
     }
 
     // fa load de totes les units que te al voltant, si son del tipus adequat
-    private void loadUnits(AuxUnit rocket, ArrayList<Pair> sorted, int[] unitTypes, int[] maxUnitTypes) {
+    private static void loadUnits(AuxUnit rocket, ArrayList<Pair> sorted, int[] unitTypes, int[] maxUnitTypes) {
         for (Pair p: sorted) {
             if (p.dist > 2 || rocket.getGarrisonUnits().size() == Units.rocketCapacity) return;
             AuxUnit unit = p.unit;
@@ -132,7 +145,7 @@ public class Rocket {
         }
     }
 
-    private boolean shouldLaunch(AuxUnit rocket){
+    private static boolean shouldLaunch(AuxUnit rocket){
         if (Utils.round == 749) return true; //si es l'ultim torn
         if (rocket.getGarrisonUnits().size() == 0) return false; //si esta buit
         Danger.computeDanger(rocket);
@@ -158,7 +171,7 @@ public class Rocket {
     }
 
 
-    void play(AuxUnit rocket) {
+    static void play(AuxUnit rocket) {
         try {
             //if it's still a blueprint return
             if (!rocket.isBuilt()) return;
@@ -171,7 +184,7 @@ public class Rocket {
         }
     }
 
-    private void launchRocket(AuxUnit rocket) {
+    private static void launchRocket(AuxUnit rocket) {
         try {
             int arrivalRound = Wrapper.getArrivalRound(Utils.round);
             AuxMapLocation arrivalLoc = MarsPlanning.bestPlaceForRound(arrivalRound);
@@ -185,7 +198,7 @@ public class Rocket {
     }
 
 
-    private class Pair {
+    private static class Pair {
         double dist;
         AuxUnit unit;
 

@@ -25,6 +25,7 @@ public class Const {
     final static int knightAttackCooldown = 2;
     final static int mageAttackCooldown = 2;
 
+    final static int rangerMinAttackRange = 10;
     final static int rangerAttackRange = 50;
     final static int knightAttackRange = 2;
     final static int mageAttackRange = 30;
@@ -50,7 +51,7 @@ public class Const {
     final static int rocketCost = 75;
     final static int replicateCost = 30;
 
-    final static int workerMaxHealth = 200;
+    final static int workerMaxHealth = 100;
     final static int knightMaxHealth = 250;
     final static int rangerMaxHealth = 200;
     final static int mageMaxHealth   = 80;

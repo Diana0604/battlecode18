@@ -38,9 +38,9 @@ public class Ranger {
             int posAtArray = Units.allUnits.get(unit.getID());
             AuxUnit bestVictim = null;
             AuxMapLocation myLoc = unit.getMapLocation();
-            AuxUnit[] canAttack = Wrapper.senseUnits(myLoc.x, myLoc.y, Units.getAttackRange(unit.getType()), false);
-            for (int i = 0; i < canAttack.length; ++i) {
-                AuxUnit u = canAttack[i];
+            AuxUnit[] enemiesInRange = Wrapper.senseUnits(myLoc.x, myLoc.y, Units.getAttackRange(unit.getType()), false);
+            for (AuxUnit u : enemiesInRange) {
+                if (!Wrapper.canAttack(unit, u)) continue;
                 bestVictim = getBestAttackTarget(bestVictim, u);
             }
             if (bestVictim == null) return;
@@ -58,8 +58,7 @@ public class Ranger {
         try {
             double minDist = 100000;
             AuxMapLocation ans = null;
-            for (int i = 0; i < Units.myUnits.length; ++i) {
-                AuxUnit u = Units.myUnits[i];
+            for (AuxUnit u: Units.myUnits) {
                 if (u.getType() == UnitType.Healer) {
                     AuxMapLocation mLoc = u.getMapLocation();
                     if (mLoc != null) {
@@ -99,9 +98,9 @@ public class Ranger {
         try {
             double minDist = Const.INFL;
             AuxMapLocation target = null;
-            for (int i = 0; i < Units.enemies.length; ++i) {
-                if (Units.enemies[i].getHealth() <= 0) continue;
-                AuxMapLocation enemyLocation = Units.enemies[i].getMapLocation();
+            for (AuxUnit enemy: Units.enemies) {
+                if (enemy.getHealth() <= 0) continue;
+                AuxMapLocation enemyLocation = enemy.getMapLocation();
                 double d = enemyLocation.distanceBFSTo(myLoc);
                 if (d < minDist) {
                     minDist = d;

@@ -42,7 +42,7 @@ public class Karbonite {
             if (karbonite != -1){
                 int value = entry.getValue();
                 if (karbonite > 0) {
-                    if (karbonite != value) putMine(location.x, location.y, (int) karbonite);
+                    if (karbonite != value) putMine(location.x, location.y, karbonite);
                 } else it.remove();
             }
         }

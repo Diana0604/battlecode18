@@ -1,6 +1,9 @@
 import bc.*;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 
 class UnitManager{
     static void moveUnits() {
@@ -25,9 +28,8 @@ class UnitManager{
     }
 
     static void selectTargets(){
-        for (int i = 0; i < Units.myUnits.length; i++) {
+        for (AuxUnit unit: Units.myUnits) {
             //System.err.println("playing unit " + GC.myUnits[i].getType());
-            AuxUnit unit = Units.myUnits[i];
             if (unit.isInGarrison()) continue;
             if (unit.getType() == UnitType.Worker) {
                 unit.target = Worker.getInstance().getTarget(unit);
@@ -44,64 +46,26 @@ class UnitManager{
         }
     }
 
-    static int move(AuxUnit unit){
-        /*
-        if (unit.visited) return 8;
-        unit.visited = true;
-
-        int dirBFS = unit.getMapLocation().dirBFSTo(unit.target);
-        if (dirBFS == 8) return 8;
-
-        //can move :)
-        if (Wrapper.canMove(unit, dirBFS)){
-            Wrapper.moveRobot(unit, dirBFS);
-            MovementManager.getInstance().reset(unit);
-            return dirBFS;
+    static void move(AuxUnit unit){
+        if (unit.isInGarrison()) return;
+        if (!unit.canMove()) return;
+        if (unit.target == null) return;
+        if (unit.getType() == UnitType.Factory || unit.getType() == UnitType.Rocket) {
+            return;
         }
-
-        AuxMapLocation newLoc = unit.getMapLocation().add(dirBFS);
-        AuxUnit u = GC.getUnit(newLoc.x, newLoc.y, true);
-        if (u != null){
-            if (move(u) != 8){
-                Wrapper.moveRobot(unit, dirBFS);
-                MovementManager.getInstance().reset(unit);
-                return dirBFS;
-            }
-        }
-
-        int dir = MovementManager.getInstance().move(unit, unit.target);
-        if (dir != 8){
-            Wrapper.moveRobot(unit, dir);
-        }
-
-        return dir;
-        */
         MovementManager.getInstance().move(unit);
-        return 0;
     }
 
     static void moveAllUnits(){
-        for (int i = 0; i < Units.myUnits.length; i++) {
-
-            AuxUnit unit = Units.myUnits[i];
-            if (unit.isInGarrison()) continue;
-            if (!unit.canMove()) continue;
-            if (unit.target == null) continue;
-
-            if (unit.getType() == UnitType.Factory || unit.getType() == UnitType.Rocket) {
-                continue;
-            }
-
-            move(unit);
-        }
+        for (AuxUnit unit: Units.myUnits) move(unit);
     }
 
 
     static void actUnits(){
         Overcharge.generateMatrix();
-        for (int i = 0; i < Units.myUnits.length; i++) {
+        AuxUnit[] units = Units.myUnits.toArray(new AuxUnit[Units.myUnits.size()]);
+        for (AuxUnit unit : units) {
             //System.err.println("playing unit " + GC.myUnits[i].getType());
-            AuxUnit unit = Units.myUnits[i];
             if (unit.isInGarrison()) continue;
             if (unit.getType() == UnitType.Worker) {
                 Worker.getInstance().doAction(unit);
@@ -120,9 +84,9 @@ class UnitManager{
 
     static void actUnits2(){
         Overcharge.generateMatrix();
-        for (int i = 0; i < Units.myUnits.length; i++) {
+        AuxUnit[] units = Units.myUnits.toArray(new AuxUnit[Units.myUnits.size()]);
+        for (AuxUnit unit : units) {
             //System.err.println("playing unit " + GC.myUnits[i].getType());
-            AuxUnit unit = Units.myUnits[i];
             if (unit.isInGarrison()) continue;
             if (unit.getType() == UnitType.Worker) {
                 Worker.getInstance().doAction(unit);
@@ -134,7 +98,7 @@ class UnitManager{
                 Ranger.getInstance().attack(unit);
             }
             if (unit.getType() == UnitType.Rocket) {
-                Rocket.getInstance().play(unit);
+                Rocket.play(unit);
             }
             if (unit.getType() == UnitType.Healer) {
                 Healer.getInstance().heal(unit);

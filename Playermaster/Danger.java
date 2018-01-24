@@ -1,25 +1,20 @@
-
-
 import bc.UnitType;
 
 import java.util.HashSet;
 import java.util.*;
 
-/**
- * Created by Ivan on 1/16/2018.
- */
-public class Danger {
+class Danger {
     static double[] DPS;
     static double[] DPSlong;
     static int [] minDist;
     static HashSet<Integer> attackers;
 
-    static HashMap<Integer, DangerData> dangerData;
+    private static HashMap<Integer, DangerData> dangerData;
 
     static final double winningProportion = 1.05;
 
-    static AuxMapLocation[] locUnits, locEnemyUnits;
-    static boolean[] dangUnits, dangEnemyUnits, visitedUnits, visitedEnemyUnits;
+    private static AuxMapLocation[] locUnits, locEnemyUnits;
+    private static boolean[] dangUnits, dangEnemyUnits, visitedUnits, visitedEnemyUnits;
 
     static void initTurn(){
         updateAttackers();
@@ -54,8 +49,7 @@ public class Danger {
             }
 
             AuxUnit[] enemies = Wrapper.senseUnits(myLoc.x, myLoc.y, 100, false);
-            for (int i = 0; i < enemies.length; ++i) {
-                AuxUnit enemy = enemies[i];
+            for (AuxUnit enemy : enemies) {
                 double dps = 0;
                 long arshort = 0;
                 long arslong = 0;
@@ -69,7 +63,7 @@ public class Danger {
                     AuxMapLocation newLoc = myLoc.add(j);
                     long d = enemy.getMapLocation().distanceSquaredTo(newLoc);
                     if (dps > 0 && d <= arshort) data.DPS[j] += dps;
-                    if (dps > 0 && d <= arslong) data.DPSlong[j] += dps/(d+1);
+                    if (dps > 0 && d <= arslong) data.DPSlong[j] += dps / (d + 1);
                     data.minDist[j] = Math.min(data.minDist[j], (int) d);
                 }
             }
@@ -85,22 +79,22 @@ public class Danger {
     }
 
 
-    static int encode(int x, int y){
+    private static int encode(int x, int y){
         return (x << 12) | y;
     }
 
-    static int decodeX(int code){
+    private static int decodeX(int code){
         return (code >> 12)&0xFFF;
     }
 
-    static int decodeY(int code){
+    private static int decodeY(int code){
         return code&0xFFF;
     }
 
-    static void updateAttackers(){
+    private static void updateAttackers(){
         try {
-            int n = Units.myUnits.length;
-            int m = Units.enemies.length;
+            int n = Units.myUnits.size();
+            int m = Units.enemies.size();
 
             locUnits = new AuxMapLocation[n];
             locEnemyUnits = new AuxMapLocation[m];
@@ -114,7 +108,7 @@ public class Danger {
             attackers = new HashSet<>();
 
             for (int i = 0; i < n; ++i) {
-                AuxUnit unit = Units.myUnits[i];
+                AuxUnit unit = Units.myUnits.get(i);
                 dangUnits[i] = dangerousUnit(unit);
                 locUnits[i] = unit.getMapLocation();
                 if (locUnits[i] == null) dangUnits[i] = false;
@@ -122,7 +116,7 @@ public class Danger {
             }
 
             for (int i = 0; i < m; ++i) {
-                AuxUnit unit = Units.enemies[i];
+                AuxUnit unit = Units.enemies.get(i);
                 locEnemyUnits[i] = unit.getMapLocation();
                 dangEnemyUnits[i] = dangerousUnit(unit);
                 visitedEnemyUnits[i] = false;
@@ -139,43 +133,46 @@ public class Danger {
     }
 
 
-    static void BFS (int i){
+    private static void BFS(int i){
         try {
             if (visitedUnits[i]) return;
-            HashSet<Integer> possibleAttackers = new HashSet<Integer>();
-            HashSet<Integer> possibleDefenders = new HashSet<Integer>();
-            Queue<Integer> q = new LinkedList<Integer>();
+            HashSet<Integer> possibleAttackers = new HashSet<>();
+            HashSet<Integer> possibleDefenders = new HashSet<>();
+            Queue<Integer> q = new LinkedList<>();
             visitedUnits[i] = true;
             q.add(encode(i, 0));
-            possibleAttackers.add(Units.myUnits[i].getID());
+            AuxUnit unit = Units.myUnits.get(i);
+            possibleAttackers.add(unit.getID());
             while (!q.isEmpty()) {
                 int a = q.poll();
                 int y = decodeY(a);
                 int x = decodeX(a);
                 if (y == 0) {
-                    for (int j = 0; j < Units.enemies.length; ++j) {
-                        if (!visitedEnemyUnits[j] && dangEnemyUnits[j] && locEnemyUnits[j].distanceSquaredTo(locUnits[x]) <= Units.getAttackRangeExtra(Units.enemies[j].getType())) {
+                    for (int j = 0; j < Units.enemies.size(); ++j) {
+                        AuxUnit enemy = Units.enemies.get(j);
+                        if (!visitedEnemyUnits[j] && dangEnemyUnits[j] && locEnemyUnits[j].distanceSquaredTo(locUnits[x]) <= Units.getAttackRangeExtra(enemy.getType())) {
                             q.add(encode(j, 1));
-                            possibleDefenders.add(Units.enemies[j].getID());
+                            possibleDefenders.add(enemy.getID());
                             visitedEnemyUnits[j] = true;
                         }
                     }
                 } else {
-                    for (int j = 0; j < Units.myUnits.length; ++j) {
-                        if (Units.myUnits[j].isInGarrison()) continue;
-                        Units.myUnits[j].frontline = true;
-                        if(!Units.myUnits[j].canMove() || !Units.myUnits[j].canAttack()) continue;
-                        if (!(locUnits[j].distanceSquaredTo(locEnemyUnits[x]) <= Units.getAttackRangeExtra(Units.myUnits[j].getType()))) continue;
+                    for (int j = 0; j < Units.myUnits.size(); ++j) {
+                        AuxUnit unit2 = Units.myUnits.get(j);
+                        if (unit2.isInGarrison()) continue;
+                        unit2.frontline = true;
+                        if(!unit2.canMove() || !unit2.canAttack()) continue;
+                        if (!(locUnits[j].distanceSquaredTo(locEnemyUnits[x]) <= Units.getAttackRangeExtra(unit2.getType()))) continue;
                         if (!visitedUnits[j] && dangUnits[j]) {
                             q.add(encode(j, 0));
-                            possibleAttackers.add(Units.myUnits[j].getID());
+                            possibleAttackers.add(unit2.getID());
                             visitedUnits[j] = true;
                         }
                     }
                 }
             }
             int siz = possibleDefenders.size();
-            if (siz > 0) Units.myUnits[i].frontline = true;
+            if (siz > 0) unit.frontline = true;
             if ((double) possibleAttackers.size() > (double) possibleDefenders.size()) {
                 for (Integer a : possibleAttackers){
                     attackers.add(a);
@@ -187,7 +184,7 @@ public class Danger {
         }
     }
 
-    static boolean dangerousUnit(AuxUnit unit) {
+    private static boolean dangerousUnit(AuxUnit unit) {
         try {
             UnitType type = unit.getType();
 

@@ -9,3 +9,7 @@ WORKERS TODO:
 
 - Que el first rocket nomes porti 1 worker i 1 ranger
 - Spawnejar les unitats cap a on esta l'enemic 
+- matar una unit si no tenim lloc per rockets
+- workers van a prop de la base a construir 
+- si hi ha algun enemic a distbfs < 3 de la factory, fer knights	
+- posar arrays de healers/rangers (per overcharge)

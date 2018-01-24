@@ -12,6 +12,7 @@ class GC {
             MarsPlanning.initGame();
             Karbonite.initGame();
             Mapa.initGame();
+            Rocket.initGame();
             Units.initGame(); //ha d'anar despres de Mapa
             WorkerUtil.initGame(); //ha d'anar despres de Mapa
             Pathfinder.initGame(); //ha d'anar despres de Mapa

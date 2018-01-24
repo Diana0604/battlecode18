@@ -206,7 +206,7 @@ public class Units {
         for (int index : structures) {
             //Per cada blueprint, crida els 6 workers mes propers a construir-lo
             AuxUnit bp = myUnits[index];
-            if (!bp.isBlueprint()) continue;
+            if (bp.isBuilt()) continue;
             if (bp.isMaxHealth()) continue;
 
             ArrayList<Pair> sorted = new ArrayList<>();
@@ -236,7 +236,7 @@ public class Units {
         for (int index : structures) {
             //Per cada blueprint, crida els 8 workers mes propers a construir-lo
             AuxUnit s = myUnits[index];
-            if (s.isBlueprint()) continue;
+            if (!s.isBuilt()) continue;
             if (s.isMaxHealth()) continue;
 
             ArrayList<Pair> sorted = new ArrayList<>();

@@ -38,7 +38,7 @@ public class Factory {
     void play(AuxUnit _unit){
         try {
             unit = _unit;
-            if (!unit.getIsBuilt()) return;
+            if (!unit.isBuilt()) return;
             checkGarrison(unit);
             tryBuild();
         }catch(Exception e) {

@@ -125,12 +125,12 @@ public class Worker {
                 if (u.isMaxHealth()) continue;
                 int health = u.getHealth();
                 int maxHealth = Units.getMaxHealth(u.getType());
-                boolean bp = u.isBlueprint();
-                if (!bp && health < minHP) {
+                boolean built = u.isBuilt();
+                if (built && health < minHP) {
                     minHP = health;
                     minHPIndex = i;
                 }
-                if (bp && maxHealth - health < minDif) {
+                if (!built && maxHealth - health < minDif) {
                     minDif = maxHealth - health;
                     minDifIndex = i;
                 }

@@ -33,9 +33,8 @@ public class Rocket {
     }
 
     void playFirst(AuxUnit unit){
-        //if it's still a blueprint return
         try {
-            if (!unit.getIsBuilt()) return;
+            if (!unit.isBuilt()) return;
             if (unit.isInSpace()) return;
 
             if (unit.getLocation().isOnPlanet(Planet.Earth)) {
@@ -61,7 +60,7 @@ public class Rocket {
     void play(AuxUnit unit) {
         try {
             //if it's still a blueprint return
-            if (!unit.getIsBuilt()) return;
+            if (!unit.isBuilt()) return;
             if (unit.isInSpace()) return;
             //System.out.println("Rocket location " + unit.location() + " round " + gc.round());
             if (unit.getLocation().isOnPlanet(Planet.Earth)) {
@@ -78,6 +77,7 @@ public class Rocket {
         }
     }
 
+    // play
     private void launchRocket(AuxUnit unit) {
         try {
             int arrivalRound = Wrapper.getArrivalRound(Utils.round);
@@ -91,6 +91,7 @@ public class Rocket {
         }
     }
 
+    // both
     private boolean hasToLeaveByEggs(AuxUnit unit) {
         try {
             if (Utils.round == 749) return true;
@@ -104,6 +105,7 @@ public class Rocket {
         return false;
     }
 
+    // playfirst
     private ArrayList<Pair> getSorted(AuxUnit unit) {
         try {
             //if (GC.planet != Planet.Earth) return new ArrayList<>();
@@ -123,6 +125,7 @@ public class Rocket {
         return null;
     }
 
+    // playfirst
     private int[] getRobotsInGarrison(AuxUnit unit) {
         try {
             int[] ret = new int[7];
@@ -137,6 +140,7 @@ public class Rocket {
         return new int[0];
     }
 
+    // playfirst
     private void aSopar(AuxUnit unit, ArrayList<Pair> sorted, int[] robots, int[] maxRobots) {
         try {
             // cridar els que faltin
@@ -157,6 +161,7 @@ public class Rocket {
         }
     }
 
+    // playfirst
     private void loadRobots(AuxUnit unit, ArrayList<Pair> sorted, int[] robots, int[] maxRobots) {
         for (Pair p:sorted) {
             if (p.dist > 2 || unit.getGarrisonUnits().size() == Units.rocketCapacity) break;
@@ -170,6 +175,7 @@ public class Rocket {
         }
     }
 
+    // both
     private boolean shouldLaunch(AuxUnit unit) {
         //System.out.println(GC.rocketCapacity + " " + unit.getGarrisonUnits().size());
         if (Units.rocketCapacity > unit.getGarrisonUnits().size()) return false;

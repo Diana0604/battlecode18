@@ -157,11 +157,13 @@ public class Wrapper {
     static void build(AuxUnit unit, AuxUnit blueprint){
         try {
             blueprint.getHealth();
-            blueprint.isBlueprint();
+            //blueprint.isBlueprint();
             blueprint.health += Units.buildingPower;
             int maxHP = Units.getMaxHealth(blueprint.getType());
             if (blueprint.health > maxHP) blueprint.health = maxHP;
-            if (blueprint.health == maxHP) blueprint.blueprint = false;
+            if (blueprint.health == maxHP) {
+                blueprint.built = true;
+            }
             GC.gc.build(unit.getID(), blueprint.getID());
             //System.out.println("Remaining build health: " + (maxHP - blueprint.health) +  " max hp? " + blueprint.isMaxHealth());
             unit.canAttack = false;

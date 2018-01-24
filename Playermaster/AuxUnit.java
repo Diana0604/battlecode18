@@ -12,18 +12,17 @@ public class AuxUnit {
     public Location loc;
     public Boolean garrison;
     public Boolean inSpace;
-    public Boolean blueprint;
     public AuxMapLocation mloc;
+
+
     //private Integer x;
     //private Integer y;
+    public Boolean built;
     public Boolean canMove;
     public Boolean canAttack; //for workers it counts harvest as action, and healers == heal
     public Boolean canUseAbility;
     public UnitType type;
     public boolean myTeam;
-
-    public Boolean isBuilt;
-    //Team team; no cal crec
 
     public Integer health;
     public Integer maxHealth;
@@ -43,17 +42,15 @@ public class AuxUnit {
         loc = null;
         garrison = null;
         inSpace = null;
-        blueprint = null;
         mloc = null;
         canMove = null;
         canAttack = null;
         canUseAbility = null;
         type = null;
-        isBuilt = null;
+        built = null;
         garrisonUnits = null;
         health = null;
         maxHealth = null;
-
         exploretarget = false;
         target = null;
         visited = false;
@@ -102,13 +99,13 @@ public class AuxUnit {
         }
     }
 
-    public boolean isBlueprint(){
+    public boolean isBuilt(){
         try {
-            if (blueprint == null) blueprint = (unit.structureIsBuilt() == 0);
-            return blueprint;
+            if (built == null) built = (unit.structureIsBuilt() > 0);
+            return built;
         }catch(Exception e) {
             e.printStackTrace();
-            return false;
+            return true;
         }
     }
 
@@ -193,15 +190,6 @@ public class AuxUnit {
         }
     }
 
-    public boolean getIsBuilt(){
-        try {
-            if (isBuilt == null) isBuilt = (unit.structureIsBuilt() > 0);
-            return isBuilt;
-        }catch(Exception e) {
-            e.printStackTrace();
-            return true;
-        }
-    }
 
     public ArrayList<Integer> getGarrisonUnits(){
         try {

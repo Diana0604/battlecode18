@@ -4,103 +4,12 @@ import bc.*;
  * Created by Ivan on 1/18/2018.
  */
 public class Wrapper {
-
-    static double getDamage(UnitType type){ //ToDo
-        switch(type){
-            case Ranger:
-                return 30;
-            case Knight:
-                return 80;
-            case Mage:
-                return Data.mageDMG;
-            default:
-                return 0;
-        }
-    }
-
-    static double getAttackCooldown(UnitType type){ //ToDo
-        switch(type){
-            case Ranger:
-                return 2;
-            case Knight:
-                return 2;
-            case Mage:
-                return 2;
-            default:
-                return 1;
-        }
-    }
-
-    static int getAttackRange(UnitType type){ //ToDo
-        switch(type){
-            case Ranger:
-                return 50;
-            case Knight:
-                return 2;
-            case Mage:
-                return 30;
-            default:
-                return 0;
-        }
-    }
-
-    static int getAttackRangeSafe(UnitType type){ //ToDo
-        switch(type){
-            case Ranger:
-                return 50;
-            case Knight:
-                return 8;
-            case Mage:
-                return 30;
-            default:
-                return 0;
-        }
-    }
-
-    static int getAttackRangeLong(UnitType type){ //ToDo
-        switch(type){
-            case Ranger:
-                return 100;
-            case Knight:
-                return 68;
-            case Mage:
-                return 65;
-            default:
-                return 0;
-        }
-    }
-
-    static int getAttackRangeExtra(UnitType type){ //ToDo
-        switch(type){
-            case Ranger:
-                return 68;
-            case Knight:
-                return 8;
-            case Mage:
-                return 65;
-            default:
-                return 0;
-        }
-    }
-
-    static boolean isAccessible(AuxMapLocation loc){
-        try {
-            if (!loc.isOnMap()) return false;
-            if (!Data.accessible[loc.x][loc.y]) return false;
-            if (Data.unitMap[loc.x][loc.y] != 0) return false;
-            if (Data.occupiedPositions.contains(Data.encodeOcc(loc.x, loc.y))) return false;
-            return true;
-        }catch(Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
     static AuxUnit[] senseUnits(int x, int y, int r, boolean myTeam){ //Todo check if it is better to iterate over enemies
         try {
             ArrayList<AuxUnit> ans = new ArrayList<>();
             for (int i = 0; i < Vision.Mx[r].length; ++i) {
-                AuxUnit unit = Data.getUnit(x + Vision.Mx[r][i], y + Vision.My[r][i], myTeam);
+                AuxMapLocation newLoc = new AuxMapLocation(x + Vision.Mx[r][i], y + Vision.My[r][i]);
+                AuxUnit unit = newLoc.getUnit(myTeam);
                 if (unit != null) ans.add(unit);
             }
             return ans.toArray(new AuxUnit[ans.size()]);
@@ -114,7 +23,8 @@ public class Wrapper {
         try {
             ArrayList<AuxUnit> ans = new ArrayList<>();
             for (int i = 0; i < Vision.Mx[r].length; ++i) {
-                AuxUnit unit = Data.getUnit(x + Vision.Mx[r][i], y + Vision.My[r][i]);
+                AuxMapLocation newLoc = new AuxMapLocation(x + Vision.Mx[r][i], y + Vision.My[r][i]);
+                AuxUnit unit = newLoc.getUnit();
                 if (unit != null) ans.add(unit);
             }
             return ans.toArray(new AuxUnit[ans.size()]);
@@ -136,8 +46,8 @@ public class Wrapper {
     static boolean canUnload(AuxUnit unit, int dir) {
         try {
             if (unit.getGarrisonUnits().size() == 0) return false;
-            if (!isAccessible(unit.getMaplocation().add(dir))) return false;
-            if (!Data.myUnits[Data.allUnits.get(unit.getGarrisonUnits().get(0))].canMove()) return false;
+            if (!unit.getMapLocation().add(dir).isAccessible()) return false;
+            if (!Units.myUnits[Units.allUnits.get(unit.getGarrisonUnits().get(0))].canMove()) return false;
             return true;
         }catch(Exception e) {
             e.printStackTrace();
@@ -148,19 +58,19 @@ public class Wrapper {
     static void unload (AuxUnit unit, int dir){
         try {
             int newID = unit.getGarrisonUnits().get(0);
-            int posAtArray = Data.allUnits.get(newID);
-            AuxMapLocation loc = unit.getMaplocation();
+            int posAtArray = Units.allUnits.get(newID);
+            AuxMapLocation loc = unit.getMapLocation();
             AuxMapLocation newLoc = loc.add(dir);
-            //Data.unitMap[newLoc.x][newLoc.y] = posAtArray + 1;
-            //Data.myUnits[posAtArray].mloc = newLoc;
+            //GC.unitMap[newLoc.x][newLoc.y] = posAtArray + 1;
+            //GC.myUnits[posAtArray].mloc = newLoc;
 
-            Data.occupiedPositions.add(Data.encodeOcc(newLoc.x, newLoc.y));
+            Units.newOccupiedPositions.add(newLoc.encode());
             unit.garrisonUnits.remove(0);
 
-            Data.gc.unload(unit.getID(), Data.allDirs[dir]);
+            GC.gc.unload(unit.getID(), Const.allDirs[dir]);
 
             /*
-            AuxUnit unloadedUnit = Data.myUnits[posAtArray];
+            AuxUnit unloadedUnit = GC.myUnits[posAtArray];
             unloadedUnit.canMove = false;
             unloadedUnit.garrison = false;
             unloadedUnit.loc = unloadedUnit.unit.location();
@@ -171,68 +81,6 @@ public class Wrapper {
         }
     }
 
-    static int cost(UnitType type){
-        switch(type){
-            case Factory:
-                return 100;
-            case Worker:
-                return 25;
-            case Ranger:
-                return 20;
-            case Knight:
-                return 20;
-            case Mage:
-                return 20;
-            case Rocket:
-                return 75;
-            case Healer:
-                return 20;
-            default:
-                return 100;
-        }
-    }
-
-    static int getMaxHealth(UnitType type){
-        switch(type){
-            case Factory:
-                return 300;
-            case Worker:
-                return 100;
-            case Ranger:
-                return 200;
-            case Knight:
-                return 250;
-            case Mage:
-                return 80;
-            case Rocket:
-                return 200;
-            case Healer:
-                return 100;
-            default:
-                return 1;
-        }
-    }
-
-    static int getIndex(UnitType type){
-        switch(type){
-            case Factory:
-                return 5;
-            case Worker:
-                return 0;
-            case Ranger:
-                return 2;
-            case Knight:
-                return 1;
-            case Mage:
-                return 3;
-            case Rocket:
-                return 6;
-            case Healer:
-                return 4;
-            default:
-                return 0;
-        }
-    }
 
     public static int getIndex(Direction dir) {
         switch (dir) {
@@ -264,7 +112,7 @@ public class Wrapper {
         try {
             if (!unit.canAttack()) return false;
             if (unit.getGarrisonUnits().size() >= 8) return false;
-            return (Data.getKarbonite() >= cost(type));
+            return (Utils.karbonite >= Units.getCost(type));
         }catch(Exception e) {
             e.printStackTrace();
             return false;
@@ -273,8 +121,8 @@ public class Wrapper {
 
     static void produceUnit(AuxUnit unit, UnitType type){
         try {
-            Data.gc.produceRobot(unit.getID(), type);
-            Data.karbonite = Data.getKarbonite() - cost(type);
+            GC.gc.produceRobot(unit.getID(), type);
+            Utils.karbonite = Utils.karbonite - Units.getCost(type);
             unit.canAttack = false;
         }catch(Exception e) {
             e.printStackTrace();
@@ -284,11 +132,11 @@ public class Wrapper {
     static void heal(AuxUnit u1, AuxUnit u2){
         try {
             u2.getHealth();
-            u2.health += Data.healingPower;
-            int mh = getMaxHealth(u2.getType());
+            u2.health += Units.healingPower;
+            int mh = Units.getMaxHealth(u2.getType());
             if (u2.health > mh) u2.health = mh;
             u1.canAttack = false;
-            Data.gc.heal(u1.getID(), u2.getID());
+            GC.gc.heal(u1.getID(), u2.getID());
         }catch(Exception e) {
             e.printStackTrace();
         }
@@ -297,9 +145,9 @@ public class Wrapper {
     static boolean canMove(AuxUnit unit, int dir) {
         try {
             if (!unit.canMove()) return false;
-            AuxMapLocation mloc = unit.getMaplocation();
+            AuxMapLocation mloc = unit.getMapLocation();
             AuxMapLocation newLoc = mloc.add(dir);
-            return (isAccessible(newLoc));
+            return (newLoc.isAccessible());
         }catch(Exception e) {
             e.printStackTrace();
             return false;
@@ -310,11 +158,11 @@ public class Wrapper {
         try {
             blueprint.getHealth();
             blueprint.isBlueprint();
-            blueprint.health += Data.buildingPower;
-            int maxHP = getMaxHealth(blueprint.getType());
+            blueprint.health += Units.buildingPower;
+            int maxHP = Units.getMaxHealth(blueprint.getType());
             if (blueprint.health > maxHP) blueprint.health = maxHP;
             if (blueprint.health == maxHP) blueprint.blueprint = false;
-            Data.gc.build(unit.getID(), blueprint.getID());
+            GC.gc.build(unit.getID(), blueprint.getID());
             //System.out.println("Remaining build health: " + (maxHP - blueprint.health) +  " max hp? " + blueprint.isMaxHealth());
             unit.canAttack = false;
         }catch(Exception e) {
@@ -325,16 +173,16 @@ public class Wrapper {
     static void repair(AuxUnit unit, AuxUnit structure){
         try {
             structure.getHealth();
-            structure.health += Data.repairingPower;
-            int maxHP = getMaxHealth(structure.getType());
+            structure.health += Units.repairingPower;
+            int maxHP = Units.getMaxHealth(structure.getType());
             if (structure.health > maxHP) structure.health = maxHP;
-            //AuxMapLocation loc = unit.getMaplocation();
-            //AuxMapLocation sloc = structure.getMaplocation();
+            //AuxMapLocation loc = unit.getMapLocation();
+            //AuxMapLocation sloc = structure.getMapLocation();
             //int distance = loc.distanceSquaredTo(sloc);
             //System.out.println("DISTANCE BETWEEN " + loc.x + "," + loc.y + " AND " + sloc.x + "," + sloc.y + " = " + distance + "  " + unit.getID());
             //System.out.println(unit.unit.location().mapLocation().getX() + " " + unit.unit.location().mapLocation().getY());
-            //Unit unitt = Data.gc.unit(structure.getID());
-            Data.gc.repair(unit.getID(), structure.getID());
+            //Unit unitt = GC.gc.unit(structure.getID());
+            GC.gc.repair(unit.getID(), structure.getID());
             unit.canAttack = false;
         }catch(Exception e) {
             e.printStackTrace();
@@ -343,7 +191,7 @@ public class Wrapper {
 
     static void moveRobot(AuxUnit unit, int dir) {
         try {
-            AuxMapLocation mloc = unit.getMaplocation();
+            AuxMapLocation mloc = unit.getMapLocation();
             AuxMapLocation newLoc = mloc.add(dir);
             //if (!isAccessible(newLoc)){
             //System.err.println("User error");
@@ -351,9 +199,9 @@ public class Wrapper {
             //}
             unit.canMove = false;
             unit.mloc = newLoc;
-            Data.unitMap[mloc.x][mloc.y] = 0;
-            Data.unitMap[newLoc.x][newLoc.y] = Data.allUnits.get(unit.getID()) + 1;
-            Data.gc.moveRobot(unit.getID(), Data.allDirs[dir]);
+            Units.unitMap[mloc.x][mloc.y] = 0;
+            Units.unitMap[newLoc.x][newLoc.y] = Units.allUnits.get(unit.getID()) + 1;
+            GC.gc.moveRobot(unit.getID(), Const.allDirs[dir]);
         }catch(Exception e) {
             e.printStackTrace();
         }
@@ -361,11 +209,11 @@ public class Wrapper {
 
     static void blink(AuxUnit unit, AuxMapLocation mloc) {
         try {
-            AuxMapLocation loc = unit.getMaplocation();
+            AuxMapLocation loc = unit.getMapLocation();
             unit.canUseAbility = false;
-            Data.unitMap[loc.x][loc.y] = 0;
-            Data.unitMap[mloc.x][mloc.y] = Data.allUnits.get(unit.getID()) + 1;
-            Data.gc.blink(unit.getID(), new MapLocation(Data.planet, mloc.x, mloc.y));
+            Units.unitMap[loc.x][loc.y] = 0;
+            Units.unitMap[mloc.x][mloc.y] = Units.allUnits.get(unit.getID()) + 1;
+            GC.gc.blink(unit.getID(), new MapLocation(Mapa.planet, mloc.x, mloc.y));
             unit.mloc = mloc;
         }catch(Exception e) {
             e.printStackTrace();
@@ -374,10 +222,10 @@ public class Wrapper {
 
     static boolean canReplicate(AuxUnit unit, int dir){
         try {
-            if (Data.getKarbonite() < Data.replicateCost) return false;
-            AuxMapLocation mloc = unit.getMaplocation();
+            if (Utils.karbonite < Const.replicateCost) return false;
+            AuxMapLocation mloc = unit.getMapLocation();
             AuxMapLocation newLoc = mloc.add(dir);
-            if (!isAccessible(newLoc)) return false;
+            if (!newLoc.isAccessible()) return false;
             if (!unit.canUseAbility()) return false;
             return true;
         }catch(Exception e) {
@@ -388,11 +236,11 @@ public class Wrapper {
 
     static void replicate(AuxUnit unit, int dir){
         try {
-            AuxMapLocation mloc = unit.getMaplocation();
+            AuxMapLocation mloc = unit.getMapLocation();
             AuxMapLocation newLoc = mloc.add(dir);
-            Data.gc.replicate(unit.getID(), Data.allDirs[dir]);
-            Data.karbonite = Data.getKarbonite() - Data.replicateCost;
-            Data.occupiedPositions.add(Data.encodeOcc(newLoc.x, newLoc.y));
+            GC.gc.replicate(unit.getID(), Const.allDirs[dir]);
+            Utils.karbonite -= Const.replicateCost;
+            Units.newOccupiedPositions.add(newLoc.encode());
             unit.canUseAbility = false;
             unit.canAttack = false;
         }catch(Exception e) {
@@ -402,12 +250,12 @@ public class Wrapper {
 
     static boolean canPlaceBlueprint (AuxUnit unit, UnitType type, int dir){
         try {
-            if (Data.planet == Planet.Mars) return false;
-            if (Data.getKarbonite() < cost(type)) return false;
-            AuxMapLocation mloc = unit.getMaplocation();
+            if (Mapa.planet == Planet.Mars) return false;
+            if (Utils.karbonite < Units.getCost(type)) return false;
+            AuxMapLocation mloc = unit.getMapLocation();
             AuxMapLocation newLoc = mloc.add(dir);
-            if (!isAccessible(newLoc)) return false;
-            if (type == UnitType.Rocket && !Data.canBuildRockets) return false;
+            if (!newLoc.isAccessible()) return false;
+            if (type == UnitType.Rocket && !Units.canBuildRockets) return false;
             return true;
         }catch(Exception e) {
             e.printStackTrace();
@@ -417,11 +265,11 @@ public class Wrapper {
 
     static void placeBlueprint(AuxUnit unit, UnitType type, int dir) {
         try {
-            AuxMapLocation mloc = unit.getMaplocation();
+            AuxMapLocation mloc = unit.getMapLocation();
             AuxMapLocation newLoc = mloc.add(dir);
-            Data.gc.blueprint(unit.getID(), type, Data.allDirs[dir]);
-            Data.karbonite = Data.getKarbonite() - cost(type);
-            Data.occupiedPositions.add(Data.encodeOcc(newLoc.x, newLoc.y));
+            GC.gc.blueprint(unit.getID(), type, Const.allDirs[dir]);
+            Utils.karbonite -= Units.getCost(type);
+            Units.newOccupiedPositions.add(newLoc.encode());
         }catch(Exception e) {
             e.printStackTrace();
         }
@@ -429,10 +277,10 @@ public class Wrapper {
 
     static boolean canHarvest(AuxUnit unit, int dir){
         try {
-            AuxMapLocation loc = unit.getMaplocation();
+            AuxMapLocation loc = unit.getMapLocation();
             AuxMapLocation mineLoc = loc.add(dir);
             if (!mineLoc.isOnMap()) return false;
-            return Data.gc.canHarvest(unit.getID(), Data.allDirs[dir]);
+            return GC.gc.canHarvest(unit.getID(), Const.allDirs[dir]);
         }catch(Exception e) {
             e.printStackTrace();
             return false;
@@ -444,17 +292,17 @@ public class Wrapper {
     static int harvest(AuxUnit unit, int dir) {
         try {
             //System.out.println("Entra harvest ");
-            AuxMapLocation loc = unit.getMaplocation();
+            AuxMapLocation loc = unit.getMapLocation();
             AuxMapLocation mineLoc = loc.add(dir);
-            int karboAmount = Data.karboMap[mineLoc.x][mineLoc.y];
+            int karboAmount = Karbonite.karboMap[mineLoc.x][mineLoc.y];
             if (karboAmount == 0) return -1;
-            Data.gc.harvest(unit.getID(), Data.allDirs[dir]);
-            int newKarboAmount = karboAmount - Data.harvestingPower;
+            GC.gc.harvest(unit.getID(), Const.allDirs[dir]);
+            int newKarboAmount = karboAmount - Units.harvestingPower;
             if (newKarboAmount < 0) newKarboAmount = 0;
             if (newKarboAmount > 0) {
-                Data.karboniteAt.put(Data.encodeOcc(mineLoc.x, mineLoc.y), newKarboAmount);
-            } else Data.karboniteAt.remove(mineLoc);
-            Data.karboMap[mineLoc.x][mineLoc.y] = newKarboAmount;
+                Karbonite.karboniteAt.put(mineLoc.encode(), newKarboAmount);
+            } else Karbonite.karboniteAt.remove(mineLoc);
+            Karbonite.karboMap[mineLoc.x][mineLoc.y] = newKarboAmount;
             unit.canAttack = false;
             //System.out.println("Karbo after mining: " + newKarboAmount);
             return newKarboAmount;
@@ -468,9 +316,9 @@ public class Wrapper {
     static boolean canAttack(AuxUnit unit, AuxUnit unit2){
         try {
             if (!unit.canAttack()) return false;
-            int d = unit.getMaplocation().distanceSquaredTo(unit2.getMaplocation());
+            int d = unit.getMapLocation().distanceSquaredTo(unit2.getMapLocation());
             if (unit.getType() == UnitType.Ranger && d <= 10) return false;
-            return (getAttackRange(unit.getType()) >= d);
+            return (Units.getAttackRange(unit.getType()) >= d);
         }catch(Exception e) {
             e.printStackTrace();
             return false;
@@ -481,18 +329,18 @@ public class Wrapper {
         try {
             if (u1.getType() != UnitType.Mage) {
                 u2.getHealth();
-                u2.health -= (int) getDamage(u1.getType());
-                if (u2.health <= 0) Data.unitMap[u2.getX()][u2.getY()] = 0;
+                u2.health -= (int) Units.getDamage(u1.getType());
+                if (u2.health <= 0) Units.unitMap[u2.getX()][u2.getY()] = 0;
             } else {
-                AuxMapLocation mloc = u2.getMaplocation();
+                AuxMapLocation mloc = u2.getMapLocation();
                 for (int i = 0; i < 9; ++i) {
                     AuxMapLocation newLoc = mloc.add(i);
-                    AuxUnit unit2 = Data.getUnit(newLoc.x, newLoc.y);
+                    AuxUnit unit2 = newLoc.getUnit();
                     if (unit2 != null) {
                         unit2.getHealth();
-                        unit2.health -= (int) getDamage(u1.getType());
+                        unit2.health -= (int) Units.getDamage(u1.getType());
                         if (unit2.health <= 0){
-                            Data.unitMap[unit2.getMaplocation().x][unit2.getMaplocation().y] = 0;
+                            Units.unitMap[unit2.getMapLocation().x][unit2.getMapLocation().y] = 0;
                             unit2.canMove = false;
                             unit2.canAttack = false;
                             if (u2.myTeam) {
@@ -504,7 +352,7 @@ public class Wrapper {
                 }
             }
             u1.canAttack = false;
-            Data.gc.attack(u1.getID(), u2.getID());
+            GC.gc.attack(u1.getID(), u2.getID());
         }catch(Exception e) {
             e.printStackTrace();
         }
@@ -512,7 +360,7 @@ public class Wrapper {
 
     static int getArrivalRound(int round){
         try {
-            return (int) Data.gc.orbitPattern().duration(round);
+            return (int) GC.gc.orbitPattern().duration(round);
         }catch(Exception e) {
             e.printStackTrace();
             return Integer.parseInt(null);
@@ -522,11 +370,11 @@ public class Wrapper {
     static void launchRocket(AuxUnit unit, AuxMapLocation loc){
         try {
             //System.out.println("Launching at " + unit.getX() + " " + unit.getY());
-            Data.gc.launchRocket(unit.getID(), new MapLocation(Planet.Mars, loc.x, loc.y));
-            AuxMapLocation mloc = unit.getMaplocation();
-            Data.firstRocket = false;
-            Data.unitMap[mloc.x][mloc.y] = 0;
-            Data.structures.remove(unit.getID());
+            GC.gc.launchRocket(unit.getID(), new MapLocation(Planet.Mars, loc.x, loc.y));
+            AuxMapLocation mloc = unit.getMapLocation();
+            Units.firstRocket = false;
+            Units.unitMap[mloc.x][mloc.y] = 0;
+            Units.structures.remove(unit.getID());
         }catch(Exception e) {
             e.printStackTrace();
         }
@@ -537,7 +385,7 @@ public class Wrapper {
             if (!u2.canMove()) return false;
             if (u1.getGarrisonUnits().size() >= 8) return false;
             if (u2.isInGarrison()) return false;
-            return (u1.getMaplocation().distanceSquaredTo(u2.getMaplocation()) <= 2);
+            return (u1.getMapLocation().distanceSquaredTo(u2.getMapLocation()) <= 2);
         } catch (Exception e) {
             e.printStackTrace();
             return false;
@@ -546,15 +394,15 @@ public class Wrapper {
 
     static void load(AuxUnit u1, AuxUnit u2){
         try {
-            //System.out.println("Loading! at " + u2.getMaplocation().x + " " + u2.getMaplocation().y + " " + u2.getID());
-            AuxMapLocation mloc = u2.getMaplocation();
-            Data.unitMap[mloc.x][mloc.y] = 0;
+            //System.out.println("Loading! at " + u2.getMapLocation().x + " " + u2.getMapLocation().y + " " + u2.getID());
+            AuxMapLocation mloc = u2.getMapLocation();
+            Units.unitMap[mloc.x][mloc.y] = 0;
             u2.garrison = true;
             u2.mloc = null;
             u2.canMove = false;
             u2.canAttack = false;
             u1.getGarrisonUnits().add(u2.getID());
-            Data.gc.load(u1.getID(), u2.getID());
+            GC.gc.load(u1.getID(), u2.getID());
         }catch(Exception e) {
             e.printStackTrace();
         }
@@ -565,6 +413,6 @@ public class Wrapper {
         u2.canMove = true;
         u2.canAttack = true;
         u2.canUseAbility = true;
-        Data.gc.overcharge(u1.getID(), u2.getID());
+        GC.gc.overcharge(u1.getID(), u2.getID());
     }
 }

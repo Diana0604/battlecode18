@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/Battlecode18.iml" filepath="$PROJECT_DIR$/Battlecode18.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/Desktop.iml" filepath="$PROJECT_DIR$/.idea/Desktop.iml" />
-      <module fileurl="file://$PROJECT_DIR$/battlecode18.iml" filepath="$PROJECT_DIR$/battlecode18.iml" />
     </modules>
   </component>
 </project>

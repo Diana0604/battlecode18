@@ -6,8 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Mage {
-    final int min_group = 1;
-    final long INFL = 1000000000;
+    final int min_group = 3;
     static Mage instance = null;
 
 
@@ -27,10 +26,10 @@ public class Mage {
 
     void computeMultiTarget(){
         try {
-            multitargetArraY = new int[Data.W][Data.H];
-            for (int i = 0; i < Data.enemies.length; ++i) {
-                if (Data.enemies[i].getHealth() <= 0) continue;
-                AuxMapLocation loc = Data.enemies[i].getMaplocation();
+            multitargetArraY = new int[Mapa.W][Mapa.H];
+            for (int i = 0; i < Units.enemies.length; ++i) {
+                if (Units.enemies[i].getHealth() <= 0) continue;
+                AuxMapLocation loc = Units.enemies[i].getMapLocation();
                 for (int j = 0; j < 9; ++j) {
                     AuxMapLocation newLoc = loc.add(j);
                     if (newLoc.isOnMap()) {
@@ -38,9 +37,9 @@ public class Mage {
                     }
                 }
             }
-            for (int i = 0; i < Data.myUnits.length; ++i) {
-                if (Data.myUnits[i].isInGarrison()) continue;
-                AuxMapLocation loc = Data.myUnits[i].getMaplocation();
+            for (int i = 0; i < Units.myUnits.length; ++i) {
+                if (Units.myUnits[i].isInGarrison()) continue;
+                AuxMapLocation loc = Units.myUnits[i].getMapLocation();
                 for (int j = 0; j < 9; ++j) {
                     AuxMapLocation newLoc = loc.add(j);
                     if (newLoc.isOnMap()) {
@@ -49,10 +48,10 @@ public class Mage {
                 }
             }
 
-            expandedTargetArray = new int[Data.W][Data.H];
-            for (int i = 0; i < Data.enemies.length; ++i){
-                if (Data.enemies[i].getHealth() <= 0) continue;
-                AuxMapLocation loc = Data.enemies[i].getMaplocation();
+            expandedTargetArray = new int[Mapa.W][Mapa.H];
+            for (int i = 0; i < Units.enemies.length; ++i){
+                if (Units.enemies[i].getHealth() <= 0) continue;
+                AuxMapLocation loc = Units.enemies[i].getMapLocation();
                 int a = multitargetArraY[loc.x][loc.y];
                 for (int j = 0; j < Vision.Mx[30].length; ++j) {
                     AuxMapLocation newLoc = loc.add(new AuxMapLocation(Vision.Mx[30][j], Vision.My[30][j]));
@@ -72,47 +71,33 @@ public class Mage {
     }
 
     AuxMapLocation getTarget(AuxUnit _unit){
-        if (Data.canOverCharge && Data.round%10 == 9) return null;
-        AuxMapLocation ans = getBestTarget(_unit);
-        if (ans != null) return ans;
-        _unit.exploretarget = true;
-        return Explore.findExploreObjective(_unit);
+        try {
+            AuxMapLocation ans = getBestTarget(_unit);
+            if (ans != null) return ans;
+            _unit.exploretarget = true;
+            return Explore.findExploreObjective(_unit);
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     void doAction(AuxUnit _unit){
-        unit = _unit;
-        if (unit.target != null && !unit.exploretarget && unit.target.distanceSquaredTo(unit.getMaplocation()) < 90){
-            if (trySpecialMove()) return;
-            tryOverChargeMove();
+        try {
+            unit = _unit;
+            if (unit.target != null && !unit.exploretarget && unit.target.distanceSquaredTo(unit.getMapLocation()) < 90) {
+                if (trySpecialMove()) return;
+            }
+            attack();
+        } catch(Exception e) {
+            e.printStackTrace();
         }
-        attack();
-    }
-
-    int stepsTo(int d){
-        if (d <= 30) return 0;
-        if (d <= 45) return 1;
-        if (d <= 65) return 2;
-        if (d <= 89) return 3;
-        return 4;
-    }
-
-    void tryOverChargeMove(){
-        if (!Data.canOverCharge || Data.round%10 != 0) return;
-        int posAtArray = Data.allUnits.get(unit.getID());
-        int d = unit.target.distanceSquaredTo(unit.getMaplocation());
-        if (unit.canMove() && d > 8) MovementManager.getInstance().straightMoveTo(unit);
-        boolean atk = attack();
-        Overcharge.update(posAtArray);
-        d = unit.target.distanceSquaredTo(unit.getMaplocation());
-        if (Overcharge.canGetOvercharged(posAtArray) < stepsTo(d)) return;
-        if (!atk && unit.canMove()) return;
-        if(Overcharge.getOvercharged(posAtArray)) tryOverChargeMove();
     }
 
     boolean trySpecialMove(){
         try {
-            if ((Data.round % 12) > 2) return false;
-            if (!Data.canBlink) return false;
+            if ((Utils.round % 12) > 2) return false;
+            if (!Units.canBlink) return false;
             if (!unit.canAttack()) return false;
             if (!unit.canUseAbility()) return false;
             MageMovement m = getSpecialMove(unit);
@@ -135,9 +120,9 @@ public class Mage {
         try {
             if (m.moveFirst) {
                 if (m.dir < 8) Wrapper.moveRobot(unit, m.dir);
-                Wrapper.blink(unit, m.mloc.add(unit.getMaplocation()));
+                Wrapper.blink(unit, m.mloc.add(unit.getMapLocation()));
             } else {
-                Wrapper.blink(unit, m.mloc.add(unit.getMaplocation()));
+                Wrapper.blink(unit, m.mloc.add(unit.getMapLocation()));
                 if (m.dir < 8) Wrapper.moveRobot(unit, m.dir);
             }
             Wrapper.attack(unit, m.bestTarget);
@@ -152,13 +137,13 @@ public class Mage {
             AuxMapLocation finalLocA = a.mloc.add(a.dir);
             AuxMapLocation finalLocB = b.mloc.add(b.dir);
 
-            finalLocA = finalLocA.add(unit.getMaplocation());
-            finalLocB = finalLocB.add(unit.getMaplocation());
+            finalLocA = finalLocA.add(unit.getMapLocation());
+            finalLocB = finalLocB.add(unit.getMapLocation());
 
             if (a.getValue() > b.getValue()) return a;
             if (b.getValue() > a.getValue()) return b;
 
-            if (finalLocA.distanceSquaredTo(unit.getMaplocation()) > finalLocB.distanceSquaredTo(unit.getMaplocation())) return a;
+            if (finalLocA.distanceSquaredTo(unit.getMapLocation()) > finalLocB.distanceSquaredTo(unit.getMapLocation())) return a;
         } catch(Exception e) {
             e.printStackTrace();
         }
@@ -174,7 +159,7 @@ public class Mage {
             for (int i = 0; i < 9; ++i) {
                 if (!unit.canMove() && i != 8) continue;
                 MageMovement m = new MageMovement(origin.add(i), i, true);
-                if (Wrapper.isAccessible(unit.getMaplocation().add(i))){
+                if (unit.getMapLocation().add(i).isAccessible()){
                     firstMoves.add(m);
                     myMoves[3 + m.mloc.x][3 + m.mloc.y] = true;
                 }
@@ -182,7 +167,7 @@ public class Mage {
             for (int i = -2; i <= 2; ++i) {
                 for (int j = -2; j <= 2; ++j) {
                     AuxMapLocation newLoc = new AuxMapLocation(i, j);
-                    if (myMoves[3+i][3+j] == false && Wrapper.isAccessible(unit.getMaplocation().add(newLoc))) {
+                    if (myMoves[3+i][3+j] == false && unit.getMapLocation().add(newLoc).isAccessible()) {
                         firstMoves.add(new MageMovement(new AuxMapLocation(i, j), 8, false));
                         myMoves[3 + i][3 + j] = true;
                     }
@@ -203,7 +188,7 @@ public class Mage {
                             AuxMapLocation newLoc = m.mloc.add(m.dir);
                             m.moveFirst = firstMove.moveFirst;
                             if (myMoves[3 + newLoc.x][3 + newLoc.y] == false) {
-                                if (Wrapper.isAccessible(unit.getMaplocation().add(newLoc))) {
+                                if (unit.getMapLocation().add(newLoc).isAccessible()) {
                                     secondMoves.add(m);
                                     myMoves[3 + newLoc.x][3 + newLoc.y] = true;
                                 }
@@ -219,7 +204,7 @@ public class Mage {
                         m.moveFirst = firstMove.moveFirst;
                         AuxMapLocation newLoc = m.mloc.add(m.dir);
                         if (myMoves[3 + newLoc.x][3 + newLoc.y] == false) {
-                            if (Wrapper.isAccessible(unit.getMaplocation().add(newLoc))) {
+                            if (unit.getMapLocation().add(newLoc).isAccessible()) {
                                 secondMoves.add(m);
                                 myMoves[3 + newLoc.x][3 + newLoc.y] = true;
                             }
@@ -241,31 +226,25 @@ public class Mage {
 
     }
 
-    boolean attack() {
+    void attack() {
         try {
-            if (Data.canOverCharge && Data.round%10 == 9) return false;
-            if (!unit.canAttack()) return false;
+            if (!unit.canAttack()) return;
             MageMovement m = new MageMovement(new AuxMapLocation(0,0), 8, true);
             m.getValue();
-            if (m.bestTarget != null){
-                Wrapper.attack(unit, m.bestTarget);
-                unit.target = m.bestTarget.getMaplocation();
-                return true;
-            }
+            if (m.bestTarget != null) Wrapper.attack(unit, m.bestTarget);
         }catch(Exception e) {
             e.printStackTrace();
         }
-        return false;
     }
 
     AuxMapLocation getBestHealer(AuxMapLocation loc){
         try {
             double minDist = 100000;
             AuxMapLocation ans = null;
-            for (int i = 0; i < Data.myUnits.length; ++i) {
-                AuxUnit u = Data.myUnits[i];
+            for (int i = 0; i < Units.myUnits.length; ++i) {
+                AuxUnit u = Units.myUnits[i];
                 if (u.getType() == UnitType.Healer) {
-                    AuxMapLocation mLoc = u.getMaplocation();
+                    AuxMapLocation mLoc = u.getMapLocation();
                     if (mLoc != null) {
                         double d = loc.distanceBFSTo(mLoc);
                         if (d < minDist) {
@@ -286,10 +265,10 @@ public class Mage {
         try {
             if (Rocket.callsToRocket.containsKey(_unit.getID())) return Rocket.callsToRocket.get(_unit.getID());
             /*if (unit.getHealth() < 100) {
-                AuxMapLocation ans = getBestHealer(unit.getMaplocation());
+                AuxMapLocation ans = getBestHealer(unit.getMapLocation());
                 if (ans != null) return ans;
             }*/
-            return getBestEnemy(_unit.getMaplocation());
+            return getBestEnemy(_unit.getMapLocation());
         }catch(Exception e) {
             e.printStackTrace();
             return null;
@@ -297,22 +276,27 @@ public class Mage {
     }
 
     boolean isBetter(AuxMapLocation myLoc, AuxMapLocation A, AuxMapLocation B){
-        if (B == null) return true;
-        if (!A.isOnMap()) return false;
-        if (!B.isOnMap()) return false;
-        int a = multitargetArraY[A.x][A.y];
-        int b = multitargetArraY[B.x][B.y];
-        if (b < min_group && a > b) return true;
-        if (a < min_group && a < b) return false;
-        return (myLoc.distanceBFSTo(A) < myLoc.distanceBFSTo(B));
+        try {
+            if (B == null) return true;
+            if (!A.isOnMap()) return false;
+            if (!B.isOnMap()) return false;
+            int a = multitargetArraY[A.x][A.y];
+            int b = multitargetArraY[B.x][B.y];
+            if (b < min_group && a > b) return true;
+            if (a < min_group && a < b) return false;
+            return (myLoc.distanceBFSTo(A) < myLoc.distanceBFSTo(B));
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     AuxMapLocation getBestEnemy(AuxMapLocation myLoc){
         try {
             AuxMapLocation target = null;
-            for (int i = 0; i < Data.enemies.length; ++i) {
-                if (Data.enemies[i].getHealth() <= 0) continue;
-                AuxMapLocation enemyLocation = Data.enemies[i].getMaplocation();
+            for (int i = 0; i < Units.enemies.length; ++i) {
+                if (Units.enemies[i].getHealth() <= 0) continue;
+                AuxMapLocation enemyLocation = Units.enemies[i].getMapLocation();
                 if (isBetter(myLoc, enemyLocation, target)) target = enemyLocation;
             }
             return target;
@@ -345,23 +329,29 @@ public class Mage {
         }
 
         public int computeValue() {
-            AuxMapLocation finalLoc = unit.getMaplocation().add(dir).add(mloc);
-            if (expandedTargetArray[finalLoc.x][finalLoc.y] < min_group) return 0;
-            int mostenemies = 0;
-            for (int j = 0; j < Vision.Mx[30].length; ++j) {
-                AuxMapLocation newLoc = finalLoc.add(new AuxMapLocation(Vision.Mx[30][j], Vision.My[30][j]));
-                if (newLoc.isOnMap()) {
-                    AuxUnit u = Data.getUnit(newLoc.x, newLoc.y, false);
-                    if (u == null) u = Data.getUnit(newLoc.x, newLoc.y, true);
-                    if (u == null) continue;
-                    AuxUnit[] units = Wrapper.senseUnits(newLoc.x, newLoc.y, 2, false);
-                    if (units.length > mostenemies) {
-                        mostenemies = units.length;
-                        bestTarget = u;
+            try {
+                AuxMapLocation finalLoc = unit.getMapLocation().add(dir).add(mloc);
+                if (expandedTargetArray[finalLoc.x][finalLoc.y] < min_group) return 0;
+                int mostenemies = 0;
+                for (int j = 0; j < Vision.Mx[30].length; ++j) {
+                    AuxMapLocation newLoc = finalLoc.add(new AuxMapLocation(Vision.Mx[30][j], Vision.My[30][j]));
+                    if (newLoc.isOnMap()) {
+                        AuxUnit u = newLoc.getUnit(false); //TODO aixo no seria com fer newLoc.getUnit()?
+                        if (u == null) u = newLoc.getUnit(true);
+                        if (u == null) continue;
+                        AuxUnit[] units = Wrapper.senseUnits(newLoc.x, newLoc.y, 2, false);
+                        if (units.length > mostenemies) {
+                            mostenemies = units.length;
+                            bestTarget = u;
+                        }
                     }
                 }
+                return mostenemies;
             }
-            return mostenemies;
+            catch(Exception e) {
+                e.printStackTrace();
+            }
+            return 0;
         }
 
     }

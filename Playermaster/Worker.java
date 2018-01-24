@@ -1,9 +1,7 @@
-import bc.Planet;
 import bc.UnitType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 public class Worker {
@@ -49,25 +47,25 @@ public class Worker {
     private boolean tryReplicate(AuxUnit unit){
         try {
             if (!unit.canUseAbility()) return false;
-            if (Data.queue.needsUnit(UnitType.Worker) || shouldReplicate()) {
+            if (Units.queue.needsUnit(UnitType.Worker) || shouldReplicate()) {
                 int dir = 0;
-                if (unit.target != null) dir = unit.getMaplocation().dirBFSTo(unit.target);
+                if (unit.target != null) dir = unit.getMapLocation().dirBFSTo(unit.target);
                 for (int i = 0; i <= 4; ++i) {
                     int newDir = (dir + i)%8;
                     if (Wrapper.canReplicate(unit, newDir)) {
                         Wrapper.replicate(unit, newDir);
-                        Data.unitTypeCount.put(UnitType.Worker, Data.unitTypeCount.get(UnitType.Worker) + 1);
+                        Units.unitTypeCount.put(UnitType.Worker, Units.unitTypeCount.get(UnitType.Worker) + 1);
                         WorkerUtil.extra_workers++;
-                        //Data.queue.requestUnit(UnitType.Worker, false);
+                        //GC.queue.requestUnit(UnitType.Worker, false);
                         return true;
                     }
                     if (i == 0 || i == 4) continue;
                     newDir = (dir + 8 - i)%8;
                     if (Wrapper.canReplicate(unit, newDir)) {
                         Wrapper.replicate(unit, newDir);
-                        Data.unitTypeCount.put(UnitType.Worker, Data.unitTypeCount.get(UnitType.Worker) + 1);
+                        Units.unitTypeCount.put(UnitType.Worker, Units.unitTypeCount.get(UnitType.Worker) + 1);
                         WorkerUtil.extra_workers++;
-                        //Data.queue.requestUnit(UnitType.Worker, false);
+                        //GC.queue.requestUnit(UnitType.Worker, false);
                         return true;
                     }
                 }
@@ -80,7 +78,7 @@ public class Worker {
     }
 
     private boolean shouldReplicate(){
-        if (Data.onEarth()) return shouldReplicateEarth();
+        if (Mapa.onEarth()) return shouldReplicateEarth();
         else return shouldReplicateMars();
     }
 
@@ -89,8 +87,8 @@ public class Worker {
             Danger.computeDanger(unit);
             boolean danger = (Danger.DPSlong[8] > 0);
             if (danger) return false;
-            int nb_actions = WorkerUtil.getWorkerActions(unit.getMaplocation(), 30);
-            if (Data.unitTypeCount.get(UnitType.Worker) < WorkerUtil.min_nb_workers) return (nb_actions >= 12);
+            int nb_actions = WorkerUtil.getWorkerActions(unit.getMapLocation(), 30);
+            if (Units.unitTypeCount.get(UnitType.Worker) < WorkerUtil.min_nb_workers) return (nb_actions >= 12);
             return (nb_actions >= 30);
         }catch(Exception e) {
             e.printStackTrace();
@@ -99,15 +97,15 @@ public class Worker {
     }
 
     private boolean shouldReplicateMars(){
-        if (Data.round > 750) return true;
-        if (Data.getKarbonite() > 120) return true;
-        //if (Data.karbonite < 40) return false; //no se si aixo va be o no
-        HashMap<Integer, Integer> tasks = Data.asteroidTasksLocs;
-        HashMap<Integer, Integer> karboAt = Data.karboniteAt;
+        if (Utils.round > 750) return true;
+        if (Utils.karbonite > 120) return true;
+        //if (Utils.karbonite < 40) return false; //no se si aixo va be o no
+        HashMap<Integer, Integer> tasks = Karbonite.asteroidTasksLocs;
+        HashMap<Integer, Integer> karboAt = Karbonite.karboniteAt;
         for(Integer encoding: karboAt.keySet()){
             if (!tasks.containsKey(encoding)) continue; //no hauria de passar mai pero just in case
             int assignedID = tasks.get(encoding);
-            if (!Data.allUnits.containsKey(assignedID)) return true; //ha trobat una mina sense assignar, crea worker per enviar-li
+            if (!Units.allUnits.containsKey(assignedID)) return true; //ha trobat una mina sense assignar, crea worker per enviar-li
         }
         return false;
     }
@@ -115,18 +113,18 @@ public class Worker {
     //Intenta reparar o construir una structure adjacent
     private boolean tryBuildAndRepair(){
         try {
-            if (Data.onMars()) return false;
+            if (Mapa.onMars()) return false;
             int minDif = 1000;
             int minDifIndex = -1;
             int minHP = 1000;
             int minHPIndex = -1;
-            AuxUnit[] adjUnits = Wrapper.senseUnits(unit.getMaplocation(), 2, true);
+            AuxUnit[] adjUnits = Wrapper.senseUnits(unit.getMapLocation(), 2, true);
             for (int i = 0; i < adjUnits.length; ++i) {
                 AuxUnit u = adjUnits[i];
                 if (!(u.getType() == UnitType.Factory || u.getType() == UnitType.Rocket)) continue;
                 if (u.isMaxHealth()) continue;
                 int health = u.getHealth();
-                int maxHealth = Wrapper.getMaxHealth(u.getType());
+                int maxHealth = Units.getMaxHealth(u.getType());
                 boolean bp = u.isBlueprint();
                 if (!bp && health < minHP) {
                     minHP = health;
@@ -140,13 +138,13 @@ public class Worker {
             if (minDifIndex >= 0) {
                 AuxUnit structure = adjUnits[minDifIndex];
                 Wrapper.build(unit, structure);
-                if (structure.getHealth() < Wrapper.getMaxHealth(structure.getType())) unit.canMove = false;
+                if (structure.getHealth() < Units.getMaxHealth(structure.getType())) unit.canMove = false;
                 return true;
             }
             if (minHPIndex >= 0) {
                 AuxUnit structure = adjUnits[minHPIndex];
                 Wrapper.repair(unit, adjUnits[minHPIndex]);
-                if (structure.getHealth() < Wrapper.getMaxHealth(structure.getType())) unit.canMove = false;
+                if (structure.getHealth() < Units.getMaxHealth(structure.getType())) unit.canMove = false;
                 return true;
             }
             return false;
@@ -159,7 +157,7 @@ public class Worker {
     //Posen un blueprint en una posicio adjacent (aixo s'ha de canviar quan ho fem global)
     private boolean tryPlaceBlueprint(){
         try {
-            if (Data.onMars()) return false;
+            if (Mapa.onMars()) return false;
             if (danger) return false;
             UnitType type = chooseStructure();
             if (type == null) return false;
@@ -169,7 +167,7 @@ public class Worker {
                 Danger.computeDanger(unit);
                 if(Danger.DPSlong[i] > 0) return false;
                 Wrapper.placeBlueprint(unit, type, i);
-                Data.queue.requestUnit(type, false);
+                Units.queue.requestUnit(type, false);
                 unit.canMove = false;
                 return true;
             }
@@ -181,13 +179,13 @@ public class Worker {
     }
 
     private UnitType chooseStructure(){
-        boolean canBuildRocket = Data.researchInfo.getLevel(UnitType.Rocket) > 0;
-        boolean isFirstRocket = Data.firstRocket && Data.unitTypeCount.get(UnitType.Rocket) == 0;
+        boolean canBuildRocket = Research.researchInfo.getLevel(UnitType.Rocket) > 0;
+        boolean isFirstRocket = Units.firstRocket && Units.unitTypeCount.get(UnitType.Rocket) == 0;
 
         if (canBuildRocket && isFirstRocket) return UnitType.Rocket;
-        int numFactories = Data.unitTypeCount.get(UnitType.Factory);
+        int numFactories = Units.unitTypeCount.get(UnitType.Factory);
         if (numFactories == 0) return UnitType.Factory;
-        int roundsOver100Karbo = Data.round - Data.lastRoundUnder100Karbo;
+        int roundsOver100Karbo = Utils.round - Units.lastRoundUnder100Karbo;
         if (roundsOver100Karbo < 5) return null;
         if (numFactories < MAX_FACTORIES) return UnitType.Factory;
         if (canBuildRocket) return UnitType.Rocket;
@@ -198,9 +196,9 @@ public class Worker {
     private boolean tryMine(){
         try {
             //System.out.println("Trying to mine! " + unit.getID());
-            int dir = WorkerUtil.getMostKarboLocation(unit.getMaplocation());
-            AuxMapLocation newLoc = unit.getMaplocation().add(dir);
-            if (Data.karboMap[newLoc.x][newLoc.y] > 0 && Wrapper.canHarvest(unit, dir)) {
+            int dir = WorkerUtil.getMostKarboLocation(unit.getMapLocation());
+            AuxMapLocation newLoc = unit.getMapLocation().add(dir);
+            if (Karbonite.karboMap[newLoc.x][newLoc.y] > 0 && Wrapper.canHarvest(unit, dir)) {
                 Wrapper.harvest(unit, dir);
                 //System.out.println(newLoc.x + " " + newLoc.y);
                 return true;
@@ -218,7 +216,7 @@ public class Worker {
 
     AuxMapLocation getTarget(AuxUnit _unit){
         unit = _unit;
-        if (Data.onEarth()) return earthTarget();
+        if (Mapa.onEarth()) return earthTarget();
         return marsTarget();
     }
 
@@ -246,9 +244,9 @@ public class Worker {
             if (targets.size() > 0) {
                 Target bestTarget = targets.get(0);
                 dest = bestTarget.mloc;
-            }else dest = unit.getMaplocation(); //move to self per evitar perill
-            //System.out.println("Worker " + unit.getID() + " loc " + unit.getMaplocation().x + "," + unit.getMaplocation().y + " va a " + dest.x + "," + dest.y + "   " + wait);
-            //MovementManager.getInstance().moveTo(unit, dest);
+            }else dest = unit.getMapLocation(); //move to self per evitar perill
+            //System.out.println("Worker " + unit.getID() + " loc " + unit.getMapLocation().x + "," + unit.getMapLocation().y + " va a " + dest.x + "," + dest.y + "   " + wait);
+            //MovementManager.getInstance().move(unit, dest);
             return dest;
 
         }catch(Exception e) {
@@ -262,17 +260,17 @@ public class Worker {
             if (!unit.canMove()) return null;
             //asteroidTasks.get(positiu) retorna el worker assignat a la location codificada
             //asteroidTasks.get(negatiu) retorna la location assignada al worker amb id -negatiu
-            HashMap<Integer, Integer> tasksLocs = Data.asteroidTasksLocs;
-            HashMap<Integer, Integer> tasksIDs = Data.asteroidTasksIDs;
+            HashMap<Integer, Integer> tasksLocs = Karbonite.asteroidTasksLocs;
+            HashMap<Integer, Integer> tasksIDs = Karbonite.asteroidTasksIDs;
             AuxMapLocation destination;
             int id = unit.getID();
             if (tasksIDs.containsKey(id)){
                 //si ja tinc mina assignada, hi vaig
                 int encoding = tasksIDs.get(id);
-                AuxMapLocation location = Data.toLocation(encoding);
-                if (!Data.karboniteAt.containsKey(encoding)){
+                AuxMapLocation location = new AuxMapLocation(encoding);
+                if (!Karbonite.karboniteAt.containsKey(encoding)){
                     //si la mina ja esta buida, trec la task
-                    //System.out.println(Data.round + " worker " + id + " removes mine " + location.x + "," + location.y);
+                    //System.out.println(GC.round + " worker " + id + " removes mine " + location.x + "," + location.y);
                     tasksLocs.remove(encoding);
                     tasksIDs.remove(id);
                 }
@@ -281,43 +279,39 @@ public class Worker {
                 double minDist = 100000000;
                 AuxMapLocation minLoc = null;
                 for (Map.Entry<Integer, Integer> entry : tasksLocs.entrySet()) {
-                    AuxMapLocation loc = Data.toLocation(entry.getKey());
+                    AuxMapLocation loc = new AuxMapLocation(entry.getKey());
                     int assignedID = entry.getValue();
-                    if (Data.allUnits.containsKey(assignedID)) continue; //si ja esta assignada suda
+                    if (Units.allUnits.containsKey(assignedID)) continue; //si ja esta assignada suda
                     //if (assignedID != -1) continue;
-                    double dist = unit.getMaplocation().distanceBFSTo(loc);
-                    if (dist >= Pathfinder.INF) continue; //si no esta accessible
+                    double dist = unit.getMapLocation().distanceBFSTo(loc);
+                    if (dist >= Const.INF) continue; //si no esta passable
                     if (dist < minDist) {
                         minDist = dist;
                         minLoc = loc;
                     }
                 }
                 if (minLoc == null){
-                    //si no queda cap mina accessible per assignar, va a la mes propera
+                    //si no queda cap mina passable per assignar, va a la mes propera
                     minDist = 100000000;
                     minLoc = null;
                     for (Integer encoding : tasksLocs.keySet()) {
-                        AuxMapLocation loc = Data.toLocation(encoding);
-                        double dist = unit.getMaplocation().distanceSquaredTo(loc);
+                        AuxMapLocation loc = new AuxMapLocation(encoding);
+                        double dist = unit.getMapLocation().distanceSquaredTo(loc);
                         if (dist < minDist){
                             minDist = dist;
                             minLoc = loc;
                         }
                     }
-                    if (minLoc == null) destination = unit.getMaplocation();
+                    if (minLoc == null) destination = unit.getMapLocation();
                     else destination = minLoc;
                 }else{
                     //ha trobat una mina buida, se l'assigna
-                    int encoding = Data.encodeOcc(minLoc.x, minLoc.y);
-                    //System.out.println(Data.round + " worker " + id + " s'assigna la mina " + minLoc.x + "," + minLoc.y + "   " + tasksLocs.get(encoding));
+                    int encoding = minLoc.encode();
+                    //System.out.println(GC.round + " worker " + id + " s'assigna la mina " + minLoc.x + "," + minLoc.y + "   " + tasksLocs.get(encoding));
                     tasksIDs.put(id, encoding);
                     tasksLocs.put(encoding, id);
                     destination = minLoc;
                 }
-            }
-            if (destination == null){
-                System.out.println(Data.round + " worker " + unit.getID() + " destination null!");
-                destination = unit.getMaplocation();
             }
             //System.out.println("Worker moves to position " + destination.x + "," + destination.y + "  //  " + l.x + "," + l.y);
             return destination;
@@ -332,12 +326,12 @@ public class Worker {
         try {
             final int KARBONITE_MULTIPLIER = 1;
             Target ans = null;
-            for (HashMap.Entry<Integer, Integer> entry : Data.karboniteAt.entrySet()) {
-                AuxMapLocation mineLoc = Data.toLocation(entry.getKey());
-                int workerTurns = Math.min(50, entry.getValue()/Data.harvestingPower);
+            for (HashMap.Entry<Integer, Integer> entry : Karbonite.karboniteAt.entrySet()) {
+                AuxMapLocation mineLoc = new AuxMapLocation(entry.getKey());
+                int workerTurns = Math.min(50, entry.getValue()/ Units.harvestingPower);
                 int value = workerTurns * KARBONITE_MULTIPLIER;
                 if (WorkerUtil.buildingAt(mineLoc)) continue;
-                double dist = unit.getMaplocation().distanceBFSTo(mineLoc);
+                double dist = unit.getMapLocation().distanceBFSTo(mineLoc);
                 if (ans == null) {
                     ans = new Target(value, dist, mineLoc, 3);
                     continue;
@@ -358,19 +352,19 @@ public class Worker {
     private Target getBuildTarget() {
         try {
             final int BLUEPRINT_MULTIPLIER = 20;
-            if (Data.blueprintsToBuild.containsKey(unit.getID())) {
-                int bID = Data.blueprintsToBuild.get(unit.getID());
+            if (Units.blueprintsToBuild.containsKey(unit.getID())) {
+                int bID = Units.blueprintsToBuild.get(unit.getID());
 
-                int index = Data.allUnits.get(bID);
-                AuxUnit blueprint = Data.myUnits[index];
+                int index = Units.allUnits.get(bID);
+                AuxUnit blueprint = Units.myUnits[index];
 
-                AuxMapLocation bLoc = blueprint.getMaplocation();
-                double dist = Math.max(unit.getMaplocation().distanceBFSTo(bLoc) - 1, 0);
+                AuxMapLocation bLoc = blueprint.getMapLocation();
+                double dist = Math.max(unit.getMapLocation().distanceBFSTo(bLoc) - 1, 0);
                 //vida que li faltara quan arribi
-                int remainingHP = (Wrapper.getMaxHealth(blueprint.getType()) - blueprint.getHealth())
-                        - (int) (dist * WorkerUtil.getAdjacentWorkers(blueprint.getMaplocation()) * Data.buildingPower);
+                int remainingHP = (Units.getMaxHealth(blueprint.getType()) - blueprint.getHealth())
+                        - (int) (dist * WorkerUtil.getAdjacentWorkers(blueprint.getMapLocation()) * Units.buildingPower);
                 if (remainingHP <= 0) return null;
-                int workerTurns = remainingHP/Data.buildingPower + 1;
+                int workerTurns = remainingHP/ Units.buildingPower + 1;
                 int value = workerTurns * BLUEPRINT_MULTIPLIER;
                 return new Target(value, dist, bLoc, 2);
             }
@@ -385,18 +379,18 @@ public class Worker {
     private Target getRepairTarget(){
         try{
             final int STRUCTURE_MULTIPLIER = 10;
-            if (Data.structuresToRepair.containsKey(unit.getID())) {
-                int sID = Data.structuresToRepair.get(unit.getID());
+            if (Units.structuresToRepair.containsKey(unit.getID())) {
+                int sID = Units.structuresToRepair.get(unit.getID());
 
-                int index = Data.allUnits.get(sID);
-                AuxUnit structure = Data.myUnits[index];
+                int index = Units.allUnits.get(sID);
+                AuxUnit structure = Units.myUnits[index];
 
-                AuxMapLocation sLoc = structure.getMaplocation();
-                double dist = Math.max(unit.getMaplocation().distanceBFSTo(sLoc) - 1, 0);
-                int missingHP = (Wrapper.getMaxHealth(structure.getType()) - structure.getHealth())
-                        - (int)(dist*WorkerUtil.getAdjacentWorkers(structure.getMaplocation())*Data.repairingPower);
+                AuxMapLocation sLoc = structure.getMapLocation();
+                double dist = Math.max(unit.getMapLocation().distanceBFSTo(sLoc) - 1, 0);
+                int missingHP = (Units.getMaxHealth(structure.getType()) - structure.getHealth())
+                        - (int)(dist*WorkerUtil.getAdjacentWorkers(structure.getMapLocation())* Units.repairingPower);
                 if (missingHP <= 0) return null;
-                int workerTurns = missingHP/Data.repairingPower + 1;
+                int workerTurns = missingHP/ Units.repairingPower + 1;
                 int value = workerTurns * STRUCTURE_MULTIPLIER;
                 return new Target(value, dist, sLoc, 2);
             }
@@ -413,7 +407,7 @@ public class Worker {
             final int ROCKET_MULTIPLIER = 200;
             AuxMapLocation mLoc = Rocket.callsToRocket.get(unit.getID());
             if (mLoc == null) return null;
-            return new Target(ROCKET_MULTIPLIER, unit.getMaplocation().distanceBFSTo(mLoc), mLoc, 0);
+            return new Target(ROCKET_MULTIPLIER, unit.getMapLocation().distanceBFSTo(mLoc), mLoc, 0);
         } catch (Exception e) {
             e.printStackTrace();
             return null;

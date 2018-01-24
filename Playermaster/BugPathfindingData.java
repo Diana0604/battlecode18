@@ -1,20 +1,13 @@
-
-
-import bc.*;
-
 public class BugPathfindingData {
-
-    static final double INF = 1000000000;
-
     public AuxMapLocation obstacle = null;
     public AuxMapLocation target = null;
     public boolean left = true;
-    public double minDist = INF;
+    public double minDist = Const.INF;
 
     void reset(){
         target = null;
         obstacle = null;
-        minDist = INF;
+        minDist = Const.INF;
     }
 
     void soft_reset(AuxMapLocation m){

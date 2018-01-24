@@ -1,17 +1,23 @@
 
 
+import bc.ResearchInfo;
 import bc.UnitType;
 
 public class Research {
+    static ResearchInfo researchInfo;
+    private static UnitType[] fixedTree = new UnitType[]{UnitType.Ranger, UnitType.Healer, UnitType.Healer, UnitType.Healer, UnitType.Rocket, UnitType.Ranger, UnitType.Mage, UnitType.Mage, UnitType.Mage, UnitType.Mage};
 
-    static Research instance;
+    public static void initGame(){
+        try{
+            for (UnitType tech : fixedTree) GC.gc.queueResearch(tech);
+            researchInfo = GC.gc.researchInfo();
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-    private UnitType[] fixedTree = new UnitType[]{UnitType.Ranger, UnitType.Healer, UnitType.Healer, UnitType.Healer, UnitType.Mage, UnitType.Rocket, UnitType.Ranger, UnitType.Mage, UnitType.Mage, UnitType.Mage};
-    private int stage = 0;
-
-    static Research getInstance(){
-        if (instance == null) instance = new Research();
-        return instance;
+    public static void initTurn(){
+        researchInfo = GC.gc.researchInfo();
     }
 
     /*public void checkResearch() {
@@ -24,13 +30,4 @@ public class Research {
             }
         }
     }*/
-
-    public void yolo(){
-        try{
-            for (int i = 0; i < fixedTree.length; ++i) Data.gc.queueResearch(fixedTree[i]);
-        }catch(Exception e) {
-            e.printStackTrace();
-        }
-    }
-
 }

@@ -7,8 +7,6 @@ public class AuxMapLocation {
 
     static final int[] X = {0, 1, 1, 1, 0, -1, -1, -1, 0};
     static final int[] Y = {1, 1, 0, -1, -1, -1, 0, 1, 0};
-    //private static final Direction[] allDirs = {Direction.North, Direction.Northeast, Direction.East, Direction.Southeast, Direction.South, Direction.Southwest, Direction.West, Direction.Northwest, Direction.Center};
-
 
     public int x;
     public int y;
@@ -18,7 +16,7 @@ public class AuxMapLocation {
             x = mloc.getX();
             y = mloc.getY();
         }catch(Exception e){
-            System.out.println(e);
+            e.printStackTrace();
         }
     }
 
@@ -27,11 +25,25 @@ public class AuxMapLocation {
         y = _y;
     }
 
+
+    public AuxMapLocation(int a){
+        x = a >> 12;
+        y = a & 0xFFF;
+    }
+
+    public int encode(){
+        return ((x << 12) | y);
+    }
+
+    public int encode(int _x, int _y){
+        return ((_x << 12) | _y);
+    }
+
     public AuxMapLocation add(int dir){
         try {
             return new AuxMapLocation(x + X[dir], y + Y[dir]);
         }catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             return null;
         }
     }
@@ -42,36 +54,36 @@ public class AuxMapLocation {
             int dy = mloc.y - y;
             return dx * dx + dy * dy;
         }catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             return Integer.parseInt(null);
         }
     }
 
     public boolean isOnMap(){
         try {
-            if (x < 0 || x >= Data.W) return false;
-            if (y < 0 || y >= Data.H) return false;
+            if (x < 0 || x >= Mapa.W) return false;
+            if (y < 0 || y >= Mapa.H) return false;
             return true;
         } catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             return false;
         }
     }
 
     public double distanceBFSTo(AuxMapLocation mloc) {
         try {
-            return Pathfinder.getInstance().getNode(x, y, mloc.x, mloc.y).dist;
+            return Pathfinder.getNode(x, y, mloc.x, mloc.y).dist;
         } catch (Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             return Double.parseDouble(null);
         }
     }
 
     public int dirBFSTo (AuxMapLocation mloc) {
         try {
-            return Pathfinder.getInstance().getNode(x, y, mloc.x, mloc.y).dir;
+            return Pathfinder.getNode(x, y, mloc.x, mloc.y).dir;
         } catch (Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             return Integer.parseInt(null);
         }
     }
@@ -80,9 +92,62 @@ public class AuxMapLocation {
         try {
             return new AuxMapLocation(loc.x + this.x, loc.y + this.y);
         } catch (Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             return null;
         }
+    }
+
+    public int getKarbonite(){
+        MapLocation mapLocation = new MapLocation(Mapa.planet, x, y);
+        if (GC.gc.canSenseLocation(mapLocation)) {
+            long karbonite = GC.gc.karboniteAt(mapLocation);
+            if (karbonite > Const.INF) karbonite = Const.INF;
+            return (int) karbonite;
+        }
+        return -1;
+    }
+
+    public AuxUnit getUnit(){
+        try {
+            if (x < 0 || x >= Mapa.W) return null;
+            if (y < 0 || y >= Mapa.H) return null;
+            int i = Units.unitMap[x][y];
+            if (i > 0) return Units.myUnits[i - 1];
+            if (i < 0) return Units.enemies[-(i + 1)];
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public AuxUnit getUnit(boolean myTeam){
+        try {
+            AuxUnit unit = getUnit();
+            if (unit == null) return null;
+            if (unit.myTeam == myTeam) return unit;
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    //si es pot passar pel terreny (no hi ha muntanya)
+    public boolean isPassable(){
+        return Pathfinder.passable[x][y];
+    }
+
+    //si la posicio esta ocupada per una unitat
+    public boolean isOccupiedByUnit(){
+        return Units.unitMap[x][y] != 0;
+    }
+
+    //si no hi ha res a la posicio
+    public boolean isAccessible(){
+        if (!isOnMap()) return false;
+        if (!isPassable()) return false;
+        if (isOccupiedByUnit()) return false;
+        if (Units.newOccupiedPositions.contains(encode())) return false;
+        return true;
     }
 
     @Override
@@ -97,7 +162,7 @@ public class AuxMapLocation {
             AuxMapLocation mloc = (AuxMapLocation) o;
             return (this.x == mloc.x && this.y == mloc.y);
         }catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             return false;
         }
     }

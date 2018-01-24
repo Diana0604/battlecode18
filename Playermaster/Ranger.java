@@ -4,8 +4,7 @@ import bc.UnitType;
 
 import java.util.HashMap;
 
-public class    Ranger {
-    final long INFL = 1000000000;
+public class Ranger {
     static Ranger instance = null;
 
     HashMap<Integer, Integer> objectiveArea;
@@ -33,14 +32,13 @@ public class    Ranger {
         }
     }
 
-    void attack(AuxUnit unit, boolean firstTime) {
+    void attack(AuxUnit unit) {
         try {
-            if (Data.canOverCharge && Data.round%10 == 9) return;
-            int posAtArray = Data.allUnits.get(unit.getID());
-            if (firstTime) Overcharge.update(posAtArray);
+            if (Units.canOverCharge && Utils.round%10 == 9) return;
+            int posAtArray = Units.allUnits.get(unit.getID());
             AuxUnit bestVictim = null;
-            AuxMapLocation myLoc = unit.getMaplocation();
-            AuxUnit[] canAttack = Wrapper.senseUnits(myLoc.x, myLoc.y, Wrapper.getAttackRange(unit.getType()), false);
+            AuxMapLocation myLoc = unit.getMapLocation();
+            AuxUnit[] canAttack = Wrapper.senseUnits(myLoc.x, myLoc.y, Units.getAttackRange(unit.getType()), false);
             for (int i = 0; i < canAttack.length; ++i) {
                 AuxUnit u = canAttack[i];
                 bestVictim = getBestAttackTarget(bestVictim, u);
@@ -50,7 +48,7 @@ public class    Ranger {
                 if (!Overcharge.getOvercharged(posAtArray)) return;
             }
             Wrapper.attack(unit, bestVictim);
-            if (Overcharge.canGetOvercharged(posAtArray) > 0) attack(unit, false);
+            if (Overcharge.canGetOvercharged(posAtArray)) attack(unit);
         }catch(Exception e) {
             e.printStackTrace();
         }
@@ -60,10 +58,10 @@ public class    Ranger {
         try {
             double minDist = 100000;
             AuxMapLocation ans = null;
-            for (int i = 0; i < Data.myUnits.length; ++i) {
-                AuxUnit u = Data.myUnits[i];
+            for (int i = 0; i < Units.myUnits.length; ++i) {
+                AuxUnit u = Units.myUnits[i];
                 if (u.getType() == UnitType.Healer) {
-                    AuxMapLocation mLoc = u.getMaplocation();
+                    AuxMapLocation mLoc = u.getMapLocation();
                     if (mLoc != null) {
                         double d = loc.distanceBFSTo(mLoc);
                         if (d < minDist) {
@@ -82,13 +80,13 @@ public class    Ranger {
 
     AuxMapLocation getTarget(AuxUnit unit){
         try {
-            if (Data.canOverCharge && Data.round%10 == 9) return null;
+            if (Units.canOverCharge && Utils.round%10 == 9) return null;
             if (Rocket.callsToRocket.containsKey(unit.getID())) return Rocket.callsToRocket.get(unit.getID());
             if (unit.getHealth() < 100) {
-                AuxMapLocation ans = getBestHealer(unit.getMaplocation());
+                AuxMapLocation ans = getBestHealer(unit.getMapLocation());
                 if (ans != null) return ans;
             }
-            AuxMapLocation ans = getBestEnemy(unit.getMaplocation());
+            AuxMapLocation ans = getBestEnemy(unit.getMapLocation());
             if (ans != null) return ans;
             return Explore.findExploreObjective(unit);
         }catch(Exception e) {
@@ -99,11 +97,11 @@ public class    Ranger {
 
     AuxMapLocation getBestEnemy(AuxMapLocation myLoc){
         try {
-            double minDist = INFL;
+            double minDist = Const.INFL;
             AuxMapLocation target = null;
-            for (int i = 0; i < Data.enemies.length; ++i) {
-                if (Data.enemies[i].getHealth() <= 0) continue;
-                AuxMapLocation enemyLocation = Data.enemies[i].getMaplocation();
+            for (int i = 0; i < Units.enemies.length; ++i) {
+                if (Units.enemies[i].getHealth() <= 0) continue;
+                AuxMapLocation enemyLocation = Units.enemies[i].getMapLocation();
                 double d = enemyLocation.distanceBFSTo(myLoc);
                 if (d < minDist) {
                     minDist = d;

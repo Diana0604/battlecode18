@@ -2,7 +2,6 @@
 
 import bc.UnitType;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -12,7 +11,6 @@ import java.util.HashMap;
 public class MovementManager {
 
     static MovementManager instance;
-    public final int INF = 1000000000;
 
     private BugPathfindingData data;
     AuxUnit unit;
@@ -22,9 +20,6 @@ public class MovementManager {
     private boolean[] canMove;
     private long attackRange;
     private boolean attacker;
-
-
-    //static final Direction[] allDirs = {Direction.North, Direction.Northeast, Direction.East, Direction.Southeast, Direction.South, Direction.Southwest, Direction.West, Direction.Northwest, Direction.Center};
 
     static MovementManager getInstance(){
         if (instance == null) instance = new MovementManager();
@@ -169,7 +164,7 @@ public class MovementManager {
 
 
 
-    public int moveTo(AuxUnit unit){
+    public int move(AuxUnit unit){
         try {
             if (unit.visited) return 8;
             unit.visited = true;
@@ -177,12 +172,12 @@ public class MovementManager {
             if (!unit.canMove()) return 8;
 
             this.unit = unit;
-            attackRange = Wrapper.getAttackRange(unit.getType());
+            attackRange = Units.getAttackRange(unit.getType());
             attacker = dangerousUnit(unit.getType());
 
-            AuxMapLocation myLoc = unit.getMaplocation();
+            AuxMapLocation myLoc = unit.getMapLocation();
 
-            Danger.computeDanger(unit);
+            Danger.computeDanger(unit); //Todo aixo es pot borrar no?
 
             int dirGreedy = greedyMove(unit);
             if (dirGreedy != 8){
@@ -203,10 +198,10 @@ public class MovementManager {
 
             AuxMapLocation newLoc = myLoc.add(dirBFS);
 
-            AuxUnit u = Data.getUnit(newLoc.x, newLoc.y, true);
+            AuxUnit u = newLoc.getUnit(true);
             if (u != null){
                 if (u.getType() != UnitType.Factory && u.getType() != UnitType.Rocket) {
-                    if (moveTo(u) != 8) {
+                    if (move(u) != 8) {
                         Wrapper.moveRobot(unit, dirBFS);
                         getData(unit).soft_reset(myLoc);
                         return dirBFS;
@@ -214,10 +209,10 @@ public class MovementManager {
                 }
             }
 
-            long d = unit.getMaplocation().distanceSquaredTo(unit.target);
+            long d = unit.getMapLocation().distanceSquaredTo(unit.target);
             if (d == 0) return 8;
             if (d <= 2) {
-                int dir = unit.getMaplocation().dirBFSTo(unit.target);
+                int dir = unit.getMapLocation().dirBFSTo(unit.target);
                 //System.err.println(dir);
                 //System.err.println(Pathfinder.getIndex(dir));
                 if (Wrapper.canMove(unit, dir)){
@@ -229,7 +224,7 @@ public class MovementManager {
 
             this.unit = unit;
             id = unit.getID();
-            this.myLoc = unit.getMaplocation();
+            this.myLoc = unit.getMapLocation();
             if (!bugpathData.keySet().contains(id)) {
                 data = new BugPathfindingData();
             } else data = bugpathData.get(id);
@@ -240,7 +235,7 @@ public class MovementManager {
                 } else canMove[i] = false;
             }
 
-            Danger.computeDanger(unit);
+            Danger.computeDanger(unit); //Todo aixo es pot borrar no?
 
             int ans =  naiveMoveTo(unit.target);
             bugpathData.put(id, data);
@@ -252,83 +247,34 @@ public class MovementManager {
         return 8;
     }
 
-    int raw_dist(int dir){
-        return myLoc.add(dir).distanceSquaredTo(unit.target);
-    }
-
-
-    public int straightMoveTo(AuxUnit unit){
+    boolean shouldAggro(){
         try {
-            if (unit.visited) return 8;
-            unit.visited = true;
-            if (unit.target == null) return 8;
-            if (!unit.canMove()) return 8;
-
-            this.unit = unit;
-            attackRange = Wrapper.getAttackRange(unit.getType());
-            attacker = dangerousUnit(unit.getType());
-
-            myLoc = unit.getMaplocation();
-
-            Danger.computeDanger(unit);
-
-            ArrayList<Integer> directions = new ArrayList<>();
-            for (int i = 0; i < 9; ++i){
-                AuxMapLocation newLoc = myLoc.add(i);
-                if (newLoc.isOnMap() && Data.accessible[newLoc.x][newLoc.y]) directions.add(i);
+            if (!dangerousUnit(unit.getType())) return false;
+            if (!unit.canAttack()) return false;
+            if (unit.getType() == UnitType.Mage) {
+                //if (!GC.canBlink) return false;
+                //if (!unit.canUseAbility()) return false;
+                return false;
             }
-
-            directions.sort((a,b) -> raw_dist(a) < raw_dist(b) ? -1 : raw_dist(a) == raw_dist(b) ? 0 : 1);
-
-            for (int i = 0; i < 9; ++i){
-                myLoc = unit.getMaplocation();
-                int dirBFS = directions.get(i);
-                if (dirBFS == 8) return 8;
-                if (Wrapper.canMove(unit, dirBFS)){
-                    Wrapper.moveRobot(unit, dirBFS);
-                    getData(unit).soft_reset(myLoc);
-                    return dirBFS;
-                }
-                AuxMapLocation newLoc = myLoc.add(dirBFS);
-                AuxUnit u = Data.getUnit(newLoc.x, newLoc.y, true);
-                if (u != null){
-                    if (u.getType() != UnitType.Factory && u.getType() != UnitType.Rocket) {
-                        if (moveTo(u) != 8) {
-                            myLoc = unit.getMaplocation();
-                            Wrapper.moveRobot(unit, dirBFS);
-                            getData(unit).soft_reset(myLoc);
-                            return dirBFS;
-                        }
-                    }
-                }
-            }
-
-            return 8;
-        }catch(Exception e) {
+            if (Danger.attackers.contains(id)) return true;
+            if (Mapa.onEarth() && Units.canBlink) return true;
+            return false;
+        } catch(Exception e) {
             e.printStackTrace();
         }
-        return 8;
-    }
-
-
-
-    boolean shouldAggro(){
-        if (!dangerousUnit(unit.getType())) return false;
-        if (!unit.canAttack()) return false;
-        if (unit.getType() == UnitType.Mage){
-            if (Data.canOverCharge) return true;
-            return false;
-        }
-        if (Danger.attackers.contains(id)) return true;
-        if (Data.onEarth() && Data.canBlink) return true;
         return false;
     }
 
     double danger(int i){
-        if (unit.getType() == UnitType.Knight) return 0;
-        if (unit.getType() == UnitType.Ranger) return Danger.DPS[i];
-        if (unit.getType() == UnitType.Mage && (Data.canBlink || Data.canOverCharge)) return Danger.DPS[i];
-        return Danger.DPSlong[i] + Danger.DPS[i];
+        try {
+            if (unit.getType() == UnitType.Knight) return 0;
+            if (unit.getType() == UnitType.Ranger) return Danger.DPS[i];
+            if (unit.getType() == UnitType.Mage && Units.canBlink) return Danger.DPS[i];
+            return Danger.DPSlong[i] + Danger.DPS[i];
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 
     int bestIndex(int i, int j){

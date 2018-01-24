@@ -5,11 +5,7 @@ import bc.UnitType;
 import java.util.HashMap;
 
 public class Healer {
-    final long INFL = 1000000000;
-    final int INF = 1000000000;
-    final double eps = 0.001;
     static Healer instance = null;
-    private UnitManager unitManager;
 
     HashMap<Integer, Integer> objectiveArea;
 
@@ -21,7 +17,6 @@ public class Healer {
     }
 
     public Healer(){
-        unitManager = UnitManager.getInstance();
         objectiveArea = new HashMap();
     }
 
@@ -35,7 +30,7 @@ public class Healer {
             for (int i = 0; i < v.length; ++i) {
                 if (v[i].getType() == UnitType.Factory || v[i].getType() == UnitType.Rocket) continue;
                 AuxUnit u = v[i];
-                long d = Wrapper.getMaxHealth(u.getType()) - u.getHealth();
+                long d = Units.getMaxHealth(u.getType()) - u.getHealth();
                 if (d > maxDiff) {
                     maxDiff = d;
                     healed = u;
@@ -45,7 +40,7 @@ public class Healer {
                 Wrapper.heal(unit, healed);
             }
         }catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
     }
 
@@ -53,11 +48,11 @@ public class Healer {
     AuxMapLocation getTarget(AuxUnit unit) {
         try {
             if (Rocket.callsToRocket.containsKey(unit.getID())) return Rocket.callsToRocket.get(unit.getID());
-            AuxMapLocation ans = getBestUnit(unit.getMaplocation());
+            AuxMapLocation ans = getBestUnit(unit.getMapLocation());
             if (ans != null) return ans;
             return Explore.findExploreObjective(unit);
         } catch (Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             return null;
         }
     }
@@ -67,11 +62,11 @@ public class Healer {
         try {
             double minDist = 500000;
             AuxMapLocation ans = null;
-            for (int i = 0; i < Data.myUnits.length; ++i) {
-                AuxUnit u = Data.myUnits[i];
-                if (!Data.structures.contains(i)) {
-                    if (u.getHealth() < Wrapper.getMaxHealth(u.getType())) {
-                        AuxMapLocation mLoc = u.getMaplocation();
+            for (int i = 0; i < Units.myUnits.length; ++i) {
+                AuxUnit u = Units.myUnits[i];
+                if (!Units.structures.contains(i)) {
+                    if (u.getHealth() < Units.getMaxHealth(u.getType())) {
+                        AuxMapLocation mLoc = u.getMapLocation();
                         if (mLoc != null) {
                             double d = mLoc.distanceBFSTo(loc);
                             if (d < minDist) {
@@ -84,7 +79,7 @@ public class Healer {
             }
             return ans;
         }catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             return null;
         }
     }

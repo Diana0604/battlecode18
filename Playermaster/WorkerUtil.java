@@ -1,7 +1,6 @@
 import bc.*;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -28,26 +27,36 @@ public class WorkerUtil {
 
     final static double decrease_rate = 0.90;
 
+
+    public static void initGame(){
+        workerActions = new int[Mapa.W][Mapa.H];
+    }
+
+    public static void initTurn(){
+        fillWorkerActions();
+    }
+
+
     //emplena la matriu worker actions
     //worker actions[i][j] = quantes accions de worker hi ha a la posicio (i,j)
     //also puts in the map where workers are close
     static void fillWorkerActions(){
         try {
-            workerAreas = new int[Data.W][Data.H];
+            workerAreas = new int[Mapa.W][Mapa.H];
             extra_workers = 0;
-            for (int i = 0; i < Data.W; ++i) {
-                for (int j = 0; j < Data.H; ++j) {
-                    AuxUnit unit = Data.getUnit(i, j, true);
+            for (int i = 0; i < Mapa.W; ++i) {
+                for (int j = 0; j < Mapa.H; ++j) {
+                    AuxUnit unit = new AuxMapLocation(i,j).getUnit(true);
                     if (unit == null) {
-                        workerActions[i][j] = (Data.karboMap[i][j] + (Data.harvestingPower - 1)) / Data.harvestingPower;
+                        workerActions[i][j] = (Karbonite.karboMap[i][j] + (Units.harvestingPower - 1)) / Units.harvestingPower;
                         continue;
                     }
                     if (unit.getType() == UnitType.Factory || unit.getType() == UnitType.Rocket) {
-                        int dif = Wrapper.getMaxHealth(unit.getType()) - unit.getHealth();
+                        int dif = Units.getMaxHealth(unit.getType()) - unit.getHealth();
                         if (dif > 0) {
                             if (unit.isBlueprint())
-                                workerActions[i][j] = (dif + Data.buildingPower - 1) / Data.buildingPower;
-                            else workerActions[i][j] = (dif + Data.repairingPower - 1) / Data.repairingPower;
+                                workerActions[i][j] = (dif + Units.buildingPower - 1) / Units.buildingPower;
+                            else workerActions[i][j] = (dif + Units.repairingPower - 1) / Units.repairingPower;
                         }
                     } else {
                         if (unit.getType() == UnitType.Worker){
@@ -56,12 +65,12 @@ public class WorkerUtil {
                                 if (newLoc.isOnMap()) ++workerAreas[newLoc.x][newLoc.y];
                             }
                         }
-                        workerActions[i][j] = (Data.karboMap[i][j] + (Data.harvestingPower - 1)) / Data.harvestingPower;
+                        workerActions[i][j] = (Karbonite.karboMap[i][j] + (Units.harvestingPower - 1)) / Units.harvestingPower;
                     }
                 }
             }
         }catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();;
         }
     }
 
@@ -104,11 +113,11 @@ public class WorkerUtil {
         bestFactoryLocation = null;
 
         HashSet<Integer> locations = new HashSet<Integer>();
-        for (int i = 0; i < Data.myUnits.length; ++i){
-            if (Data.myUnits[i].getType() != UnitType.Worker) continue;
-            AuxMapLocation loc = Data.myUnits[i].getMaplocation();
+        for (int i = 0; i < GC.myUnits.length; ++i){
+            if (GC.myUnits[i].getType() != UnitType.Worker) continue;
+            AuxMapLocation loc = GC.myUnits[i].getMapLocation();
             if (loc != null){
-                locations.add(Data.encodeOcc(loc.x, loc.y));
+                locations.add(Utils.encode(loc.x, loc.y));
             }
         }
 
@@ -122,7 +131,7 @@ public class WorkerUtil {
             for (AuxUnit unit : units) if (unit.getType() == UnitType.Worker) ++ans;
             return ans;
         }catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();;
             return 0;
         }
     }
@@ -134,14 +143,14 @@ public class WorkerUtil {
             int bestKarbo = -1;
             for (int i = 0; i < 9; ++i) {
                 AuxMapLocation newLoc = loc.add(i);
-                if (newLoc.isOnMap() && Data.karboMap[newLoc.x][newLoc.y] > bestKarbo && !buildingAt(newLoc)) {
-                    bestKarbo = Data.karboMap[newLoc.x][newLoc.y];
+                if (newLoc.isOnMap() && Karbonite.karboMap[newLoc.x][newLoc.y] > bestKarbo && !buildingAt(newLoc)) {
+                    bestKarbo = Karbonite.karboMap[newLoc.x][newLoc.y];
                     bestDir = i;
                 }
             }
             return bestDir;
         }catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();;
             return 0;
         }
     }
@@ -149,12 +158,12 @@ public class WorkerUtil {
     //si hi ha un building a la posicio (per no tenir en compte la karbonite)
     static boolean buildingAt(AuxMapLocation loc) {
         try {
-            AuxUnit u = Data.getUnit(loc.x, loc.y, true);
-            if (u == null) u = Data.getUnit(loc.x, loc.y, false);
+            AuxUnit u = loc.getUnit(true);
+            if (u == null) u = loc.getUnit(false);
             if (u == null) return false;
             return (u.getType() == UnitType.Factory || u.getType() == UnitType.Rocket);
         } catch (Exception e) {
-            System.out.println(e);
+            e.printStackTrace();;
             return false;
         }
     }
@@ -170,13 +179,13 @@ public class WorkerUtil {
                 double d = mLoc.distanceBFSTo(loc);
                 if (d * d > r) continue;
                 ans += workerActions[mLoc.x][mLoc.y];
-                AuxUnit unit = Data.getUnit(mLoc.x, mLoc.y, true);
+                AuxUnit unit = mLoc.getUnit(true);
                 if (unit == null) continue;
                 if (unit.getType() == UnitType.Worker) ++workers;
             }
             return ans / (workers + 1 + extra_workers);
         }catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();;
             return 0;
         }
     }
@@ -189,7 +198,7 @@ public class WorkerUtil {
             double distFactor = 100;
             int base = 0x3F;*/
             approxMapValue = 0;
-            VecUnit v = Data.planetMap.getInitial_units();
+            VecUnit v = Mapa.planetMap.getInitial_units();
 
             //Queue<Integer> queue = new LinkedList<>();
 
@@ -207,14 +216,14 @@ public class WorkerUtil {
                 }
             }
 
-            for (int i = 0; i < Data.W; ++i) {
-                for (int j = 0; j < Data.H; ++j) {
+            for (int i = 0; i < Mapa.W; ++i) {
+                for (int j = 0; j < Mapa.H; ++j) {
                     AuxMapLocation mloc = new AuxMapLocation(i, j);
                     double mindist = 1000000;
                     for (int t = 0; t < initialPositions.size(); ++t) {
                         mindist = Math.min(mindist, initialPositions.get(t).distanceBFSTo(mloc));
                     }
-                    approxMapValue += Data.karboMap[i][j] * Math.pow(decrease_rate, mindist);
+                    approxMapValue += Karbonite.karboMap[i][j] * Math.pow(decrease_rate, mindist);
                 }
             }
 
@@ -222,7 +231,7 @@ public class WorkerUtil {
 
             min_nb_workers = (int)Math.max(min_nb_workers, approxMapValue / worker_value);
 
-            System.out.println(approxMapValue + " " + min_nb_workers);
+            //System.out.println(approxMapValue + " " + min_nb_workers);
 
 
             preComputeConnectivity();
@@ -233,14 +242,14 @@ public class WorkerUtil {
                 int myPosY = data&base;
                 double dist = ((double)(data >> AUX2))/distFactor;
                 AuxMapLocation myLoc = new AuxMapLocation(myPosX, myPosY);
-                approxMapValue += Data.karboMap[myLoc.x][myLoc.y]*Math.pow(decrease_rate, dist);
+                approxMapValue += GC.karboMap[myLoc.x][myLoc.y]*Math.pow(decrease_rate, dist);
                 for(int i = 0; i < 8; ++i){
                     AuxMapLocation newLoc = myLoc.add(i);
                     double newDist = dist + dists[i];
                     int parsedDist = (int)Math.round(distFactor*newDist);
                     if(!newLoc.isOnMap()) continue;
                     if(newDist < visited[newLoc.x][newLoc.y]) {
-                        if(Data.accessible[newLoc.x][newLoc.y]) queue.add((((parsedDist << AUX) | newLoc.x) << AUX) | newLoc.y);
+                        if(GC.passable[newLoc.x][newLoc.y]) queue.add((((parsedDist << AUX) | newLoc.x) << AUX) | newLoc.y);
                         visited[newLoc.x][newLoc.y] = newDist;
                     }
                 }
@@ -249,7 +258,7 @@ public class WorkerUtil {
 
             //return approxMapValue;
         } catch (Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
     }
 
@@ -257,12 +266,12 @@ public class WorkerUtil {
         int a = 0;
         for (int i = 0; i < 8; ++i){
             AuxMapLocation newLoc = loc.add(i);
-            if (Wrapper.isAccessible(newLoc)){
+            if (newLoc.isAccessible()){
                 a = a|(1 << i);
             }
             else if (newLoc.isOnMap()){
-                AuxUnit unit = Data.getUnit(newLoc.x, newLoc.y, true);
-                if (unit == null) unit = Data.getUnit(newLoc.x, newLoc.y, false);
+                AuxUnit unit = newLoc.getUnit(true); //TODO aixo no es pot fer simplement newLoc.getUnit()?
+                if (unit == null) unit = newLoc.getUnit(false);
                 if (unit != null){
                     if (unit.getType() != UnitType.Factory && unit.getType() != UnitType.Rocket) a = a|(1 << i);
                 }
@@ -276,7 +285,7 @@ public class WorkerUtil {
         FactoryData bestFactory = null;
         for (int i = 0; i < 8; ++i) {
             if (Wrapper.canPlaceBlueprint(unit, UnitType.Factory, i)){
-                FactoryData fd = new FactoryData(unit.getMaplocation().add(i));
+                FactoryData fd = new FactoryData(unit.getMapLocation().add(i));
                 if (fd.isBetter(bestFactory)){
                     bestFactory = fd;
                     ans = i;

@@ -67,7 +67,7 @@ public class AuxUnit {
             if (id == null) id = unit.id();
             return id;
         }catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             return Integer.parseInt(null);
         }
     }
@@ -77,7 +77,7 @@ public class AuxUnit {
             if (loc == null) loc = unit.location();
             return loc;
         }catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             return null;
         }
     }
@@ -87,7 +87,7 @@ public class AuxUnit {
             if (garrison == null) garrison = getLocation().isInGarrison();
             return garrison;
         } catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             return false;
         }
     }
@@ -97,7 +97,7 @@ public class AuxUnit {
             if (inSpace == null) inSpace = getLocation().isInSpace();
             return inSpace;
         }catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             return false;
         }
     }
@@ -107,37 +107,37 @@ public class AuxUnit {
             if (blueprint == null) blueprint = (unit.structureIsBuilt() == 0);
             return blueprint;
         }catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             return false;
         }
     }
 
-    public AuxMapLocation getMaplocation(){
+    public AuxMapLocation getMapLocation(){
         try {
             if (isInGarrison()) return null;
             if (mloc == null) mloc = new AuxMapLocation(getLocation().mapLocation());
             //System.out.println("map location " + mloc);
             return mloc;
         }catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             return null;
         }
     }
 
     public int getX(){
         try {
-            return getMaplocation().x;
+            return getMapLocation().x;
         }catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             return Integer.parseInt(null);
         }
     }
 
     public int getY(){
         try {
-            return getMaplocation().y;
+            return getMapLocation().y;
         }catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             return Integer.parseInt(null);
         }
     }
@@ -146,12 +146,12 @@ public class AuxUnit {
         try {
             if (canMove == null) {
                 if (getType() != UnitType.Factory && getType() != UnitType.Rocket)
-                    canMove = Data.gc.isMoveReady(getID());
+                    canMove = GC.gc.isMoveReady(getID());
                 else canMove = false;
             }
             return canMove;
         }catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             return false;
         }
     }
@@ -160,15 +160,15 @@ public class AuxUnit {
         try {
             if (canAttack == null) {
                 if (!(getType() == UnitType.Factory || getType() == UnitType.Rocket || getType() == UnitType.Worker || getType() == UnitType.Healer))
-                    canAttack = Data.gc.isAttackReady(getID());
+                    canAttack = GC.gc.isAttackReady(getID());
                 else if (getType() == UnitType.Worker) canAttack = (unit.workerHasActed() == 0);
-                else if (getType() == UnitType.Healer) canAttack = Data.gc.isHealReady(getID());
+                else if (getType() == UnitType.Healer) canAttack = GC.gc.isHealReady(getID());
                 else if (getType() == UnitType.Factory) canAttack = (unit.isFactoryProducing() == 0);
                 else canAttack = false;
             }
             return canAttack;
         }catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             return false;
         }
     }
@@ -178,7 +178,7 @@ public class AuxUnit {
             if (canUseAbility == null) canUseAbility = unit.abilityHeat() < 10;
             return canUseAbility;
         }catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             return false;
         }
     }
@@ -188,7 +188,7 @@ public class AuxUnit {
             if (type == null) type = unit.unitType();
             return type;
         }catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             return null;
         }
     }
@@ -198,7 +198,7 @@ public class AuxUnit {
             if (isBuilt == null) isBuilt = (unit.structureIsBuilt() > 0);
             return isBuilt;
         }catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             return true;
         }
     }
@@ -212,7 +212,7 @@ public class AuxUnit {
             }
             return garrisonUnits;
         }catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             return null;
         }
     }
@@ -222,7 +222,7 @@ public class AuxUnit {
             if (health == null) health = (int) unit.health();
             return health;
         }catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             return null;
         }
     }
@@ -232,7 +232,7 @@ public class AuxUnit {
             if (maxHealth == null) maxHealth = (int) unit.maxHealth();
             return maxHealth;
         }catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             return null;
         }
     }
@@ -241,7 +241,7 @@ public class AuxUnit {
         try {
             return Objects.equals(getHealth(), getMaxHealth()); //no se si funciona amb .equals()?
         }catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             return false;
         }
     }

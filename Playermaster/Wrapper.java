@@ -47,7 +47,7 @@ public class Wrapper {
         try {
             if (unit.getGarrisonUnits().size() == 0) return false;
             if (!unit.getMapLocation().add(dir).isAccessible()) return false;
-            if (!Units.myUnits[Units.allUnits.get(unit.getGarrisonUnits().get(0))].canMove()) return false;
+            if (!Units.getUnitByID(unit.getGarrisonUnits().get(0)).canMove()) return false;
             return true;
         }catch(Exception e) {
             e.printStackTrace();
@@ -375,6 +375,7 @@ public class Wrapper {
             GC.gc.launchRocket(unit.getID(), new MapLocation(Planet.Mars, loc.x, loc.y));
             AuxMapLocation mloc = unit.getMapLocation();
             Units.firstRocket = false;
+            Units.rocketsLaunched++;
             Units.unitMap[mloc.x][mloc.y] = 0;
             Units.structures.remove(unit.getID());
         }catch(Exception e) {

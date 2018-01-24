@@ -6,7 +6,7 @@ import java.util.Queue;
 
 public class MarsPlanning{
 
-    static MarsPlanning instance;
+    private static MarsPlanning instance;
 
     private static final int AUX = 6;
     private static final int base = 0x3F;
@@ -14,18 +14,16 @@ public class MarsPlanning{
     private static final int[] X = {0, 1, 1, 1, 0, -1, -1, -1};
     private static final int[] Y = {1, 1, 0, -1, -1, -1, 0, 1};
 
-    static PlanetMap planetMap;
     static int[][] cc; // va entre [1,ccs]
-    static int ccs;
-    static int orbitPeriod;
-    static boolean[][] passable;
+    private static int ccs;
+    private static boolean[][] passable;
 
     static int W;
     static int H;
 
-    static int[] arrivalTime = new int[1001];
-    static int[] departTime = new int[1001];
-    static int[] optimArrivalTime = new int[1001];
+    private static int[] arrivalTime = new int[1001];
+    private static int[] departTime = new int[1001]; //todo aixo mai es fa servir
+    private static int[] optimArrivalTime = new int[1001];
 
     static MarsPlanning getInstance(){
         if (instance == null) instance = new MarsPlanning();
@@ -38,7 +36,7 @@ public class MarsPlanning{
 
     public static void initGame(){
         try {
-            planetMap = GC.gc.startingMap(Planet.Mars);
+            PlanetMap planetMap = GC.gc.startingMap(Planet.Mars);
             W = (int) planetMap.getWidth();
             H = (int) planetMap.getHeight();
             // fill cc
@@ -53,8 +51,7 @@ public class MarsPlanning{
             }
             for (int x = 0; x < W; ++x) {
                 for (int y = 0; y < H; ++y) {
-                    if (cc[x][y] != 0) continue;
-                    else bfs(x, y);
+                    if (cc[x][y] == 0) bfs(x, y);
                 }
             }
             Rocket.rocketLandingsCcs = new int[ccs + 1];
@@ -62,7 +59,7 @@ public class MarsPlanning{
             // compute times from earth to mars
             OrbitPattern op = GC.gc.orbitPattern();
             //System.out.println("orbites: "+ op.getCenter() + " " + op.getAmplitude() + " " + op.getPeriod());
-            orbitPeriod = (int) op.getPeriod();
+            int orbitPeriod = (int) op.getPeriod();
             for (int i = 1; i <= 1000; ++i) {
                 int time = (int) op.duration(i);
                 int arrival = i + time;
@@ -128,7 +125,7 @@ public class MarsPlanning{
         }
     }
 
-    public static boolean shouldWaitToLaunchRocket(int round) {
+    static boolean shouldWaitToLaunchRocket(int round) {
         try {
             int arrival = arrivalTime[round];
             return optimArrivalTime[round] < arrival;
@@ -138,7 +135,7 @@ public class MarsPlanning{
         return false;
     }
 
-    public static boolean shouldWaitToLaunchRocket(int round, int maxRounds) {
+    static boolean shouldWaitToLaunchRocket(int round, int maxRounds) {
         try {
             int arrival = arrivalTime[round];
             for (int i = round + 1; i <= round + maxRounds; ++i) {
@@ -151,7 +148,7 @@ public class MarsPlanning{
         return false;
     }
 
-    static boolean isOnMars (AuxMapLocation loc){
+    private static boolean isOnMars(AuxMapLocation loc){
         try {
             if (loc.x < 0 || loc.x >= W) return false;
             if (loc.y < 0 || loc.y >= H) return false;
@@ -225,7 +222,7 @@ public class MarsPlanning{
         }
     }
 
-    public static AuxMapLocation bestPlaceForRound(int round) {
+    static AuxMapLocation bestPlaceForRound(int round) {
         /**
          * Per cada casella amb karbonite hauria de fer un bfs al voltant, amb una profunditat maxima
          * A cada posicio de les que passi el bfs li dono una prioritat. Si la casella inicial era habitable, començo

@@ -6,10 +6,6 @@ class UnitManager{
     static void moveUnits() {
         try {
             Mage.getInstance().computeMultiTarget();
-            for (int index: Units.rockets){
-                AuxUnit unit = Units.myUnits[index];
-                Rocket.getInstance().playFirst(unit);
-            }
             selectTargets();
             actUnits();
             moveAllUnits();

@@ -14,6 +14,7 @@ public class Units {
     static AuxMapLocation mapCenter;
     static long maxRadius;
     static boolean firstRocket = true;
+    static int rocketsLaunched = 0;
     static HashMap<Integer, Integer> allUnits; //allUnits.get(id) = index de myUnits
     static HashMap<UnitType, Integer> unitTypeCount;
     static HashSet<Integer> structures;
@@ -35,7 +36,6 @@ public class Units {
     static boolean canOverCharge = false;
     static int rocketCapacity;
     static boolean canBuildRockets;
-    static int replicateCost = 30;
     static HashSet<Integer> newOccupiedPositions;
     static ConstructionQueue queue; //delete?
 
@@ -269,6 +269,14 @@ public class Units {
             this.dist = dist;
             this.unit = unit;
         }
+    }
+
+    public static AuxUnit getUnitByID(int id){
+        if (!allUnits.containsKey(id)){
+            System.out.println("ERROR: a Units.getUnitByID, id no trobada: " + id);
+        }
+        int index = allUnits.get(id);
+        return myUnits[index];
     }
 
     public static int getDamage(UnitType type){

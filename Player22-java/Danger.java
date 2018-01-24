@@ -118,7 +118,7 @@ public class Danger {
 
             for (int i = 0; i < n; ++i) {
                 AuxUnit unit = Data.myUnits[i];
-                dangUnits[i] = dangerousUnit(unit);
+                dangUnits[i] = (MovementManager.getInstance().dangerousUnit(unit.getType()) && Data.gc.isMoveReady(unit.getID()) && Data.gc.isAttackReady(unit.getID()));
                 locUnits[i] = unit.getMaplocation();
                 if (locUnits[i] == null) dangUnits[i] = false;
                 visitedUnits[i] = false;
@@ -127,7 +127,7 @@ public class Danger {
             for (int i = 0; i < m; ++i) {
                 AuxUnit unit = Data.enemies[i];
                 locEnemyUnits[i] = unit.getMaplocation();
-                dangEnemyUnits[i] = dangerousUnit(unit);
+                dangEnemyUnits[i] = MovementManager.getInstance().dangerousUnit(unit.getType());
                 visitedEnemyUnits[i] = false;
             }
 
@@ -166,10 +166,7 @@ public class Danger {
                 } else {
                     for (int j = 0; j < Data.myUnits.length; ++j) {
                         if (Data.myUnits[j].isInGarrison()) continue;
-                        Data.myUnits[j].frontline = true;
-                        if(!Data.myUnits[j].canMove() || !Data.myUnits[j].canAttack()) continue;
-                        if (!(locUnits[j].distanceSquaredTo(locEnemyUnits[x]) <= Wrapper.getAttackRangeExtra(Data.myUnits[j].getType()))) continue;
-                        if (!visitedUnits[j] && dangUnits[j]) {
+                        if (!visitedUnits[j] && dangUnits[j] && locUnits[j].distanceSquaredTo(locEnemyUnits[x]) <= Wrapper.getAttackRangeExtra(Data.myUnits[j].getType())) {
                             q.add(encode(j, 0));
                             possibleAttackers.add(Data.myUnits[j].getID());
                             visitedUnits[j] = true;
@@ -177,12 +174,8 @@ public class Danger {
                     }
                 }
             }
-            int siz = possibleDefenders.size();
-            if (siz > 0) Data.myUnits[i].frontline = true;
             if ((double) possibleAttackers.size() > (double) possibleDefenders.size()) {
-                for (Integer a : possibleAttackers){
-                    attackers.add(a);
-                }
+                for (Integer a : possibleAttackers) attackers.add(a);
             }
             Factory.maxRangers = Math.max(Factory.maxRangers, possibleDefenders.size() + 15);
         }catch(Exception e) {
@@ -190,13 +183,9 @@ public class Danger {
         }
     }
 
-    static boolean dangerousUnit(AuxUnit unit) {
+    public boolean dangerousUnit(UnitType type) {
         try {
-            UnitType type = unit.getType();
-
-            if (type == UnitType.Knight || type == UnitType.Mage || type == UnitType.Ranger) return true;
-            if (Data.canOverCharge && type == UnitType.Healer && unit.canUseAbility()) return true;
-            return false;
+            return (type == UnitType.Knight || type == UnitType.Mage || type == UnitType.Ranger);
         }catch(Exception e) {
             e.printStackTrace();
             return true;

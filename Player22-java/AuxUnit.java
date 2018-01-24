@@ -20,7 +20,6 @@ public class AuxUnit {
     public Boolean canAttack; //for workers it counts harvest as action, and healers == heal
     public Boolean canUseAbility;
     public UnitType type;
-    public boolean myTeam;
 
     public Boolean isBuilt;
     //Team team; no cal crec
@@ -34,10 +33,8 @@ public class AuxUnit {
     public AuxMapLocation target;
     public boolean exploretarget;
     public boolean visited;
-    public boolean frontline;
-    int depth;
 
-    public AuxUnit(Unit _unit, boolean team){
+    public AuxUnit(Unit _unit){
         unit = _unit;
         id = null;
         loc = null;
@@ -57,9 +54,6 @@ public class AuxUnit {
         exploretarget = false;
         target = null;
         visited = false;
-        frontline = false;
-        myTeam = team;
-        depth = 0;
     }
 
     public int getID(){

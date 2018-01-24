@@ -91,7 +91,7 @@ public class Worker {
             if (danger) return false;
             int nb_actions = WorkerUtil.getWorkerActions(unit.getMaplocation(), 30);
             if (Data.unitTypeCount.get(UnitType.Worker) < WorkerUtil.min_nb_workers) return (nb_actions >= 12);
-            return (nb_actions >= 30);
+            return (nb_actions >= 20);
         }catch(Exception e) {
             e.printStackTrace();
             return false;
@@ -106,6 +106,8 @@ public class Worker {
         HashMap<Integer, Integer> karboAt = Data.karboniteAt;
         for(Integer encoding: karboAt.keySet()){
             if (!tasks.containsKey(encoding)) continue; //no hauria de passar mai pero just in case
+            AuxMapLocation loc = Data.toLocation(encoding);
+            if (unit.getMaplocation().distanceBFSTo(loc) > 10000) continue;
             int assignedID = tasks.get(encoding);
             if (!Data.allUnits.containsKey(assignedID)) return true; //ha trobat una mina sense assignar, crea worker per enviar-li
         }
@@ -169,7 +171,7 @@ public class Worker {
                 Danger.computeDanger(unit);
                 if(Danger.DPSlong[i] > 0) return false;
                 Wrapper.placeBlueprint(unit, type, i);
-                Data.queue.requestUnit(type, false);
+                if (type == UnitType.Rocket) Data.rocketsBuilt++;
                 unit.canMove = false;
                 return true;
             }
@@ -188,8 +190,7 @@ public class Worker {
         int numFactories = Data.unitTypeCount.get(UnitType.Factory);
         if (numFactories == 0) return UnitType.Factory;
         int roundsOver100Karbo = Data.round - Data.lastRoundUnder100Karbo;
-        if (roundsOver100Karbo < 5) return null;
-        if (numFactories < MAX_FACTORIES) return UnitType.Factory;
+        if (numFactories < MAX_FACTORIES && roundsOver100Karbo >= 5) return UnitType.Factory;
         if (canBuildRocket) return UnitType.Rocket;
         return null;
     }
@@ -249,6 +250,7 @@ public class Worker {
             }else dest = unit.getMaplocation(); //move to self per evitar perill
             //System.out.println("Worker " + unit.getID() + " loc " + unit.getMaplocation().x + "," + unit.getMaplocation().y + " va a " + dest.x + "," + dest.y + "   " + wait);
             //MovementManager.getInstance().moveTo(unit, dest);
+            //System.out.println(Data.round + " worker " + unit.getMaplocation().x + "," + unit.getMaplocation().y + " has target " + dest.x + "," + dest.y);
             return dest;
 
         }catch(Exception e) {
@@ -334,6 +336,8 @@ public class Worker {
             Target ans = null;
             for (HashMap.Entry<Integer, Integer> entry : Data.karboniteAt.entrySet()) {
                 AuxMapLocation mineLoc = Data.toLocation(entry.getKey());
+                Danger.computeDanger(unit);
+                if (Danger.DPS[8] > 0) continue; //nomes van a mines no perilloses
                 int workerTurns = Math.min(50, entry.getValue()/Data.harvestingPower);
                 int value = workerTurns * KARBONITE_MULTIPLIER;
                 if (WorkerUtil.buildingAt(mineLoc)) continue;

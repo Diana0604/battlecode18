@@ -12,6 +12,8 @@ public class Factory {
     static ConstructionQueue queue;
     int units;
 
+    static final int ROCKET_RUSH = 500;
+
     AuxUnit unit;
 
     static int maxRangers;
@@ -32,7 +34,7 @@ public class Factory {
         //rangers + healers + mags + knights
         //falta canviar-ho si hem aniquilat l'enemic
         diag = (int) Math.sqrt(Data.H*Data.H + Data.W*Data.W);
-        maxRangers = (int) Math.max(1.25*diag, diag + 20);
+        maxRangers = (int) (1.25*diag);
     }
 
 
@@ -79,35 +81,24 @@ public class Factory {
 
         if (workers < 2) return UnitType.Worker; //potser millor si workers < 2-3?
 
-        if (shouldWaitForRocket()) return null; //estalviem per fer rocket
-
-
         int roundsEnemyUnseen = Data.round - Data.lastRoundEnemySeen;
-        if (Data.round > 100 && roundsEnemyUnseen > 10) {
+        if ((Data.round > 250 && roundsEnemyUnseen > 10) || Data.round >= ROCKET_RUSH) {
             if (workers < 5) return UnitType.Worker;
             if (rangers + healers + mages > 30) return null;
         }
 
-        if (3 * healers < rangers) return UnitType.Healer;
+        if (3 * healers < rangers-1) return UnitType.Healer;
         if (rangers < maxRangers)  return UnitType.Ranger;
+        int extra_healers = healers - (rangers/3);
+        if (extra_healers > 5*mages) return UnitType.Mage;
+        if (healers < 1.25*rangers) return UnitType.Healer;
         return UnitType.Mage;
-    }
-
-    private boolean shouldWaitForRocket(){
-        if (Data.getKarbonite() > 100) return false; //si igualment te pasta, no s'espera
-        if (Data.researchInfo.getLevel(UnitType.Rocket) == 0) return false; //si no pot fer rockets encara
-        if (Data.unitTypeCount.get(UnitType.Worker) == 0) return false; //si no tenim workers
-        if (Data.firstRocket && Data.unitTypeCount.get(UnitType.Rocket) == 0) return true; // si encara no ha tirat cap coet
-        if (Data.magesBuilt > Data.rocketsBuilt * 10) return true;
-        if (Data.round > 700) return true;
-        return false;
     }
 
     void build(UnitType type){
         if (type == null) return;
         if (Wrapper.canProduceUnit(unit, type)){
             Wrapper.produceUnit(unit, type);
-            if (type == UnitType.Mage) Data.magesBuilt++;
             //System.out.println("Built " + type);
             Data.unitTypeCount.put(type,Data.unitTypeCount.get(type) + 1);
         }

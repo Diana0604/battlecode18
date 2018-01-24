@@ -110,20 +110,6 @@ public class Wrapper {
         }
     }
 
-    static AuxUnit[] senseUnits(int x, int y, int r){ //Todo check if it is better to iterate over enemies
-        try {
-            ArrayList<AuxUnit> ans = new ArrayList<>();
-            for (int i = 0; i < Vision.Mx[r].length; ++i) {
-                AuxUnit unit = Data.getUnit(x + Vision.Mx[r][i], y + Vision.My[r][i]);
-                if (unit != null) ans.add(unit);
-            }
-            return ans.toArray(new AuxUnit[ans.size()]);
-        }catch(Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
     static AuxUnit[] senseUnits(AuxMapLocation loc, int r, boolean myTeam){
         try {
             return senseUnits(loc.x, loc.y, r, myTeam);
@@ -151,21 +137,10 @@ public class Wrapper {
             int posAtArray = Data.allUnits.get(newID);
             AuxMapLocation loc = unit.getMaplocation();
             AuxMapLocation newLoc = loc.add(dir);
-            //Data.unitMap[newLoc.x][newLoc.y] = posAtArray + 1;
+            Data.unitMap[newLoc.x][newLoc.y] = posAtArray + 1;
             //Data.myUnits[posAtArray].mloc = newLoc;
-
-            Data.occupiedPositions.add(Data.encodeOcc(newLoc.x, newLoc.y));
             unit.garrisonUnits.remove(0);
-
             Data.gc.unload(unit.getID(), Data.allDirs[dir]);
-
-            /*
-            AuxUnit unloadedUnit = Data.myUnits[posAtArray];
-            unloadedUnit.canMove = false;
-            unloadedUnit.garrison = false;
-            unloadedUnit.loc = unloadedUnit.unit.location();
-            */
-
         }catch(Exception e) {
             e.printStackTrace();
         }
@@ -487,19 +462,11 @@ public class Wrapper {
                 AuxMapLocation mloc = u2.getMaplocation();
                 for (int i = 0; i < 9; ++i) {
                     AuxMapLocation newLoc = mloc.add(i);
-                    AuxUnit unit2 = Data.getUnit(newLoc.x, newLoc.y);
+                    AuxUnit unit2 = Data.getUnit(newLoc.x, newLoc.y, false);
                     if (unit2 != null) {
                         unit2.getHealth();
                         unit2.health -= (int) getDamage(u1.getType());
-                        if (unit2.health <= 0){
-                            Data.unitMap[unit2.getMaplocation().x][unit2.getMaplocation().y] = 0;
-                            unit2.canMove = false;
-                            unit2.canAttack = false;
-                            if (u2.myTeam) {
-                                unit2.garrison = true;
-                                unit2.mloc = null;
-                            }
-                        }
+                        if (unit2.health <= 0) Data.unitMap[unit2.getMaplocation().x][unit2.getMaplocation().y] = 0;
                     }
                 }
             }
@@ -560,11 +527,4 @@ public class Wrapper {
         }
     }
 
-    static void overcharge(AuxUnit u1, AuxUnit u2){
-        u1.canUseAbility = false;
-        u2.canMove = true;
-        u2.canAttack = true;
-        u2.canUseAbility = true;
-        Data.gc.overcharge(u1.getID(), u2.getID());
-    }
 }

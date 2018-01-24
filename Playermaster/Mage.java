@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Mage {
-    final int min_group = 3;
+    final int min_group = 1;
     final long INFL = 1000000000;
     static Mage instance = null;
 
@@ -72,6 +72,7 @@ public class Mage {
     }
 
     AuxMapLocation getTarget(AuxUnit _unit){
+        if (Data.canOverCharge && Data.round%10 == 9) return null;
         AuxMapLocation ans = getBestTarget(_unit);
         if (ans != null) return ans;
         _unit.exploretarget = true;
@@ -82,8 +83,30 @@ public class Mage {
         unit = _unit;
         if (unit.target != null && !unit.exploretarget && unit.target.distanceSquaredTo(unit.getMaplocation()) < 90){
             if (trySpecialMove()) return;
+            tryOverChargeMove();
         }
         attack();
+    }
+
+    int stepsTo(int d){
+        if (d <= 30) return 0;
+        if (d <= 45) return 1;
+        if (d <= 65) return 2;
+        if (d <= 89) return 3;
+        return 4;
+    }
+
+    void tryOverChargeMove(){
+        if (!Data.canOverCharge || Data.round%10 != 0) return;
+        int posAtArray = Data.allUnits.get(unit.getID());
+        int d = unit.target.distanceSquaredTo(unit.getMaplocation());
+        if (unit.canMove() && d > 8) MovementManager.getInstance().straightMoveTo(unit);
+        boolean atk = attack();
+        Overcharge.update(posAtArray);
+        d = unit.target.distanceSquaredTo(unit.getMaplocation());
+        if (Overcharge.canGetOvercharged(posAtArray) < stepsTo(d)) return;
+        if (!atk && unit.canMove()) return;
+        if(Overcharge.getOvercharged(posAtArray)) tryOverChargeMove();
     }
 
     boolean trySpecialMove(){
@@ -218,15 +241,21 @@ public class Mage {
 
     }
 
-    void attack() {
+    boolean attack() {
         try {
-            if (!unit.canAttack()) return;
+            if (Data.canOverCharge && Data.round%10 == 9) return false;
+            if (!unit.canAttack()) return false;
             MageMovement m = new MageMovement(new AuxMapLocation(0,0), 8, true);
             m.getValue();
-            if (m.bestTarget != null) Wrapper.attack(unit, m.bestTarget);
+            if (m.bestTarget != null){
+                Wrapper.attack(unit, m.bestTarget);
+                unit.target = m.bestTarget.getMaplocation();
+                return true;
+            }
         }catch(Exception e) {
             e.printStackTrace();
         }
+        return false;
     }
 
     AuxMapLocation getBestHealer(AuxMapLocation loc){

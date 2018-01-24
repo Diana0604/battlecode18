@@ -6,7 +6,7 @@ public class Research {
 
     static Research instance;
 
-    private UnitType[] fixedTree = new UnitType[]{UnitType.Ranger, UnitType.Healer, UnitType.Rocket, UnitType.Ranger, UnitType.Mage, UnitType.Mage, UnitType.Mage, UnitType.Mage, UnitType.Healer, UnitType.Healer};
+    private UnitType[] fixedTree = new UnitType[]{UnitType.Ranger, UnitType.Healer, UnitType.Healer, UnitType.Healer, UnitType.Mage, UnitType.Rocket, UnitType.Ranger, UnitType.Mage, UnitType.Mage, UnitType.Mage};
     private int stage = 0;
 
     static Research getInstance(){

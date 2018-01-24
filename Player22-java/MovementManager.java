@@ -2,7 +2,6 @@
 
 import bc.UnitType;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -252,71 +251,12 @@ public class MovementManager {
         return 8;
     }
 
-    int raw_dist(int dir){
-        return myLoc.add(dir).distanceSquaredTo(unit.target);
-    }
-
-
-    public int straightMoveTo(AuxUnit unit){
-        try {
-            if (unit.visited) return 8;
-            unit.visited = true;
-            if (unit.target == null) return 8;
-            if (!unit.canMove()) return 8;
-
-            this.unit = unit;
-            attackRange = Wrapper.getAttackRange(unit.getType());
-            attacker = dangerousUnit(unit.getType());
-
-            myLoc = unit.getMaplocation();
-
-            Danger.computeDanger(unit);
-
-            ArrayList<Integer> directions = new ArrayList<>();
-            for (int i = 0; i < 9; ++i){
-                AuxMapLocation newLoc = myLoc.add(i);
-                if (newLoc.isOnMap() && Data.accessible[newLoc.x][newLoc.y]) directions.add(i);
-            }
-
-            directions.sort((a,b) -> raw_dist(a) < raw_dist(b) ? -1 : raw_dist(a) == raw_dist(b) ? 0 : 1);
-
-            for (int i = 0; i < 9; ++i){
-                myLoc = unit.getMaplocation();
-                int dirBFS = directions.get(i);
-                if (dirBFS == 8) return 8;
-                if (Wrapper.canMove(unit, dirBFS)){
-                    Wrapper.moveRobot(unit, dirBFS);
-                    getData(unit).soft_reset(myLoc);
-                    return dirBFS;
-                }
-                AuxMapLocation newLoc = myLoc.add(dirBFS);
-                AuxUnit u = Data.getUnit(newLoc.x, newLoc.y, true);
-                if (u != null){
-                    if (u.getType() != UnitType.Factory && u.getType() != UnitType.Rocket) {
-                        if (moveTo(u) != 8) {
-                            myLoc = unit.getMaplocation();
-                            Wrapper.moveRobot(unit, dirBFS);
-                            getData(unit).soft_reset(myLoc);
-                            return dirBFS;
-                        }
-                    }
-                }
-            }
-
-            return 8;
-        }catch(Exception e) {
-            e.printStackTrace();
-        }
-        return 8;
-    }
-
-
-
     boolean shouldAggro(){
         if (!dangerousUnit(unit.getType())) return false;
         if (!unit.canAttack()) return false;
         if (unit.getType() == UnitType.Mage){
-            if (Data.canOverCharge) return true;
+            //if (!Data.canBlink) return false;
+            //if (!unit.canUseAbility()) return false;
             return false;
         }
         if (Danger.attackers.contains(id)) return true;
@@ -327,7 +267,7 @@ public class MovementManager {
     double danger(int i){
         if (unit.getType() == UnitType.Knight) return 0;
         if (unit.getType() == UnitType.Ranger) return Danger.DPS[i];
-        if (unit.getType() == UnitType.Mage && (Data.canBlink || Data.canOverCharge)) return Danger.DPS[i];
+        if (unit.getType() == UnitType.Mage && Data.canBlink) return Danger.DPS[i];
         return Danger.DPSlong[i] + Danger.DPS[i];
     }
 

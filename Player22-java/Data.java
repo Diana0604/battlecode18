@@ -1,6 +1,8 @@
 import bc.*;
-
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
 
 class Data {
     static GameController gc;
@@ -56,6 +58,8 @@ class Data {
     static HashMap<Integer, Integer> structuresToRepair;
 
     static boolean blueprint;
+    static int magesBuilt = 0; //fem un rocket per cada 10 mages
+    static int rocketsBuilt = 0;
 
     static Integer karbonite;
 
@@ -68,15 +72,14 @@ class Data {
     static int lastRoundUnder100Karbo;
 
     private static int[] healingPowers = {10, 12, 17, 17};
-    static int healingPower;
-    static boolean canOverCharge = false;
     private static int[] buildingPowers = {5, 5, 6, 7, 10};
-    static int buildingPower;
     private static int[] repairingPowers = {10, 10, 11, 12, 15};
-    static int repairingPower;
     private static int[] harvestingPowers = {3, 4, 4, 4, 4};
-    static int harvestingPower;
     private static int[] mageDamages = {60, 75, 90, 105, 105};
+    static int healingPower;
+    static int buildingPower;
+    static int repairingPower;
+    static int harvestingPower;
     static int mageDMG;
     static boolean canBlink = false;
     static int rocketCapacity;
@@ -184,7 +187,7 @@ class Data {
             for (int i = 0; i < initialUnits.size(); ++i) {
                 Unit possibleEnemy = initialUnits.get(i);
                 if (possibleEnemy.team() == enemyTeam) {
-                    Integer enemyArea = locationToArea((new AuxUnit(possibleEnemy, false).getMaplocation()));
+                    Integer enemyArea = locationToArea((new AuxUnit(possibleEnemy)).getMaplocation());
                     addExploreGrid(enemyArea, enemyBaseValue);
                 }
             }
@@ -423,20 +426,6 @@ class Data {
         return null;
     }
 
-    static AuxUnit getUnit(int x, int y){
-        try {
-            if (x < 0 || x >= W) return null;
-            if (y < 0 || y >= H) return null;
-            int i = unitMap[x][y];
-            if (i > 0) return myUnits[i - 1];
-            if (i < 0) return enemies[-(i + 1)];
-        }catch(Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-        return null;
-    }
-
     static boolean isOccupied(int x, int y){
         try {
             return unitMap[x][y] != 0;
@@ -455,29 +444,9 @@ class Data {
         }
     }
 
-    static int priority(AuxUnit u){
-        switch (u.getType()){
-            case Mage:
-                return 0;
-            case Ranger:
-                return 1;
-            case Healer:
-                return 2;
-            case Knight:
-                return 3;
-            case Worker:
-                return 4;
-            case Rocket:
-                return 5;
-            case Factory:
-                return 6;
-            default:
-                return 10;
-        }
-    }
-
     static void initTurn() {
         try {
+            //System.out.println(round + " mages " + magesBuilt + " rockets " + rocketsBuilt);
             occupiedPositions = new HashSet<>();
             round++;
             unitMap = new int[W][H];
@@ -487,31 +456,16 @@ class Data {
             karboMap = new int[W][H];
             //check enemy units
             VecUnit enemyUnits = gc.senseNearbyUnitsByTeam(mapCenter, maxRadius, enemyTeam);
-
-
-            int ensiz = (int) enemyUnits.size();
-            ArrayList<AuxUnit> auxenemyunits = new ArrayList<>();
-            for (int i = 0; i < ensiz; ++i) auxenemyunits.add(new AuxUnit(enemyUnits.get(i), false));
-            auxenemyunits.sort((a, b) -> priority(a) < priority(b) ? -1 : priority(a) == priority(b) ? 0 : 1);
-            enemies = auxenemyunits.toArray(new AuxUnit[ensiz]);
-
-            //enemies = new AuxUnit[(int) enemyUnits.size()];
+            enemies = new AuxUnit[(int) enemyUnits.size()];
             for (int i = 0; i < enemies.length; ++i) {
-                enemies[i] = new AuxUnit(enemyUnits.get(i), false);
+                enemies[i] = new AuxUnit(enemyUnits.get(i));
                 unitMap[enemies[i].getX()][enemies[i].getY()] = -(i + 1);
             }
             if (enemyUnits.size() != 0) lastRoundEnemySeen = round;
             VecUnit units = gc.myUnits();
-
-            int siz = (int) units.size();
-            ArrayList<AuxUnit> auxunits = new ArrayList<>();
-            for (int i = 0; i < siz; ++i) auxunits.add(new AuxUnit(units.get(i), true));
-            auxunits.sort((a, b) -> priority(a) < priority(b) ? -1 : priority(a) == priority(b) ? 0 : 1);
-            myUnits = auxunits.toArray(new AuxUnit[siz]);
-
-            //myUnits = new AuxUnit[(int) units.size()];
+            myUnits = new AuxUnit[(int) units.size()];
             for (int i = 0; i < myUnits.length; ++i) {
-                myUnits[i] = new AuxUnit(units.get(i), true);
+                myUnits[i] = new AuxUnit(units.get(i));
                 if (!myUnits[i].isInGarrison()) unitMap[myUnits[i].getX()][myUnits[i].getY()] = i + 1;
             }
             researchInfo = gc.researchInfo();
@@ -549,7 +503,6 @@ class Data {
             healingPower = healingPowers[healerLevel];
             mageDMG = mageDamages[mageLevel];
             if (mageLevel >= 4) canBlink = true;
-            if (healerLevel >= 3) canOverCharge = true;
             rocketCapacity = rocketCapacities[rocketLevel];
             if (rocketLevel > 0) canBuildRockets = true;
 

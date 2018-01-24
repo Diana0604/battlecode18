@@ -25,43 +25,32 @@ public class    Ranger {
         try {
             if (A == null) return B;
             if (B == null) return A;
-            if (A.getType() == B.getType()) {
-                if (A.getHealth() < B.getHealth()) return A;
-                return B;
-            }
-            if (A.getType() == UnitType.Mage) return A;
-            if (B.getType() == UnitType.Mage) return B;
-            if (A.getType() == UnitType.Healer) return A;
-            if (B.getType() == UnitType.Healer) return B;
-            if (A.getType() == UnitType.Ranger) return A;
-            if (B.getType() == UnitType.Ranger) return B;
-            if (A.getType() == UnitType.Knight) return A;
-            if (B.getType() == UnitType.Knight) return B;
-            if (A.getType() == UnitType.Worker) return A;
-            if (B.getType() == UnitType.Worker) return B;
+            if (A.getHealth() < B.getHealth()) return A;
             return B;
         }catch(Exception e) {
             e.printStackTrace();
-            return A;
+            return B;
         }
     }
 
-    void attack(AuxUnit unit) {
+    void attack(AuxUnit unit, boolean firstTime) {
         try {
+            if (Data.canOverCharge && Data.round%10 == 9) return;
+            int posAtArray = Data.allUnits.get(unit.getID());
+            if (firstTime) Overcharge.update(posAtArray);
             AuxUnit bestVictim = null;
-            if (!unit.canAttack()) return;
-            //if (Data.round >= 730) System.err.println("Trying to attack!");
             AuxMapLocation myLoc = unit.getMaplocation();
             AuxUnit[] canAttack = Wrapper.senseUnits(myLoc.x, myLoc.y, Wrapper.getAttackRange(unit.getType()), false);
-            //if (Data.round >= 730)System.err.println(canAttack.length);
             for (int i = 0; i < canAttack.length; ++i) {
-                AuxUnit victim = canAttack[i];
-                if (Wrapper.canAttack(unit, victim)) {
-                    bestVictim = getBestAttackTarget(bestVictim, victim);
-                    // if (Data.round >= 730)System.err.println("Got a victim!! :)");
-                }
+                AuxUnit u = canAttack[i];
+                bestVictim = getBestAttackTarget(bestVictim, u);
             }
-            if (bestVictim != null) Wrapper.attack(unit, bestVictim);
+            if (bestVictim == null) return;
+            if (!unit.canAttack()){
+                if (!Overcharge.getOvercharged(posAtArray)) return;
+            }
+            Wrapper.attack(unit, bestVictim);
+            if (Overcharge.canGetOvercharged(posAtArray) > 0) attack(unit, false);
         }catch(Exception e) {
             e.printStackTrace();
         }
@@ -93,6 +82,7 @@ public class    Ranger {
 
     AuxMapLocation getTarget(AuxUnit unit){
         try {
+            if (Data.canOverCharge && Data.round%10 == 9) return null;
             if (Rocket.callsToRocket.containsKey(unit.getID())) return Rocket.callsToRocket.get(unit.getID());
             if (unit.getHealth() < 100) {
                 AuxMapLocation ans = getBestHealer(unit.getMaplocation());

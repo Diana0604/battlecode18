@@ -132,7 +132,6 @@ class UnitManager{
 
 
     static void actUnits(){
-        Overcharge.generateMatrix();
         for (int i = 0; i < Data.myUnits.length; i++) {
             //System.err.println("playing unit " + Data.myUnits[i].getType());
             AuxUnit unit = Data.myUnits[i];
@@ -141,7 +140,7 @@ class UnitManager{
                 Worker.getInstance().doAction(unit);
             }
             if (unit.getType() == UnitType.Ranger || unit.getType() == UnitType.Knight) { //LOLZ
-                Ranger.getInstance().attack(unit, true);
+                Ranger.getInstance().attack(unit);
             }
             if (unit.getType() == UnitType.Healer) {
                 Healer.getInstance().heal(unit);
@@ -153,7 +152,6 @@ class UnitManager{
     }
 
     static void actUnits2(){
-        Overcharge.generateMatrix();
         for (int i = 0; i < Data.myUnits.length; i++) {
             //System.err.println("playing unit " + Data.myUnits[i].getType());
             AuxUnit unit = Data.myUnits[i];
@@ -165,7 +163,7 @@ class UnitManager{
                 Factory.getInstance().play(unit);
             }
             if (unit.getType() == UnitType.Ranger || unit.getType() == UnitType.Knight) { //LOLZ
-                Ranger.getInstance().attack(unit, true);
+                Ranger.getInstance().attack(unit);
             }
             if (unit.getType() == UnitType.Rocket) {
                 Rocket.getInstance().play(unit);
@@ -205,7 +203,9 @@ class UnitManager{
                     sorted.add(p);
                 }
                 sorted.sort((a, b) -> a.dist < b.dist ? -1 : a.dist == b.dist ? 0 : 1);
-                List<Pair> cut = sorted.subList(0, Math.min(WORKERS_TO_CALL, sorted.size())); //no se si funciona si hi ha menys de 8 workers total
+                int workersCalled = Math.min(sorted.size() - 1, Math.min(WORKERS_TO_CALL, sorted.size()));
+                if (workersCalled <= 0) workersCalled = 1;
+                List<Pair> cut = sorted.subList(0, workersCalled); //no se si funciona si hi ha menys de 8 workers total
                 for (Pair p : cut) {
                     int key = p.unit.getID();
                     int value = bp.getID();

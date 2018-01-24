@@ -39,10 +39,6 @@ public class Pathfinder{
 
             for (int x = 0; x < W; ++x) {
                 for (int y = 0; y < H; ++y) {
-                    //add initial karbonite
-                    long a = Mapa.planetMap.initialKarboniteAt(new MapLocation(Mapa.planet, x, y));
-                    if (a > Const.INF) a = Const.INF;
-                    if (a > 0) Karbonite.putMine(x, y, (int) a);
                     //bfs
                     bfs(x, y);
                 }

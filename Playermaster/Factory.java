@@ -6,7 +6,6 @@ import java.util.HashMap;
 
 public class Factory {
     static Factory instance = null;
-    static ConstructionQueue queue;
     int units;
 
     static final int ROCKET_RUSH = 500;
@@ -25,7 +24,6 @@ public class Factory {
     }
 
     public Factory(){
-        queue = Units.queue;
         units = 0;
 
         //rangers + healers + mags + knights
@@ -118,7 +116,7 @@ public class Factory {
         try {
             int money = 0;
             for (UnitType type : types) {
-                if (Units.queue.needsUnit(type)) money += Units.getCost(type);
+                //if (Units.queue.needsUnit(type)) money += Units.getCost(type);
             }
             return (Utils.karbonite < money + 20);
         }catch(Exception e) {

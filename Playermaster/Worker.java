@@ -6,7 +6,7 @@ import java.util.Map;
 
 public class Worker {
 
-    static Worker instance = null;
+    private static Worker instance = null;
 
     static Worker getInstance(){
         if (instance == null) instance = new Worker();
@@ -20,13 +20,13 @@ public class Worker {
     private AuxUnit unit;
     private boolean danger;
     private boolean wait;
-    final int MAX_FACTORIES = 5;
+    private final int MAX_FACTORIES = 5;
 
 
 
     /*----------- ACTIONS ------------*/
 
-    public boolean doAction(AuxUnit _unit){
+    boolean doAction(AuxUnit _unit){
         try {
             unit = _unit;
             tryReplicate(_unit);
@@ -47,7 +47,7 @@ public class Worker {
     private boolean tryReplicate(AuxUnit unit){
         try {
             if (!unit.canUseAbility()) return false;
-            if (Units.queue.needsUnit(UnitType.Worker) || shouldReplicate()) {
+            if (shouldReplicate()) {
                 int dir = 0;
                 if (unit.target != null) dir = unit.getMapLocation().dirBFSTo(unit.target);
                 for (int i = 0; i <= 4; ++i) {
@@ -73,19 +73,14 @@ public class Worker {
 
             int index = Units.myUnits.size();
             int newID = newWorker.getID();
-            //System.out.println(Utils.round + "  " + newWorker.getID() + " creat per replicate");
             Units.myUnits.add(newWorker);
-            //System.out.println(Utils.round + "  " + newWorker.getID() + " afegit a myunits");
-            Units.allUnits.put(newID, index); //aixo dona exception pero segueix executant
-            //System.out.println(Utils.round + "  " + newWorker.getID() + " afegit a allunits");
+            Units.allUnits.put(newID, index);
             Units.workers.add(index);
-            //System.out.println(Utils.round + "  " + newWorker.getID() + " afegit a workers");
             Units.unitMap[newWorker.getX()][newWorker.getY()] = index + 1;
             newWorker.target = getTarget(newWorker);
             doAction(newWorker);
             UnitManager.move(newWorker);
             doAction(newWorker);
-            //System.out.println(Utils.round + "  " + newWorker.getID() + " mogut");
             return true;
         }
         return false;
@@ -181,7 +176,6 @@ public class Worker {
                 Danger.computeDanger(unit);
                 if(Danger.DPSlong[i] > 0) return false;
                 Wrapper.placeBlueprint(unit, type, i);
-                Units.queue.requestUnit(type, false);
                 unit.canMove = false;
                 return true;
             }
@@ -269,7 +263,7 @@ public class Worker {
         return null;
     }
 
-    AuxMapLocation marsTarget(){
+    private AuxMapLocation marsTarget(){
         try{
             if (!unit.canMove()) return null;
             //asteroidTasks.get(positiu) retorna el worker assignat a la location codificada
@@ -282,7 +276,7 @@ public class Worker {
                 //si ja tinc mina assignada, hi vaig
                 int encoding = tasksIDs.get(id);
                 AuxMapLocation location = new AuxMapLocation(encoding);
-                if (!Karbonite.karboniteAt.containsKey(encoding)){
+                if (location.getKarbonite() == 0){
                     //si la mina ja esta buida, trec la task
                     //System.out.println(GC.round + " worker " + id + " removes mine " + location.x + "," + location.y);
                     tasksLocs.remove(encoding);

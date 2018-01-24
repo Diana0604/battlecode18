@@ -5,9 +5,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-/**
- * Created by Pau on 23/01/2018.
- */
 public class Karbonite {
 
     static HashMap<Integer, Integer> karboniteAt;
@@ -15,21 +12,33 @@ public class Karbonite {
     static HashMap<Integer, Integer> asteroidTasksIDs;  //ID worker -> karbo location assignada
     static Integer[] asteroidRounds;
     //static AsteroidStrike[] asteroidStrikes;
-    static AsteroidPattern asteroidPattern;
+    private static AsteroidPattern asteroidPattern;
     static AuxMapLocation[] asteroidLocations;
     static Integer[] asteroidCarbo;
     static int[][] karboMap;
 
     public static void initGame(){
         asteroidPattern = GC.gc.asteroidPattern();
-        karboniteAt = new HashMap<>(); //filled in pathfinder
+        karboniteAt = new HashMap<>();
         asteroidTasksLocs = new HashMap<>();
         asteroidTasksIDs = new HashMap<>();
+        addInitialKarbo();
+    }
+
+    private static void addInitialKarbo(){
+        for (int x = 0; x < Mapa.W; ++x) {
+            for (int y = 0; y < Mapa.H; ++y) {
+                int karbonite = Mapa.getInitialKarbo(x,y);
+                if (karbonite > Const.INF) karbonite = Const.INF;
+                if (karbonite > 0) Karbonite.putMine(x, y, karbonite);
+            }
+        }
     }
 
     public static void initTurn(){
         karboMap = new int[Mapa.W][Mapa.H];
-        updateMines();
+        updateKarboniteAt();
+        updateAsteroidStrikes();
         fillKarboMap();
     }
 
@@ -38,13 +47,11 @@ public class Karbonite {
         while (it.hasNext()) {
             HashMap.Entry<Integer, Integer> entry = it.next();
             AuxMapLocation location = new AuxMapLocation(entry.getKey());
-            int karbonite = location.getKarbonite();
-            if (karbonite != -1){
-                int value = entry.getValue();
-                if (karbonite > 0) {
-                    if (karbonite != value) putMine(location.x, location.y, karbonite);
-                } else it.remove();
-            }
+            int karbonite = Wrapper.getKarbonite(location);
+            int value = entry.getValue();
+            if (karbonite > 0) {
+                if (karbonite != value) putMine(location.x, location.y, karbonite);
+            } else it.remove();
         }
     }
 
@@ -74,10 +81,8 @@ public class Karbonite {
         else putMine(loc.x, loc.y, karbonite);
     }
 
-    static void updateMines() {
+    private static void updateAsteroidStrikes(){
         try {
-            updateKarboniteAt();
-
             if (Mapa.onMars()) {
                 updateAsteroidTasks();
                 if (asteroidPattern.hasAsteroid(Utils.round)) {
@@ -85,41 +90,25 @@ public class Karbonite {
                     addAsteroid(strike);
                 }
             }
-            /*
-            System.out.println("");
-            System.out.println("====================== TASK ARRAY " + round + " ====================== ");
-            for (Map.Entry<Integer,Integer> entry: asteroidTasksLocs.entrySet()){
-                AuxMapLocation l = toLocation(entry.getKey());
-                int id = entry.getValue();
-                System.out.println("Location " + l.x + "," + l.y + " has worker " + id);
-            }
-            System.out.println("");
-            for (Map.Entry<Integer,Integer> entry: asteroidTasksIDs.entrySet()){
-                int id = entry.getKey();
-                AuxMapLocation l = toLocation(entry.getValue());
-                System.out.println("Worker " + id + " has location " + l.x + "," + l.y);
-            }
-            System.out.println("");*/
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-
-    static void fillKarboMap(){
+    private static void fillKarboMap(){
         karboMap = new int[Mapa.W][Mapa.H];
         for (Integer a : karboniteAt.keySet()) {
-            AuxMapLocation mloc = new AuxMapLocation(a);
-            karboMap[mloc.x][mloc.y] = karboniteAt.get(a);
+            AuxMapLocation loc = new AuxMapLocation(a);
+            karboMap[loc.x][loc.y] = karboniteAt.get(a);
         }
     }
 
-    static void putMine(AuxMapLocation loc, int value){
+    private static void putMine(AuxMapLocation loc, int value){
         int encoding = loc.encode();
         karboniteAt.put(encoding, value);
     }
 
-    static void putMine(int x, int y, int value){
+    private static void putMine(int x, int y, int value){
         putMine(new AuxMapLocation(x,y),value);
     }
 
@@ -131,6 +120,23 @@ public class Karbonite {
             e.printStackTrace();
             return 0;
         }
+    }
+
+    private static void printTaskArray(){
+        System.out.println("");
+        System.out.println("====================== TASK ARRAY " + Utils.round + " ====================== ");
+        for (Map.Entry<Integer,Integer> entry: asteroidTasksLocs.entrySet()){
+            AuxMapLocation l = new AuxMapLocation(entry.getKey());
+            int id = entry.getValue();
+            System.out.println("Location " + l.x + "," + l.y + " has worker " + id);
+        }
+        System.out.println("");
+        for (Map.Entry<Integer,Integer> entry: asteroidTasksIDs.entrySet()){
+            int id = entry.getKey();
+            AuxMapLocation l = new AuxMapLocation(entry.getValue());
+            System.out.println("Worker " + id + " has location " + l.x + "," + l.y);
+        }
+        System.out.println("");
     }
 
 }

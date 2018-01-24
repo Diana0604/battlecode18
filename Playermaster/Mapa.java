@@ -1,3 +1,4 @@
+import bc.MapLocation;
 import bc.Planet;
 import bc.PlanetMap;
 
@@ -19,6 +20,10 @@ public class Mapa {
 
     public static void initTurn(){
 
+    }
+
+    public static int getInitialKarbo(int x, int y){
+        return (int) planetMap.initialKarboniteAt(new MapLocation(planet, x, y));
     }
 
     public static boolean onEarth(){ return planet == Planet.Earth;}

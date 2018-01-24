@@ -98,13 +98,9 @@ public class AuxMapLocation {
     }
 
     public int getKarbonite(){
-        MapLocation mapLocation = new MapLocation(Mapa.planet, x, y);
-        if (GC.gc.canSenseLocation(mapLocation)) {
-            long karbonite = GC.gc.karboniteAt(mapLocation);
-            if (karbonite > Const.INF) karbonite = Const.INF;
-            return (int) karbonite;
-        }
-        return -1;
+        if (Karbonite.karboniteAt.containsKey(encode()))
+            return Karbonite.karboniteAt.get(encode());
+        else return 0;
     }
 
     public AuxUnit getUnit(){

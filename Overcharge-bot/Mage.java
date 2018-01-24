@@ -72,18 +72,27 @@ public class Mage {
     }
 
     AuxMapLocation getTarget(AuxUnit _unit){
-        AuxMapLocation ans = getBestTarget(_unit);
-        if (ans != null) return ans;
-        _unit.exploretarget = true;
-        return Explore.findExploreObjective(_unit);
+        try {
+            AuxMapLocation ans = getBestTarget(_unit);
+            if (ans != null) return ans;
+            _unit.exploretarget = true;
+            return Explore.findExploreObjective(_unit);
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     void doAction(AuxUnit _unit){
-        unit = _unit;
-        if (unit.target != null && !unit.exploretarget && unit.target.distanceSquaredTo(unit.getMaplocation()) < 90){
-            if (trySpecialMove()) return;
+        try {
+            unit = _unit;
+            if (unit.target != null && !unit.exploretarget && unit.target.distanceSquaredTo(unit.getMaplocation()) < 90) {
+                if (trySpecialMove()) return;
+            }
+            attack();
+        } catch(Exception e) {
+            e.printStackTrace();
         }
-        attack();
     }
 
     boolean trySpecialMove(){
@@ -268,14 +277,19 @@ public class Mage {
     }
 
     boolean isBetter(AuxMapLocation myLoc, AuxMapLocation A, AuxMapLocation B){
-        if (B == null) return true;
-        if (!A.isOnMap()) return false;
-        if (!B.isOnMap()) return false;
-        int a = multitargetArraY[A.x][A.y];
-        int b = multitargetArraY[B.x][B.y];
-        if (b < min_group && a > b) return true;
-        if (a < min_group && a < b) return false;
-        return (myLoc.distanceBFSTo(A) < myLoc.distanceBFSTo(B));
+        try {
+            if (B == null) return true;
+            if (!A.isOnMap()) return false;
+            if (!B.isOnMap()) return false;
+            int a = multitargetArraY[A.x][A.y];
+            int b = multitargetArraY[B.x][B.y];
+            if (b < min_group && a > b) return true;
+            if (a < min_group && a < b) return false;
+            return (myLoc.distanceBFSTo(A) < myLoc.distanceBFSTo(B));
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     AuxMapLocation getBestEnemy(AuxMapLocation myLoc){
@@ -316,23 +330,29 @@ public class Mage {
         }
 
         public int computeValue() {
-            AuxMapLocation finalLoc = unit.getMaplocation().add(dir).add(mloc);
-            if (expandedTargetArray[finalLoc.x][finalLoc.y] < min_group) return 0;
-            int mostenemies = 0;
-            for (int j = 0; j < Vision.Mx[30].length; ++j) {
-                AuxMapLocation newLoc = finalLoc.add(new AuxMapLocation(Vision.Mx[30][j], Vision.My[30][j]));
-                if (newLoc.isOnMap()) {
-                    AuxUnit u = Data.getUnit(newLoc.x, newLoc.y, false);
-                    if (u == null) u = Data.getUnit(newLoc.x, newLoc.y, true);
-                    if (u == null) continue;
-                    AuxUnit[] units = Wrapper.senseUnits(newLoc.x, newLoc.y, 2, false);
-                    if (units.length > mostenemies) {
-                        mostenemies = units.length;
-                        bestTarget = u;
+            try {
+                AuxMapLocation finalLoc = unit.getMaplocation().add(dir).add(mloc);
+                if (expandedTargetArray[finalLoc.x][finalLoc.y] < min_group) return 0;
+                int mostenemies = 0;
+                for (int j = 0; j < Vision.Mx[30].length; ++j) {
+                    AuxMapLocation newLoc = finalLoc.add(new AuxMapLocation(Vision.Mx[30][j], Vision.My[30][j]));
+                    if (newLoc.isOnMap()) {
+                        AuxUnit u = Data.getUnit(newLoc.x, newLoc.y, false);
+                        if (u == null) u = Data.getUnit(newLoc.x, newLoc.y, true);
+                        if (u == null) continue;
+                        AuxUnit[] units = Wrapper.senseUnits(newLoc.x, newLoc.y, 2, false);
+                        if (units.length > mostenemies) {
+                            mostenemies = units.length;
+                            bestTarget = u;
+                        }
                     }
                 }
+                return mostenemies;
             }
-            return mostenemies;
+            catch(Exception e) {
+                e.printStackTrace();
+            }
+            return 0;
         }
 
     }

@@ -169,7 +169,7 @@ public class MovementManager {
 
 
 
-    public int moveTo(AuxUnit unit){
+    public int moveTo(AuxUnit unit, boolean force){
         try {
             if (unit.visited) return 8;
             unit.visited = true;
@@ -184,7 +184,7 @@ public class MovementManager {
 
             Danger.computeDanger(unit);
 
-            int dirGreedy = greedyMove(unit);
+            int dirGreedy = greedyMove(unit, force);
             if (dirGreedy != 8){
                 Wrapper.moveRobot(unit, dirGreedy);
                 getData(unit).soft_reset(myLoc);
@@ -206,7 +206,7 @@ public class MovementManager {
             AuxUnit u = Data.getUnit(newLoc.x, newLoc.y, true);
             if (u != null){
                 if (u.getType() != UnitType.Factory && u.getType() != UnitType.Rocket) {
-                    if (moveTo(u) != 8) {
+                    if (moveTo(u, force) != 8) {
                         Wrapper.moveRobot(unit, dirBFS);
                         getData(unit).soft_reset(myLoc);
                         return dirBFS;
@@ -293,7 +293,7 @@ public class MovementManager {
                 AuxUnit u = Data.getUnit(newLoc.x, newLoc.y, true);
                 if (u != null){
                     if (u.getType() != UnitType.Factory && u.getType() != UnitType.Rocket) {
-                        if (moveTo(u) != 8) {
+                        if (moveTo(u, true) != 8) {
                             myLoc = unit.getMaplocation();
                             Wrapper.moveRobot(unit, dirBFS);
                             getData(unit).soft_reset(myLoc);
@@ -372,10 +372,11 @@ public class MovementManager {
         }
     }
 
-    int greedyMove(AuxUnit unit){
+    int greedyMove(AuxUnit unit, boolean force){
         if (unit.getType() == UnitType.Knight) return 8;
         try {
             int index = 8;
+            if (force) index = 7;
             for (int i = 0; i < 8; ++i) if (Wrapper.canMove(unit, i)) index = bestIndex(index, i);
 
             //System.err.println(index);

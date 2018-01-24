@@ -83,6 +83,7 @@ public class Mage {
         unit = _unit;
         if (unit.target != null && !unit.exploretarget && unit.target.distanceSquaredTo(unit.getMaplocation()) < 90){
             if (trySpecialMove()) return;
+            //if (unit.target.distanceSquaredTo(unit.getMaplocation() <= 65)) tryOverChargeMove();
             tryOverChargeMove();
         }
         attack();
@@ -98,6 +99,7 @@ public class Mage {
 
     void tryOverChargeMove(){
         if (!Data.canOverCharge || Data.round%10 != 0) return;
+        //System.out.println("He entraaat " + unit.getID());
         int posAtArray = Data.allUnits.get(unit.getID());
         int d = unit.target.distanceSquaredTo(unit.getMaplocation());
         if (unit.canMove() && d > 8) MovementManager.getInstance().straightMoveTo(unit);

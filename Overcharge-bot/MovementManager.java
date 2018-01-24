@@ -252,23 +252,33 @@ public class MovementManager {
     }
 
     boolean shouldAggro(){
-        if (!dangerousUnit(unit.getType())) return false;
-        if (!unit.canAttack()) return false;
-        if (unit.getType() == UnitType.Mage){
-            //if (!Data.canBlink) return false;
-            //if (!unit.canUseAbility()) return false;
+        try {
+            if (!dangerousUnit(unit.getType())) return false;
+            if (!unit.canAttack()) return false;
+            if (unit.getType() == UnitType.Mage) {
+                //if (!Data.canBlink) return false;
+                //if (!unit.canUseAbility()) return false;
+                return false;
+            }
+            if (Danger.attackers.contains(id)) return true;
+            if (Data.onEarth() && Data.canBlink) return true;
             return false;
+        } catch(Exception e) {
+            e.printStackTrace();
         }
-        if (Danger.attackers.contains(id)) return true;
-        if (Data.onEarth() && Data.canBlink) return true;
         return false;
     }
 
     double danger(int i){
-        if (unit.getType() == UnitType.Knight) return 0;
-        if (unit.getType() == UnitType.Ranger) return Danger.DPS[i];
-        if (unit.getType() == UnitType.Mage && Data.canBlink) return Danger.DPS[i];
-        return Danger.DPSlong[i] + Danger.DPS[i];
+        try {
+            if (unit.getType() == UnitType.Knight) return 0;
+            if (unit.getType() == UnitType.Ranger) return Danger.DPS[i];
+            if (unit.getType() == UnitType.Mage && Data.canBlink) return Danger.DPS[i];
+            return Danger.DPSlong[i] + Danger.DPS[i];
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 
     int bestIndex(int i, int j){

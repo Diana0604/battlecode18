@@ -110,7 +110,7 @@ class UnitManager{
 
         return dir;
         */
-        MovementManager.getInstance().moveTo(unit);
+        MovementManager.getInstance().moveTo(unit, false);
         return 0;
     }
 

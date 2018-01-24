@@ -3,23 +3,12 @@
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
     <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/Playermaster" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Overcharge-bot" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/Old players" />
-      <excludeFolder url="file://$MODULE_DIR$/Overcharge-bot" />
+      <excludeFolder url="file://$MODULE_DIR$/Overcharge-mages" />
       <excludeFolder url="file://$MODULE_DIR$/Overcharge-old" />
-      <excludeFolder url="file://$MODULE_DIR$/Player01-java" />
-      <excludeFolder url="file://$MODULE_DIR$/Player02-java" />
-      <excludeFolder url="file://$MODULE_DIR$/Player03-java" />
-      <excludeFolder url="file://$MODULE_DIR$/Player04-java" />
-      <excludeFolder url="file://$MODULE_DIR$/Player05-java" />
-      <excludeFolder url="file://$MODULE_DIR$/Player06-java" />
-      <excludeFolder url="file://$MODULE_DIR$/Player07-java" />
-      <excludeFolder url="file://$MODULE_DIR$/Player08-java" />
-      <excludeFolder url="file://$MODULE_DIR$/Player09-java" />
-      <excludeFolder url="file://$MODULE_DIR$/Player10-java" />
-      <excludeFolder url="file://$MODULE_DIR$/Player11-java" />
-      <excludeFolder url="file://$MODULE_DIR$/Player12-java" />
       <excludeFolder url="file://$MODULE_DIR$/Player13-java" />
       <excludeFolder url="file://$MODULE_DIR$/Player14-java" />
       <excludeFolder url="file://$MODULE_DIR$/Player15-java" />
@@ -29,13 +18,8 @@
       <excludeFolder url="file://$MODULE_DIR$/Player19-java" />
       <excludeFolder url="file://$MODULE_DIR$/Player20-java" />
       <excludeFolder url="file://$MODULE_DIR$/Player21-java" />
-<<<<<<< HEAD
       <excludeFolder url="file://$MODULE_DIR$/Player22-java" />
       <excludeFolder url="file://$MODULE_DIR$/Playermaster" />
-      <excludeFolder url="file://$MODULE_DIR$/Replays" />
-=======
-      <excludeFolder url="file://$MODULE_DIR$/examplefuncsplayer-java" />
->>>>>>> 297d85e3d690743df5648ad12eb9b5b78effa666
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

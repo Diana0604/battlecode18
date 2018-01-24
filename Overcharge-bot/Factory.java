@@ -64,41 +64,54 @@ public class Factory {
     }
 
     private void tryBuild(){
-        if (!unit.canAttack()) return;
-        if (unit.getGarrisonUnits().size() >= 8) return;
+        try {
+            if (!unit.canAttack()) return;
+            if (unit.getGarrisonUnits().size() >= 8) return;
 
-        UnitType type = chooseNextUnit();
-        build(type);
+            UnitType type = chooseNextUnit();
+            build(type);
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private UnitType chooseNextUnit(){
-        if (Data.getKarbonite() < 30) return null;
-        HashMap<UnitType, Integer> typeCount = Data.unitTypeCount;
-        int rangers = typeCount.get(UnitType.Ranger);
-        int healers = typeCount.get(UnitType.Healer);
-        int mages = typeCount.get(UnitType.Mage);
-        int workers = typeCount.get(UnitType.Worker);
+        try {
+            if (Data.getKarbonite() < 30) return null;
+            HashMap<UnitType, Integer> typeCount = Data.unitTypeCount;
+            int rangers = typeCount.get(UnitType.Ranger);
+            int healers = typeCount.get(UnitType.Healer);
+            int mages = typeCount.get(UnitType.Mage);
+            int workers = typeCount.get(UnitType.Worker);
 
-        if (workers < 2) return UnitType.Worker; //potser millor si workers < 2-3?
+            if (workers < 2) return UnitType.Worker; //potser millor si workers < 2-3?
 
-        int roundsEnemyUnseen = Data.round - Data.lastRoundEnemySeen;
-        if ((Data.round > 250 && roundsEnemyUnseen > 10) || Data.round >= ROCKET_RUSH) {
-            if (workers < 5) return UnitType.Worker;
-            if (rangers + healers + mages > 30) return null;
+            int roundsEnemyUnseen = Data.round - Data.lastRoundEnemySeen;
+            if ((Data.round > 250 && roundsEnemyUnseen > 10) || Data.round >= ROCKET_RUSH) {
+                if (workers < 5) return UnitType.Worker;
+                if (rangers + healers + mages > 30) return null;
+            }
+
+            if (3 * healers < rangers - 1) return UnitType.Healer;
+            if (rangers < maxRangers) return UnitType.Ranger;
+            if (healers < 1.25 * rangers) return UnitType.Healer;
+            return UnitType.Mage;
+        } catch(Exception e) {
+            e.printStackTrace();
         }
-
-        if (3 * healers < rangers-1) return UnitType.Healer;
-        if (rangers < maxRangers)  return UnitType.Ranger;
-        if (healers < 1.25*rangers) return UnitType.Healer;
-        return UnitType.Mage;
+        return null;
     }
 
     void build(UnitType type){
-        if (type == null) return;
-        if (Wrapper.canProduceUnit(unit, type)){
-            Wrapper.produceUnit(unit, type);
-            //System.out.println("Built " + type);
-            Data.unitTypeCount.put(type,Data.unitTypeCount.get(type) + 1);
+        try {
+            if (type == null) return;
+            if (Wrapper.canProduceUnit(unit, type)) {
+                Wrapper.produceUnit(unit, type);
+                //System.out.println("Built " + type);
+                Data.unitTypeCount.put(type, Data.unitTypeCount.get(type) + 1);
+            }
+        } catch(Exception e) {
+            e.printStackTrace();
         }
     }
 

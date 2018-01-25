@@ -49,20 +49,19 @@ public class Karbonite {
         Iterator<HashMap.Entry<Integer, Integer>> it = karboniteAt.entrySet().iterator();
         while (it.hasNext()) {
             HashMap.Entry<Integer, Integer> entry = it.next();
-            AuxMapLocation location = new AuxMapLocation(entry.getKey());
-            MapLocation karboLoc = new MapLocation(Mapa.planet, location.x, location.y);
             int value = entry.getValue();
-            if (GC.gc.canSenseLocation(karboLoc)){
-                int karbonite = (int) GC.gc.karboniteAt(karboLoc);
-                if (karbonite > 0) {
-                    if (karbonite != value){
-                        value = karbonite;
-                        putMine(location.x, location.y, value);
-                    }
-                } else it.remove();
-            }
+            AuxMapLocation location = new AuxMapLocation(entry.getKey());
+
+            long karbonite = Wrapper.getKarbonite(location);
+            if (karbonite == -1) continue;
+            if (karbonite > 0) {
+                if (karbonite != value){
+                    putMine(location.x, location.y, (int) karbonite);
+                }
+            } else it.remove();
         }
     }
+
 
     private static void updateAsteroidTasks(){
         Iterator<Map.Entry<Integer, Integer>> it2 = asteroidTasksIDs.entrySet().iterator();

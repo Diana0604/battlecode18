@@ -446,13 +446,11 @@ public class Wrapper {
         GC.gc.overcharge(u1.getID(), u2.getID());
     }
 
-    static int getKarbonite(AuxMapLocation loc){
-        MapLocation mapLocation = new MapLocation(Mapa.planet, loc.x, loc.y);
-        if (GC.gc.canSenseLocation(mapLocation)) {
-            long karbonite = GC.gc.karboniteAt(mapLocation);
-            if (karbonite > Const.INF) karbonite = Const.INF;
-            return (int) karbonite;
-        }
-        return -1;
+    static long getKarbonite(AuxMapLocation location){
+        MapLocation karboLoc = new MapLocation(Mapa.planet, location.x, location.y);
+        if (GC.gc.canSenseLocation(karboLoc)){
+            long karbonite = GC.gc.karboniteAt(karboLoc);
+            return karbonite;
+        }else return -1;
     }
 }

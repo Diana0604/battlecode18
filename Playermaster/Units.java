@@ -137,6 +137,8 @@ public class Units {
         int size = (int) enemyUnits.size();
         for (int i = 0; i < size; ++i) enemies.add(new AuxUnit(enemyUnits.get(i), false));
 
+        enemyUnits.delete();
+
         for (int i = 0; i < enemies.size(); ++i) {
             AuxUnit enemy = enemies.get(i);
             if (enemy.getType() != UnitType.Worker) WorkerUtil.safe = false;
@@ -149,6 +151,8 @@ public class Units {
 
         int size = (int) vecMyUnits.size();
         for (int i = 0; i < size; ++i) myUnits.add(new AuxUnit(vecMyUnits.get(i), true));
+
+        vecMyUnits.delete();
         //First to last: Mage - Ranger - Healer - Knight - Worker - Rocket - Factory
         myUnits.sort((a, b) -> priority(a) < priority(b) ? -1 : priority(a) == priority(b) ? 0 : 1);
 

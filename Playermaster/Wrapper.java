@@ -193,7 +193,6 @@ public class Wrapper {
             //int distance = loc.distanceSquaredTo(sloc);
             //System.out.println("DISTANCE BETWEEN " + loc.x + "," + loc.y + " AND " + sloc.x + "," + sloc.y + " = " + distance + "  " + unit.getID());
             //System.out.println(unit.unit.location().mapLocation().getX() + " " + unit.unit.location().mapLocation().getY());
-            //Unit unitt = GC.gc.unit(structure.getID());
             GC.gc.repair(unit.getID(), structure.getID());
             unit.canAttack = false;
         }catch(Exception e) {
@@ -256,7 +255,9 @@ public class Wrapper {
             Units.newOccupiedPositions.add(newLoc.encode());
             unit.canUseAbility = false;
             unit.canAttack = false;
-            return new AuxUnit(newWorker, true);
+            AuxUnit nW = new AuxUnit(newWorker, true);
+            newWorker.delete();
+            return nW;
         }catch(Exception e) {
             e.printStackTrace();
             return null;
@@ -670,6 +671,7 @@ public class Wrapper {
                     addExploreGrid(enemyArea, Explore.enemyBaseValue);
                 }
             }
+            initialUnits.delete();
         }catch(Exception e) {
             e.printStackTrace();
         }
@@ -743,6 +745,7 @@ public class Wrapper {
                     }
                 }
             }
+            v.delete();
 
             for (int i = 0; i < Mapa.W; ++i) {
                 for (int j = 0; j < Mapa.H; ++j) {

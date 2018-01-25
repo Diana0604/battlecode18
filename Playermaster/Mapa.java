@@ -11,16 +11,6 @@ public class Mapa {
     static int W;
     static int H;
 
-    public static void initGame(){
-        planet = GC.gc.planet();
-        planetMap = GC.gc.startingMap(Mapa.planet);
-        W = (int) planetMap.getWidth();
-        H = (int) planetMap.getHeight();
-    }
-
-    public static void initTurn(){
-
-    }
 
     public static int getInitialKarbo(int x, int y){
         return (int) planetMap.initialKarboniteAt(new MapLocation(planet, x, y));

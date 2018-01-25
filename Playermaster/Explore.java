@@ -1,6 +1,4 @@
-import bc.Unit;
 import bc.UnitType;
-import bc.VecUnit;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,95 +19,6 @@ public class Explore {
     static int exploreSizeY;
     static int[][] locToArea;
 
-    public static void initGame(){
-        createGrid();
-        objectiveArea = new HashMap<>();
-        getLocationEnemyBase();
-    }
-
-    static private AuxMapLocation getAccessLocation(int xCenter, int yCenter){
-        try {
-            AuxMapLocation realCenter = new AuxMapLocation(xCenter, yCenter);
-            //TODO check apart from passable passable from origin in earth
-            if (realCenter.isPassable()) return realCenter;
-            for (int i = 0; i < Const.allDirs.length; ++i) {
-                AuxMapLocation fakeCenter = realCenter.add(i);
-                if (fakeCenter.isPassable()) return fakeCenter;
-            }
-        }catch(Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    static void createGrid(){
-        try {
-            currentArea = new HashMap<>();
-            exploreSizeX = Mapa.W / areaSize;
-            exploreSizeY = Mapa.H / areaSize;
-            double auxiliarX = (double) Mapa.W / exploreSizeX;
-            double auxiliarY = (double) Mapa.H / exploreSizeY;
-            exploreGrid = new double[exploreSizeX][exploreSizeY];
-            locToArea = new int[Mapa.W][Mapa.H];
-            areaToLocX = new int[exploreSizeX];
-            areaToLocY = new int[exploreSizeY];
-            for (int i = 0; i < exploreSizeX; ++i) {
-                for (int j = 0; j < exploreSizeY; ++j) {
-                    for (int x = (int) Math.floor(i * auxiliarX); x < Math.floor((i + 1) * auxiliarX); ++x) {
-                        for (int y = (int) Math.floor(j * auxiliarY); y < Math.floor((j + 1) * auxiliarY); ++y) {
-                            locToArea[x][y] = encode(i, j);
-                        }
-                    }
-                    int xCenter = (int) Math.floor(i * auxiliarX) + areaSize / 2;
-                    int yCenter = (int) Math.floor(j * auxiliarY) + areaSize / 2;
-                    AuxMapLocation centerArea = getAccessLocation(xCenter, yCenter);
-                    if (centerArea != null) {
-                        areaToLocX[i] = centerArea.x;
-                        areaToLocY[j] = centerArea.y;
-                        continue;
-                    }
-                    exploreGrid[i][j] = Const.INF;
-                }
-            }
-        }catch(Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    static Integer locationToArea(AuxMapLocation loc){
-        try {
-            return locToArea[loc.x][loc.y];
-        }catch(Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    static void addExploreGrid(Integer area, double value) {
-        try {
-            int x = decodeX(area);
-            int y = decodeY(area);
-            exploreGrid[x][y] += value;
-        }catch(Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    static void getLocationEnemyBase(){
-        try {
-            VecUnit initialUnits = Mapa.planetMap.getInitial_units();
-            for (int i = 0; i < initialUnits.size(); ++i) {
-                Unit possibleEnemy = initialUnits.get(i);
-                if (possibleEnemy.team() == Utils.enemyTeam) {
-                    Integer enemyArea = locationToArea((new AuxUnit(possibleEnemy, false).getMapLocation()));
-                    addExploreGrid(enemyArea, enemyBaseValue);
-                }
-            }
-        }catch(Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     public static void initTurn(){
         updateCurrentArea();
         if (Mapa.onMars()) sendLocationsEnemyRockets();
@@ -120,8 +29,8 @@ public class Explore {
 
     static AuxMapLocation areaToLocation(Integer area){
         try {
-            int x = areaToLocX[decodeX(area)];
-            int y = areaToLocY[decodeY(area)];
+            int x = areaToLocX[Utils.decodeX(area)];
+            int y = areaToLocY[Utils.decodeY(area)];
             return new AuxMapLocation(x, y);
         }catch(Exception e) {
             e.printStackTrace();
@@ -141,8 +50,8 @@ public class Explore {
             }
             for (int i = 0; i < exploreSizeX; ++i) {
                 for (int j = 0; j < exploreSizeY; ++j) {
-                    if (current.intValue() == encode(i, j).intValue()) continue;
-                    Integer area = encode(i, j);
+                    if (current.intValue() == Utils.encode(i, j).intValue()) continue;
+                    Integer area = Utils.encode(i, j);
                     AuxMapLocation areaLoc = areaToLocation(area);
                     if (myLoc.distanceBFSTo(areaLoc) >= Const.INF) continue;
                     if (exploreGrid[i][j] < minExplored) {
@@ -152,7 +61,7 @@ public class Explore {
                 }
             }
             if (obj != null) {
-                addExploreGrid(obj, exploreConstant);
+                Wrapper.addExploreGrid(obj, exploreConstant);
                 objectiveArea.put(unit.getID(), obj);
             }
             if (obj != null) return areaToLocation(obj);
@@ -168,10 +77,10 @@ public class Explore {
         try {
             for (AuxUnit unit : Units.myUnits) {
                 //if (unit.isInGarrison()) continue;
-                Integer current = locationToArea(unit.getMapLocation());
+                Integer current = Wrapper.locationToArea(unit.getMapLocation());
                 if (currentArea.containsKey(unit.getID()) && currentArea.get(unit.getID()) == current) continue;
                 currentArea.put(unit.getID(), current);
-                addExploreGrid(current, exploreConstant);
+                Wrapper.addExploreGrid(current, exploreConstant);
             }
         }catch(Exception e) {
             e.printStackTrace();
@@ -196,18 +105,6 @@ public class Explore {
                 Rocket.enemyRocketLandingsCcs[MarsPlanning.cc[msg.mapLoc.x][msg.mapLoc.y]]++;
             }
         }
-    }
-
-    static Integer encode(int i, int j){
-        return i* Const.maxMapSize+j;
-    }
-
-    static int decodeX(Integer c){
-        return c/ Const.maxMapSize;
-    }
-
-    static int decodeY(Integer c){
-        return c% Const.maxMapSize;
     }
 
 }

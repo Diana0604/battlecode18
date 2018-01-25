@@ -1,4 +1,5 @@
-import java.util.ArrayList;
+import java.util.*;
+
 import bc.*;
 /**
  * Created by Ivan on 1/18/2018.
@@ -449,8 +450,332 @@ public class Wrapper {
     static long getKarbonite(AuxMapLocation location){
         MapLocation karboLoc = new MapLocation(Mapa.planet, location.x, location.y);
         if (GC.gc.canSenseLocation(karboLoc)){
-            long karbonite = GC.gc.karboniteAt(karboLoc);
-            return karbonite;
+            return GC.gc.karboniteAt(karboLoc);
         }else return -1;
     }
+
+    /*------------------ KARBONITE INIT GAME -----------------------*/
+
+
+    public static void karboniteInitMap(){
+        Karbonite.asteroidPattern = GC.gc.asteroidPattern();
+        Karbonite.karboniteAt = new HashMap<>();
+        Karbonite.asteroidTasksLocs = new HashMap<>();
+        Karbonite.asteroidTasksIDs = new HashMap<>();
+        addInitialKarbo();
+        fillKarboMap();
+    }
+
+    static void addInitialKarbo(){
+        //System.out.println("ok1");
+        for (int x = 0; x < Mapa.W; ++x) {
+            //System.out.println("ok2");
+            for (int y = 0; y < Mapa.H; ++y) {
+                //System.out.println("ok3");
+                int karbonite = Mapa.getInitialKarbo(x,y);
+                if (karbonite > Const.INF) karbonite = Const.INF;
+                if (karbonite > 0) putMine(x, y, karbonite);
+                //System.out.println("Afegeix karbo " + x + "," + y + ": " + karbonite);
+            }
+        }
+    }
+
+    static void fillKarboMap(){
+        Karbonite.karboMap = new int[Mapa.W][Mapa.H];
+        //System.out.println("In fillkarbomap");
+        for (Integer a : Karbonite.karboniteAt.keySet()) {
+            AuxMapLocation loc = new AuxMapLocation(a);
+            Karbonite.karboMap[loc.x][loc.y] = Karbonite.karboniteAt.get(a);
+            //System.out.println(loc + " contains karbo " + karboniteAt.get(a));
+        }
+    }
+
+    static void putMine(AuxMapLocation loc, int value){
+        Karbonite.karboniteAt.put(loc.encode(), value);
+    }
+
+    static void putMine(int x, int y, int value){
+        putMine(new AuxMapLocation(x,y),value);
+    }
+
+    /*------------------ UNITS GAME -----------------------*/
+
+
+    /*------------------ PATHFINDER GAME -----------------------*/
+
+    public static void pathfinderInitMap(){
+        try {
+            Pathfinder.W = Mapa.W;
+            Pathfinder.H = Mapa.H;
+
+            Pathfinder.Nodes = new PathfinderNode[Pathfinder.W][Pathfinder.H][][];
+            //init pathfinder nodes
+            for (int x = 0; x < Pathfinder.W; ++x) {
+                for (int y = 0; y < Pathfinder.H; ++y) {
+                    Pathfinder.Nodes[x][y] = null;
+                }
+            }
+
+            Pathfinder.passable = new boolean[Pathfinder.W][Pathfinder.H];
+
+            for (int x = 0; x < Pathfinder.W; ++x) {
+                for (int y = 0; y < Pathfinder.H; ++y) {
+                    if (Mapa.planetMap.isPassableTerrainAt(new MapLocation(Mapa.planet, x, y)) > 0) {
+                        Pathfinder.passable[x][y] = true;
+                    } else Pathfinder.passable[x][y] = false;
+                }
+            }
+            computeDistToWalls();
+
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    static void computeDistToWalls(){
+        try {
+            PriorityQueue<Integer> queue = new PriorityQueue<>();
+
+            Pathfinder.distToWalls = new double[Pathfinder.W][Pathfinder.H];
+            for (int i = 0; i < Pathfinder.W; ++i) {
+                for (int j = 0; j < Pathfinder.H; ++j) {
+                    if (!Pathfinder.passable[i][j]) {
+                        Pathfinder.distToWalls[i][j] = 0;
+                        queue.add((i << Pathfinder.AUX) | j);
+                    } else Pathfinder.distToWalls[i][j] = 100000000;
+                }
+            }
+
+            while (queue.size() > 0) {
+                int data = queue.poll();
+                int myPosX = (data >> Pathfinder.AUX) & Pathfinder.base;
+                int myPosY = data & Pathfinder.base;
+                double dist = ((double) (data >> Pathfinder.AUX2)) / Pathfinder.distFactor;
+                for (int i = 0; i < Pathfinder.X.length; ++i) {
+                    int newPosX = myPosX + Pathfinder.X[i];
+                    int newPosY = myPosY + Pathfinder.Y[i];
+                    double newDist = dist + Pathfinder.dists[i];
+                    int parsedDist = (int) Math.round(Pathfinder.distFactor * newDist);
+                    if (newPosX >= Pathfinder.W || newPosX < 0 || newPosY >= Pathfinder.H || newPosY < 0) continue;
+                    if (newDist < Pathfinder.distToWalls[newPosX][newPosY]) {
+                        queue.add((((parsedDist << Pathfinder.AUX) | newPosX) << Pathfinder.AUX) | newPosY);
+                        Pathfinder.distToWalls[newPosX][newPosY] = newDist;
+                    }
+                }
+            }
+
+            for (int i = 0; i < Pathfinder.W; ++i){
+                for (int j = 0; j < Pathfinder.H; ++j){
+                    Pathfinder.distToWalls[i][j] = Math.min(Pathfinder.distToWalls[i][j], i+1);
+                    Pathfinder.distToWalls[i][j] = Math.min(Pathfinder.distToWalls[i][j], Pathfinder.W-i);
+                    Pathfinder.distToWalls[i][j] = Math.min(Pathfinder.distToWalls[i][j], j+1);
+                    Pathfinder.distToWalls[i][j] = Math.min(Pathfinder.distToWalls[i][j], Pathfinder.H-j);
+                    //System.err.print(Math.min(distToWalls[i][j], 9));
+                }
+                //System.err.println();
+            }
+
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /*------------------ EXPLORE GAME -----------------------*/
+
+
+    public static void exploreInitMap(){
+        createGrid();
+        Explore.objectiveArea = new HashMap<>();
+        getLocationEnemyBase();
+    }
+
+    static AuxMapLocation getAccessLocation(int xCenter, int yCenter){
+        try {
+            AuxMapLocation realCenter = new AuxMapLocation(xCenter, yCenter);
+            //TODO check apart from passable passable from origin in earth
+            if (realCenter.isPassable()) return realCenter;
+            for (int i = 0; i < Const.allDirs.length; ++i) {
+                AuxMapLocation fakeCenter = realCenter.add(i);
+                if (fakeCenter.isPassable()) return fakeCenter;
+            }
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    static void createGrid(){
+        try {
+            Explore.currentArea = new HashMap<>();
+            Explore.exploreSizeX = Mapa.W / Explore.areaSize;
+            Explore.exploreSizeY = Mapa.H / Explore.areaSize;
+            double auxiliarX = (double) Mapa.W / Explore.exploreSizeX;
+            double auxiliarY = (double) Mapa.H / Explore.exploreSizeY;
+            Explore.exploreGrid = new double[Explore.exploreSizeX][Explore.exploreSizeY];
+            Explore.locToArea = new int[Mapa.W][Mapa.H];
+            Explore.areaToLocX = new int[Explore.exploreSizeX];
+            Explore.areaToLocY = new int[Explore.exploreSizeY];
+            for (int i = 0; i < Explore.exploreSizeX; ++i) {
+                for (int j = 0; j < Explore.exploreSizeY; ++j) {
+                    for (int x = (int) Math.floor(i * auxiliarX); x < Math.floor((i + 1) * auxiliarX); ++x) {
+                        for (int y = (int) Math.floor(j * auxiliarY); y < Math.floor((j + 1) * auxiliarY); ++y) {
+                            Explore.locToArea[x][y] = Utils.encode(i, j);
+                        }
+                    }
+                    int xCenter = (int) Math.floor(i * auxiliarX) + Explore.areaSize / 2;
+                    int yCenter = (int) Math.floor(j * auxiliarY) + Explore.areaSize / 2;
+                    AuxMapLocation centerArea = getAccessLocation(xCenter, yCenter);
+                    if (centerArea != null) {
+                        Explore.areaToLocX[i] = centerArea.x;
+                        Explore.areaToLocY[j] = centerArea.y;
+                        continue;
+                    }
+                    Explore.exploreGrid[i][j] = Const.INF;
+                }
+            }
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    static Integer locationToArea(AuxMapLocation loc){
+        try {
+            return Explore.locToArea[loc.x][loc.y];
+        }catch(Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    static void addExploreGrid(Integer area, double value) {
+        try {
+            int x = Utils.decodeX(area);
+            int y = Utils.decodeY(area);
+            Explore.exploreGrid[x][y] += value;
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    static void getLocationEnemyBase(){
+        try {
+            VecUnit initialUnits = Mapa.planetMap.getInitial_units();
+            for (int i = 0; i < initialUnits.size(); ++i) {
+                Unit possibleEnemy = initialUnits.get(i);
+                if (possibleEnemy.team() == Utils.enemyTeam) {
+                    Integer enemyArea = locationToArea((new AuxUnit(possibleEnemy, false).getMapLocation()));
+                    addExploreGrid(enemyArea, Explore.enemyBaseValue);
+                }
+            }
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /*------------------ WORKER UTIL GAME -----------------------*/
+
+
+    public static void workerUtilInitMap(){
+        WorkerUtil.safe = true;
+        WorkerUtil.totalKarboCollected = 0;
+        WorkerUtil.workersCreated = 0;
+        WorkerUtil.workerActions = new int[Mapa.W][Mapa.H];
+
+        preComputeConnectivity();
+        computeApproxMapValue();
+    }
+
+    static void preComputeConnectivity(){
+        WorkerUtil.connectivityArray = new boolean[(1 << 9)-1];
+        for (int i = 0; i < (1 << 9) - 1; ++i){
+            WorkerUtil.connectivityArray[i] = computeConnectivity(i);
+        }
+
+        //for (int i = 0; i < 32; ++i) System.out.println(connectivityArray[i]);
+
+    }
+
+    static boolean computeConnectivity(int s){
+        Queue<Integer> q = new LinkedList<>();
+        for (int i = 0; i < 8; ++i) {
+            if (((s >> i)&1) > 0){
+                q.add(i);
+                s = s & (~(1 << i));
+                break;
+            }
+        }
+        while (!q.isEmpty()){
+            int t = q.poll();
+            int x = 2;
+            if (t%2 == 1) x = 1;
+            for (int i = -x; i <= x; ++i){
+                int newT = (t+8-i)%8;
+                if (((s >> newT)&1) > 0){
+                    q.add(newT);
+                    s = s &(~(1 << newT));
+                }
+            }
+        }
+        return s == 0;
+    }
+
+    static void computeApproxMapValue() {
+        try {
+            WorkerUtil.approxMapValue = 0;
+            VecUnit v = Mapa.planetMap.getInitial_units();
+
+            ArrayList<AuxMapLocation> initialPositions = new ArrayList<>();
+
+            for (int i = 0; i < v.size(); ++i) {
+                Location loc = v.get(i).location();
+                if (!loc.isInGarrison()) {
+                    MapLocation mLoc = loc.mapLocation();
+                    int x = mLoc.getX();
+                    int y = mLoc.getY();
+                    AuxMapLocation mloc = new AuxMapLocation(x, y);
+                    initialPositions.add(mloc);
+                    if (i % 2 == 0){
+                        ++WorkerUtil.min_nb_workers;
+                        ++WorkerUtil.workersCreated;
+                    }
+                }
+            }
+
+            for (int i = 0; i < Mapa.W; ++i) {
+                for (int j = 0; j < Mapa.H; ++j) {
+                    AuxMapLocation mloc = new AuxMapLocation(i, j);
+                    double mindist = 1000000;
+                    for (int t = 0; t < initialPositions.size(); ++t) {
+                        mindist = Math.min(mindist, initialPositions.get(t).distanceBFSTo(mloc));
+                    }
+                    WorkerUtil.approxMapValue += Karbonite.karboMap[i][j] * Math.pow(WorkerUtil.decrease_rate, mindist);
+                }
+            }
+
+            WorkerUtil.approxMapValue /= 2;
+
+            WorkerUtil.min_nb_workers = (int)Math.max(WorkerUtil.min_nb_workers, WorkerUtil.approxMapValue / WorkerUtil.worker_value);
+
+            //return approxMapValue;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /*------------------ INIT GAME -----------------------*/
+
+    static void initMap(){
+        Mapa.planet = GC.gc.planet();
+        PlanetMap planetMap = GC.gc.startingMap(Mapa.planet);
+        Mapa.planetMap = planetMap;
+        Mapa.W = (int) Mapa.planetMap.getWidth();
+        Mapa.H = (int) Mapa.planetMap.getHeight();
+        karboniteInitMap(); //ha d'anar despres de Mapa
+        Units.initGame(); //ha d'anar despres de Mapa. No cal portar la funcio a wrapper, no utilitza api calls
+        pathfinderInitMap(); //ha d'anar despres de Mapa i Karbonite
+        exploreInitMap(); //ha d'anar despres de Mapa
+        workerUtilInitMap(); //ha d'anar despres de Mapa i Pathfinder
+    }
+
+
 }

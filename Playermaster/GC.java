@@ -10,13 +10,9 @@ class GC {
             Research.initGame();
             Utils.initGame();
             MarsPlanning.initGame();
-            Mapa.initGame();
             Rocket.initGame();
-            Karbonite.initGame(); //ha d'anar despres de Mapa
-            Units.initGame(); //ha d'anar despres de Mapa
-            Pathfinder.initGame(); //ha d'anar despres de Mapa i Karbonite
-            Explore.initGame(); //ha d'anar despres de Mapa
-            WorkerUtil.initGame(); //ha d'anar despres de Mapa i Pathfinder
+
+            Wrapper.initMap();
         }catch(Exception e) {
             e.printStackTrace();
         }

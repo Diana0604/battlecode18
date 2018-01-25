@@ -223,15 +223,19 @@ public class MovementManager {
                     }
                     if (u.getType() != UnitType.Factory && u.getType() != UnitType.Rocket) {
                         if (u.getType() == unit.getType() && u.getType() == UnitType.Worker && u.canMove()){
-                            if (u.target != null){
+                            /*if (u.target != null){
                                 AuxMapLocation auxTarget = u.target;
                                 u.target = unit.target;
-                                unit.target = auxTarget;
+                                if (move(u) != 8) {
+                                    doMovement(unit, dirBFS);
+                                    return dirBFS;
+                                }
+                            }*/
+                        } else {
+                            if (move(u) != 8) {
+                                doMovement(unit, dirBFS);
+                                return dirBFS;
                             }
-                        }
-                        if (move(u) != 8) {
-                            doMovement(unit, dirBFS);
-                            return dirBFS;
                         }
                     }
                 }

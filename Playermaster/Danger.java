@@ -9,6 +9,9 @@ class Danger {
     static int [] minDist;
     static HashSet<Integer> attackers;
 
+    static int[][] myDist;
+    static int[][] enemyDist;
+
     private static HashMap<Integer, DangerData> dangerData;
 
     static final double winningProportion = 1.05;
@@ -18,7 +21,15 @@ class Danger {
 
     static void initTurn(){
         updateAttackers();
+        updateDangerMatrix();
         dangerData = new HashMap<>();
+    }
+
+    static void updateDangerMatrix(){
+        myDist = new int[Mapa.W][Mapa.H];
+        enemyDist = new int[Mapa.W][Mapa.H];
+        for (int i = 0; i < )
+
     }
 
     //MyLoc = position, canMove = directions you want to compute {9 is center}

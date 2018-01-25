@@ -27,6 +27,7 @@ class GC {
             Utils.initTurn();
             Research.initTurn();
             Units.initTurn(); //ha d'anar despres de Utils i Research
+            Vision.initTurn(); //ha d'anar despres de Units
             Karbonite.initTurn(); //ha d'anar despres de Units
             Communication.initTurn(); // ha d'anar abans que Explore
             Explore.initTurn(); //ha d'anar despres de Units

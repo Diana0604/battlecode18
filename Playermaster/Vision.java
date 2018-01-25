@@ -1,9 +1,14 @@
+import bc.MapLocation;
+import bc.Unit;
+
 /**
  * Created by Ivan on 1/18/2018.
  */
 public class Vision {
 
     static int[][] Mx, My;
+
+    static boolean[][] seen;
 
     static void initialize(){
         //WTF!!!!!
@@ -20,6 +25,39 @@ public class Vision {
         initialize80();
         initialize90();
     }
+
+    public static void initTurn(){
+        seen = new boolean[Mapa.W][Mapa.H];
+        for(int i = 0; i < Units.myUnits.size(); ++i){
+            AuxUnit myUnit = Units.myUnits.get(i);
+            if(myUnit.isInGarrison()) continue;
+            updateSeen(myUnit.getMapLocation(), myUnit.getVisionRange());
+        }
+    }
+
+    private static void updateSeen(AuxMapLocation loc, int r){
+        for(int i = 0; i < Mx[r].length; ++i){
+            AuxMapLocation newLoc = new AuxMapLocation(loc.x + Mx[r][i], loc.y + My[r][i]);
+            if(!newLoc.isOnMap()) continue;
+            seen[newLoc.x][newLoc.y] = true;
+        }
+    }
+
+    static void checkAndUpdateSeen(AuxMapLocation loc, int r){
+        for(int i = 0; i < Mx[r].length; ++i){
+            AuxMapLocation newLoc = new AuxMapLocation(loc.x + Mx[r][i], loc.y + My[r][i]);
+            if(!newLoc.isOnMap()) continue;
+            if(seen[newLoc.x][newLoc.y]) continue;
+            seen[newLoc.x][newLoc.y] = true;
+            AuxUnit possibleEnemy = Wrapper.senseUnitAtLocation(newLoc);
+            if (possibleEnemy != null) {
+                //if enemy update info
+                Units.enemies.add(possibleEnemy);
+                Units.unitMap[newLoc.x][newLoc.y] = -Units.enemies.size();
+            }
+        }
+    }
+
 
     private static void initialize0(){
         Mx[0] = new int[]{0};

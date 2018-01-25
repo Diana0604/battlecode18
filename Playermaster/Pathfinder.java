@@ -26,7 +26,7 @@ public class Pathfinder{
             W = Mapa.W;
             H = Mapa.H;
 
-            Nodes = new PathfinderNode[W][H][W][H];
+            Nodes = new PathfinderNode[W][H][][];
             passable = new boolean[W][H];
 
             for (int x = 0; x < W; ++x) {
@@ -36,11 +36,10 @@ public class Pathfinder{
                     } else passable[x][y] = false;
                 }
             }
-
+            //init pathfinder nodes
             for (int x = 0; x < W; ++x) {
                 for (int y = 0; y < H; ++y) {
-                    //bfs
-                    bfs(x, y);
+                    Nodes[x][y] = null;
                 }
             }
             computeDistToWalls();
@@ -52,6 +51,8 @@ public class Pathfinder{
 
     private static void bfs(int a,int b){
         try {
+            Nodes[a][b] = new PathfinderNode[W][H];
+
             PriorityQueue<Integer> queue = new PriorityQueue<>();
 
             for (int x = 0; x < W; ++x) {
@@ -139,6 +140,7 @@ public class Pathfinder{
 
     static PathfinderNode getNode(int x1, int y1, int x2, int y2){
         try{
+            if(Nodes[x1][y1] == null) bfs(x1, y1);
             return Nodes[x1][y1][x2][y2];
         }catch(Exception e) {
             e.printStackTrace();

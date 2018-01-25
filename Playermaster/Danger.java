@@ -28,8 +28,6 @@ class Danger {
     static void updateDangerMatrix(){
         myDist = new int[Mapa.W][Mapa.H];
         enemyDist = new int[Mapa.W][Mapa.H];
-        for (int i = 0; i < )
-
     }
 
     //MyLoc = position, canMove = directions you want to compute {9 is center}

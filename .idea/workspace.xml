@@ -2,12 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="71f64d24-17d9-4332-bb4e-252ae65615b9" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Playermaster/Danger.java" afterPath="$PROJECT_DIR$/Playermaster/Danger.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Playermaster/MovementManager.java" afterPath="$PROJECT_DIR$/Playermaster/MovementManager.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Playermaster/Pathfinder.java" afterPath="$PROJECT_DIR$/Playermaster/Pathfinder.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Playermaster/Worker.java" afterPath="$PROJECT_DIR$/Playermaster/Worker.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Playermaster/WorkerUtil.java" afterPath="$PROJECT_DIR$/Playermaster/WorkerUtil.java" />
     </list>
     <ignored path="$PROJECT_DIR$/Player01-java/" />
     <ignored path="$PROJECT_DIR$/Player02-java/" />
@@ -62,11 +57,11 @@
       <file leaf-file-name="Danger.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Playermaster/Danger.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="408">
-              <caret line="30" column="28" lean-forward="false" selection-start-line="30" selection-start-column="28" selection-end-line="30" selection-end-column="28" />
+            <state relative-caret-position="391">
+              <caret line="29" column="44" lean-forward="false" selection-start-line="29" selection-start-column="44" selection-end-line="29" selection-end-column="44" />
               <folding>
-                <element signature="e#3201#3202#0" expanded="true" />
-                <element signature="e#3234#3235#0" expanded="true" />
+                <element signature="e#3170#3171#0" expanded="true" />
+                <element signature="e#3203#3204#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -898,11 +893,11 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Playermaster/Danger.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="408">
-          <caret line="30" column="28" lean-forward="false" selection-start-line="30" selection-start-column="28" selection-end-line="30" selection-end-column="28" />
+        <state relative-caret-position="391">
+          <caret line="29" column="44" lean-forward="false" selection-start-line="29" selection-start-column="44" selection-end-line="29" selection-end-column="44" />
           <folding>
-            <element signature="e#3201#3202#0" expanded="true" />
-            <element signature="e#3234#3235#0" expanded="true" />
+            <element signature="e#3170#3171#0" expanded="true" />
+            <element signature="e#3203#3204#0" expanded="true" />
           </folding>
         </state>
       </provider>

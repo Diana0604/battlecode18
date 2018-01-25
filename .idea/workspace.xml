@@ -2,8 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="71f64d24-17d9-4332-bb4e-252ae65615b9" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Playermaster/Mapa.java" afterPath="$PROJECT_DIR$/Playermaster/Mapa.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Playermaster/Wrapper.java" afterPath="$PROJECT_DIR$/Playermaster/Wrapper.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Playermaster/MarsPlanning.java" afterPath="$PROJECT_DIR$/Playermaster/MarsPlanning.java" />
     </list>
     <ignored path="$PROJECT_DIR$/Player01-java/" />
     <ignored path="$PROJECT_DIR$/Player02-java/" />
@@ -45,7 +44,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Wrapper.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="Wrapper.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Playermaster/Wrapper.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="712">
@@ -56,6 +55,16 @@
                 <element signature="e#18571#18572#0" expanded="true" />
                 <element signature="e#18625#18626#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="MarsPlanning.java" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/Playermaster/MarsPlanning.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="550">
+              <caret line="52" column="31" lean-forward="false" selection-start-line="52" selection-start-column="31" selection-end-line="52" selection-end-column="31" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -156,7 +165,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/Playermaster/Ranger.java" />
         <option value="$PROJECT_DIR$/Player-07/BugPathfindingData.java" />
         <option value="$PROJECT_DIR$/Player-07/ConstructionQueue.java" />
         <option value="$PROJECT_DIR$/Player-07/Factory.java" />
@@ -207,6 +215,7 @@
         <option value="$PROJECT_DIR$/Playermaster/Utils.java" />
         <option value="$PROJECT_DIR$/Playermaster/Mapa.java" />
         <option value="$PROJECT_DIR$/Playermaster/Wrapper.java" />
+        <option value="$PROJECT_DIR$/Playermaster/MarsPlanning.java" />
       </list>
     </option>
   </component>
@@ -559,7 +568,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/Player06-java/EnemyData.java" />
     <entry file="file://$PROJECT_DIR$/Player06-java/Danger.java" />
     <entry file="file://$PROJECT_DIR$/Player06-java/BugPathfindingData.java" />
     <entry file="file://$PROJECT_DIR$/Player06-java/UnitManager.java" />
@@ -915,6 +923,14 @@
             <element signature="e#18571#18572#0" expanded="true" />
             <element signature="e#18625#18626#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Playermaster/MarsPlanning.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="550">
+          <caret line="52" column="31" lean-forward="false" selection-start-line="52" selection-start-column="31" selection-end-line="52" selection-end-column="31" />
+          <folding />
         </state>
       </provider>
     </entry>

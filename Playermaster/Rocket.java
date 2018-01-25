@@ -12,13 +12,15 @@ public class Rocket {
     static int[] maxUnitTypes = {1, 12, 12, 12, 12, 0, 0};
     static final int MAX_ROUNDS_IDDLE = 50;
 
-    static HashSet<AuxMapLocation> rocketLandingsLocs;
-    static int[] rocketLandingsCcs; // s'instancia a MarsPlanning despres de calculars les ccs
+    static HashSet<AuxMapLocation> allyRocketLandingsLocs;
+    static HashSet<AuxMapLocation> enemyRocketLandingsLocs;
+    static int[] allyRocketLandingsCcs; // s'instancia a MarsPlanning despres de calculars les ccs
+    static int[] enemyRocketLandingsCcs; // idem
     static HashMap<Integer, RocketData> rocketDatas;
 
     static void initGame(){
-        rocketLandingsLocs = new HashSet<>();
-        rocketLandingsLocs = new HashSet<>();
+        allyRocketLandingsLocs = new HashSet<>();
+        enemyRocketLandingsLocs = new HashSet<>();
         rocketDatas = new HashMap<>();
     }
 
@@ -184,14 +186,13 @@ public class Rocket {
             int arrivalRound = Wrapper.getArrivalRound(Utils.round);
             AuxMapLocation arrivalLoc = MarsPlanning.bestPlaceForRound(arrivalRound);
             //System.out.println(arrivalLoc.x + " " + arrivalLoc.y);
-            rocketLandingsLocs.add(arrivalLoc);
-            rocketLandingsCcs[MarsPlanning.cc[arrivalLoc.x][arrivalLoc.y]]++;
+            allyRocketLandingsLocs.add(arrivalLoc);
+            allyRocketLandingsCcs[MarsPlanning.cc[arrivalLoc.x][arrivalLoc.y]]++;
             Wrapper.launchRocket(rocket, arrivalLoc);
         } catch(Exception e) {
             e.printStackTrace();
         }
     }
-
 
     private static class Pair {
         double dist;

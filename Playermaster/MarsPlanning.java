@@ -54,7 +54,8 @@ public class MarsPlanning{
                     if (cc[x][y] == 0) bfs(x, y);
                 }
             }
-            Rocket.rocketLandingsCcs = new int[ccs + 1];
+            Rocket.allyRocketLandingsCcs = new int[ccs + 1];
+            Rocket.enemyRocketLandingsCcs = new int[ccs + 1];
 
             // compute times from earth to mars
             OrbitPattern op = GC.gc.orbitPattern();
@@ -167,7 +168,7 @@ public class MarsPlanning{
                 if (!isOnMars(newLoc)) continue;
                 int comp = cc[newLoc.x][newLoc.y];
                 if (comp < 0) continue;
-                if (!seen_cc[comp]) ret += Rocket.rocketLandingsCcs[comp];
+                if (!seen_cc[comp]) ret += Rocket.allyRocketLandingsCcs[comp] + Rocket.enemyRocketLandingsCcs[comp];
                 seen_cc[comp] = true;
             }
             return ret;
@@ -239,12 +240,16 @@ public class MarsPlanning{
                 addPriority(priorityKarbo, loc, DEPTH, value, addValueToAdj, false);
                 addKarboCC(karbo_cc, loc, value);
             }
-            for (AuxMapLocation loc : Rocket.rocketLandingsLocs) {
+            for (AuxMapLocation loc : Rocket.allyRocketLandingsLocs) {
                 double value = priorityKarbo[loc.x][loc.y]; // el rocket resta exactament la prioritat que hi ha a la casella on cau
                 // pero ho fa en el doble de radi, per si no estava al mig del cluster de karbonite abarcar-lo tot igualment
                 // el rocket tambe resta la prioritat a la casella central i a les adjacents
                 addPriority(priorityRockets, loc, DEPTH * 4, value, true, true);
                 //priorityRockets[loc.x][loc.y] = -10000; // extra per si de cas
+            }
+            for (AuxMapLocation loc: Rocket.enemyRocketLandingsLocs) {
+                double value = priorityKarbo[loc.x][loc.y]; // el rocket resta exactament la prioritat que hi ha a la casella on cau
+                addPriority(priorityRockets, loc, DEPTH * 4, value, true, true);
             }
             AuxMapLocation bestLoc = null;
             double best_priority = 0;

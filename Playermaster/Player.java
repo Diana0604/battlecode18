@@ -15,6 +15,7 @@ public class Player {
                     GC.playUnits();
                     //if(GC.onEarth() && GC.round >= 745) System.err.println("After moving");
                     //if(GC.onEarth() && GC.round >= 745) GC.printData();
+                    GC.endTurn();
                     gc.nextTurn();
                 }catch(Exception e) {
                     e.printStackTrace();

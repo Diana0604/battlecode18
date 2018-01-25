@@ -477,7 +477,7 @@ public class Wrapper {
             for (int y = 0; y < Mapa.H; ++y) {
                 //System.out.println("ok3");
                 int karbonite = getInitialKarbo(planetMap, x, y);
-                if (karbonite > Const.INF) karbonite = Const.INF;
+                if (karbonite > Const.INFS) karbonite = Const.INFS;
                 if (karbonite > 0) putMine(x, y, karbonite);
                 //System.out.println("Afegeix karbo " + x + "," + y + ": " + karbonite);
             }
@@ -634,7 +634,7 @@ public class Wrapper {
                         Explore.areaToLocY[j] = centerArea.y;
                         continue;
                     }
-                    Explore.exploreGrid[i][j] = Const.INF;
+                    Explore.exploreGrid[i][j] = Const.INFS;
                 }
             }
         }catch(Exception e) {

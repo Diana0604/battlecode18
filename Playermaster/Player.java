@@ -7,7 +7,6 @@ public class Player {
             GC.initGame(gc);
             while (true) {
                 try {
-                    if (Utils.round % 10 == 1) System.gc();
                     GC.initTurn();
                     //if(GC.onEarth() && GC.round >= 745) System.err.println("Before moving");
                     //if(GC.onEarth() && GC.round >= 745) GC.printData();
@@ -16,6 +15,12 @@ public class Player {
                     //if(GC.onEarth() && GC.round >= 745) System.err.println("After moving");
                     //if(GC.onEarth() && GC.round >= 745) GC.printData();
                     GC.endTurn();
+
+                    if (Utils.round % 10 == 1) {
+                        //System.out.println("Before gc");
+                        //System.gc();
+                        //System.out.println("After  gc");
+                    }
                     gc.nextTurn();
                 }catch(Exception e) {
                     e.printStackTrace();

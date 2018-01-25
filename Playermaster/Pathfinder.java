@@ -27,7 +27,7 @@ public class Pathfinder{
 
             for (int x = 0; x < W; ++x) {
                 for (int y = 0; y < H; ++y) {
-                    Nodes[a][b][x][y] = new PathfinderNode(8, Const.INF);
+                    Nodes[a][b][x][y] = new PathfinderNode(8, Const.INFS);
                 }
             }
 
@@ -48,8 +48,8 @@ public class Pathfinder{
                     if (newDist < Nodes[a][b][newPosX][newPosY].dist) {
                         if (passable[newPosX][newPosY]) queue.add((((parsedDist << AUX) | newPosX) << AUX) | newPosY);
 
-                        Nodes[a][b][newPosX][newPosY].dist = newDist;
-                        if (newDist < 1.8) Nodes[a][b][newPosX][newPosY].dir = i;
+                        Nodes[a][b][newPosX][newPosY].dist = (short) newDist;
+                        if (newDist < 1.8) Nodes[a][b][newPosX][newPosY].dir = (short) i;
                         else Nodes[a][b][newPosX][newPosY].dir = Nodes[a][b][myPosX][myPosY].dir;
                     }
                 }

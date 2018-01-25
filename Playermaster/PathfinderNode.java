@@ -1,10 +1,11 @@
 class PathfinderNode{
 
-    int dir;
-    double dist;
+    short dir;
+    short dist;
 
     PathfinderNode(int dir, int dist){
-        this.dir = dir;
-        this.dist = dist;
+        this.dir = (short) dir;
+        this.dist = (short) dist;
+        //System.out.println("Dir: " + this.dir + " " + dir + ", Dist: " + this.dist + " " + dist);
     }
 }

@@ -53,7 +53,7 @@ class Danger {
             data.minDist = new int[9];
             for (int i = 0; i < 9; ++i) {
                 data.DPS[i] = 0;
-                data.minDist[i] = Const.INF;
+                data.minDist[i] = Const.INFS;
                 data.DPSlong[i] = 0;
             }
 

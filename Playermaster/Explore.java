@@ -43,7 +43,7 @@ public class Explore {
             unit.exploretarget = true;
             Integer current = currentArea.get(unit.getID());
             Integer obj = null;
-            double minExplored = Const.INF;
+            double minExplored = Const.INFS;
             AuxMapLocation myLoc = unit.getMapLocation();
             if (objectiveArea.containsKey(unit.getID()) && current.intValue() != objectiveArea.get(unit.getID()).intValue()) {
                 return areaToLocation(objectiveArea.get(unit.getID()));
@@ -53,7 +53,7 @@ public class Explore {
                     if (current.intValue() == Utils.encode(i, j).intValue()) continue;
                     Integer area = Utils.encode(i, j);
                     AuxMapLocation areaLoc = areaToLocation(area);
-                    if (myLoc.distanceBFSTo(areaLoc) >= Const.INF) continue;
+                    if (myLoc.distanceBFSTo(areaLoc) >= Const.INFS) continue;
                     if (exploreGrid[i][j] < minExplored) {
                         minExplored = exploreGrid[i][j];
                         obj = area;

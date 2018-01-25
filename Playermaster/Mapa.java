@@ -12,10 +12,6 @@ public class Mapa {
     static int H;
 
 
-    public static int getInitialKarbo(int x, int y){
-        return (int) planetMap.initialKarboniteAt(new MapLocation(planet, x, y));
-    }
-
     public static boolean onEarth(){ return planet == Planet.Earth;}
 
     public static boolean onMars(){ return !onEarth(); }

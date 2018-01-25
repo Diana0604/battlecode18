@@ -457,22 +457,27 @@ public class Wrapper {
     /*------------------ KARBONITE INIT GAME -----------------------*/
 
 
-    public static void karboniteInitMap(){
+    public static void karboniteInitMap(PlanetMap planetMap){
         Karbonite.asteroidPattern = GC.gc.asteroidPattern();
         Karbonite.karboniteAt = new HashMap<>();
         Karbonite.asteroidTasksLocs = new HashMap<>();
         Karbonite.asteroidTasksIDs = new HashMap<>();
-        addInitialKarbo();
+        addInitialKarbo(planetMap);
         fillKarboMap();
     }
 
-    static void addInitialKarbo(){
+
+    public static int getInitialKarbo(PlanetMap planetMap, int x, int y){
+        return (int) planetMap.initialKarboniteAt(new MapLocation(Mapa.planet, x, y));
+    }
+
+    static void addInitialKarbo(PlanetMap planetMap){
         //System.out.println("ok1");
         for (int x = 0; x < Mapa.W; ++x) {
             //System.out.println("ok2");
             for (int y = 0; y < Mapa.H; ++y) {
                 //System.out.println("ok3");
-                int karbonite = Mapa.getInitialKarbo(x,y);
+                int karbonite = getInitialKarbo(planetMap, x, y);
                 if (karbonite > Const.INF) karbonite = Const.INF;
                 if (karbonite > 0) putMine(x, y, karbonite);
                 //System.out.println("Afegeix karbo " + x + "," + y + ": " + karbonite);
@@ -503,7 +508,7 @@ public class Wrapper {
 
     /*------------------ PATHFINDER GAME -----------------------*/
 
-    public static void pathfinderInitMap(){
+    public static void pathfinderInitMap(PlanetMap planetMap){
         try {
             Pathfinder.W = Mapa.W;
             Pathfinder.H = Mapa.H;
@@ -520,7 +525,7 @@ public class Wrapper {
 
             for (int x = 0; x < Pathfinder.W; ++x) {
                 for (int y = 0; y < Pathfinder.H; ++y) {
-                    if (Mapa.planetMap.isPassableTerrainAt(new MapLocation(Mapa.planet, x, y)) > 0) {
+                    if (planetMap.isPassableTerrainAt(new MapLocation(Mapa.planet, x, y)) > 0) {
                         Pathfinder.passable[x][y] = true;
                     } else Pathfinder.passable[x][y] = false;
                 }
@@ -583,10 +588,10 @@ public class Wrapper {
     /*------------------ EXPLORE GAME -----------------------*/
 
 
-    public static void exploreInitMap(){
+    public static void exploreInitMap(PlanetMap planetMap){
         createGrid();
         Explore.objectiveArea = new HashMap<>();
-        getLocationEnemyBase();
+        getLocationEnemyBase(planetMap);
     }
 
     static AuxMapLocation getAccessLocation(int xCenter, int yCenter){
@@ -657,9 +662,9 @@ public class Wrapper {
         }
     }
 
-    static void getLocationEnemyBase(){
+    static void getLocationEnemyBase(PlanetMap planetMap){
         try {
-            VecUnit initialUnits = Mapa.planetMap.getInitial_units();
+            VecUnit initialUnits = planetMap.getInitial_units();
             for (int i = 0; i < initialUnits.size(); ++i) {
                 Unit possibleEnemy = initialUnits.get(i);
                 if (possibleEnemy.team() == Utils.enemyTeam) {
@@ -675,14 +680,14 @@ public class Wrapper {
     /*------------------ WORKER UTIL GAME -----------------------*/
 
 
-    public static void workerUtilInitMap(){
+    public static void workerUtilInitMap(PlanetMap planetMap){
         WorkerUtil.safe = true;
         WorkerUtil.totalKarboCollected = 0;
         WorkerUtil.workersCreated = 0;
         WorkerUtil.workerActions = new int[Mapa.W][Mapa.H];
 
         preComputeConnectivity();
-        computeApproxMapValue();
+        computeApproxMapValue(planetMap);
     }
 
     static void preComputeConnectivity(){
@@ -719,10 +724,10 @@ public class Wrapper {
         return s == 0;
     }
 
-    static void computeApproxMapValue() {
+    static void computeApproxMapValue(PlanetMap planetMap) {
         try {
             WorkerUtil.approxMapValue = 0;
-            VecUnit v = Mapa.planetMap.getInitial_units();
+            VecUnit v = planetMap.getInitial_units();
 
             ArrayList<AuxMapLocation> initialPositions = new ArrayList<>();
 
@@ -767,14 +772,14 @@ public class Wrapper {
     static void initMap(){
         Mapa.planet = GC.gc.planet();
         PlanetMap planetMap = GC.gc.startingMap(Mapa.planet);
-        Mapa.planetMap = planetMap;
-        Mapa.W = (int) Mapa.planetMap.getWidth();
-        Mapa.H = (int) Mapa.planetMap.getHeight();
-        karboniteInitMap(); //ha d'anar despres de Mapa
+        Mapa.W = (int) planetMap.getWidth();
+        Mapa.H = (int) planetMap.getHeight();
+        karboniteInitMap(planetMap); //ha d'anar despres de Mapa
         Units.initGame(); //ha d'anar despres de Mapa. No cal portar la funcio a wrapper, no utilitza api calls
-        pathfinderInitMap(); //ha d'anar despres de Mapa i Karbonite
-        exploreInitMap(); //ha d'anar despres de Mapa
-        workerUtilInitMap(); //ha d'anar despres de Mapa i Pathfinder
+        pathfinderInitMap(planetMap); //ha d'anar despres de Mapa i Karbonite
+        exploreInitMap(planetMap); //ha d'anar despres de Mapa
+        workerUtilInitMap(planetMap); //ha d'anar despres de Mapa i Pathfinder
+        planetMap.delete();
     }
 
 

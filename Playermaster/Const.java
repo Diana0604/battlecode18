@@ -58,4 +58,13 @@ public class Const {
     final static int healerMaxHealth = 100;
     final static int factoryMaxHealth= 300;
     final static int rocketMaxHealth = 200;
+
+
+    final static int workerVisionRange = 50;
+    final static int knightVisionRange = 50;
+    final static int rangerVisionRange = 20;
+    final static int mageVisionRange = 20;
+    final static int healerVisionRange = 20;
+    final static int rocketVisionRange = 2;
+    final static int factoryVisionRange = 2;
 }

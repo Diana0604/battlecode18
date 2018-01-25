@@ -214,6 +214,7 @@ public class Wrapper {
             Units.unitMap[mloc.x][mloc.y] = 0;
             Units.unitMap[newLoc.x][newLoc.y] = Units.allUnits.get(unit.getID()) + 1;
             GC.gc.moveRobot(unit.getID(), Const.allDirs[dir]);
+            if(Utils.round%10 == 0) Vision.checkAndUpdateSeen(newLoc, unit.getVisionRange());
         }catch(Exception e) {
             e.printStackTrace();
         }
@@ -226,6 +227,7 @@ public class Wrapper {
             Units.unitMap[loc.x][loc.y] = 0;
             Units.unitMap[mloc.x][mloc.y] = Units.allUnits.get(unit.getID()) + 1;
             GC.gc.blink(unit.getID(), new MapLocation(Mapa.planet, mloc.x, mloc.y));
+            if(Utils.round%10 == 0)Vision.checkAndUpdateSeen(mloc, unit.getVisionRange());
             unit.mloc = mloc;
         }catch(Exception e) {
             e.printStackTrace();
@@ -454,5 +456,13 @@ public class Wrapper {
             return (int) karbonite;
         }
         return -1;
+    }
+
+    static AuxUnit senseUnitAtLocation(AuxMapLocation loc){
+        MapLocation realLoc = new MapLocation(Mapa.planet, loc.x, loc.y);
+        if(!GC.gc.hasUnitAtLocation(realLoc)) return null;
+        Unit possibleUnit = GC.gc.senseUnitAtLocation(realLoc);
+        if(possibleUnit.team() == Utils.myTeam) return new AuxUnit(possibleUnit, true);
+        return new AuxUnit(possibleUnit, false);
     }
 }

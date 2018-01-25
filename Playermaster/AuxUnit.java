@@ -13,6 +13,7 @@ public class AuxUnit {
     public Boolean garrison;
     public Boolean inSpace;
     public AuxMapLocation mloc;
+    public int VisionRange;
 
 
     //private Integer x;
@@ -65,6 +66,7 @@ public class AuxUnit {
         frontline = false;
         myTeam = team;
         depth = 0;
+        VisionRange = -1;
     }
 
     public int getID(){
@@ -259,6 +261,35 @@ public class AuxUnit {
     public boolean isBuilt(){
         if (built == null) built = isStructure() && unit.structureIsBuilt() > 0;
         return built;
+    }
+
+
+    public int getVisionRange(){
+        try {
+            if (VisionRange == -1) {
+                UnitType myType = getType();
+                switch(myType) {
+                    case Ranger:
+                        VisionRange = Const.rangerVisionRange;
+                    case Healer:
+                        VisionRange = Const.healerVisionRange;
+                    case Mage:
+                        VisionRange = Const.mageVisionRange;
+                    case Worker:
+                        VisionRange = Const.workerVisionRange;
+                    case Knight:
+                        VisionRange = Const.knightVisionRange;
+                    case Rocket:
+                        VisionRange = Const.rocketVisionRange;
+                    case Factory:
+                        VisionRange = Const.factoryVisionRange;
+                }
+            }
+            return VisionRange;
+        }catch(Exception e) {
+            e.printStackTrace();
+            return Integer.parseInt(null);
+        }
     }
 
 

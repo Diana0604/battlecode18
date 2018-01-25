@@ -56,7 +56,7 @@ public class Rocket {
                 callRemainingRobots(rocket, sortedUnits, unitTypes, maxUnitTypes);
                 boolean willLaunch = shouldLaunch(rocket);
                 if (willLaunch) rocketTakeoffs.add(rocket.getMapLocation());
-            } else if (rocket.getLocation().isOnPlanet(Planet.Mars)) {
+            } else if (Mapa.onMars()) {
                 if (rocket.getGarrisonUnits().size() > 0) {
                     for (int i = 0; i < 8; ++i) {
                         if (Wrapper.canUnload(rocket, i)) Wrapper.unload(rocket, i);
@@ -76,7 +76,7 @@ public class Rocket {
             for (AuxUnit unit: Units.myUnits) {
                 if (unit.isInGarrison()) continue;
                 double distance = rocket.getMapLocation().distanceBFSTo(unit.getMapLocation());
-                if (distance >= Const.INF) continue;
+                if (distance >= Const.INFS) continue;
                 sorted.add(new Pair(distance, unit));
             }
             sorted.sort((a, b) -> a.dist < b.dist ? -1 : a.dist == b.dist ? 0 : 1);

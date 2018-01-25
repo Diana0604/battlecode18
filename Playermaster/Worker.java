@@ -334,7 +334,7 @@ public class Worker {
                     if (Units.allUnits.containsKey(assignedID)) continue; //si ja esta assignada suda
                     //if (assignedID != -1) continue;
                     double dist = unit.getMapLocation().distanceBFSTo(loc);
-                    if (dist >= Const.INF) continue; //si no esta passable
+                    if (dist >= Const.INFS) continue; //si no esta passable
                     if (dist < minDist) {
                         minDist = dist;
                         minLoc = loc;

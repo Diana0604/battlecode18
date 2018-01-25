@@ -49,6 +49,8 @@ public class MarsPlanning{
                     if (!passable[x][y]) cc[x][y] = -1;
                 }
             }
+
+            planetMap.delete();
             for (int x = 0; x < W; ++x) {
                 for (int y = 0; y < H; ++y) {
                     if (cc[x][y] == 0) bfs(x, y);

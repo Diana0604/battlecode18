@@ -7,9 +7,7 @@ import java.util.Objects;
  * Created by Ivan on 1/18/2018.
  */
 public class AuxUnit {
-    Unit unit;
     Integer id;
-    public Location loc;
     public Boolean garrison;
     public Boolean inSpace;
     public AuxMapLocation mloc;
@@ -30,7 +28,6 @@ public class AuxUnit {
     public boolean myTeam;
 
     public Integer health;
-    public Integer maxHealth;
 
     public ArrayList<Integer> garrisonUnits;
 
@@ -41,25 +38,41 @@ public class AuxUnit {
     public boolean frontline;
     int depth;
 
-    public AuxUnit(Unit _unit, boolean team){
-        unit = _unit;
-        id = null;
-        loc = null;
-        type = null;
-        structure = null;
-        troop = null;
-        robot = null;
-        blueprint = null;
-        built = null;
-        garrison = null;
-        inSpace = null;
-        mloc = null;
-        canMove = null;
-        canAttack = null;
-        canUseAbility = null;
-        garrisonUnits = null;
-        health = null;
-        maxHealth = null;
+    public AuxUnit(Unit u, boolean team) {
+        id = u.id();
+        type = u.unitType();
+        structure = type == UnitType.Factory || type == UnitType.Rocket;
+        blueprint = structure && u.structureIsBuilt() == 0;
+        built = structure && !blueprint;
+        robot = !structure;
+        troop = robot && type != UnitType.Worker;
+
+        Location l = u.location();
+        garrison = l.isInGarrison();
+        inSpace = l.isInSpace();
+        if (inSpace) mloc = null;
+        else if (garrison) mloc = new AuxMapLocation(GC.gc.unit(l.structure()).location().mapLocation());
+        else mloc = new AuxMapLocation(l.mapLocation());
+        l.delete();
+
+        canMove = robot && GC.gc.isMoveReady(getID());
+
+        if (type == UnitType.Ranger || type == UnitType.Knight || type == UnitType.Mage) canAttack = GC.gc.isAttackReady(getID());
+        else if (getType() == UnitType.Worker) canAttack = (u.workerHasActed() == 0);
+        else if (getType() == UnitType.Healer) canAttack = GC.gc.isHealReady(getID());
+        else if (getType() == UnitType.Factory) canAttack = (u.isFactoryProducing() == 0);
+        else canAttack = false;
+
+        canUseAbility = robot && u.abilityHeat() < 10;
+
+        garrisonUnits = new ArrayList<>();
+        if (structure) {
+            VecUnitID v = u.structureGarrison();
+            for (int i = 0; i < v.size(); ++i) garrisonUnits.add(v.get(i));
+            v.delete();
+        }
+
+        health = (int) u.health();
         exploretarget = false;
         target = null;
         visited = false;
@@ -70,163 +83,53 @@ public class AuxUnit {
     }
 
     public int getID(){
-        try {
-            if (id == null) id = unit.id();
-            return id;
-        }catch(Exception e) {
-            e.printStackTrace();
-            return Integer.parseInt(null);
-        }
-    }
-
-    public Location getLocation(){
-        try {
-            if (loc == null) loc = unit.location();
-            return loc;
-        }catch(Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+        return id;
     }
 
     public boolean isInGarrison(){
-        try {
-            if (garrison == null) garrison = getLocation().isInGarrison();
-            return garrison;
-        } catch(Exception e) {
-            e.printStackTrace();
-            return false;
-        }
+        return garrison;
     }
 
     public boolean isInSpace(){
-        try {
-            if (inSpace == null) inSpace = getLocation().isInSpace();
-            return inSpace;
-        }catch(Exception e) {
-            e.printStackTrace();
-            return false;
-        }
+        return inSpace;
     }
 
 
     public AuxMapLocation getMapLocation(){
-        try {
-            if (isInSpace()) return null;
-            if (mloc == null){
-                if (isInGarrison()) mloc = Units.getUnitByID(getLocation().structure()).getMapLocation();
-                else mloc = new AuxMapLocation(getLocation().mapLocation());
-            }
-            //System.out.println("map location " + mloc);
-            return mloc;
-        }catch(Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+        return mloc;
     }
 
     public int getX(){
-        try {
-            return getMapLocation().x;
-        }catch(Exception e) {
-            e.printStackTrace();
-            return Integer.parseInt(null);
-        }
+        return mloc.x;
     }
 
     public int getY(){
-        try {
-            return getMapLocation().y;
-        }catch(Exception e) {
-            e.printStackTrace();
-            return Integer.parseInt(null);
-        }
+        return mloc.y;
     }
 
     public boolean canMove(){
-        try {
-            if (canMove == null) {
-                if (getType() != UnitType.Factory && getType() != UnitType.Rocket)
-                    canMove = GC.gc.isMoveReady(getID());
-                else canMove = false;
-            }
-            return canMove;
-        }catch(Exception e) {
-            e.printStackTrace();
-            return false;
-        }
+        return canMove;
     }
 
     public boolean canAttack(){
-        try {
-            if (canAttack == null) {
-                if (!(getType() == UnitType.Factory || getType() == UnitType.Rocket || getType() == UnitType.Worker || getType() == UnitType.Healer))
-                    canAttack = GC.gc.isAttackReady(getID());
-                else if (getType() == UnitType.Worker) canAttack = (unit.workerHasActed() == 0);
-                else if (getType() == UnitType.Healer) canAttack = GC.gc.isHealReady(getID());
-                else if (getType() == UnitType.Factory) canAttack = (unit.isFactoryProducing() == 0);
-                else canAttack = false;
-            }
-            return canAttack;
-        }catch(Exception e) {
-            e.printStackTrace();
-            return false;
-        }
+        return canAttack;
     }
 
     public boolean canUseAbility(){
-        try {
-            if (canUseAbility == null) canUseAbility = unit.abilityHeat() < 10;
-            return canUseAbility;
-        }catch(Exception e) {
-            e.printStackTrace();
-            return false;
-        }
+        return canUseAbility;
     }
 
     public UnitType getType(){
-        try {
-            if (type == null) type = unit.unitType();
-            return type;
-        }catch(Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+        return type;
     }
 
 
     public ArrayList<Integer> getGarrisonUnits(){
-        try {
-            if (garrisonUnits == null) {
-                garrisonUnits = new ArrayList<>();
-                VecUnitID v = unit.structureGarrison();
-                for (int i = 0; i < v.size(); ++i) garrisonUnits.add(v.get(i));
-            }
-            return garrisonUnits;
-        }catch(Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+        return garrisonUnits;
     }
 
     public Integer getHealth(){
-        try {
-            if (health == null) health = (int) unit.health();
-            return health;
-        }catch(Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    public Integer getMaxHealth(){
-        try {
-            if (maxHealth == null) maxHealth = (int) unit.maxHealth();
-            return maxHealth;
-        }catch(Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+        return health;
     }
 
     public boolean isMaxHealth() {
@@ -239,27 +142,22 @@ public class AuxUnit {
     }
 
     public boolean isStructure(){
-        if (structure == null) structure = (getType() == UnitType.Factory || getType() == UnitType.Rocket);
         return structure;
     }
 
     public boolean isRobot(){
-        if (robot == null) robot = !isStructure();
         return robot;
     }
 
     public boolean isTroop(){
-        if (troop == null) troop = isRobot() && getType() != UnitType.Worker;
         return troop;
     }
 
     public boolean isBlueprint(){
-        if (blueprint == null) blueprint = isStructure() && unit.structureIsBuilt() == 0;
         return blueprint;
     }
 
     public boolean isBuilt(){
-        if (built == null) built = !isBlueprint();
         return built;
     }
 

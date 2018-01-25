@@ -2,7 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="71f64d24-17d9-4332-bb4e-252ae65615b9" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Playermaster/AuxMapLocation.java" afterPath="$PROJECT_DIR$/Playermaster/AuxMapLocation.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Playermaster/Danger.java" afterPath="$PROJECT_DIR$/Playermaster/Danger.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Playermaster/UnitManager.java" afterPath="$PROJECT_DIR$/Playermaster/UnitManager.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Playermaster/Worker.java" afterPath="$PROJECT_DIR$/Playermaster/Worker.java" />
     </list>
     <ignored path="$PROJECT_DIR$/Player01-java/" />
     <ignored path="$PROJECT_DIR$/Player02-java/" />
@@ -47,21 +50,38 @@
       <file leaf-file-name="Worker.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Playermaster/Worker.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="346">
-              <caret line="267" column="13" lean-forward="false" selection-start-line="267" selection-start-column="13" selection-end-line="267" selection-end-column="13" />
-              <folding />
+            <state relative-caret-position="8041">
+              <caret line="477" column="17" lean-forward="true" selection-start-line="477" selection-start-column="17" selection-end-line="477" selection-end-column="17" />
+              <folding>
+                <element signature="e#334#335#0" expanded="true" />
+                <element signature="e#375#376#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Danger.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="Danger.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Playermaster/Danger.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="391">
-              <caret line="29" column="44" lean-forward="false" selection-start-line="29" selection-start-column="44" selection-end-line="29" selection-end-column="44" />
+            <state relative-caret-position="642">
+              <caret line="55" column="49" lean-forward="false" selection-start-line="55" selection-start-column="49" selection-end-line="55" selection-end-column="49" />
               <folding>
-                <element signature="e#3170#3171#0" expanded="true" />
-                <element signature="e#3203#3204#0" expanded="true" />
+                <element signature="method#computeDanger#0;class#Danger#0" expanded="false" />
+                <element signature="e#4273#4274#0" expanded="true" />
+                <element signature="e#4306#4307#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="AuxMapLocation.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Playermaster/AuxMapLocation.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="489">
+              <caret line="154" column="66" lean-forward="false" selection-start-line="154" selection-start-column="66" selection-end-line="154" selection-end-column="66" />
+              <folding>
+                <element signature="e#3861#3862#0" expanded="true" />
+                <element signature="e#3934#3935#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -77,11 +97,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="UnitManager.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="UnitManager.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Playermaster/UnitManager.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="17">
-              <caret line="48" column="0" lean-forward="false" selection-start-line="48" selection-start-column="0" selection-end-line="48" selection-end-column="0" />
+            <state relative-caret-position="-85">
+              <caret line="30" column="41" lean-forward="true" selection-start-line="30" selection-start-column="41" selection-end-line="30" selection-end-column="41" />
               <folding />
             </state>
           </provider>
@@ -102,16 +122,6 @@
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="153">
               <caret line="9" column="20" lean-forward="false" selection-start-line="9" selection-start-column="20" selection-end-line="9" selection-end-column="45" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="run.sh" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Playermaster/run.sh">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="68">
-              <caret line="4" column="41" lean-forward="false" selection-start-line="4" selection-start-column="41" selection-end-line="4" selection-end-column="41" />
               <folding />
             </state>
           </provider>
@@ -143,9 +153,10 @@
       <find>unload</find>
       <find>tryReplicate</find>
       <find>tryPlace</find>
-      <find>worker</find>
       <find>replicate</find>
       <find>getTarget</find>
+      <find>worker</find>
+      <find>targets</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -159,7 +170,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/Playermaster/UnitManager.java" />
         <option value="$PROJECT_DIR$/Playermaster/Research.java" />
         <option value="$PROJECT_DIR$/Playermaster/Factory.java" />
         <option value="$PROJECT_DIR$/Playermaster/Ranger.java" />
@@ -205,9 +215,11 @@
         <option value="$PROJECT_DIR$/Playermaster/Player.java" />
         <option value="$PROJECT_DIR$/Playermaster/MovementManager.java" />
         <option value="$PROJECT_DIR$/Playermaster/Pathfinder.java" />
-        <option value="$PROJECT_DIR$/Playermaster/Worker.java" />
         <option value="$PROJECT_DIR$/Playermaster/WorkerUtil.java" />
+        <option value="$PROJECT_DIR$/Playermaster/AuxMapLocation.java" />
         <option value="$PROJECT_DIR$/Playermaster/Danger.java" />
+        <option value="$PROJECT_DIR$/Playermaster/Worker.java" />
+        <option value="$PROJECT_DIR$/Playermaster/UnitManager.java" />
       </list>
     </option>
   </component>
@@ -556,7 +568,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/Player07-java/UnitManager.java" />
     <entry file="file://$PROJECT_DIR$/Playermaster/.idea/misc.xml">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -843,14 +854,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Playermaster/WorkerUtil.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="120">
-          <caret line="107" column="29" lean-forward="true" selection-start-line="107" selection-start-column="29" selection-end-line="107" selection-end-column="29" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Playermaster/MovementManager.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="333">
@@ -867,14 +870,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Playermaster/UnitManager.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="48" column="0" lean-forward="false" selection-start-line="48" selection-start-column="0" selection-end-line="48" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Playermaster/Wrapper.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="395">
@@ -883,22 +878,53 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Playermaster/Worker.java">
+    <entry file="file://$PROJECT_DIR$/Playermaster/AuxMapLocation.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="346">
-          <caret line="267" column="13" lean-forward="false" selection-start-line="267" selection-start-column="13" selection-end-line="267" selection-end-column="13" />
+        <state relative-caret-position="489">
+          <caret line="154" column="66" lean-forward="false" selection-start-line="154" selection-start-column="66" selection-end-line="154" selection-end-column="66" />
+          <folding>
+            <element signature="e#3861#3862#0" expanded="true" />
+            <element signature="e#3934#3935#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Playermaster/WorkerUtil.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="120">
+          <caret line="107" column="29" lean-forward="true" selection-start-line="107" selection-start-column="29" selection-end-line="107" selection-end-column="29" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Playermaster/Danger.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="391">
-          <caret line="29" column="44" lean-forward="false" selection-start-line="29" selection-start-column="44" selection-end-line="29" selection-end-column="44" />
+        <state relative-caret-position="642">
+          <caret line="55" column="49" lean-forward="false" selection-start-line="55" selection-start-column="49" selection-end-line="55" selection-end-column="49" />
           <folding>
-            <element signature="e#3170#3171#0" expanded="true" />
-            <element signature="e#3203#3204#0" expanded="true" />
+            <element signature="method#computeDanger#0;class#Danger#0" expanded="false" />
+            <element signature="e#4273#4274#0" expanded="true" />
+            <element signature="e#4306#4307#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Playermaster/Worker.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="8041">
+          <caret line="477" column="17" lean-forward="true" selection-start-line="477" selection-start-column="17" selection-end-line="477" selection-end-column="17" />
+          <folding>
+            <element signature="e#334#335#0" expanded="true" />
+            <element signature="e#375#376#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Playermaster/UnitManager.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-85">
+          <caret line="30" column="41" lean-forward="true" selection-start-line="30" selection-start-column="41" selection-end-line="30" selection-end-column="41" />
+          <folding />
         </state>
       </provider>
     </entry>

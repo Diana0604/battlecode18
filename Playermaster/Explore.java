@@ -1,6 +1,8 @@
 import bc.Unit;
+import bc.UnitType;
 import bc.VecUnit;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -110,6 +112,8 @@ public class Explore {
 
     public static void initTurn(){
         updateCurrentArea();
+        if (Mapa.onMars()) sendLocationsEnemyRockets();
+        if (Mapa.onEarth()) receiveLocationsEnemyRockets();
     }
 
 
@@ -171,6 +175,26 @@ public class Explore {
             }
         }catch(Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    static void sendLocationsEnemyRockets() {
+        for (AuxUnit unit:Units.enemies) {
+            if (unit.getType() == UnitType.Rocket && !unit.isInSpace()) {
+                if (Communication.getInstance().canSendMessage()) {
+                    Communication.getInstance().sendRocketLocation(unit.getMapLocation());
+                }
+            }
+        }
+    }
+
+    static void receiveLocationsEnemyRockets() {
+        ArrayList<Message> messages = Communication.getInstance().getMessagesToRead();
+        for (Message msg:messages) {
+            if (msg.subject == Communication.ROCKET_LOC) {
+                Rocket.enemyRocketLandingsLocs.add(msg.mapLoc);
+                Rocket.enemyRocketLandingsCcs[MarsPlanning.cc[msg.mapLoc.x][msg.mapLoc.y]]++;
+            }
         }
     }
 

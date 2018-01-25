@@ -29,10 +29,19 @@ class GC {
             Units.initTurn(); //ha d'anar despres de Utils i Research
             Vision.initTurn(); //ha d'anar despres de Units
             Karbonite.initTurn(); //ha d'anar despres de Units
+            Communication.initTurn(); // ha d'anar abans que Explore
             Explore.initTurn(); //ha d'anar despres de Units
             Danger.initTurn(); //ha d'anar despres de Units
             WorkerUtil.initTurn(); //ha d'anar despres de Units i Karbonite
             Rocket.initTurn(); //ha d'anar despres de Units i Danger
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    static void endTurn() {
+        try {
+            Communication.endTurn();
         }catch(Exception e) {
             e.printStackTrace();
         }

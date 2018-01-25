@@ -27,6 +27,13 @@ public class Pathfinder{
             H = Mapa.H;
 
             Nodes = new PathfinderNode[W][H][][];
+            //init pathfinder nodes
+            for (int x = 0; x < W; ++x) {
+                for (int y = 0; y < H; ++y) {
+                    Nodes[x][y] = null;
+                }
+            }
+
             passable = new boolean[W][H];
 
             for (int x = 0; x < W; ++x) {
@@ -34,12 +41,6 @@ public class Pathfinder{
                     if (Mapa.planetMap.isPassableTerrainAt(new MapLocation(Mapa.planet, x, y)) > 0) {
                         passable[x][y] = true;
                     } else passable[x][y] = false;
-                }
-            }
-            //init pathfinder nodes
-            for (int x = 0; x < W; ++x) {
-                for (int y = 0; y < H; ++y) {
-                    Nodes[x][y] = null;
                 }
             }
             computeDistToWalls();

@@ -166,7 +166,10 @@ public class Units {
             if (unit.isStructure()) {
                 structures.add(i);
                 if (type == UnitType.Rocket) rockets.add(i);
-                if (type == UnitType.Factory) factories.add(i);
+                if (type == UnitType.Factory){
+                    factories.add(i);
+                    if (unit.isBuilt()) firstFactory = true;
+                }
                 if (unit.isBlueprint()) blueprints.add(i);
             }else{
                 robots.add(i);

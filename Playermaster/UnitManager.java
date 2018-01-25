@@ -33,7 +33,7 @@ class UnitManager{
             //System.err.println("playing unit " + GC.myUnits[i].getType());
             //if (unit.isInGarrison()) continue;
             if (unit.getType() == UnitType.Worker) {
-                unit.target = Worker.getTarget(unit);
+                unit.target = Worker.getInstance().getTarget(unit);
             }
             if (unit.getType() == UnitType.Ranger || unit.getType() == UnitType.Knight) { //LOLZ
                 unit.target = Ranger.getInstance().getTarget(unit);
@@ -77,7 +77,7 @@ class UnitManager{
             //System.err.println("playing unit " + GC.myUnits[i].getType());
             if (unit.isInGarrison() || unit.isInSpace()) continue;
             if (unit.getType() == UnitType.Worker) {
-                Worker.doAction(unit, true);
+                Worker.getInstance().doAction(unit, true);
             }
             if (unit.getType() == UnitType.Ranger || unit.getType() == UnitType.Knight) { //LOLZ
                 Ranger.getInstance().attack(unit);
@@ -98,7 +98,7 @@ class UnitManager{
             //System.err.println("playing unit " + GC.myUnits[i].getType());
             if (unit.isInGarrison() || unit.isInSpace()) continue;
             if (unit.getType() == UnitType.Worker) {
-                Worker.doAction(unit, false);
+                Worker.getInstance().doAction(unit, false);
             }
             if (unit.getType() == UnitType.Factory) {
                 Factory.getInstance().play(unit);

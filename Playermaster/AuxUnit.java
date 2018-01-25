@@ -259,7 +259,7 @@ public class AuxUnit {
     }
 
     public boolean isBuilt(){
-        if (built == null) built = isStructure() && unit.structureIsBuilt() > 0;
+        if (built == null) built = !isBlueprint();
         return built;
     }
 

@@ -151,6 +151,10 @@ public class AuxMapLocation {
         return true;
     }
 
+    public boolean isDangerousForWorker(){
+        return (Danger.myDist[x][y] -10 < Danger.enemyDist[x][y]);
+    }
+
     @Override
     public boolean equals(Object o){
         try {

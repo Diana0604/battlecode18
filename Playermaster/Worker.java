@@ -160,7 +160,7 @@ public class Worker {
             if (minDifIndex >= 0) {
                 AuxUnit structure = adjUnits[minDifIndex];
                 Wrapper.build(unit, structure);
-                if (structure.getHealth() < Units.getMaxHealth(structure.getType())) unit.canMove = false;
+                /*if (structure.getHealth() < Units.getMaxHealth(structure.getType()))*/ unit.canMove = false;
                 return true;
             }
             if (minHPIndex >= 0) {

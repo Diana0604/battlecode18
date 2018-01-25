@@ -113,8 +113,8 @@ public class AuxMapLocation {
             if (x < 0 || x >= Mapa.W) return null;
             if (y < 0 || y >= Mapa.H) return null;
             int i = Units.unitMap[x][y];
-            if (i > 0) return Units.myUnits.get(i-1);
-            if (i < 0) return Units.enemies.get(-(i + 1));
+            if (i > 0) return Units.myUnits[i - 1];
+            if (i < 0) return Units.enemies[-(i + 1)];
         }catch(Exception e) {
             e.printStackTrace();
         }
@@ -166,10 +166,6 @@ public class AuxMapLocation {
             e.printStackTrace();
             return false;
         }
-    }
-
-    public String toString(){
-        return "[" + x + "," + y + "]";
     }
 
 }

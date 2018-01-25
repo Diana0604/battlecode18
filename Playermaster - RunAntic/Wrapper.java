@@ -47,7 +47,7 @@ public class Wrapper {
         try {
             if (unit.getGarrisonUnits().size() == 0) return false;
             if (!unit.getMapLocation().add(dir).isAccessible()) return false;
-            if (!Units.getUnitByID(unit.getGarrisonUnits().get(0)).canMove()) return false;
+            if (!Units.myUnits[Units.allUnits.get(unit.getGarrisonUnits().get(0))].canMove()) return false;
             return true;
         }catch(Exception e) {
             e.printStackTrace();
@@ -157,13 +157,11 @@ public class Wrapper {
     static void build(AuxUnit unit, AuxUnit blueprint){
         try {
             blueprint.getHealth();
-            //blueprint.isBlueprint();
+            blueprint.isBlueprint();
             blueprint.health += Units.buildingPower;
             int maxHP = Units.getMaxHealth(blueprint.getType());
             if (blueprint.health > maxHP) blueprint.health = maxHP;
-            if (blueprint.health == maxHP) {
-                blueprint.built = true;
-            }
+            if (blueprint.health == maxHP) blueprint.blueprint = false;
             GC.gc.build(unit.getID(), blueprint.getID());
             //System.out.println("Remaining build health: " + (maxHP - blueprint.health) +  " max hp? " + blueprint.isMaxHealth());
             unit.canAttack = false;
@@ -236,20 +234,17 @@ public class Wrapper {
         }
     }
 
-    static AuxUnit replicate(AuxUnit unit, int dir){
+    static void replicate(AuxUnit unit, int dir){
         try {
             AuxMapLocation mloc = unit.getMapLocation();
             AuxMapLocation newLoc = mloc.add(dir);
             GC.gc.replicate(unit.getID(), Const.allDirs[dir]);
-            Unit newWorker = GC.gc.senseUnitAtLocation(new MapLocation(Mapa.planet, newLoc.x, newLoc.y));
             Utils.karbonite -= Const.replicateCost;
             Units.newOccupiedPositions.add(newLoc.encode());
             unit.canUseAbility = false;
             unit.canAttack = false;
-            return new AuxUnit(newWorker, true);
         }catch(Exception e) {
             e.printStackTrace();
-            return null;
         }
     }
 
@@ -273,8 +268,6 @@ public class Wrapper {
             AuxMapLocation mloc = unit.getMapLocation();
             AuxMapLocation newLoc = mloc.add(dir);
             GC.gc.blueprint(unit.getID(), type, Const.allDirs[dir]);
-
-            unit.canAttack = false;
             Utils.karbonite -= Units.getCost(type);
             Units.newOccupiedPositions.add(newLoc.encode());
         }catch(Exception e) {
@@ -325,7 +318,7 @@ public class Wrapper {
         try {
             if (!unit.canAttack()) return false;
             int d = unit.getMapLocation().distanceSquaredTo(unit2.getMapLocation());
-            if (unit.getType() == UnitType.Ranger && d <= Const.rangerMinAttackRange) return false;
+            if (unit.getType() == UnitType.Ranger && d <= 10) return false;
             return (Units.getAttackRange(unit.getType()) >= d);
         }catch(Exception e) {
             e.printStackTrace();
@@ -381,7 +374,6 @@ public class Wrapper {
             GC.gc.launchRocket(unit.getID(), new MapLocation(Planet.Mars, loc.x, loc.y));
             AuxMapLocation mloc = unit.getMapLocation();
             Units.firstRocket = false;
-            Units.rocketsLaunched++;
             Units.unitMap[mloc.x][mloc.y] = 0;
             Units.structures.remove(unit.getID());
         }catch(Exception e) {
@@ -425,15 +417,5 @@ public class Wrapper {
         u2.canAttack = true;
         u2.canUseAbility = true;
         GC.gc.overcharge(u1.getID(), u2.getID());
-    }
-
-    static int getKarbonite(AuxMapLocation loc){
-        MapLocation mapLocation = new MapLocation(Mapa.planet, loc.x, loc.y);
-        if (GC.gc.canSenseLocation(mapLocation)) {
-            long karbonite = GC.gc.karboniteAt(mapLocation);
-            if (karbonite > Const.INF) karbonite = Const.INF;
-            return (int) karbonite;
-        }
-        return -1;
     }
 }

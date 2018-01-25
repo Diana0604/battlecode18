@@ -39,7 +39,6 @@ public class WorkerUtil {
         totalKarboCollected = 0;
         workersCreated = 0;
         workerActions = new int[Mapa.W][Mapa.H];
-
         preComputeConnectivity();
         computeApproxMapValue();
     }
@@ -70,8 +69,7 @@ public class WorkerUtil {
                     if (unit.getType() == UnitType.Factory || unit.getType() == UnitType.Rocket) {
                         int dif = Units.getMaxHealth(unit.getType()) - unit.getHealth();
                         if (dif > 0) {
-                            if (!unit.isBuilt()) workerActions[i][j] = (dif + Units.buildingPower - 1) / Units.buildingPower;
-
+                            if (unit.isBlueprint()) workerActions[i][j] = (dif + Units.buildingPower - 1) / Units.buildingPower;
                             else workerActions[i][j] = (dif + Units.repairingPower - 1) / Units.repairingPower;
                         }
                     } else {
@@ -168,7 +166,7 @@ public class WorkerUtil {
             }
             return bestDir;
         }catch(Exception e) {
-            e.printStackTrace();
+            e.printStackTrace();;
             return 0;
         }
     }

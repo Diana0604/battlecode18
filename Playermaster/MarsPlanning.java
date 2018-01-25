@@ -10,7 +10,7 @@ public class MarsPlanning{
 
     private static final int AUX = 6;
     private static final int base = 0x3F;
-    private static final int DEPTH = 15;
+    private static final int DEPTH = 30;
     private static final int[] X = {0, 1, 1, 1, 0, -1, -1, -1};
     private static final int[] Y = {1, 1, 0, -1, -1, -1, 0, 1};
 
@@ -183,9 +183,8 @@ public class MarsPlanning{
             boolean[] seen_cc = new boolean[ccs + 1];
             for (int d = 0; d < 8; ++d) {
                 AuxMapLocation newLoc = loc.add(d);
-                if (!isOnMars(newLoc)) continue;
+                if (!isOnMars(newLoc) || !passable[newLoc.x][newLoc.y]) continue;
                 int comp = cc[newLoc.x][newLoc.y];
-                if (comp < 0) continue;
                 if (!seen_cc[comp]) karbo_cc[comp] += value;
                 seen_cc[comp] = true;
             }
@@ -194,15 +193,28 @@ public class MarsPlanning{
         }
     }
 
+    // basicament aquesta funcio suma value a la matriu priority comencant per initLoc va decaient gradualment fins que
+    // a distancia^2=depth suma zero
+    // els bools del final son per decidir si es suma o no a la posicio initLoc i a les seves adjacents
     private static void addPriority(double[][] priority, AuxMapLocation initLoc, int depth, double value, boolean addValueToAdj, boolean addValueToCenter) {
         try {
             if (addValueToCenter) priority[initLoc.x][initLoc.y] += value;
-            int n = Vision.Mx[depth].length;
-            for (int i = 0; i < n; ++i) {
-                AuxMapLocation newLoc = initLoc.add(new AuxMapLocation(Vision.Mx[depth][i],Vision.My[depth][i]));
-                double dist = initLoc.distanceBFSTo(newLoc);
-                if (isOnMars(newLoc) && passable[newLoc.x][newLoc.y] && dist <= depth) {
-                    if (addValueToAdj || dist > 1.8) priority[newLoc.x][newLoc.y] += value * (depth - dist) / depth;
+            HashSet<Integer> seen = new HashSet<>();
+            Queue<AuxMapLocation> queue = new LinkedList<>();
+            seen.add(initLoc.x << 6 | initLoc.y);
+            queue.offer(initLoc);
+            while (!queue.isEmpty()) {
+                AuxMapLocation loc = queue.poll();
+                for (int d = 0; d < 8; ++d) {
+                    AuxMapLocation newLoc = loc.add(d);
+                    if (!isOnMars(newLoc)) continue;
+                    if (!passable[newLoc.x][newLoc.y]) continue;
+                    int dist = initLoc.distanceSquaredTo(newLoc);
+                    if (dist > depth) continue;
+                    if (seen.contains(newLoc.x << 6 | newLoc.y)) continue;
+                    seen.add(newLoc.x << 6 | newLoc.y);
+                    queue.add(newLoc);
+                    if (addValueToAdj || dist > 2) priority[newLoc.x][newLoc.y] += value * (depth - dist) / depth;
                 }
             }
         } catch(Exception e) {
@@ -212,35 +224,35 @@ public class MarsPlanning{
 
     static AuxMapLocation bestPlaceForRound(int round) {
         try {
-            double[][] priority = new double[W][H]; // prioritat: te en compte karbonite propera i altres coets propers
+            double[][] priorityKarbo = new double[W][H]; // prioritat: te en compte karbonite propera i altres coets propers
+            double[][] priorityRockets = new double[W][H]; // prioritat: te en compte karbonite propera i altres coets propers
             double[] karbo_cc = new double[ccs + 1]; // total de karbonite de cada cc dividida entre els coets d'aquella cc +1
             for (int i = 0; i < Karbonite.asteroidRounds.length; ++i) {
                 int round_i = Karbonite.asteroidRounds[i];
-                if (round_i - round > 50) break; // no tenim en compte la karbonite que arriba en mes de 50 torns
+                if (round_i - round > 20) continue; // no tenim en compte la karbonite que arriba en mes de 50 torns
                 AuxMapLocation loc = Karbonite.asteroidLocations[i];
                 int rocketsInAdjCCs = getRocketsInAdjCCs(loc);
                 double value = (double) Karbonite.asteroidKarbo[i] / ((double) rocketsInAdjCCs + 1);
                 boolean addValueToAdj = passable[loc.x][loc.y]; // si la karbonite esta a una paret no volem que el
                 // rocket estigui tocant-la. Si la karbonite no esta en paret el rocket no molesta tant
                 // no volem mai sumar la prioritat a la casella central (on esta la karbonite)
-                addPriority(priority, loc, DEPTH, value, addValueToAdj, false);
+                addPriority(priorityKarbo, loc, DEPTH, value, addValueToAdj, false);
                 addKarboCC(karbo_cc, loc, value);
             }
             for (AuxMapLocation loc : Rocket.rocketLandingsLocs) {
-                double value = priority[loc.x][loc.y]; // el rocket resta exactament la prioritat que hi ha a la casella on cau
+                double value = priorityKarbo[loc.x][loc.y]; // el rocket resta exactament la prioritat que hi ha a la casella on cau
                 // pero ho fa en el doble de radi, per si no estava al mig del cluster de karbonite abarcar-lo tot igualment
                 // el rocket tambe resta la prioritat a la casella central i a les adjacents
-                addPriority(priority, loc, DEPTH * 2, -value, true, true);
-                priority[loc.x][loc.y] = -10000; // extra per si de cas
+                addPriority(priorityRockets, loc, DEPTH * 4, value, true, true);
+                //priorityRockets[loc.x][loc.y] = -10000; // extra per si de cas
             }
-
             AuxMapLocation bestLoc = null;
             double best_priority = 0;
             for (int x = 0; x < W; ++x) {
                 for (int y = 0; y < H; ++y) {
                     if (!passable[x][y]) continue;
                     if (bestLoc == null) bestLoc = new AuxMapLocation(x, y);
-                    double priority_xy = priority[x][y] + 100*karbo_cc[cc[x][y]];
+                    double priority_xy = priorityKarbo[x][y] - 10000*priorityRockets[x][y] + 100*karbo_cc[cc[x][y]];
                     // prioritzem karbo de la cc, i despres escollim el lloc dins de la cc
                     if (priority_xy > best_priority) {
                         best_priority = priority_xy;

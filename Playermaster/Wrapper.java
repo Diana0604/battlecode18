@@ -368,7 +368,7 @@ public class Wrapper {
 
     static int getArrivalRound(int round){
         try {
-            return (int) GC.gc.orbitPattern().duration(round);
+            return round + (int) GC.gc.orbitPattern().duration(round);
         }catch(Exception e) {
             e.printStackTrace();
             return Integer.parseInt(null);

@@ -24,9 +24,10 @@ public class WorkerUtil {
 
     static AuxMapLocation bestFactoryLocation;
 
-    static double worker_value = 42;
+    static double worker_value = 60;
 
-    final static double decrease_rate = 0.95;
+    final static double decrease_rate = 0.9;
+    final static int MIN_DIST = 6;
 
     static int workerCont;
     static int workersCreated;
@@ -265,15 +266,18 @@ public class WorkerUtil {
                     for (int t = 0; t < initialPositions.size(); ++t) {
                         mindist = Math.min(mindist, initialPositions.get(t).distanceBFSTo(mloc));
                     }
-                    approxMapValue += Karbonite.karboMap[i][j] * Math.pow(decrease_rate, mindist);
+                    approxMapValue += Karbonite.karboMap[i][j] * Math.pow(decrease_rate, Math.max(0, mindist - MIN_DIST));
                 }
             }
 
             approxMapValue /= 2;
 
-            min_nb_workers = (int)Math.max(min_nb_workers, approxMapValue / worker_value);
+            min_nb_workers = (int)Math.max(min_nb_workers, Math.floor(approxMapValue / worker_value));
 
-            //return approxMapValue;
+
+            System.out.println("Approx Map value: " + approxMapValue);
+            System.out.println("Min num workers: " + min_nb_workers);
+
         } catch (Exception e) {
             e.printStackTrace();
         }

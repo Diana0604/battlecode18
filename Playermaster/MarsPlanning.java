@@ -241,18 +241,18 @@ public class MarsPlanning{
                 addKarboCC(karbo_cc, loc, value);
             }
             for (AuxMapLocation loc : Rocket.allyRocketLandingsLocs) {
-                double value = priorityKarbo[loc.x][loc.y]; // el rocket resta exactament la prioritat que hi ha a la casella on cau
+                double value = Math.max(10, priorityKarbo[loc.x][loc.y]); // el rocket resta exactament la prioritat que hi ha a la casella on cau
                 // pero ho fa en el doble de radi, per si no estava al mig del cluster de karbonite abarcar-lo tot igualment
                 // el rocket tambe resta la prioritat a la casella central i a les adjacents
                 addPriority(priorityRockets, loc, DEPTH * 4, value, true, true);
                 //priorityRockets[loc.x][loc.y] = -10000; // extra per si de cas
             }
             for (AuxMapLocation loc: Rocket.enemyRocketLandingsLocs) {
-                double value = priorityKarbo[loc.x][loc.y]; // el rocket resta exactament la prioritat que hi ha a la casella on cau
+                double value = Math.max(10, priorityKarbo[loc.x][loc.y]); // el rocket resta exactament la prioritat que hi ha a la casella on cau
                 addPriority(priorityRockets, loc, DEPTH * 4, value, true, true);
             }
             AuxMapLocation bestLoc = null;
-            double best_priority = 0;
+            double best_priority = -Const.INF;
             for (int x = 0; x < W; ++x) {
                 for (int y = 0; y < H; ++y) {
                     if (!passable[x][y]) continue;

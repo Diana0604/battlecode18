@@ -6,29 +6,20 @@ import java.util.HashSet;
 
 public class Rocket {
 
-    static Rocket instance = null;
-
-    public static HashMap<Integer, AuxMapLocation> callsToRocket; // hauria de ser Integer,Integer amb els ids, pero per minimitzar calls al gc...
+    public static HashMap<Integer, AuxMapLocation> callsToRocket;
     public static HashSet<AuxMapLocation> rocketTakeoffs;
 
     static int[] maxUnitTypes = {1, 12, 12, 12, 12, 0, 0};
+    static final int MAX_ROUNDS_IDDLE = 50;
 
     static HashSet<AuxMapLocation> rocketLandingsLocs;
     static int[] rocketLandingsCcs; // s'instancia a MarsPlanning despres de calculars les ccs
-
-    static Rocket getInstance(){
-        if (instance == null){
-            instance = new Rocket();
-        }
-        return instance;
-    }
-
-    public Rocket() {
-        rocketLandingsLocs = new HashSet<>();
-    }
+    static HashMap<Integer, RocketData> rocketDatas;
 
     static void initGame(){
         rocketLandingsLocs = new HashSet<>();
+        rocketLandingsLocs = new HashSet<>();
+        rocketDatas = new HashMap<>();
     }
 
     static void initTurn() {
@@ -55,6 +46,8 @@ public class Rocket {
             if (!rocket.isBuilt()) return;
             if (rocket.isInSpace()) return;
             if (Mapa.onEarth()) {
+                if (!rocketDatas.containsKey(rocket.getID())) rocketDatas.put(rocket.getID(), new RocketData());
+                rocketDatas.get(rocket.getID()).roundsIddle++;
                 ArrayList<Pair> sortedUnits = getSortedUnits(rocket);
                 int[] unitTypes = getUnitTypesGarrison(rocket);
                 loadUnits(rocket, sortedUnits, unitTypes, maxUnitTypes);
@@ -141,6 +134,7 @@ public class Rocket {
             if (Wrapper.canLoad(rocket, unit)) {
                 Wrapper.load(rocket, unit);
                 unitTypes[swig]++;
+                rocketDatas.get(rocket.getID()).roundsIddle = 0;
             }
         }
     }
@@ -167,7 +161,8 @@ public class Rocket {
         if (garrisonSize == 2 && Units.rocketsLaunched == 0) return true; //first rocket ple
         if (garrisonSize == Units.rocketCapacity) return true; //rocket ple
 
-        return false; //s'hauria de fer que si no ha fet load durant 50 torns marxi...
+        if (rocketDatas.get(rocket.getID()).roundsIddle > MAX_ROUNDS_IDDLE) return true;
+        return false;
     }
 
 
@@ -205,6 +200,13 @@ public class Rocket {
         Pair(double dist, AuxUnit unit){
             this.dist = dist;
             this.unit = unit;
+        }
+    }
+
+    private static class RocketData {
+        int roundsIddle;
+        RocketData() {
+            roundsIddle = 0;
         }
     }
 

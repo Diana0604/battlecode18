@@ -17,4 +17,16 @@ public class Utils {
         round++;
         karbonite = (int) GC.gc.karbonite();
     }
+
+    static Integer encode(int i, int j){
+        return i* Const.maxMapSize+j;
+    }
+
+    static int decodeX(Integer c){
+        return c/ Const.maxMapSize;
+    }
+
+    static int decodeY(Integer c){
+        return c% Const.maxMapSize;
+    }
 }

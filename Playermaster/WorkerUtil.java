@@ -24,9 +24,10 @@ public class WorkerUtil {
 
     static AuxMapLocation bestFactoryLocation;
 
-    static double worker_value = 42;
+    static double worker_value = 60;
 
-    final static double decrease_rate = 0.95;
+    final static double decrease_rate = 0.9;
+    final static int MIN_DIST = 6;
 
     static int workerCont;
     static int workersCreated;
@@ -35,16 +36,6 @@ public class WorkerUtil {
     static boolean hasReplicated;
     static int totalKarboCollected;
 
-
-    public static void initGame(){
-        safe = true;
-        totalKarboCollected = 0;
-        workersCreated = 0;
-        workerActions = new int[Mapa.W][Mapa.H];
-
-        preComputeConnectivity();
-        computeApproxMapValue();
-    }
 
     public static void initTurn(){
         workerCont = 0;
@@ -108,40 +99,6 @@ public class WorkerUtil {
         }catch(Exception e) {
             e.printStackTrace();;
         }
-    }
-
-    static void preComputeConnectivity(){
-        connectivityArray = new boolean[(1 << 9)-1];
-        for (int i = 0; i < (1 << 9) - 1; ++i){
-            connectivityArray[i] = computeConnectivity(i);
-        }
-
-        //for (int i = 0; i < 32; ++i) System.out.println(connectivityArray[i]);
-
-    }
-
-    static boolean computeConnectivity(int s){
-        Queue<Integer> q = new LinkedList<>();
-        for (int i = 0; i < 8; ++i) {
-            if (((s >> i)&1) > 0){
-                q.add(i);
-                s = s & (~(1 << i));
-                break;
-            }
-        }
-        while (!q.isEmpty()){
-            int t = q.poll();
-            int x = 2;
-            if (t%2 == 1) x = 1;
-            for (int i = -x; i <= x; ++i){
-                int newT = (t+8-i)%8;
-                if (((s >> newT)&1) > 0){
-                    q.add(newT);
-                    s = s &(~(1 << newT));
-                }
-            }
-        }
-        return s == 0;
     }
 
     /*
@@ -235,49 +192,6 @@ public class WorkerUtil {
         }
     }
 
-
-    static void computeApproxMapValue() {
-        try {
-            approxMapValue = 0;
-            VecUnit v = Mapa.planetMap.getInitial_units();
-
-            ArrayList<AuxMapLocation> initialPositions = new ArrayList<>();
-
-            for (int i = 0; i < v.size(); ++i) {
-                Location loc = v.get(i).location();
-                if (!loc.isInGarrison()) {
-                    MapLocation mLoc = loc.mapLocation();
-                    int x = mLoc.getX();
-                    int y = mLoc.getY();
-                    AuxMapLocation mloc = new AuxMapLocation(x, y);
-                    initialPositions.add(mloc);
-                    if (i % 2 == 0){
-                        ++min_nb_workers;
-                        ++workersCreated;
-                    }
-                }
-            }
-
-            for (int i = 0; i < Mapa.W; ++i) {
-                for (int j = 0; j < Mapa.H; ++j) {
-                    AuxMapLocation mloc = new AuxMapLocation(i, j);
-                    double mindist = 1000000;
-                    for (int t = 0; t < initialPositions.size(); ++t) {
-                        mindist = Math.min(mindist, initialPositions.get(t).distanceBFSTo(mloc));
-                    }
-                    approxMapValue += Karbonite.karboMap[i][j] * Math.pow(decrease_rate, mindist);
-                }
-            }
-
-            approxMapValue /= 2;
-
-            min_nb_workers = (int)Math.max(min_nb_workers, approxMapValue / worker_value);
-
-            //return approxMapValue;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     static boolean getConnectivity(AuxMapLocation loc){
         int a = 0;

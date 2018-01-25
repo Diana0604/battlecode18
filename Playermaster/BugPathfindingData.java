@@ -2,12 +2,12 @@ public class BugPathfindingData {
     public AuxMapLocation obstacle = null;
     public AuxMapLocation target = null;
     public boolean left = true;
-    public double minDist = Const.INF;
+    public double minDist = Const.INFS;
 
     void reset(){
         target = null;
         obstacle = null;
-        minDist = Const.INF;
+        minDist = Const.INFS;
     }
 
     void soft_reset(AuxMapLocation m){

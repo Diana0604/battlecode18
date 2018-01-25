@@ -19,6 +19,8 @@ class Danger {
     private static AuxMapLocation[] locUnits, locEnemyUnits;
     private static boolean[] dangUnits, dangEnemyUnits, visitedUnits, visitedEnemyUnits;
 
+    static Queue<Integer> myQueue, enemyQueue;
+
     static void initTurn(){
         updateAttackers();
         updateDangerMatrix();
@@ -26,8 +28,36 @@ class Danger {
     }
 
     static void updateDangerMatrix(){
-        myDist = new int[Mapa.W][Mapa.H];
-        enemyDist = new int[Mapa.W][Mapa.H];
+
+        while (!myQueue.isEmpty()){
+            int a = myQueue.poll();
+            AuxMapLocation loc = new AuxMapLocation(a);
+            int d = myDist[loc.x][loc.y];
+            for (int i = 0; i < 8; ++i){
+                AuxMapLocation newLoc = loc.add(i);
+                if (newLoc.isOnMap()){
+                    if (myDist[newLoc.x][newLoc.y] == 0){
+                        myDist[newLoc.x][newLoc.y] = d+1;
+                        if (newLoc.isPassable()) myQueue.add(newLoc.encode());
+                    }
+                }
+            }
+        }
+
+        while (!enemyQueue.isEmpty()){
+            int a = enemyQueue.poll();
+            AuxMapLocation loc = new AuxMapLocation(a);
+            int d = enemyDist[loc.x][loc.y];
+            for (int i = 0; i < 8; ++i){
+                AuxMapLocation newLoc = loc.add(i);
+                if (newLoc.isOnMap()){
+                    if (enemyDist[newLoc.x][newLoc.y] == 0){
+                        enemyDist[newLoc.x][newLoc.y] = d+1;
+                        if (newLoc.isPassable()) enemyQueue.add(newLoc.encode());
+                    }
+                }
+            }
+        }
     }
 
     //MyLoc = position, canMove = directions you want to compute {9 is center}
@@ -53,7 +83,7 @@ class Danger {
             data.minDist = new int[9];
             for (int i = 0; i < 9; ++i) {
                 data.DPS[i] = 0;
-                data.minDist[i] = Const.INF;
+                data.minDist[i] = Const.INFS;
                 data.DPSlong[i] = 0;
             }
 
@@ -102,6 +132,8 @@ class Danger {
 
     private static void updateAttackers(){
         try {
+            myQueue = new LinkedList<>();
+            enemyQueue = new LinkedList<>();
             int n = Units.myUnits.size();
             int m = Units.enemies.size();
 
@@ -116,12 +148,19 @@ class Danger {
 
             attackers = new HashSet<>();
 
+            myDist = new int[Mapa.W][Mapa.H];
+            enemyDist = new int[Mapa.W][Mapa.H];
+
             for (int i = 0; i < n; ++i) {
                 AuxUnit unit = Units.myUnits.get(i);
                 dangUnits[i] = dangerousUnit(unit);
                 locUnits[i] = unit.getMapLocation();
                 if (locUnits[i] == null) dangUnits[i] = false;
                 visitedUnits[i] = false;
+                if (unit.getType() != UnitType.Worker){
+                    myQueue.add(unit.getMapLocation().encode());
+                    myDist[locUnits[i].x][locUnits[i].y] = 1;
+                }
             }
 
             for (int i = 0; i < m; ++i) {
@@ -129,6 +168,10 @@ class Danger {
                 locEnemyUnits[i] = unit.getMapLocation();
                 dangEnemyUnits[i] = dangerousUnit(unit);
                 visitedEnemyUnits[i] = false;
+                if (unit.getType() != UnitType.Worker){
+                    enemyQueue.add(unit.getMapLocation().encode());
+                    myDist[locEnemyUnits[i].x][locEnemyUnits[i].y] = 1;
+                }
             }
 
 

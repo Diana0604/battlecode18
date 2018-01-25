@@ -10,6 +10,7 @@ import java.util.Queue;
 public class WorkerUtil {
 
     static int[][] workerActions;
+    static int[][] workerActionsExpanded;
     static int approxMapValue = 0;
     static int min_nb_workers = 3;
     static int extra_workers;
@@ -53,42 +54,57 @@ public class WorkerUtil {
     }
 
 
+    static void putAction(AuxMapLocation m, int val){
+        workerActions[m.x][m.y] = val;
+        for (int i = 0; i < 9; ++i){
+            AuxMapLocation newLoc = m.add(i);
+            if (newLoc.isOnMap() && newLoc.isPassable()){
+                workerActionsExpanded[newLoc.x][newLoc.y] += val;
+            }
+        }
+    }
+
     //emplena la matriu worker actions
     //worker actions[i][j] = quantes accions de worker hi ha a la posicio (i,j)
     //also puts in the map where workers are close
     static void fillWorkerActions(){
         try {
             workerAreas = new int[Mapa.W][Mapa.H];
+            workerActionsExpanded = new int[Mapa.W][Mapa.H];
             importantLocations = new ArrayList<>();
             extra_workers = 0;
             for (int i = 0; i < Mapa.W; ++i) {
                 for (int j = 0; j < Mapa.H; ++j) {
-                    AuxUnit unit = new AuxMapLocation(i,j).getUnit(true);
+                    AuxMapLocation currentLoc = new AuxMapLocation(i,j);
+                    AuxUnit unit = currentLoc.getUnit(true);
                     if (unit == null) {
-                        workerActions[i][j] = (Karbonite.karboMap[i][j] + (Units.harvestingPower - 1)) / Units.harvestingPower;
-                        if (workerActions[i][j] > 0) importantLocations.add(new AuxMapLocation(i,j));
+                        putAction(currentLoc, (Karbonite.karboMap[i][j] + (Units.harvestingPower - 1)) / Units.harvestingPower);
                         continue;
                     }
                     if (unit.getType() == UnitType.Factory || unit.getType() == UnitType.Rocket) {
                         int dif = Units.getMaxHealth(unit.getType()) - unit.getHealth();
                         if (dif > 0) {
-                            if (!unit.isBuilt()) workerActions[i][j] = (dif + Units.buildingPower - 1) / Units.buildingPower;
+                            if (!unit.isBuilt()) putAction(currentLoc, (dif + Units.buildingPower - 1) / Units.buildingPower);
 
-                            else workerActions[i][j] = (dif + Units.repairingPower - 1) / Units.repairingPower;
+                            else putAction(currentLoc, (dif + Units.repairingPower - 1) / Units.repairingPower);
                         }
                     } else {
                         if (unit.getType() == UnitType.Worker){
                             for (int k = 0; k < Vision.Mx[workerRadius].length; ++k){
-                                AuxMapLocation newLoc = new AuxMapLocation(i,j).add(new AuxMapLocation(Vision.Mx[workerRadius][k], Vision.My[workerRadius][k]));
+                                AuxMapLocation newLoc = currentLoc.add(new AuxMapLocation(Vision.Mx[workerRadius][k], Vision.My[workerRadius][k]));
                                 if (newLoc.isOnMap()) ++workerAreas[newLoc.x][newLoc.y];
                             }
                         }
-                        workerActions[i][j] = (Karbonite.karboMap[i][j] + (Units.harvestingPower - 1)) / Units.harvestingPower;
+                        putAction(currentLoc, (Karbonite.karboMap[i][j] + Units.harvestingPower - 1) / Units.harvestingPower);
                     }
-                    if (workerActions[i][j] > 0) importantLocations.add(new AuxMapLocation(i,j));
                 }
             }
 
+            for (int i = 0; i < Mapa.W; ++i) {
+                for (int j = 0; j < Mapa.H; ++j) {
+                    if (workerActionsExpanded[i][j] > 0) importantLocations.add(new AuxMapLocation(i,j));
+                }
+            }
         }catch(Exception e) {
             e.printStackTrace();;
         }

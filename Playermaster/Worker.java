@@ -251,7 +251,7 @@ public class Worker {
             double priority = 0;
             for (int i = 0; i < WorkerUtil.importantLocations.size(); ++i){
                 AuxMapLocation loc = WorkerUtil.importantLocations.get(i);
-                double newPriority = WorkerUtil.workerActions[loc.x][loc.y];
+                double newPriority = WorkerUtil.workerActionsExpanded[loc.x][loc.y];
                 newPriority /= (WorkerUtil.workersDeployed[loc.x][loc.y]+1);
                 newPriority /= (loc.distanceBFSTo(unit.getMapLocation()) + dist_offset);
                 if (newPriority > priority) {

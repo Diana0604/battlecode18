@@ -5,49 +5,33 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Worker {
-
-    private static Worker instance = null;
-
-    static Worker getInstance(){
-        if (instance == null) instance = new Worker();
-        return instance;
-    }
-
-    public Worker(){
-        WorkerUtil.computeApproxMapValue();
-    }
-
-    private AuxUnit unit;
-    private boolean danger;
+    private static boolean danger;
     private boolean wait;
-    private final int MAX_FACTORIES = 5;
+    private static final int MAX_FACTORIES = 5;
 
 
 
     /*----------- ACTIONS ------------*/
 
-    boolean doAction(AuxUnit _unit){
+    static void doAction(AuxUnit unit, boolean firstTime){
         try {
-            unit = _unit;
-            tryReplicate(_unit);
-            if (!unit.canAttack()) return true;
-            if (tryBuildAndRepair()) return true;
-            if (tryPlaceBlueprint()) {
-                unit.canMove = false;
-                return true;
+            boolean acted;
+            boolean willReplicate = shouldReplicate(unit) && canReplicate(unit);
+            if (unit.canAttack()) {
+                acted = tryBuildAndRepair(unit);
+                if (!acted && !willReplicate) acted = tryPlaceBlueprint(unit);
+                if (!acted) tryMine(unit);
             }
-            if (tryMine()) return true;
-            return false;
+            if (!firstTime) tryReplicate(unit);
         }catch(Exception e) {
             e.printStackTrace();
-            return false;
         }
     }
 
-    private boolean tryReplicate(AuxUnit unit){
+    private static boolean tryReplicate(AuxUnit unit){
         try {
             if (!unit.canUseAbility()) return false;
-            if (shouldReplicate()) {
+            if (shouldReplicate(unit)) {
                 int dir = 0;
                 if (unit.target != null) dir = unit.getMapLocation().dirBFSTo(unit.target);
                 for (int i = 0; i <= 4; ++i) {
@@ -65,8 +49,9 @@ public class Worker {
         }
     }
 
-    private boolean tryReplicateDir(AuxUnit unit, int dir){
+    private static boolean tryReplicateDir(AuxUnit unit, int dir){
         if (Wrapper.canReplicate(unit, dir)) {
+
             AuxUnit newWorker = Wrapper.replicate(unit, dir);
             Units.unitTypeCount.put(UnitType.Worker, Units.unitTypeCount.get(UnitType.Worker) + 1);
             WorkerUtil.extra_workers++;
@@ -75,23 +60,31 @@ public class Worker {
             int newID = newWorker.getID();
             Units.myUnits.add(newWorker);
             Units.allUnits.put(newID, index);
+            Units.robots.add(index);
             Units.workers.add(index);
             Units.unitMap[newWorker.getX()][newWorker.getY()] = index + 1;
             newWorker.target = getTarget(newWorker);
-            doAction(newWorker);
+            doAction(newWorker, true);
             UnitManager.move(newWorker);
-            doAction(newWorker);
+            doAction(newWorker, false);
             return true;
         }
         return false;
     }
 
-    private boolean shouldReplicate(){
-        if (Mapa.onEarth()) return shouldReplicateEarth();
-        else return shouldReplicateMars();
+    private static boolean canReplicate(AuxUnit unit){
+        for (int i = 0; i < 8; ++i) {
+            if (Wrapper.canReplicate(unit, i)) return true;
+        }
+        return false;
     }
 
-    private boolean shouldReplicateEarth(){
+    private static boolean shouldReplicate(AuxUnit unit){
+        if (Mapa.onEarth()) return shouldReplicateEarth(unit);
+        else return shouldReplicateMars(unit);
+    }
+
+    private static boolean shouldReplicateEarth(AuxUnit unit){
         try {
             Danger.computeDanger(unit);
             boolean danger = (Danger.DPSlong[8] > 0);
@@ -105,7 +98,7 @@ public class Worker {
         }
     }
 
-    private boolean shouldReplicateMars(){
+    private static boolean shouldReplicateMars(AuxUnit unit){
         if (Utils.round > 750) return true;
         if (Utils.karbonite > 120) return true;
         //if (Utils.karbonite < 40) return false; //no se si aixo va be o no
@@ -120,7 +113,7 @@ public class Worker {
     }
 
     //Intenta reparar o construir una structure adjacent
-    private boolean tryBuildAndRepair(){
+    private static boolean tryBuildAndRepair(AuxUnit unit){
         try {
             if (Mapa.onMars()) return false;
             int minDif = 1000;
@@ -164,7 +157,7 @@ public class Worker {
     }
 
     //Posen un blueprint en una posicio adjacent (aixo s'ha de canviar quan ho fem global)
-    private boolean tryPlaceBlueprint(){
+    private static boolean tryPlaceBlueprint(AuxUnit unit){
         try {
             if (Mapa.onMars()) return false;
             if (danger) return false;
@@ -186,7 +179,7 @@ public class Worker {
         }
     }
 
-    private UnitType chooseStructure(){
+    private static UnitType chooseStructure(){
         boolean canBuildRocket = Research.researchInfo.getLevel(UnitType.Rocket) > 0;
         boolean isFirstRocket = Units.firstRocket && Units.unitTypeCount.get(UnitType.Rocket) == 0;
 
@@ -201,10 +194,9 @@ public class Worker {
     }
 
     //minen una mina adjacent
-    private boolean tryMine(){
+    private static boolean tryMine(AuxUnit unit){
         try {
-            //System.out.println("Trying to mine! " + unit.getID());
-            int dir = WorkerUtil.getMostKarboLocation(unit.getMapLocation());
+              int dir = WorkerUtil.getMostKarboLocation(unit.getMapLocation());
             AuxMapLocation newLoc = unit.getMapLocation().add(dir);
             if (Karbonite.karboMap[newLoc.x][newLoc.y] > 0 && Wrapper.canHarvest(unit, dir)) {
                 Wrapper.harvest(unit, dir);
@@ -222,28 +214,27 @@ public class Worker {
 
     /*-------------- Targets ---------------*/
 
-    AuxMapLocation getTarget(AuxUnit _unit){
-        unit = _unit;
-        if (Mapa.onEarth()) return earthTarget();
-        return marsTarget();
+    static AuxMapLocation getTarget(AuxUnit unit){
+        if (Mapa.onEarth()) return earthTarget(unit);
+        return marsTarget(unit);
     }
 
-    private AuxMapLocation earthTarget(){
+    private static AuxMapLocation earthTarget(AuxUnit unit){
         try {
             if (!unit.canMove()) return null;
 
             ArrayList<Target> targets = new ArrayList<>();
 
-            Target rocket = getRocketTarget();
+            Target rocket = getRocketTarget(unit);
             if (rocket != null) targets.add(rocket);
 
-            Target karboTarget = getKarboniteTarget();
+            Target karboTarget = getKarboniteTarget(unit);
             if (karboTarget != null) targets.add(karboTarget);
 
-            Target buildTarget = getBuildTarget();
+            Target buildTarget = getBuildTarget(unit);
             if (buildTarget != null) targets.add(buildTarget);
 
-            Target repairTarget = getRepairTarget();
+            Target repairTarget = getRepairTarget(unit);
             if (repairTarget != null) targets.add(repairTarget);
 
             targets.sort((a, b) -> targetEval(a) < targetEval(b) ? -1 : targetEval(a) == targetEval(b) ? 0 : 1);
@@ -263,7 +254,7 @@ public class Worker {
         return null;
     }
 
-    private AuxMapLocation marsTarget(){
+    private static AuxMapLocation marsTarget(AuxUnit unit){
         try{
             if (!unit.canMove()) return null;
             //asteroidTasks.get(positiu) retorna el worker assignat a la location codificada
@@ -330,7 +321,7 @@ public class Worker {
     }
 
     //value = worker turns, capat a 50
-    private Target getKarboniteTarget(){
+    private static Target getKarboniteTarget(AuxUnit unit){
         try {
             final int KARBONITE_MULTIPLIER = 1;
             Target ans = null;
@@ -357,7 +348,7 @@ public class Worker {
     }
 
     //value = 20 * worker turns
-    private Target getBuildTarget() {
+    private static Target getBuildTarget(AuxUnit unit) {
         try {
             final int BLUEPRINT_MULTIPLIER = 20;
             if (Units.blueprintsToBuild.containsKey(unit.getID())) {
@@ -383,7 +374,7 @@ public class Worker {
     }
 
     //value = 10 * worker turns
-    private Target getRepairTarget(){
+    private static Target getRepairTarget(AuxUnit unit){
         try{
             final int STRUCTURE_MULTIPLIER = 10;
             if (Units.structuresToRepair.containsKey(unit.getID())) {
@@ -408,7 +399,7 @@ public class Worker {
     }
 
     //value = 200
-    private Target getRocketTarget() {
+    private static Target getRocketTarget(AuxUnit unit) {
         try {
             final int ROCKET_MULTIPLIER = 200;
             AuxMapLocation mLoc = Rocket.callsToRocket.get(unit.getID());
@@ -420,7 +411,7 @@ public class Worker {
         }
     }
 
-    private double targetEval(Target a){
+    private static double targetEval(Target a){
         try {
             return -(a.value / (a.dist + 1));
         }catch(Exception e) {
@@ -429,7 +420,7 @@ public class Worker {
         }
     }
 
-    private class Target {
+    private static class Target {
         double value;
         double dist;
         AuxMapLocation mloc;

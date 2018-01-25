@@ -14,7 +14,7 @@ public class Karbonite {
     //static AsteroidStrike[] asteroidStrikes;
     private static AsteroidPattern asteroidPattern;
     static AuxMapLocation[] asteroidLocations;
-    static Integer[] asteroidCarbo;
+    static Integer[] asteroidKarbo;
     static int[][] karboMap;
 
     public static void initGame(){
@@ -23,20 +23,24 @@ public class Karbonite {
         asteroidTasksLocs = new HashMap<>();
         asteroidTasksIDs = new HashMap<>();
         addInitialKarbo();
+        fillKarboMap();
     }
 
     private static void addInitialKarbo(){
+        //System.out.println("ok1");
         for (int x = 0; x < Mapa.W; ++x) {
+            //System.out.println("ok2");
             for (int y = 0; y < Mapa.H; ++y) {
+                //System.out.println("ok3");
                 int karbonite = Mapa.getInitialKarbo(x,y);
                 if (karbonite > Const.INF) karbonite = Const.INF;
                 if (karbonite > 0) Karbonite.putMine(x, y, karbonite);
+                //System.out.println("Afegeix karbo " + x + "," + y + ": " + karbonite);
             }
         }
     }
 
     public static void initTurn(){
-        karboMap = new int[Mapa.W][Mapa.H];
         updateKarboniteAt();
         updateAsteroidStrikes();
         fillKarboMap();
@@ -51,7 +55,8 @@ public class Karbonite {
             int value = entry.getValue();
             if (karbonite > 0) {
                 if (karbonite != value) putMine(location.x, location.y, karbonite);
-            } else it.remove();
+            }
+            if (karbonite == 0) it.remove();
         }
     }
 
@@ -97,15 +102,16 @@ public class Karbonite {
 
     private static void fillKarboMap(){
         karboMap = new int[Mapa.W][Mapa.H];
+        //System.out.println("In fillkarbomap");
         for (Integer a : karboniteAt.keySet()) {
             AuxMapLocation loc = new AuxMapLocation(a);
             karboMap[loc.x][loc.y] = karboniteAt.get(a);
+            //System.out.println(loc + " contains karbo " + karboniteAt.get(a));
         }
     }
 
     private static void putMine(AuxMapLocation loc, int value){
-        int encoding = loc.encode();
-        karboniteAt.put(encoding, value);
+        karboniteAt.put(loc.encode(), value);
     }
 
     private static void putMine(int x, int y, int value){

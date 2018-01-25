@@ -21,6 +21,10 @@ public class AuxUnit {
     public Boolean canMove;
     public Boolean canAttack; //for workers it counts harvest as action, and healers == heal
     public Boolean canUseAbility;
+    public Boolean structure;
+    public Boolean blueprint;
+    public Boolean robot;
+    public Boolean troop;
     public UnitType type;
     public boolean myTeam;
 
@@ -40,14 +44,18 @@ public class AuxUnit {
         unit = _unit;
         id = null;
         loc = null;
+        type = null;
+        structure = null;
+        troop = null;
+        robot = null;
+        blueprint = null;
+        built = null;
         garrison = null;
         inSpace = null;
         mloc = null;
         canMove = null;
         canAttack = null;
         canUseAbility = null;
-        type = null;
-        built = null;
         garrisonUnits = null;
         health = null;
         maxHealth = null;
@@ -99,15 +107,6 @@ public class AuxUnit {
         }
     }
 
-    public boolean isBuilt(){
-        try {
-            if (built == null) built = (unit.structureIsBuilt() > 0);
-            return built;
-        }catch(Exception e) {
-            e.printStackTrace();
-            return true;
-        }
-    }
 
     public AuxMapLocation getMapLocation(){
         try {
@@ -234,6 +233,30 @@ public class AuxUnit {
         }
     }
 
+    public boolean isStructure(){
+        if (structure == null) structure = (getType() == UnitType.Factory || getType() == UnitType.Rocket);
+        return structure;
+    }
+
+    public boolean isRobot(){
+        if (robot == null) robot = !isStructure();
+        return robot;
+    }
+
+    public boolean isTroop(){
+        if (troop == null) troop = isRobot() && getType() != UnitType.Worker;
+        return troop;
+    }
+
+    public boolean isBlueprint(){
+        if (blueprint == null) blueprint = isStructure() && unit.structureIsBuilt() == 0;
+        return blueprint;
+    }
+
+    public boolean isBuilt(){
+        if (built == null) built = isStructure() && unit.structureIsBuilt() > 0;
+        return built;
+    }
 
 
 }

@@ -239,15 +239,14 @@ public class Mage {
         try {
             double minDist = 100000;
             AuxMapLocation ans = null;
-            for (AuxUnit u: Units.myUnits) {
-                if (u.getType() == UnitType.Healer) {
-                    AuxMapLocation mLoc = u.getMapLocation();
-                    if (mLoc != null) {
-                        double d = loc.distanceBFSTo(mLoc);
-                        if (d < minDist) {
-                            minDist = d;
-                            ans = mLoc;
-                        }
+            for (int index: Units.healers){
+                AuxUnit u = Units.myUnits.get(index);
+                AuxMapLocation mLoc = u.getMapLocation();
+                if (mLoc != null) {
+                    double d = loc.distanceBFSTo(mLoc);
+                    if (d < minDist) {
+                        minDist = d;
+                        ans = mLoc;
                     }
                 }
             }

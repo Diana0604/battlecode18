@@ -21,20 +21,15 @@ public class Overcharge {
 
             int MAX_RANGE = 30;
 
-            for (int i = 0; i < n; ++i) {
-                AuxUnit unit1 = Units.myUnits.get(i);
-                if (!unit1.isInGarrison()) {
-                    if (unit1.getType() == UnitType.Ranger) { //todo tenir arrays per healers i rangers
-                        for (int j = 0; j < n; ++j) {
-                            AuxUnit unit2 = Units.myUnits.get(j);
-                            if (unit2.isInGarrison()) continue;
-                            if (unit2.getType() == UnitType.Healer) {
-                                if (!unit2.canUseAbility()) continue;
-                                int l = (unit1.getMapLocation().distanceSquaredTo(unit2.getMapLocation()));
-                                if (l <= MAX_RANGE) adjMatrix[i].add(j);
-                            }
-                        }
-                    }
+            for (int index: Units.rangers){
+                AuxUnit unit1 = Units.myUnits.get(index);
+                if (unit1.isInGarrison()) continue;
+                for (int index2: Units.healers){
+                    AuxUnit unit2 = Units.myUnits.get(index2);
+                    if (unit2.isInGarrison()) continue;
+                    if (!unit2.canUseAbility()) continue;
+                    int l = (unit1.getMapLocation().distanceSquaredTo(unit2.getMapLocation()));
+                    if (l <= MAX_RANGE) adjMatrix[index].add(index2);
                 }
             }
         } catch(Exception e) {

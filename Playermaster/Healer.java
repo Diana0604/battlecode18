@@ -2,6 +2,7 @@
 
 import bc.UnitType;
 
+import javax.naming.AuthenticationNotSupportedException;
 import java.util.HashMap;
 
 public class Healer {
@@ -57,30 +58,34 @@ public class Healer {
         }
     }
 
-    // todo arreglar aixo, que prioritzi tropes o algo
-    AuxMapLocation getBestUnit(AuxMapLocation loc){
+    private AuxMapLocation getBestUnit(AuxMapLocation loc){
         try {
-            double minDist = 500000;
-            AuxMapLocation ans = null;
-            for (int i = 0; i < Units.myUnits.size(); ++i) {
-                AuxUnit u = Units.myUnits.get(i);
-                if (!Units.structures.contains(i)) {
-                    if (u.getHealth() < Units.getMaxHealth(u.getType())) {
-                        AuxMapLocation mLoc = u.getMapLocation();
-                        if (mLoc != null) {
-                            double d = mLoc.distanceBFSTo(loc);
-                            if (d < minDist) {
-                                ans = mLoc;
-                                minDist = d;
-                            }
-                        }
-                    }
-                }
+            AuxUnit bestUnit = null;
+            for (int index: Units.robots){
+                AuxUnit u = Units.myUnits.get(index);
+                if (u.getHealth() < Units.getMaxHealth(u.getType())) bestUnit = compareUnits(loc, bestUnit, u);
             }
-            return ans;
+            if (bestUnit == null) return null;
+            return bestUnit.getMapLocation();
         }catch(Exception e) {
             e.printStackTrace();
             return null;
         }
+    }
+
+    private AuxUnit compareUnits(AuxMapLocation myLoc, AuxUnit unit1, AuxUnit unit2){
+        if (unit1 == null) return unit2;
+        if (unit2 == null) return unit1;
+
+        if (unit1.frontline && !unit2.frontline) return unit1;
+        if (!unit1.frontline && unit2.frontline) return unit2;
+
+        if (unit1.isTroop() && !unit2.isTroop()) return unit1;
+        if (!unit1.isTroop() && unit2.isTroop()) return unit2;
+
+        double d1 = myLoc.distanceBFSTo(unit1.getMapLocation());
+        double d2 = myLoc.distanceBFSTo(unit2.getMapLocation());
+        if (d1 > d2) return unit1; //triem la tropa mes llunyana (?)
+        return unit2;
     }
 }

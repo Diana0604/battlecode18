@@ -30,6 +30,7 @@ public class WorkerUtil {
 
     public static void initGame(){
         workerActions = new int[Mapa.W][Mapa.H];
+        WorkerUtil.computeApproxMapValue();
     }
 
     public static void initTurn(){
@@ -150,7 +151,7 @@ public class WorkerUtil {
             }
             return bestDir;
         }catch(Exception e) {
-            e.printStackTrace();;
+            e.printStackTrace();
             return 0;
         }
     }

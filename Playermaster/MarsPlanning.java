@@ -93,7 +93,7 @@ public class MarsPlanning{
             }
             Karbonite.asteroidRounds = aRounds.toArray(new Integer[0]);
             //GC.asteroidStrikes = aStrikes.toArray(new AsteroidStrike[0]);
-            Karbonite.asteroidCarbo = aCarbo.toArray(new Integer[0]);
+            Karbonite.asteroidKarbo = aCarbo.toArray(new Integer[0]);
             Karbonite.asteroidLocations = locCarbo.toArray(new AuxMapLocation[0]);
         }
         catch(Exception e) {
@@ -242,7 +242,7 @@ public class MarsPlanning{
                 if (round_i - round > 50) break;
                 AuxMapLocation loc = Karbonite.asteroidLocations[i];
                 int rocketsInAdjCCs = getRocketsInAdjCCs(loc);
-                double value = (double) Karbonite.asteroidCarbo[i] / ((double) rocketsInAdjCCs + 1);
+                double value = (double) Karbonite.asteroidKarbo[i] / ((double) rocketsInAdjCCs + 1);
                 boolean addValueToAdj = passable[loc.x][loc.y];
                 addPriority(priority, loc, DEPTH, value, addValueToAdj, false);
                 addKarboCC(karbo_cc, loc, 100 * value);

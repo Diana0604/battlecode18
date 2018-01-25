@@ -160,9 +160,22 @@ public class Units {
 
     private static void updateStructures(){
         for (int i = 0; i < myUnits.size(); i++) {
-            UnitType type = myUnits.get(i).getType();
-            if (type == UnitType.Rocket || type == UnitType.Factory) structures.add(i);
-            if (type == UnitType.Rocket) rockets.add(i);
+            AuxUnit unit = myUnits.get(i);
+            UnitType type = unit.getType();
+            if (unit.isStructure()) {
+                structures.add(i);
+                if (type == UnitType.Rocket) rockets.add(i);
+                if (type == UnitType.Factory) factories.add(i);
+                if (unit.isBlueprint()) blueprints.add(i);
+            }else{
+                robots.add(i);
+                if (type == UnitType.Worker) workers.add(i);
+                if (type == UnitType.Knight) knights.add(i);
+                if (type == UnitType.Ranger) rangers.add(i);
+                if (type == UnitType.Healer) healers.add(i);
+                if (type == UnitType.Mage) mages.add(i);
+
+            }
         }
     }
 
@@ -208,12 +221,10 @@ public class Units {
     private static void updateBlueprintsToBuild(){
         final int MAX_WORKERS_TO_CALL = 6;
 
-        for (int index : structures) {
+        for (int index : blueprints) {
             //Per cada blueprint, crida els 6 workers mes propers a construir-lo
             AuxUnit bp = myUnits.get(index);
-            if (bp.isBuilt()) continue;
             if (bp.isMaxHealth()) continue;
-
             ArrayList<Pair> sorted = new ArrayList<>();
             for (int index2 : workers) {
                 AuxUnit worker = myUnits.get(index2);
@@ -240,7 +251,7 @@ public class Units {
         for (int index : structures) {
             //Per cada blueprint, crida els 8 workers mes propers a construir-lo
             AuxUnit s = myUnits.get(index);
-            if (!s.isBuilt()) continue;
+            if (s.isBlueprint()) continue;
             if (s.isMaxHealth()) continue;
 
             ArrayList<Pair> sorted = new ArrayList<>();

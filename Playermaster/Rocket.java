@@ -56,7 +56,7 @@ public class Rocket {
                 callRemainingRobots(rocket, sortedUnits, unitTypes, maxUnitTypes);
                 boolean willLaunch = shouldLaunch(rocket);
                 if (willLaunch) rocketTakeoffs.add(rocket.getMapLocation());
-            } else if (rocket.getLocation().isOnPlanet(Planet.Mars)) {
+            } else if (Mapa.onMars()) {
                 if (rocket.getGarrisonUnits().size() > 0) {
                     for (int i = 0; i < 8; ++i) {
                         if (Wrapper.canUnload(rocket, i)) Wrapper.unload(rocket, i);

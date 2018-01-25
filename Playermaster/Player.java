@@ -7,7 +7,7 @@ public class Player {
             GC.initGame(gc);
             while (true) {
                 try {
-                    if (Utils.round % 100 == 99) System.gc();
+                    if (Utils.round % 10 == 1) System.gc();
                     GC.initTurn();
                     //if(GC.onEarth() && GC.round >= 745) System.err.println("Before moving");
                     //if(GC.onEarth() && GC.round >= 745) GC.printData();

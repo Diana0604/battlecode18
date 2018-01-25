@@ -83,7 +83,6 @@ public class Wrapper {
             AuxUnit unloadedUnit = Units.myUnits.get(posAtArray);
             unloadedUnit.canMove = false;
             unloadedUnit.garrison = false;
-            unloadedUnit.loc = unloadedUnit.unit.location();
             unloadedUnit.mloc = newLoc;
             Units.unitMap[newLoc.x][newLoc.y] = posAtArray + 1;
 
@@ -431,7 +430,6 @@ public class Wrapper {
             u2.mloc = u1.getMapLocation();
             u2.canMove = false;
             u2.canAttack = false;
-            u2.loc = u2.unit.location();
             u1.getGarrisonUnits().add(u2.getID());
             GC.gc.load(u1.getID(), u2.getID());
         }catch(Exception e) {

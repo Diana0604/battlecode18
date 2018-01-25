@@ -222,7 +222,7 @@ public class MovementManager {
                         }
                     }
                     if (u.getType() != UnitType.Factory && u.getType() != UnitType.Rocket) {
-                        if (u.getType() == unit.getType()){
+                        if (u.getType() == unit.getType() && u.getType() == UnitType.Worker && u.canMove()){
                             if (u.target != null){
                                 AuxMapLocation auxTarget = u.target;
                                 u.target = unit.target;
@@ -235,6 +235,9 @@ public class MovementManager {
                         }
                     }
                 }
+
+                //if (unit.getType() == UnitType.Ranger || unit.getType() == UnitType.Mage) break;
+
             }
 
             myLoc = unit.getMapLocation();

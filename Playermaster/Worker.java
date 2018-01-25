@@ -7,7 +7,7 @@ import java.util.Map;
 public class Worker {
 
     static Worker instance = null;
-    static final int dist_offset = 20;
+    static final int dist_offset = 1;
 
     static Worker getInstance(){
         if (instance == null) instance = new Worker();
@@ -79,6 +79,7 @@ public class Worker {
             Units.robots.add(index);
             Units.workers.add(index);
             Units.unitMap[newWorker.getX()][newWorker.getY()] = index + 1;
+            WorkerUtil.hasReplicated = true;
             newWorker.target = getTarget(newWorker);
             doAction(newWorker, true);
             UnitManager.move(newWorker);
@@ -102,6 +103,7 @@ public class Worker {
 
     private static boolean shouldReplicateEarth(AuxUnit unit){
         try {
+            if (WorkerUtil.hasReplicated) return false;
             Danger.computeDanger(unit);
             boolean danger = (Danger.DPSlong[8] > 0);
             if (danger) return false;
@@ -230,8 +232,8 @@ public class Worker {
     }
 
     double hasTarget(AuxUnit unit){
-        if (!targets.containsKey(unit.getID())) return 0.5;
-        return 0.001*targets.get(unit.getID());
+        if (!targets.containsKey(unit.getID())) return 0;
+        return 0.5 - 0.0001*targets.get(unit.getID());
     }
 
 

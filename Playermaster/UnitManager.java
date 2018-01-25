@@ -29,8 +29,9 @@ class UnitManager{
 
     static void selectTargets(){
         for (AuxUnit unit: Units.myUnits) {
+            if (unit.isInSpace()) continue;
             //System.err.println("playing unit " + GC.myUnits[i].getType());
-            if (unit.isInGarrison()) continue;
+            //if (unit.isInGarrison()) continue;
             if (unit.getType() == UnitType.Worker) {
                 unit.target = Worker.getTarget(unit);
             }
@@ -47,10 +48,18 @@ class UnitManager{
     }
 
     static void move(AuxUnit unit){
-        if (unit.isInGarrison()) return;
-        if (!unit.canMove()) return;
-        if (unit.target == null) return;
+        if (unit.isInGarrison() || unit.isInSpace()) return;
         if (unit.getType() == UnitType.Factory || unit.getType() == UnitType.Rocket) {
+            return;
+        }
+        if (!unit.canMove()) return;
+        if (unit.target == null){
+            for (int i = 0; i < 8; ++i){
+                if (Wrapper.canMove(unit, i)){
+                    Wrapper.moveRobot(unit, i);
+                    return;
+                }
+            }
             return;
         }
         MovementManager.getInstance().move(unit);
@@ -66,7 +75,7 @@ class UnitManager{
         AuxUnit[] units = Units.myUnits.toArray(new AuxUnit[Units.myUnits.size()]);
         for (AuxUnit unit : units) {
             //System.err.println("playing unit " + GC.myUnits[i].getType());
-            if (unit.isInGarrison()) continue;
+            if (unit.isInGarrison() || unit.isInSpace()) continue;
             if (unit.getType() == UnitType.Worker) {
                 Worker.doAction(unit, true);
             }
@@ -87,7 +96,7 @@ class UnitManager{
         AuxUnit[] units = Units.myUnits.toArray(new AuxUnit[Units.myUnits.size()]);
         for (AuxUnit unit : units) {
             //System.err.println("playing unit " + GC.myUnits[i].getType());
-            if (unit.isInGarrison()) continue;
+            if (unit.isInGarrison() || unit.isInSpace()) continue;
             if (unit.getType() == UnitType.Worker) {
                 Worker.doAction(unit, false);
             }

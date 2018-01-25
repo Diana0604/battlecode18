@@ -31,6 +31,7 @@ public class WorkerUtil {
     static int workersCreated;
 
     static boolean safe;
+    static boolean hasReplicated;
     static int totalKarboCollected;
 
 
@@ -48,6 +49,7 @@ public class WorkerUtil {
         workerCont = 0;
         fillWorkerActions();
         workersDeployed = new int[Mapa.W][Mapa.H];
+        hasReplicated = false;
     }
 
 

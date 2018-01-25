@@ -34,8 +34,8 @@ public class Const {
     final static int knightSafeAttackRange = 8;
     final static int mageSafeAttackRange = 30;
 
-    final static int rangerLongAttackRange = 100;
-    final static int knightLongAttackRange = 68;
+    final static int rangerLongAttackRange = 68;
+    final static int knightLongAttackRange = 30;
     final static int mageLongAttackRange = 65;
 
     final static int rangerExtraAttackRange = 68;

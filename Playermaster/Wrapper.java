@@ -64,17 +64,27 @@ public class Wrapper {
             //GC.unitMap[newLoc.x][newLoc.y] = posAtArray + 1;
             //GC.myUnits[posAtArray].mloc = newLoc;
 
-            Units.newOccupiedPositions.add(newLoc.encode());
+            //Units.newOccupiedPositions.add(newLoc.encode());
             unit.garrisonUnits.remove(0);
+
+            //System.out.println("I should unload " + newID);
+            //System.out.println("I unloaded " + GC.gc.senseUnitAtLocation(new MapLocation(Mapa.planet, newLoc.x, newLoc.y)).id());
+
+            //System.out.println(GC.gc.unit(newID).location().isInGarrison());
 
             GC.gc.unload(unit.getID(), Const.allDirs[dir]);
 
-            /*
-            AuxUnit unloadedUnit = GC.myUnits[posAtArray];
+            //System.out.println("I unloaded " + GC.gc.senseUnitAtLocation(new MapLocation(Mapa.planet, newLoc.x, newLoc.y)).id());
+
+
+            //System.out.println(GC.gc.unit(newID).location().isInGarrison());
+
+            AuxUnit unloadedUnit = Units.myUnits.get(posAtArray);
             unloadedUnit.canMove = false;
             unloadedUnit.garrison = false;
             unloadedUnit.loc = unloadedUnit.unit.location();
-            */
+            unloadedUnit.mloc = newLoc;
+            Units.unitMap[newLoc.x][newLoc.y] = posAtArray + 1;
 
         }catch(Exception e) {
             e.printStackTrace();
@@ -352,7 +362,7 @@ public class Wrapper {
                             unit2.canMove = false;
                             unit2.canAttack = false;
                             if (u2.myTeam) {
-                                unit2.garrison = true;
+                                unit2.inSpace = true;
                                 unit2.mloc = null;
                             }
                         }
@@ -378,12 +388,20 @@ public class Wrapper {
     static void launchRocket(AuxUnit unit, AuxMapLocation loc){
         try {
             //System.out.println("Launching at " + unit.getX() + " " + unit.getY());
+            ArrayList<Integer> IDs = unit.getGarrisonUnits();
+            for (int i = 0; i < IDs.size(); ++i){
+                AuxUnit u = Units.getUnitByID(IDs.get(i));
+                u.garrison = false;
+                u.inSpace = true;
+            }
+
             GC.gc.launchRocket(unit.getID(), new MapLocation(Planet.Mars, loc.x, loc.y));
             AuxMapLocation mloc = unit.getMapLocation();
             Units.firstRocket = false;
             Units.rocketsLaunched++;
             Units.unitMap[mloc.x][mloc.y] = 0;
             Units.structures.remove(unit.getID());
+
         }catch(Exception e) {
             e.printStackTrace();
         }
@@ -409,9 +427,10 @@ public class Wrapper {
             AuxMapLocation mloc = u2.getMapLocation();
             Units.unitMap[mloc.x][mloc.y] = 0;
             u2.garrison = true;
-            u2.mloc = null;
+            u2.mloc = u1.getMapLocation();
             u2.canMove = false;
             u2.canAttack = false;
+            u2.loc = u2.unit.location();
             u1.getGarrisonUnits().add(u2.getID());
             GC.gc.load(u1.getID(), u2.getID());
         }catch(Exception e) {

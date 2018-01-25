@@ -110,8 +110,11 @@ public class AuxUnit {
 
     public AuxMapLocation getMapLocation(){
         try {
-            if (isInGarrison()) return null;
-            if (mloc == null) mloc = new AuxMapLocation(getLocation().mapLocation());
+            if (isInSpace()) return null;
+            if (mloc == null){
+                if (isInGarrison()) mloc = Units.getUnitByID(getLocation().structure()).getMapLocation();
+                else mloc = new AuxMapLocation(getLocation().mapLocation());
+            }
             //System.out.println("map location " + mloc);
             return mloc;
         }catch(Exception e) {
@@ -226,7 +229,7 @@ public class AuxUnit {
 
     public boolean isMaxHealth() {
         try {
-            return Objects.equals(getHealth(), getMaxHealth()); //no se si funciona amb .equals()?
+            return (getHealth() >= Units.getMaxHealth(getType())); //no se si funciona amb .equals()?
         }catch(Exception e) {
             e.printStackTrace();
             return false;

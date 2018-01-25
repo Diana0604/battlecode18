@@ -2,6 +2,7 @@
 
 import bc.UnitType;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Factory {
@@ -47,11 +48,27 @@ public class Factory {
     private void checkGarrison(AuxUnit unit){
         try {
             Danger.computeDanger(unit);
-            for (int i = 0; i < 9; ++i) {
-                //if (Danger.DPS[i] > 0) continue;
-                if (Wrapper.canUnload(unit, i)) {
-                    Wrapper.unload(unit, i);
+            ArrayList<Integer> units = unit.getGarrisonUnits();
+            if (units.size() == 0) return;
+            int bestDir = -1;
+            double bestDist = 10000000;
+            AuxUnit garrisonUnit = Units.getUnitByID(units.get(0));
+            AuxMapLocation target = garrisonUnit.target;
+            if (target == null) target = unit.getMapLocation();
+            for (int j = 0; j < 8; ++j) {
+                if (Wrapper.canUnload(unit, j)) {
+                    AuxMapLocation newLoc = unit.getMapLocation().add(j);
+                    double d = newLoc.distanceBFSTo(target);
+                    if (d < bestDist) {
+                        bestDist = d;
+                        bestDir = j;
+                    }
                 }
+            }
+
+            if (bestDir != -1){
+                Wrapper.unload(unit, bestDir);
+                checkGarrison(unit);
             }
         }catch(Exception e) {
             e.printStackTrace();

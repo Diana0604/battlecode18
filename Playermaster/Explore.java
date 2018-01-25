@@ -163,7 +163,7 @@ public class Explore {
     static void updateCurrentArea(){
         try {
             for (AuxUnit unit : Units.myUnits) {
-                if (unit.isInGarrison()) continue;
+                //if (unit.isInGarrison()) continue;
                 Integer current = locationToArea(unit.getMapLocation());
                 if (currentArea.containsKey(unit.getID()) && currentArea.get(unit.getID()) == current) continue;
                 currentArea.put(unit.getID(), current);

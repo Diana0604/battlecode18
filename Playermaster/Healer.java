@@ -63,7 +63,10 @@ public class Healer {
             AuxUnit bestUnit = null;
             for (int index: Units.robots){
                 AuxUnit u = Units.myUnits.get(index);
-                if (u.getHealth() < Units.getMaxHealth(u.getType())) bestUnit = compareUnits(loc, bestUnit, u);
+                if (!u.frontline) continue;
+                if (!(u.getType() == UnitType.Ranger)) continue;
+                //if (bestUnit == null || loc.distanceBFSTo(bestUnit.getMapLocation()) > loc.distanceBFSTo(u.getMapLocation())) bestUnit = u;
+                bestUnit = compareUnits(loc, bestUnit, u);
             }
             if (bestUnit == null) return null;
             return bestUnit.getMapLocation();
@@ -80,12 +83,18 @@ public class Healer {
         if (unit1.frontline && !unit2.frontline) return unit1;
         if (!unit1.frontline && unit2.frontline) return unit2;
 
+
+        boolean maxHealth1 = unit1.isMaxHealth(), maxHealth2 = unit2.isMaxHealth();
+        if (maxHealth1 && !maxHealth2) return unit2;
+        if (maxHealth2 && !maxHealth1) return unit1;
+
         if (unit1.isTroop() && !unit2.isTroop()) return unit1;
         if (!unit1.isTroop() && unit2.isTroop()) return unit2;
 
         double d1 = myLoc.distanceBFSTo(unit1.getMapLocation());
         double d2 = myLoc.distanceBFSTo(unit2.getMapLocation());
-        if (d1 > d2) return unit1; //triem la tropa mes llunyana (?)
+        //if (d1 > d2) return unit1; //triem la tropa mes llunyana (?)
+        if (d1 < d2) return unit1;
         return unit2;
     }
 }

@@ -2,17 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="71f64d24-17d9-4332-bb4e-252ae65615b9" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Playermaster/BugPathfindingData.java" afterPath="$PROJECT_DIR$/Playermaster/BugPathfindingData.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Playermaster/Const.java" afterPath="$PROJECT_DIR$/Playermaster/Const.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Playermaster/Danger.java" afterPath="$PROJECT_DIR$/Playermaster/Danger.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Playermaster/Explore.java" afterPath="$PROJECT_DIR$/Playermaster/Explore.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Playermaster/Pathfinder.java" afterPath="$PROJECT_DIR$/Playermaster/Pathfinder.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Playermaster/PathfinderNode.java" afterPath="$PROJECT_DIR$/Playermaster/PathfinderNode.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Playermaster/Player.java" afterPath="$PROJECT_DIR$/Playermaster/Player.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Playermaster/Rocket.java" afterPath="$PROJECT_DIR$/Playermaster/Rocket.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Playermaster/Worker.java" afterPath="$PROJECT_DIR$/Playermaster/Worker.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Playermaster/Wrapper.java" afterPath="$PROJECT_DIR$/Playermaster/Wrapper.java" />
     </list>
     <ignored path="$PROJECT_DIR$/Player01-java/" />
     <ignored path="$PROJECT_DIR$/Player02-java/" />
@@ -34,11 +24,21 @@
   <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="Player.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="Player.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Playermaster/Player.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="440">
               <caret line="20" column="26" lean-forward="false" selection-start-line="20" selection-start-column="26" selection-end-line="20" selection-end-column="26" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="PathfinderNode.java" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/Playermaster/PathfinderNode.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="176">
+              <caret line="8" column="10" lean-forward="false" selection-start-line="8" selection-start-column="10" selection-end-line="8" selection-end-column="10" />
               <folding />
             </state>
           </provider>
@@ -124,16 +124,6 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="BugPathfindingData.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Playermaster/BugPathfindingData.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="88">
-              <caret line="4" column="37" lean-forward="false" selection-start-line="4" selection-start-column="37" selection-end-line="4" selection-end-column="37" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
     </leaf>
   </component>
   <component name="FindInProjectRecents">
@@ -209,7 +199,6 @@
         <option value="$PROJECT_DIR$/Playermaster/MarsPlanning.java" />
         <option value="$PROJECT_DIR$/Playermaster/AuxUnit.java" />
         <option value="$PROJECT_DIR$/Playermaster/Units.java" />
-        <option value="$PROJECT_DIR$/Playermaster/Player.java" />
         <option value="$PROJECT_DIR$/Playermaster/PathfinderNode.java" />
         <option value="$PROJECT_DIR$/Playermaster/AuxMapLocation.java" />
         <option value="$PROJECT_DIR$/Playermaster/Const.java" />
@@ -220,6 +209,7 @@
         <option value="$PROJECT_DIR$/Playermaster/Worker.java" />
         <option value="$PROJECT_DIR$/Playermaster/Rocket.java" />
         <option value="$PROJECT_DIR$/Playermaster/Wrapper.java" />
+        <option value="$PROJECT_DIR$/Playermaster/Player.java" />
       </list>
     </option>
   </component>
@@ -902,14 +892,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Playermaster/PathfinderNode.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="176">
-          <caret line="8" column="10" lean-forward="false" selection-start-line="8" selection-start-column="10" selection-end-line="8" selection-end-column="10" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Playermaster/AuxMapLocation.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="272">
@@ -994,6 +976,14 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="440">
           <caret line="20" column="26" lean-forward="false" selection-start-line="20" selection-start-column="26" selection-end-line="20" selection-end-column="26" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Playermaster/PathfinderNode.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="176">
+          <caret line="8" column="10" lean-forward="false" selection-start-line="8" selection-start-column="10" selection-end-line="8" selection-end-column="10" />
           <folding />
         </state>
       </provider>

@@ -16,7 +16,7 @@ public class Player {
                     //if(GC.onEarth() && GC.round >= 745) GC.printData();
                     GC.endTurn();
 
-                    if (Utils.round % 10 == 1) {
+                    if (Utils.round % 100 == 1) {
                         //System.out.println("Before gc");
                         //System.gc();
                         //System.out.println("After  gc");

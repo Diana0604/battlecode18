@@ -11,6 +11,7 @@ class UnitManager{
             Mage.getInstance().computeMultiTarget();
             selectTargets();
             actUnits();
+
             moveAllUnits();
             actUnits2();
         }catch(Exception e) {
@@ -48,6 +49,7 @@ class UnitManager{
     }
 
     static void move(AuxUnit unit){
+        if (Utils.round > 335) System.out.println(Utils.round + " init move " + unit.id);
         if (unit.isInGarrison() || unit.isInSpace()) return;
         if (unit.getType() == UnitType.Factory || unit.getType() == UnitType.Rocket) {
             return;
@@ -66,7 +68,9 @@ class UnitManager{
     }
 
     static void moveAllUnits(){
-        for (AuxUnit unit: Units.myUnits) move(unit);
+        for (AuxUnit unit: Units.myUnits) {
+            move(unit);
+        }
     }
 
 

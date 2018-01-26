@@ -190,9 +190,6 @@ public class MovementManager {
                 return dirGreedy;
             }
 
-            int dirOP = unit.getMapLocation().dirBFSTo(unit.target);
-            //System.out.println("Best dir: " + dirOP);
-
             ArrayList<Integer> directions = new ArrayList<>();
             for (int i = 0; i < 9; ++i){
                 AuxMapLocation newLoc = myLoc.add(i);
@@ -204,7 +201,6 @@ public class MovementManager {
             for (int i = 0; i < directions.size(); ++i){
 
                 int dirBFS = directions.get(i);
-                //System.out.println("Getting dir: " + dirBFS);
 
                 if (dirBFS == 8) break;
                 if (Wrapper.canMove(unit, dirBFS)){
@@ -221,26 +217,13 @@ public class MovementManager {
                             return dirBFS;
                         }
                     }
-                    if (u.getType() != UnitType.Factory && u.getType() != UnitType.Rocket) {
-                        if (u.getType() == unit.getType() && u.getType() == UnitType.Worker && u.canMove()){
-                            /*if (u.target != null){
-                                AuxMapLocation auxTarget = u.target;
-                                u.target = unit.target;
-                                if (move(u) != 8) {
-                                    doMovement(unit, dirBFS);
-                                    return dirBFS;
-                                }
-                            }*/
-                        } else {
-                            if (move(u) != 8) {
-                                doMovement(unit, dirBFS);
-                                return dirBFS;
-                            }
+                    if (u.getType() != UnitType.Factory && u.getType() != UnitType.Rocket && u.canMove()) {
+                        if (move(u) != 8) {
+                            doMovement(unit, dirBFS);
+                            return dirBFS;
                         }
                     }
                 }
-
-                //if (unit.getType() == UnitType.Ranger || unit.getType() == UnitType.Mage) break;
 
             }
 

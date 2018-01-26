@@ -70,21 +70,21 @@ public class AuxMapLocation {
         }
     }
 
-    public double distanceBFSTo(AuxMapLocation mloc) {
+    public int distanceBFSTo(AuxMapLocation mloc) {
         try {
-            return Pathfinder.getNode(x, y, mloc.x, mloc.y).dist;
+            return Pathfinder.getDist(x, y, mloc.x, mloc.y);
         } catch (Exception e) {
             e.printStackTrace();
-            return Double.parseDouble(null);
+            return 0;
         }
     }
 
     public int dirBFSTo (AuxMapLocation mloc) {
         try {
-            return Pathfinder.getNode(x, y, mloc.x, mloc.y).dir;
+            return Pathfinder.getDir(x, y, mloc.x, mloc.y);
         } catch (Exception e) {
             e.printStackTrace();
-            return Integer.parseInt(null);
+            return 8;
         }
     }
 

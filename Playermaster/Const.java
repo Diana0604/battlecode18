@@ -4,7 +4,7 @@ import bc.Direction;
  * Created by Pau on 23/01/2018.
  */
 public class Const {
-    final static short INFS = 30000;
+    final static short INFS = 0xFFF;
     final static int INF = 1000000000;
     final static long INFL = 1000000000;
 

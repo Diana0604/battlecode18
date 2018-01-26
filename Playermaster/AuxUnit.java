@@ -38,7 +38,7 @@ public class AuxUnit {
     public boolean frontline;
     int depth;
 
-    public AuxUnit(Unit u, boolean team) {
+    public AuxUnit(Unit u) {
         id = u.id();
         type = u.unitType();
         structure = type == UnitType.Factory || type == UnitType.Rocket;
@@ -77,7 +77,7 @@ public class AuxUnit {
         target = null;
         visited = false;
         frontline = false;
-        myTeam = team;
+        myTeam = u.team() == Utils.myTeam;
         depth = 0;
         VisionRange = -1;
     }

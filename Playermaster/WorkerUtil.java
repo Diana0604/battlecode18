@@ -12,7 +12,7 @@ public class WorkerUtil {
     static int[][] workerActions;
     static int[][] workerActionsExpanded;
     static int approxMapValue = 0;
-    static int min_nb_workers = 3;
+    static int min_nb_workers = 2;
     static int extra_workers;
 
     static boolean[] connectivityArray;
@@ -24,7 +24,7 @@ public class WorkerUtil {
 
     static AuxMapLocation bestFactoryLocation;
 
-    static double worker_value = 42;
+    static double worker_value = 85;
 
     final static double decrease_rate = 0.9;
     final static int MIN_DIST = 5;
@@ -211,6 +211,47 @@ public class WorkerUtil {
             }
         }
         return connectivityArray[a];
+    }
+
+    static int getBestRocketLocation(AuxUnit unit){
+        int bestDir = 8;
+        int bestScore = -100;
+        Danger.computeDanger(unit);
+        for (int i = 0; i < 8; ++i) {
+            AuxMapLocation newLoc = unit.getMapLocation().add(i);
+            if (!newLoc.isOnMap()) continue;
+            if (!newLoc.isPassable()) continue;
+            if (Danger.DPS[i] != 0) continue;
+            AuxUnit unit2 = newLoc.getUnit();
+            if (unit2 != null && !unit2.myTeam) continue; //hi ha un enemic
+            else if (unit2 != null) {
+                //hi ha un aliat
+                if (unit2.isStructure()) continue;
+                if (Units.rocketRequest != null && !Units.rocketRequest.urgent) continue;
+                //falta el forced move
+            }
+            int score = getRocketBlueprintScore(newLoc);
+            if (score > bestScore){
+                bestDir = i;
+                bestScore = score;
+            }
+        }
+        if (Units.rocketRequest != null && !Units.rocketRequest.urgent && bestScore < 0) return 8;
+        return bestDir;
+    }
+
+    static int getRocketBlueprintScore(AuxMapLocation loc){
+        int score = 0;
+        if (loc.getUnit() != null) score -= 6;
+        for (int i = 0; i < 8; i++){
+            AuxMapLocation newLoc = loc.add(i);
+            AuxUnit unit2 = newLoc.getUnit();
+            if (unit2 == null) continue;
+            if (!unit2.myTeam) continue;
+            if (unit2.type == UnitType.Factory) score -= 2;
+            if (unit2.type == UnitType.Rocket) score -= 3;
+        }
+        return score;
     }
 
     static int getBestFactoryLocation(AuxUnit unit){

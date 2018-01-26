@@ -111,7 +111,7 @@ public class Worker {
             if (WorkerUtil.workersCreated < WorkerUtil.min_nb_workers){
                 return true;
             }
-            return (nb_actions >= 20);
+            return (nb_actions >= 30);
         }catch(Exception e) {
             e.printStackTrace();
             return false;
@@ -197,11 +197,18 @@ public class Worker {
             if (Mapa.onMars()) return false;
             UnitType type = chooseStructure();
             if (type == null) return false;
-
-            int i = WorkerUtil.getBestFactoryLocation(unit);
+            if (Utils.karbonite < Units.getCost(type)) return false;
+            int i;
+            if (type == UnitType.Factory) i = WorkerUtil.getBestFactoryLocation(unit);
+            else i = WorkerUtil.getBestRocketLocation(unit);
             if (i < 8) {
                 Danger.computeDanger(unit);
                 if(Danger.DPSlong[i] > 0) return false;
+                AuxMapLocation placeLoc = unit.getMapLocation().add(i);
+                AuxUnit rip = placeLoc.getUnit();
+                if (rip != null)
+                    if (MovementManager.getInstance().move(rip) == 8)
+                        Wrapper.disintegrate(rip);
                 Wrapper.placeBlueprint(unit, type, i);
                 unit.canMove = false;
                 targets.put(unit.getID(), 100.0);

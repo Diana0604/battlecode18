@@ -99,7 +99,7 @@ public class Factory {
             int rangers = typeCount.get(UnitType.Ranger);
             int healers = typeCount.get(UnitType.Healer);
             int mages =   typeCount.get(UnitType.Mage);
-            int workers = typeCount.get(UnitType.Knight);
+            int workers = typeCount.get(UnitType.Worker);
 
             if (workers < 2) return UnitType.Worker; //potser millor si workers < 2-3?
 

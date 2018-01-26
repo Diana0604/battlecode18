@@ -500,6 +500,19 @@ public class Wrapper {
 
     /*------------------ KARBONITE INIT GAME -----------------------*/
 
+    public static int[][] getMarsInitialKarbonite() {
+        PlanetMap marsMap = GC.gc.startingMap(Planet.Mars);
+        int W = (int)marsMap.getWidth();
+        int H = (int)marsMap.getHeight();
+        int[][] marsInitialKarbonite = new int[W][H];
+        for (int x = 0; x < W; ++x) {
+            for (int y = 0; y < H; ++y) {
+                marsInitialKarbonite[x][y] = (int)marsMap.initialKarboniteAt(new MapLocation(Planet.Mars, x, y));
+            }
+        }
+        marsMap.delete();
+        return marsInitialKarbonite;
+    }
 
     public static void karboniteInitMap(PlanetMap planetMap){
         Karbonite.asteroidPattern = GC.gc.asteroidPattern();

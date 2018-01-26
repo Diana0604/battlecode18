@@ -2,6 +2,7 @@ import bc.UnitType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  * Created by Ivan on 1/21/2018.
@@ -21,7 +22,10 @@ public class Explore {
 
     public static void initTurn(){
         updateCurrentArea();
-        if (Mapa.onMars()) sendLocationsEnemyRockets();
+        if (Mapa.onMars()) {
+            sendLocationsEnemyRockets();
+            receiveRocketLandings();
+        }
         if (Mapa.onEarth()) receiveLocationsEnemyRockets();
     }
 
@@ -103,6 +107,17 @@ public class Explore {
             if (msg.subject == Communication.ROCKET_LOC) {
                 Rocket.enemyRocketLandingsLocs.add(msg.mapLoc);
                 Rocket.enemyRocketLandingsCcs[MarsPlanning.cc[msg.mapLoc.x][msg.mapLoc.y]]++;
+            }
+        }
+    }
+
+    static void receiveRocketLandings() {
+        ArrayList<Message> messages = Communication.getInstance().getMessagesToRead();
+        for (Message msg:messages) {
+            if (msg.subject == Communication.ROCKET_LANDING) {
+                if (!Rocket.rocketLandingsByRound.containsKey(msg.round))
+                    Rocket.rocketLandingsByRound.put(msg.round, new HashSet<>());
+                Rocket.rocketLandingsByRound.get(msg.round).add(msg.mapLoc);
             }
         }
     }

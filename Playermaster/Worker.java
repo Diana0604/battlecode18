@@ -160,8 +160,8 @@ public class Worker {
             if (minDifIndex >= 0) {
                 AuxUnit structure = adjUnits[minDifIndex];
                 Wrapper.build(unit, structure);
+                unit.canMove = false; // ho he mogut perque quan un worker acaba un rocket tampoc es mogui (aixi se l'emporta a mars)
                 if (structure.getHealth() < Units.getMaxHealth(structure.getType())){
-                    unit.canMove = false;
                     targets.put(unit.getID(), 100.0);
                 }
                 return true;

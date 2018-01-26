@@ -26,22 +26,26 @@ public class Rocket {
     }
 
     static void initTurn() {
-        callsToRocket = new HashMap<>();
-        rocketTakeoffs = new HashSet<>();
-        for (int index: Units.rockets){
-            AuxUnit unit = Units.myUnits.get(index);
-            initTurn(unit);
+        try {
+            callsToRocket = new HashMap<>();
+            rocketTakeoffs = new HashSet<>();
+            for (int index: Units.rockets){
+                AuxUnit unit = Units.myUnits.get(index);
+                initTurn(unit);
+            }
+            /*
+            System.out.println("");
+            System.out.println("====================== ROCKET CALLS " + Utils.round + " ====================== ");
+            for (HashMap.Entry<Integer,AuxMapLocation> entry: callsToRocket.entrySet()){
+                int id = entry.getKey();
+                AuxUnit unit = Units.getUnitByID(id);
+                AuxMapLocation target = entry.getValue();
+                System.out.println(unit.getType() + " with ID " + id + " location " + unit.getMapLocation() + " has target " + target);
+            }
+            */
+        }catch(Exception e) {
+            e.printStackTrace();
         }
-        /*
-        System.out.println("");
-        System.out.println("====================== ROCKET CALLS " + Utils.round + " ====================== ");
-        for (HashMap.Entry<Integer,AuxMapLocation> entry: callsToRocket.entrySet()){
-            int id = entry.getKey();
-            AuxUnit unit = Units.getUnitByID(id);
-            AuxMapLocation target = entry.getValue();
-            System.out.println(unit.getType() + " with ID " + id + " location " + unit.getMapLocation() + " has target " + target);
-        }
-        */
     }
 
     static void initTurn(AuxUnit rocket){
@@ -129,42 +133,51 @@ public class Rocket {
 
     // fa load de totes les units que te al voltant, si son del tipus adequat
     private static void loadUnits(AuxUnit rocket, ArrayList<Pair> sorted, int[] unitTypes, int[] maxUnitTypes) {
-        for (Pair p: sorted) {
-            if (p.dist > 2 || rocket.getGarrisonUnits().size() == Units.rocketCapacity) return;
-            AuxUnit unit = p.unit;
-            int swig = unit.getType().swigValue();
-            if (unitTypes[swig] >= maxUnitTypes[swig]) continue;
-            if (Wrapper.canLoad(rocket, unit)) {
-                Wrapper.load(rocket, unit);
-                unitTypes[swig]++;
-                rocketDatas.get(rocket.getID()).roundsIdle = 0;
+        try {
+            for (Pair p: sorted) {
+                if (p.dist > 2 || rocket.getGarrisonUnits().size() == Units.rocketCapacity) return;
+                AuxUnit unit = p.unit;
+                int swig = unit.getType().swigValue();
+                if (unitTypes[swig] >= maxUnitTypes[swig]) continue;
+                if (Wrapper.canLoad(rocket, unit)) {
+                    Wrapper.load(rocket, unit);
+                    unitTypes[swig]++;
+                    rocketDatas.get(rocket.getID()).roundsIdle = 0;
+                }
             }
+        }catch(Exception e) {
+            e.printStackTrace();
         }
     }
 
     private static boolean shouldLaunch(AuxUnit rocket){
-        if (Utils.round == 749) return true; //si es l'ultim torn
-        if (rocket.getGarrisonUnits().size() == 0) return false; //si esta buit
-        Danger.computeDanger(rocket);
-        double dps = Danger.DPS[8];
-        if(rocket.getHealth() <= 2.2 * dps) return true; //si esta en perill de mort
-        //hasToLeaveByEggs() never forget </3 sorry david :(
+        try {
+            if (Utils.round == 749) return true; //si es l'ultim torn
+            if (rocket.getGarrisonUnits().size() == 0) return false; //si esta buit
+            Danger.computeDanger(rocket);
+            double dps = Danger.DPS[8];
+            if(rocket.getHealth() <= 2.2 * dps) return true; //si esta en perill de mort
+            //hasToLeaveByEggs() never forget </3 sorry david :(
 
-        // calcula quantes rondes podria aguantar amb aquest dps i mira si surt a compte esperar-les
-        // si no te dps mira si surt a compte esperar qualsevol numero de rondes
-        boolean shouldWait;
-        if (dps > 0) {
-            int rounds = (int)Math.round(Math.min(1000, Math.floor(rocket.getHealth() / dps)));
-            shouldWait = MarsPlanning.shouldWaitToLaunchRocket(Utils.round, rounds);
+            // calcula quantes rondes podria aguantar amb aquest dps i mira si surt a compte esperar-les
+            // si no te dps mira si surt a compte esperar qualsevol numero de rondes
+            boolean shouldWait;
+            if (dps > 0) {
+                int rounds = (int)Math.round(Math.min(1000, Math.floor(rocket.getHealth() / dps)));
+                shouldWait = MarsPlanning.shouldWaitToLaunchRocket(Utils.round, rounds);
+            }
+            else shouldWait = MarsPlanning.shouldWaitToLaunchRocket(Utils.round);
+            if (shouldWait) return false;
+
+            int garrisonSize = rocket.getGarrisonUnits().size();
+            if (garrisonSize == 2 && Units.rocketsLaunched == 0) return true; //first rocket ple
+            if (garrisonSize == Units.rocketCapacity) return true; //rocket ple
+
+            if (rocketDatas.get(rocket.getID()).roundsIdle > MAX_ROUNDS_IDDLE) return true;
+            return false;
+        }catch(Exception e) {
+            e.printStackTrace();
         }
-        else shouldWait = MarsPlanning.shouldWaitToLaunchRocket(Utils.round);
-        if (shouldWait) return false;
-
-        int garrisonSize = rocket.getGarrisonUnits().size();
-        if (garrisonSize == 2 && Units.rocketsLaunched == 0) return true; //first rocket ple
-        if (garrisonSize == Units.rocketCapacity) return true; //rocket ple
-
-        if (rocketDatas.get(rocket.getID()).roundsIdle > MAX_ROUNDS_IDDLE) return true;
         return false;
     }
 

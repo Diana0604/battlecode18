@@ -243,8 +243,9 @@ public class MarsPlanning{
         }
     }
 
-    private static void putToOneNear(double[][] nearRocket, AuxMapLocation initLoc, int depth) {
+    private static void putToOneNear(double[][] nearRocket, AuxMapLocation initLoc, int depth, double centerValue) {
         try {
+            nearRocket[initLoc.x][initLoc.y] = centerValue;
             HashSet<Integer> seen = new HashSet<>();
             Queue<AuxMapLocation> queue = new LinkedList<>();
             seen.add(initLoc.x << 6 | initLoc.y);
@@ -259,7 +260,7 @@ public class MarsPlanning{
                     if (seen.contains(newLoc.x << 6 | newLoc.y)) continue;
                     seen.add(newLoc.x << 6 | newLoc.y);
                     queue.add(newLoc);
-                    nearRocket[newLoc.x][newLoc.y] = 1;
+                    if (nearRocket[newLoc.x][newLoc.y] == 0) nearRocket[newLoc.x][newLoc.y] = 1;
                 }
             }
         } catch(Exception e) {
@@ -285,10 +286,10 @@ public class MarsPlanning{
     private static double[][] computeRocketNear() {
         double[][] rocketNear = new double[W][H];
         for (AuxMapLocation loc : Rocket.allyRocketLandingsLocs) {
-            putToOneNear(rocketNear, loc, 2*DEPTH);
+            putToOneNear(rocketNear, loc, 2*DEPTH, 3);
         }
         for (AuxMapLocation loc: Rocket.enemyRocketLandingsLocs) {
-            putToOneNear(rocketNear, loc, 2*DEPTH);
+            putToOneNear(rocketNear, loc, 2*DEPTH, 2);
         }
         return rocketNear;
     }
@@ -297,7 +298,7 @@ public class MarsPlanning{
         for (int x = 0; x < W; ++x) {
             for (int y = 0; y < H; ++y) {
                 int rocketsInAdjCCs = getRocketsInAdjCCs(new AuxMapLocation(x,y));
-                priorityKarbo[x][y] = marsInitialPriorityKarbo[x][y] / rocketsInAdjCCs;
+                priorityKarbo[x][y] = marsInitialPriorityKarbo[x][y] / (double)(rocketsInAdjCCs + 1);
                 double value = marsInitialKarbonite[x][y];
                 addKarboCC(karbo_cc, new AuxMapLocation(x,y), value);
             }
@@ -311,7 +312,7 @@ public class MarsPlanning{
             addUpdatedInitialKarbo(priorityKarbo, karbo_cc);
             addAsteroids(priorityKarbo, karbo_cc, round);
 
-            double[][] rocketNear; // nomes sera 0 o 1, i multiplicara la priorityKarbo
+            double[][] rocketNear; // 0 si buit, 1 si hi ha un coet a prop, 2 si hi ha un coet enemic, 3 si hi ha un coet aliat
             rocketNear = computeRocketNear();
 
             // find best location
@@ -321,7 +322,8 @@ public class MarsPlanning{
                 for (int y = 0; y < H; ++y) {
                     if (!passable[x][y]) continue;
                     if (bestLoc == null) bestLoc = new AuxMapLocation(x, y);
-                    double priority_xy = priorityKarbo[x][y]*rocketNear[x][y] + 1000*karbo_cc[cc[x][y]];
+                    double priority_xy = priorityKarbo[x][y]*(1-rocketNear[x][y]) + 1000*karbo_cc[cc[x][y]];
+                    if (rocketNear[x][y] > 1) priority_xy = -rocketNear[x][y];
                     // prioritzem karbo de la cc, i despres escollim el lloc dins de la cc
                     if (priority_xy > best_priority) {
                         best_priority = priority_xy;

@@ -118,7 +118,6 @@ public class Explore {
                 if (!Rocket.rocketLandingsByRound.containsKey(msg.round))
                     Rocket.rocketLandingsByRound.put(msg.round, new HashSet<>());
                 Rocket.rocketLandingsByRound.get(msg.round).add(msg.mapLoc);
-                System.out.println("Sabent que arribara " + msg.mapLoc.x + "," + msg.mapLoc.y + " un rocket a la ronda " + msg.round);
             }
         }
     }

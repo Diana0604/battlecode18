@@ -1,5 +1,3 @@
-import bc.Planet;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -52,7 +50,7 @@ public class Rocket {
             if (rocket.isInSpace()) return;
             if (Mapa.onEarth()) {
                 if (!rocketDatas.containsKey(rocket.getID())) rocketDatas.put(rocket.getID(), new RocketData());
-                rocketDatas.get(rocket.getID()).roundsIddle++;
+                rocketDatas.get(rocket.getID()).roundsIdle++;
                 ArrayList<Pair> sortedUnits = getSortedUnits(rocket);
                 int[] unitTypes = getUnitTypesGarrison(rocket);
                 loadUnits(rocket, sortedUnits, unitTypes, maxUnitTypes);
@@ -139,7 +137,7 @@ public class Rocket {
             if (Wrapper.canLoad(rocket, unit)) {
                 Wrapper.load(rocket, unit);
                 unitTypes[swig]++;
-                rocketDatas.get(rocket.getID()).roundsIddle = 0;
+                rocketDatas.get(rocket.getID()).roundsIdle = 0;
             }
         }
     }
@@ -166,7 +164,7 @@ public class Rocket {
         if (garrisonSize == 2 && Units.rocketsLaunched == 0) return true; //first rocket ple
         if (garrisonSize == Units.rocketCapacity) return true; //rocket ple
 
-        if (rocketDatas.get(rocket.getID()).roundsIddle > MAX_ROUNDS_IDDLE) return true;
+        if (rocketDatas.get(rocket.getID()).roundsIdle > MAX_ROUNDS_IDDLE) return true;
         return false;
     }
 
@@ -188,12 +186,10 @@ public class Rocket {
         try {
             int arrivalRound = Wrapper.getArrivalRound(Utils.round);
             AuxMapLocation arrivalLoc = MarsPlanning.bestPlaceForRound(arrivalRound);
-            //System.out.println(arrivalLoc.x + " " + arrivalLoc.y);
             allyRocketLandingsLocs.add(arrivalLoc);
             allyRocketLandingsCcs[MarsPlanning.cc[arrivalLoc.x][arrivalLoc.y]]++;
             Communication.getInstance().sendRocketLanding(arrivalRound, arrivalLoc);
             Wrapper.launchRocket(rocket, arrivalLoc);
-            System.out.println("Tirant " + arrivalLoc.x + "," + arrivalLoc.y + " per arribar a la ronda " + arrivalRound);
         } catch(Exception e) {
             e.printStackTrace();
         }
@@ -210,9 +206,9 @@ public class Rocket {
     }
 
     private static class RocketData {
-        int roundsIddle;
+        int roundsIdle;
         RocketData() {
-            roundsIddle = 0;
+            roundsIdle = 0;
         }
     }
 

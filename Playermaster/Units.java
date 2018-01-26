@@ -10,6 +10,7 @@ import java.util.List;
 public class Units {
     static AuxMapLocation mapCenter;
     static long maxRadius;
+    static boolean oneWorkerToMars = true;
     static int rocketsLaunched = 0;
     static int rocketsBuilt = 0;
     static int troopsSinceRocketResearch = 0;
@@ -45,6 +46,7 @@ public class Units {
     static boolean canBuildRockets;
     static HashSet<Integer> newOccupiedPositions;
     static boolean isolated;
+    static int initDistToEnemy;
 
 
     static boolean firstFactory = false;
@@ -64,6 +66,7 @@ public class Units {
             if (Utils.karbonite < 100) lastRoundUnder100Karbo = Utils.round;
             if (enemies.size() != 0) lastRoundEnemySeen = Utils.round;
             if (Utils.round > 50) WorkerUtil.safe = false;
+            if (Utils.round > 400) Units.oneWorkerToMars = false;
         }catch(Exception e) {
             e.printStackTrace();
         }

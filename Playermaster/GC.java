@@ -8,11 +8,11 @@ class GC {
             gc = _gc;
             Vision.initialize();
             Utils.initGame();
-            MarsPlanning.initGame();
             Rocket.initGame();
+            MarsPlanning.initGame(); // ha d'anar despres de rocket
 
             Wrapper.initMap();
-            Research.initGame();
+            Research.initGame(); // ha d'anar al final
         }catch(Exception e) {
             e.printStackTrace();
         }

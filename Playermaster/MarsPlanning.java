@@ -35,7 +35,8 @@ public class MarsPlanning{
     static int[] areaCC;
     static int sumaArees;
     static double karbo350 = -1;
-    static double area350;
+    static double biggestArea;
+    static double biggestAreaPercent;
 
 
     public static void initGame(){
@@ -121,7 +122,7 @@ public class MarsPlanning{
             marsInitialPriorityKarbo = computeInitialPriorityKarboMars();
 
             int round350 = optimArrivalTime[276+27];
-            bestPlaceForRound(round350); // aixo calcula area350 i karbo350
+            bestPlaceForRound(round350); // aixo calcula biggestArea i karbo350
         }
         catch(Exception e) {
             e.printStackTrace();
@@ -382,7 +383,8 @@ public class MarsPlanning{
             }
             if (karbo350 == -1) {
                 karbo350 = karbo_cc[cc[bestLoc.x][bestLoc.y]];
-                area350 = (double)areaCC[cc[bestLoc.x][bestLoc.y]] / (double)sumaArees;
+                biggestArea = (double)areaCC[cc[bestLoc.x][bestLoc.y]];
+                biggestAreaPercent = biggestArea / (double)sumaArees;
             }
             return bestLoc;
         }

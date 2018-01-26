@@ -425,6 +425,7 @@ public class Wrapper {
             GC.gc.launchRocket(unit.getID(), new MapLocation(Planet.Mars, loc.x, loc.y));
             AuxMapLocation mloc = unit.getMapLocation();
             Units.rocketsLaunched++;
+            Units.oneWorkerToMars = false;
             Units.unitMap[mloc.x][mloc.y] = 0;
             Units.structures.remove(unit.getID());
 
@@ -690,17 +691,22 @@ public class Wrapper {
                 Units.isolated = false;
                 return;
             }
+            int minDist = Const.INFS;
             ArrayList<AuxUnit> initUnits = getInitialUnits(planetMap);
             boolean isolated = true;
-            for (AuxUnit u1: initUnits){
-                for (AuxUnit u2: initUnits){
-                    if (u1.myTeam != u2.myTeam){
-                        if (u1.getMapLocation().distanceBFSTo(u2.getMapLocation()) < Const.INFS) isolated = false;
+            for (AuxUnit u1: initUnits) {
+                for (AuxUnit u2 : initUnits) {
+                    if (u1.myTeam != u2.myTeam) {
+                        int dist = u1.getMapLocation().distanceBFSTo(u2.getMapLocation());
+                        minDist = Math.min(minDist, dist);
+                        if (dist < Const.INFS) isolated = false;
                     }
                 }
             }
             System.out.println("ARE WE ISOLATED? " + isolated);
-        }catch(Exception e){
+            Units.isolated = isolated;
+            Units.initDistToEnemy = minDist;
+        }catch(Exception e) {
             e.printStackTrace();
         }
     }

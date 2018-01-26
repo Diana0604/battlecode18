@@ -108,9 +108,7 @@ public class Worker {
             boolean danger = (Danger.DPSlong[8] > 0);
             if (danger) return false;
             int nb_actions = WorkerUtil.getWorkerActions(unit.getMapLocation(), 30);
-            if (WorkerUtil.workersCreated < WorkerUtil.min_nb_workers){
-                return true;
-            }
+            if (WorkerUtil.workersCreated < WorkerUtil.min_nb_workers) return true;
             if (WorkerUtil.workersCreated <  WorkerUtil.min_nb_workers1) return (nb_actions >= 15);
             return nb_actions >= 35;
         }catch(Exception e) {
@@ -121,7 +119,7 @@ public class Worker {
 
     private boolean shouldReplicateMars(AuxUnit unit){
         if (Utils.round > 750) return true;
-        if (Utils.karbonite > 240) return true;
+        if (Utils.karbonite > 400) return true;
         //if (Utils.karbonite < 40) return false; //no se si aixo va be o no
         HashMap<Integer, Integer> tasks = Karbonite.asteroidTasksLocs;
         HashMap<Integer, Integer> karboAt = Karbonite.karboniteAt;

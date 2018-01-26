@@ -89,12 +89,16 @@ public class Factory {
 
     private UnitType chooseNextUnit(){
         try {
-            if (Utils.karbonite < 30) return null;
-            HashMap<UnitType, Integer> typeCount = Units.unitTypeCount;
-            int rangers = typeCount.get(UnitType.Ranger);
-            int healers = typeCount.get(UnitType.Healer);
-            int mages = typeCount.get(UnitType.Mage);
-            int workers = typeCount.get(UnitType.Worker);
+            int karbo = Utils.karbonite;
+            if (karbo < Const.replicateCost) return null;
+
+            //prioritzem fer rockets a units
+            if (karbo < Const.replicateCost + Const.rocketCost && Units.rocketRequest != null) return null;
+
+            int rangers = Units.rangers.size();
+            int healers = Units.healers.size();
+            int mages =   Units.mages.size();
+            int workers = Units.workers.size();
 
             if (workers < 2) return UnitType.Worker; //potser millor si workers < 2-3?
 

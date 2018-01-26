@@ -18,6 +18,7 @@ public class Research {
 
     public static void initTurn(){
         researchInfo = GC.gc.researchInfo();
+        if (!Units.canBuildRockets && researchInfo.getLevel(UnitType.Rocket) == 1) Units.troopsSinceRocketResearch = 0;
     }
 
     /*public void checkResearch() {

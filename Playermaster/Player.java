@@ -18,7 +18,7 @@ public class Player {
 
                     if (Utils.round % 100 == 1) {
                         //System.out.println("Before gc");
-                        //System.gc();
+                        System.gc();
                         //System.out.println("After  gc");
                     }
                     gc.nextTurn();

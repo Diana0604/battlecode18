@@ -249,6 +249,7 @@ public class Units {
             sorted.sort((a, b) -> a.dist < b.dist ? -1 : a.dist == b.dist ? 0 : 1);
             int workersToCall =  Math.min(MAX_WORKERS_TO_CALL, sorted.size() - 1);
             if (workersToCall == 0) workersToCall = 1;
+            if (workersToCall < 0) workersToCall = 0;
             List<Pair> cut = sorted.subList(0, workersToCall);
             for (Pair p : cut) {
                 int key = p.unit.getID();

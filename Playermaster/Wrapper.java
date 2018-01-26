@@ -132,7 +132,8 @@ public class Wrapper {
     static void produceUnit(AuxUnit unit, UnitType type){
         try {
             GC.gc.produceRobot(unit.getID(), type);
-            Utils.karbonite = Utils.karbonite - Units.getCost(type);
+            Utils.karbonite -= Units.getCost(type);
+            if (type != UnitType.Worker) Units.troopsSinceRocketResearch++;
             unit.canAttack = false;
         }catch(Exception e) {
             e.printStackTrace();
@@ -287,6 +288,10 @@ public class Wrapper {
             AuxMapLocation newLoc = mloc.add(dir);
             GC.gc.blueprint(unit.getID(), type, Const.allDirs[dir]);
 
+            if (type == UnitType.Rocket) {
+                Units.rocketRequest = null;
+                Units.rocketsBuilt++;
+            }
             unit.canAttack = false;
             Utils.karbonite -= Units.getCost(type);
             Units.newOccupiedPositions.add(newLoc.encode());
@@ -400,7 +405,6 @@ public class Wrapper {
 
             GC.gc.launchRocket(unit.getID(), new MapLocation(Planet.Mars, loc.x, loc.y));
             AuxMapLocation mloc = unit.getMapLocation();
-            Units.firstRocket = false;
             Units.rocketsLaunched++;
             Units.unitMap[mloc.x][mloc.y] = 0;
             Units.structures.remove(unit.getID());

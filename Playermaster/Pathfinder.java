@@ -49,7 +49,7 @@ public class Pathfinder{
                         if (passable[newPosX][newPosY]) queue.add((((parsedDist << AUX) | newPosX) << AUX) | newPosY);
 
                         Nodes[a][b][newPosX][newPosY].dist = (short) newDist;
-                        if (newDist < 1.8) Nodes[a][b][newPosX][newPosY].dir = (short) i;
+                        if (newDist < 1.8) Nodes[a][b][newPosX][newPosY].dir = (byte) i;
                         else Nodes[a][b][newPosX][newPosY].dir = Nodes[a][b][myPosX][myPosY].dir;
                     }
                 }

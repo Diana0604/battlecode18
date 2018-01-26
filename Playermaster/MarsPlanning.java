@@ -10,7 +10,9 @@ public class MarsPlanning{
 
     private static final int AUX = 6;
     private static final int base = 0x3F;
-    private static final int DEPTH = 30;
+    private static final int DEPTH = 40;
+    private static final int MAX_BURST_ROUND = 900;
+    private static final int BURST_WAIT_ROUNDS = 100;
     private static final int[] X = {0, 1, 1, 1, 0, -1, -1, -1};
     private static final int[] Y = {1, 1, 0, -1, -1, -1, 0, 1};
 
@@ -20,6 +22,7 @@ public class MarsPlanning{
 
     static int W;
     static int H;
+    static int takeoffBurstRound;
 
     private static int[] arrivalTime = new int[1001];
     private static int[] departTime = new int[1001]; //todo aixo mai es fa servir
@@ -28,6 +31,11 @@ public class MarsPlanning{
     static int[][] marsInitialKarbonite;
     static double[][] marsInitialPriorityKarbo;
     static double[] marsInitialKarbo_cc;
+    static int[][] clear;
+    static int[] areaCC;
+    static int sumaArees;
+    static int[] rocketsInCC;
+
 
     static MarsPlanning getInstance(){
         if (instance == null) instance = new MarsPlanning();
@@ -53,16 +61,28 @@ public class MarsPlanning{
                     if (!passable[x][y]) cc[x][y] = -1;
                 }
             }
-
             planetMap.delete();
             for (int x = 0; x < W; ++x) {
                 for (int y = 0; y < H; ++y) {
                     if (cc[x][y] == 0) bfs(x, y);
                 }
             }
+            clear = new int[W][H];
+            for (int x = 0; x < W; ++x) {
+                for (int y = 0; y < H; ++y) {
+                    AuxMapLocation loc = new AuxMapLocation(x,y);
+                    for (int d = 0; d < 8; ++d) {
+                        AuxMapLocation newLoc = loc.add(d);
+                        if (isOnMars(newLoc) && passable[newLoc.x][newLoc.y]) clear[x][y]++;
+                    }
+                }
+            }
             Rocket.allyRocketLandingsCcs = new int[ccs + 1];
             Rocket.enemyRocketLandingsCcs = new int[ccs + 1];
             marsInitialKarbo_cc = new double[ccs + 1];
+            areaCC = new int[ccs+1];
+            for (int x = 0; x < W; ++x) for (int y = 0; y < H; ++y) if (cc[x][y] > 0) areaCC[cc[x][y]]++;
+            for (int i : areaCC) sumaArees += i;
 
             // compute times from earth to mars
             OrbitPattern op = GC.gc.orbitPattern();
@@ -82,6 +102,8 @@ public class MarsPlanning{
                     else break;
                 }
             }
+            int arrivalBurstRound = Math.min(MAX_BURST_ROUND, arrivalTime[749]);
+            takeoffBurstRound = departTime[arrivalBurstRound];
 
             // construct asteroid pattern
             ArrayList<Integer> aRounds = new ArrayList<>();
@@ -137,6 +159,7 @@ public class MarsPlanning{
 
     static boolean shouldWaitToLaunchRocket(int round) {
         try {
+            if (takeoffBurstRound - round < BURST_WAIT_ROUNDS) return true;
             int arrival = arrivalTime[round];
             return optimArrivalTime[round] < arrival;
         } catch(Exception e) {
@@ -171,11 +194,12 @@ public class MarsPlanning{
 
     private static double[][] computeInitialPriorityKarboMars() {
         double[][] initialPriorityKarbo = new double[W][H];
+        double[][] rocketNear = new double[W][H];
         for (int x = 0; x < W; ++x) {
             for (int y = 0; y < H; ++y) {
                 double value = marsInitialKarbonite[x][y];
                 boolean addValueToAdj = passable[x][y];
-                addGradually(initialPriorityKarbo, new AuxMapLocation(x,y), DEPTH, value, addValueToAdj);
+                addGradually(initialPriorityKarbo, new AuxMapLocation(x,y), DEPTH, value, addValueToAdj, rocketNear);
             }
         }
         return initialPriorityKarbo;
@@ -200,7 +224,7 @@ public class MarsPlanning{
         return 0;
     }
 
-    private static void addKarboCC(double[] karbo_cc, AuxMapLocation loc, double value) {
+    private static void addKarboCC(double[] karbo_cc, AuxMapLocation loc, double value, double[][] rocketNear) {
         try {
             // tot aquest rollo es perque una mina de karbo pot ser que es pugui minar des de mes d'una cc
             boolean[] seen_cc = new boolean[ccs + 1];
@@ -208,7 +232,9 @@ public class MarsPlanning{
                 AuxMapLocation newLoc = loc.add(d);
                 if (!isOnMars(newLoc) || !passable[newLoc.x][newLoc.y]) continue;
                 int comp = cc[newLoc.x][newLoc.y];
-                if (!seen_cc[comp]) karbo_cc[comp] += value;
+                if (!seen_cc[comp]) {
+                    if (rocketNear[newLoc.x][newLoc.y] == 0 && areaCC[comp] >= 2) karbo_cc[comp] += value;
+                }
                 seen_cc[comp] = true;
             }
         } catch(Exception e) {
@@ -216,11 +242,34 @@ public class MarsPlanning{
         }
     }
 
-    // basicament aquesta funcio suma value a la matriu priority comencant per initLoc va decaient gradualment fins que
-    // a distancia^2=depth suma zero
-    // els bools del final son per decidir si es suma o no a la posicio initLoc i a les seves adjacents
-    private static void addGradually(double[][] priority, AuxMapLocation initLoc, int depth, double value, boolean addValueToAdj) {
+    private static void addGradually(double[][] priority, AuxMapLocation initLoc, int depth, double value, boolean addValueToAdj, double[][] rocketNear) {
         try {
+            HashSet<Integer> seen = new HashSet<>();
+            Queue<AuxMapLocation> queue = new LinkedList<>();
+            seen.add(initLoc.x << 6 | initLoc.y);
+            queue.offer(initLoc);
+            while (!queue.isEmpty()) {
+                AuxMapLocation loc = queue.poll();
+                for (int d = 0; d < 8; ++d) {
+                    AuxMapLocation newLoc = loc.add(d);
+                    if (!isOnMars(newLoc) || !passable[newLoc.x][newLoc.y] || rocketNear[newLoc.x][newLoc.y] == 1) continue;
+                    int dist = initLoc.distanceSquaredTo(newLoc);
+                    if (dist > depth) continue;
+                    if (seen.contains(newLoc.x << 6 | newLoc.y)) continue;
+                    seen.add(newLoc.x << 6 | newLoc.y);
+                    queue.add(newLoc);
+                    if (addValueToAdj || dist > 2) priority[newLoc.x][newLoc.y] += value * (0.8 + 0.2*(depth - dist)/depth);
+                }
+            }
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void putToOneNear(double[][] rocketNear, double[][] rocketAdj, AuxMapLocation initLoc, int depth, boolean ally) {
+        try {
+            rocketNear[initLoc.x][initLoc.y] = 1;
+            rocketAdj[initLoc.x][initLoc.y] = ally?20:10;
             HashSet<Integer> seen = new HashSet<>();
             Queue<AuxMapLocation> queue = new LinkedList<>();
             seen.add(initLoc.x << 6 | initLoc.y);
@@ -235,7 +284,8 @@ public class MarsPlanning{
                     if (seen.contains(newLoc.x << 6 | newLoc.y)) continue;
                     seen.add(newLoc.x << 6 | newLoc.y);
                     queue.add(newLoc);
-                    if (addValueToAdj || dist > 2) priority[newLoc.x][newLoc.y] += value * (depth - dist) / depth;
+                    rocketNear[newLoc.x][newLoc.y] = 1;
+                    if (dist <= 2 && ally) rocketAdj[newLoc.x][newLoc.y]++;
                 }
             }
         } catch(Exception e) {
@@ -243,77 +293,62 @@ public class MarsPlanning{
         }
     }
 
-    private static void putToOneNear(double[][] nearRocket, AuxMapLocation initLoc, int depth, double centerValue) {
-        try {
-            nearRocket[initLoc.x][initLoc.y] = centerValue;
-            HashSet<Integer> seen = new HashSet<>();
-            Queue<AuxMapLocation> queue = new LinkedList<>();
-            seen.add(initLoc.x << 6 | initLoc.y);
-            queue.offer(initLoc);
-            while (!queue.isEmpty()) {
-                AuxMapLocation loc = queue.poll();
-                for (int d = 0; d < 8; ++d) {
-                    AuxMapLocation newLoc = loc.add(d);
-                    if (!isOnMars(newLoc) || !passable[newLoc.x][newLoc.y]) continue;
-                    int dist = initLoc.distanceSquaredTo(newLoc);
-                    if (dist > depth) continue;
-                    if (seen.contains(newLoc.x << 6 | newLoc.y)) continue;
-                    seen.add(newLoc.x << 6 | newLoc.y);
-                    queue.add(newLoc);
-                    if (nearRocket[newLoc.x][newLoc.y] == 0) nearRocket[newLoc.x][newLoc.y] = 1;
-                }
-            }
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private static void addAsteroids(double[][] priorityKarbo, double[] karbo_cc, int round) {
+    private static void addAsteroids(double[][] priorityKarbo, double[] karbo_cc, int round, double[][] rocketNear) {
         for (int i = 0; i < Karbonite.asteroidRounds.length; ++i) {
             int round_i = Karbonite.asteroidRounds[i];
             if (round_i - round > 20) return; // no tenim en compte la karbonite que arriba en mes de 20 torns
             AuxMapLocation loc = Karbonite.asteroidLocations[i];
-            int rocketsInAdjCCs = getRocketsInAdjCCs(loc);
-            double value = (double) Karbonite.asteroidKarbo[i] / ((double) rocketsInAdjCCs + 1);
-            boolean addValueToAdj = passable[loc.x][loc.y]; // si la karbonite esta a una paret no volem que el
-            // rocket estigui tocant-la. Si la karbonite no esta en paret el rocket no molesta tant
-            // no volem mai sumar la prioritat a la casella central (on esta la karbonite)
-            addGradually(priorityKarbo, loc, DEPTH, value, addValueToAdj);
-            addKarboCC(karbo_cc, loc, value);
+            addGradually(priorityKarbo, loc, DEPTH, Karbonite.asteroidKarbo[i], passable[loc.x][loc.y], rocketNear);
+            double value = (double) Karbonite.asteroidKarbo[i] / ((double) getRocketsInAdjCCs(loc) + 1);
+            addKarboCC(karbo_cc, loc, value, rocketNear);
         }
     }
 
-    private static double[][] computeRocketNear() {
-        double[][] rocketNear = new double[W][H];
+    private static double[][] computeRocketNearAdj(double[][] rocketNear, double[][] rocketAdj) {
         for (AuxMapLocation loc : Rocket.allyRocketLandingsLocs) {
-            putToOneNear(rocketNear, loc, 2*DEPTH, 3);
+            putToOneNear(rocketNear, rocketAdj, loc, 2*DEPTH, true);
         }
         for (AuxMapLocation loc: Rocket.enemyRocketLandingsLocs) {
-            putToOneNear(rocketNear, loc, 2*DEPTH, 2);
+            putToOneNear(rocketNear, rocketAdj, loc, 2*DEPTH, false);
         }
         return rocketNear;
     }
 
-    private static void addUpdatedInitialKarbo(double[][] priorityKarbo, double[] karbo_cc) {
+    private static void addUpdatedInitialKarbo(double[] karbo_cc, double[][] rocketNear) {
         for (int x = 0; x < W; ++x) {
             for (int y = 0; y < H; ++y) {
                 int rocketsInAdjCCs = getRocketsInAdjCCs(new AuxMapLocation(x,y));
-                priorityKarbo[x][y] = marsInitialPriorityKarbo[x][y] / (double)(rocketsInAdjCCs + 1);
-                double value = marsInitialKarbonite[x][y];
-                addKarboCC(karbo_cc, new AuxMapLocation(x,y), value);
+                double value = marsInitialKarbonite[x][y] / (double)(rocketsInAdjCCs + 1);
+                addKarboCC(karbo_cc, new AuxMapLocation(x,y), value, rocketNear);
             }
         }
     }
 
     static AuxMapLocation bestPlaceForRound(int round) {
         try {
-            double[][] priorityKarbo = new double[W][H]; // prioritat: te en compte karbonite propera
-            double[] karbo_cc = new double[ccs + 1]; // total de karbonite de cada cc dividida entre els coets d'aquella cc +1
-            addUpdatedInitialKarbo(priorityKarbo, karbo_cc);
-            addAsteroids(priorityKarbo, karbo_cc, round);
+            // primer comptem la karbonite que hi ha a cada cc sense sumar la que esta (adjacent) a casella dominada i dividint pels rockets+1
+            // segons aixo escollim cc
+            // despres fem priorityKarbo tambe sense sumar la que esta (adjacent) a casella dominada sense dividir pels rockets
+            // escollim la posicio concreta aixi
+            // aixo serveix per la primera fase
+            double[][] rocketNear = new double[W][H];
+            double[][] rocketAdj = new double[W][H];
+            computeRocketNearAdj(rocketNear, rocketAdj);
+            double[] karbo_cc = new double[ccs + 1];
+            double[][] priorityKarbo = marsInitialPriorityKarbo.clone();
+            addUpdatedInitialKarbo(karbo_cc, rocketNear);
+            addAsteroids(priorityKarbo, karbo_cc, round, rocketNear);
 
-            double[][] rocketNear; // 0 si buit, 1 si hi ha un coet a prop, 2 si hi ha un coet enemic, 3 si hi ha un coet aliat
-            rocketNear = computeRocketNear();
+            // s'ha d'anar gradualment des de priorityKarbo cap a prioritySecurity
+            //double[][] prioritySecurity = new double[W][H];
+
+
+            // choose cc
+            double best_cc = -1;
+            for (int i = 1; i <= ccs; ++i) {
+                double factor_cc = karbo_cc[i] + (double)areaCC[i]/(double)sumaArees;
+                if (factor_cc > best_cc && areaCC[i] > 10) best_cc = factor_cc;
+            }
 
             // find best location
             AuxMapLocation bestLoc = null;
@@ -322,9 +357,10 @@ public class MarsPlanning{
                 for (int y = 0; y < H; ++y) {
                     if (!passable[x][y]) continue;
                     if (bestLoc == null) bestLoc = new AuxMapLocation(x, y);
-                    double priority_xy = priorityKarbo[x][y]*(1-rocketNear[x][y]) + 1000*karbo_cc[cc[x][y]];
+                    if (karbo_cc[cc[x][y]] + (double)areaCC[cc[x][y]]/(double)sumaArees < best_cc) continue;
+                    double factor_clear = ((double)clear[x][y]) / 8;
+                    double priority_xy = factor_clear*(1+priorityKarbo[x][y]) - 1000*rocketAdj[x][y];
                     if (rocketNear[x][y] > 1) priority_xy = -rocketNear[x][y];
-                    // prioritzem karbo de la cc, i despres escollim el lloc dins de la cc
                     if (priority_xy > best_priority) {
                         best_priority = priority_xy;
                         bestLoc = new AuxMapLocation(x, y);

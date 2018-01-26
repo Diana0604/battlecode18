@@ -80,7 +80,8 @@ public class Worker {
             Units.workers.add(index);
             Units.unitMap[newWorker.getX()][newWorker.getY()] = index + 1;
             WorkerUtil.hasReplicated = true;
-            newWorker.target = getTarget(newWorker);
+            newWorker.target = unit.target;
+            if(newWorker.target == null) newWorker.target = getTarget(newWorker);
             doAction(newWorker, true);
             UnitManager.move(newWorker);
             doAction(newWorker, false);
@@ -262,7 +263,7 @@ public class Worker {
 
     double hasTarget(AuxUnit unit){
         if (!targets.containsKey(unit.getID())) return 0;
-        return targets.get(unit.getID());
+        return 0.5 - 0.001*targets.get(unit.getID());
     }
 
 
@@ -294,7 +295,8 @@ public class Worker {
             if (targetLoc != null){
                 WorkerUtil.addWorkers(targetLoc, 1);
                 WorkerUtil.workerCont++;
-                targets.put(unit.getID(), (double)unit.getMapLocation().distanceBFSTo(targetLoc));
+                //targets.put(unit.getID(), (double)unit.getMapLocation().distanceBFSTo(targetLoc));
+                targets.put(unit.getID(), priority);
             }
 
             //System.out.println("I got target " + targetLoc.x + " " + targetLoc.y);

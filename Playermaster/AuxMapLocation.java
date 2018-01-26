@@ -134,31 +134,56 @@ public class AuxMapLocation {
 
     //si es pot passar pel terreny (no hi ha muntanya)
     public boolean isPassable(){
-        return Pathfinder.passable[x][y];
+        try {
+            return Pathfinder.passable[x][y];
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     //si la posicio esta ocupada per una unitat
     public boolean isOccupiedByUnit(){
-        return Units.unitMap[x][y] != 0;
+        try {
+            return Units.unitMap[x][y] != 0;
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     //si no hi ha res a la posicio
     public boolean isAccessible(){
-        if (!isOnMap()) return false;
-        if (!isPassable()) return false;
-        if (isOccupiedByUnit()) return false;
-        if (Units.newOccupiedPositions.contains(encode())) return false;
-        return true;
+        try {
+            if (!isOnMap()) return false;
+            if (!isPassable()) return false;
+            if (isOccupiedByUnit()) return false;
+            if (Units.newOccupiedPositions.contains(encode())) return false;
+            return true;
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     public double getDanger(){
-        return (double)(Danger.myDist[x][y]+1)/(Danger.enemyDist[x][y]+1);
+        try {
+            return (double)(Danger.myDist[x][y]+1)/(Danger.enemyDist[x][y]+1);
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 
     public boolean isDangerousForWorker(){
-        if (Danger.enemyDist[x][y] == 0) return false;
-        if (Danger.myDist[x][y] == 0) return true;
-        return (Danger.myDist[x][y] + 6 < Danger.enemyDist[x][y]);
+        try {
+            if (Danger.enemyDist[x][y] == 0) return false;
+            if (Danger.myDist[x][y] == 0) return true;
+            return (Danger.myDist[x][y] + 6 < Danger.enemyDist[x][y]);
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     @Override

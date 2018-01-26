@@ -184,6 +184,17 @@ public class MovementManager {
 
             myLoc = unit.getMapLocation();
 
+            long d = myLoc.distanceSquaredTo(unit.target);
+            if (d == 0) return 8;
+            if (d <= 2) {
+                int dir = myLoc.dirBFSTo(unit.target);
+                if (Wrapper.canMove(unit, dir)){
+                    doMovement(unit, dir);
+                    return dir;
+                }
+                return 8;
+            }
+
             Danger.computeDanger(unit); //Todo aixo es pot borrar no?
 
             int dirGreedy = greedyMove(unit);
@@ -230,18 +241,6 @@ public class MovementManager {
             }
 
             myLoc = unit.getMapLocation();
-            long d = myLoc.distanceSquaredTo(unit.target);
-            if (d == 0) return 8;
-            if (d <= 2) {
-                int dir = myLoc.dirBFSTo(unit.target);
-                //System.err.println(dir);
-                //System.err.println(Pathfinder.getIndex(dir));
-                if (Wrapper.canMove(unit, dir)){
-                    doMovement(unit, dir);
-                    return dir;
-                }
-                return 8;
-            }
 
             this.unit = unit;
             id = unit.getID();

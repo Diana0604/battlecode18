@@ -89,7 +89,7 @@ class Data {
 
 
 
-    static int replicateCost = 30;
+    static int replicateCost = 60;
 
     static HashSet<Integer> occupiedPositions;
 

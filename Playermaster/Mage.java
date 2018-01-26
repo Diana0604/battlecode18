@@ -275,7 +275,7 @@ public class Mage {
         try {
             if (B == null) return true;
             if (!A.isOnMap()) return false;
-            if (!B.isOnMap()) return false;
+            if (!B.isOnMap()) return true;
             int a = multitargetArraY[A.x][A.y];
             int b = multitargetArraY[B.x][B.y];
             if (b < min_group && a > b) return true;

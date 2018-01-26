@@ -90,26 +90,34 @@ public class Factory {
     private UnitType chooseNextUnit(){
         try {
             int karbo = Utils.karbonite;
-            if (karbo < Const.replicateCost) return null;
+            //if (karbo < Const.replicateCost) return null;
 
             //prioritzem fer rockets a units
-            if (karbo < Const.replicateCost + Const.rocketCost && Units.rocketRequest != null) return null;
+            if (Units.canBuildRockets && karbo < Const.replicateCost + Const.rocketCost && Units.rocketRequest != null) return null;
+
 
             HashMap<UnitType, Integer> typeCount = Units.unitTypeCount;
             int rangers = typeCount.get(UnitType.Ranger);
             int healers = typeCount.get(UnitType.Healer);
             int mages =   typeCount.get(UnitType.Mage);
             int workers = typeCount.get(UnitType.Worker);
+            int knights = typeCount.get(UnitType.Knight);
 
             if (workers < 2) return UnitType.Worker; //potser millor si workers < 2-3?
 
-            int roundsEnemyUnseen = Utils.round - Units.lastRoundEnemySeen;
-            if ((Utils.round > 250 && roundsEnemyUnseen > 10) || Utils.round >= ROCKET_RUSH) {
-                if (workers < 5) return UnitType.Worker;
-                if (rangers + healers + mages > 30) return null;
+            AuxUnit[] enemies = Wrapper.senseUnits(unit.getMapLocation(), 18, false);
+            for (AuxUnit enemy : enemies){
+                if (enemy.getMapLocation().distanceBFSTo(unit.getMapLocation()) <= 3 && knights < 2) return UnitType.Knight;
             }
 
-            if (3 * healers < rangers - 1) return UnitType.Healer;
+
+            int roundsEnemyUnseen = Utils.round - Units.lastRoundEnemySeen;
+            if ((Utils.round > 250 && roundsEnemyUnseen > 10) || Utils.round >= ROCKET_RUSH) {
+                if (workers < 3) return UnitType.Worker;
+                if (rangers + healers + mages +knights > 30 && (rangers+healers+mages+knights) > 8*typeCount.get(UnitType.Rocket)) return null;
+            }
+
+            if (3 * healers < (rangers +knights) - 1) return UnitType.Healer;
             if (rangers < maxRangers) return UnitType.Ranger;
             if (healers < 1.25 * rangers) return UnitType.Healer;
             return UnitType.Mage;

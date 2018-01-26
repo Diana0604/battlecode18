@@ -54,15 +54,7 @@ class UnitManager{
             return;
         }
         if (!unit.canMove()) return;
-        if (unit.target == null){
-            for (int i = 0; i < 8; ++i){
-                if (Wrapper.canMove(unit, i)){
-                    Wrapper.moveRobot(unit, i);
-                    return;
-                }
-            }
-            return;
-        }
+        if (unit.target == null) unit.target = unit.getMapLocation();
         MovementManager.getInstance().move(unit);
     }
 

@@ -149,21 +149,21 @@ public class Wrapper {
     static int cost(UnitType type){
         switch(type){
             case Factory:
-                return 100;
+                return 200;
             case Worker:
-                return 25;
+                return 50;
             case Ranger:
-                return 20;
+                return 40;
             case Knight:
-                return 20;
+                return 40;
             case Mage:
-                return 20;
+                return 40;
             case Rocket:
-                return 75;
+                return 150;
             case Healer:
-                return 20;
+                return 40;
             default:
-                return 100;
+                return 200;
         }
     }
 

@@ -9,6 +9,8 @@ public class Ranger {
 
     HashMap<Integer, Integer> objectiveArea;
 
+    HashMap<Integer, Integer> distToTarget;
+
     static Ranger getInstance(){
         if (instance == null){
             instance = new Ranger();

@@ -307,12 +307,16 @@ public class Wrapper {
     }
 
     static void disintegrate(AuxUnit unit){
-        if (!unit.myTeam || unit.isStructure()) return;
-        //todo mirar que res no peti per culpa de que no troba la unit morta
-        System.out.println(Utils.round + " CUIDAOOOO!!! DESINTEGRATE UNIT " + unit.id + " location " + unit.getMapLocation());
-        unit.inSpace = true; //we don't desintegrate units, we kick them to space
-        Units.unitMap[unit.getMapLocation().x][unit.getMapLocation().y] = 0;
-        GC.gc.disintegrateUnit(unit.id);
+        try {
+            if (!unit.myTeam || unit.isStructure()) return;
+            //todo mirar que res no peti per culpa de que no troba la unit morta
+            System.out.println(Utils.round + " CUIDAOOOO!!! DESINTEGRATE UNIT " + unit.id + " location " + unit.getMapLocation());
+            unit.inSpace = true; //we don't desintegrate units, we kick them to space
+            Units.unitMap[unit.getMapLocation().x][unit.getMapLocation().y] = 0;
+            GC.gc.disintegrateUnit(unit.id);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
     }
 
     static boolean canHarvest(AuxUnit unit, int dir){
@@ -461,66 +465,94 @@ public class Wrapper {
     }
 
     static void overcharge(AuxUnit u1, AuxUnit u2){
-        u1.canUseAbility = false;
-        u2.canMove = true;
-        u2.canAttack = true;
-        u2.canUseAbility = true;
-        GC.gc.overcharge(u1.getID(), u2.getID());
+        try {
+            u1.canUseAbility = false;
+            u2.canMove = true;
+            u2.canAttack = true;
+            u2.canUseAbility = true;
+            GC.gc.overcharge(u1.getID(), u2.getID());
+        }catch(Exception e){
+            e.printStackTrace();
+        }
     }
 
     static long getKarbonite(AuxMapLocation location){
-        MapLocation karboLoc = new MapLocation(Mapa.planet, location.x, location.y);
-        if (GC.gc.canSenseLocation(karboLoc)){
-            return GC.gc.karboniteAt(karboLoc);
-        }else return -1;
+        try {
+            MapLocation karboLoc = new MapLocation(Mapa.planet, location.x, location.y);
+            if (GC.gc.canSenseLocation(karboLoc)){
+                return GC.gc.karboniteAt(karboLoc);
+            }else return -1;
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return 0;
     }
 
 
     static AuxUnit senseUnitAtLocation(AuxMapLocation loc){
-        MapLocation realLoc = new MapLocation(Mapa.planet, loc.x, loc.y);
-        if(!GC.gc.hasUnitAtLocation(realLoc)) return null;
-        Unit possibleUnit = GC.gc.senseUnitAtLocation(realLoc);
-        AuxUnit ans = new AuxUnit(possibleUnit);
-        possibleUnit.delete();
-        return ans;
+        try {
+            MapLocation realLoc = new MapLocation(Mapa.planet, loc.x, loc.y);
+            if(!GC.gc.hasUnitAtLocation(realLoc)) return null;
+            Unit possibleUnit = GC.gc.senseUnitAtLocation(realLoc);
+            AuxUnit ans = new AuxUnit(possibleUnit);
+            possibleUnit.delete();
+            return ans;
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return null;
     }
 
     /*------------------ GENERAL INIT GAME -----------------------*/
 
 
     static ArrayList<AuxUnit> getInitialUnits(PlanetMap planetMap){
-        ArrayList<AuxUnit> units = new ArrayList<>();
-        VecUnit initialUnits = planetMap.getInitial_units();
-        for (int i = 0; i < initialUnits.size(); ++i) {
-            units.add(new AuxUnit(initialUnits.get(i)));
+        try {
+            ArrayList<AuxUnit> units = new ArrayList<>();
+            VecUnit initialUnits = planetMap.getInitial_units();
+            for (int i = 0; i < initialUnits.size(); ++i) {
+                units.add(new AuxUnit(initialUnits.get(i)));
+            }
+            initialUnits.delete();
+            return units;
+        }catch(Exception e){
+            e.printStackTrace();
         }
-        initialUnits.delete();
-        return units;
+        return null;
     }
 
     /*------------------ KARBONITE INIT GAME -----------------------*/
 
     public static int[][] getMarsInitialKarbonite() {
-        PlanetMap marsMap = GC.gc.startingMap(Planet.Mars);
-        int W = (int)marsMap.getWidth();
-        int H = (int)marsMap.getHeight();
-        int[][] marsInitialKarbonite = new int[W][H];
-        for (int x = 0; x < W; ++x) {
-            for (int y = 0; y < H; ++y) {
-                marsInitialKarbonite[x][y] = (int)marsMap.initialKarboniteAt(new MapLocation(Planet.Mars, x, y));
+        try {
+            PlanetMap marsMap = GC.gc.startingMap(Planet.Mars);
+            int W = (int)marsMap.getWidth();
+            int H = (int)marsMap.getHeight();
+            int[][] marsInitialKarbonite = new int[W][H];
+            for (int x = 0; x < W; ++x) {
+                for (int y = 0; y < H; ++y) {
+                    marsInitialKarbonite[x][y] = (int)marsMap.initialKarboniteAt(new MapLocation(Planet.Mars, x, y));
+                }
             }
+            marsMap.delete();
+            return marsInitialKarbonite;
+        }catch(Exception e){
+            e.printStackTrace();
         }
-        marsMap.delete();
-        return marsInitialKarbonite;
+        return null;
     }
 
     public static void karboniteInitMap(PlanetMap planetMap){
-        Karbonite.asteroidPattern = GC.gc.asteroidPattern();
-        Karbonite.karboniteAt = new HashMap<>();
-        Karbonite.asteroidTasksLocs = new HashMap<>();
-        Karbonite.asteroidTasksIDs = new HashMap<>();
-        addInitialKarbo(planetMap);
-        fillKarboMap();
+        try {
+            Karbonite.asteroidPattern = GC.gc.asteroidPattern();
+            Karbonite.karboniteAt = new HashMap<>();
+            Karbonite.asteroidTasksLocs = new HashMap<>();
+            Karbonite.asteroidTasksIDs = new HashMap<>();
+            addInitialKarbo(planetMap);
+            fillKarboMap();
+        }catch(Exception e){
+            e.printStackTrace();
+        }
     }
 
 
@@ -529,26 +561,34 @@ public class Wrapper {
     }
 
     static void addInitialKarbo(PlanetMap planetMap){
-        //System.out.println("ok1");
-        for (int x = 0; x < Mapa.W; ++x) {
-            //System.out.println("ok2");
-            for (int y = 0; y < Mapa.H; ++y) {
-                //System.out.println("ok3");
-                int karbonite = getInitialKarbo(planetMap, x, y);
-                if (karbonite > Const.INFS) karbonite = Const.INFS;
-                if (karbonite > 0) putMine(x, y, karbonite);
-                //System.out.println("Afegeix karbo " + x + "," + y + ": " + karbonite);
+        try {
+            //System.out.println("ok1");
+            for (int x = 0; x < Mapa.W; ++x) {
+                //System.out.println("ok2");
+                for (int y = 0; y < Mapa.H; ++y) {
+                    //System.out.println("ok3");
+                    int karbonite = getInitialKarbo(planetMap, x, y);
+                    if (karbonite > Const.INFS) karbonite = Const.INFS;
+                    if (karbonite > 0) putMine(x, y, karbonite);
+                    //System.out.println("Afegeix karbo " + x + "," + y + ": " + karbonite);
+                }
             }
+        }catch(Exception e){
+            e.printStackTrace();
         }
     }
 
     static void fillKarboMap(){
-        Karbonite.karboMap = new int[Mapa.W][Mapa.H];
-        //System.out.println("In fillkarbomap");
-        for (Integer a : Karbonite.karboniteAt.keySet()) {
-            AuxMapLocation loc = new AuxMapLocation(a);
-            Karbonite.karboMap[loc.x][loc.y] = Karbonite.karboniteAt.get(a);
-            //System.out.println(loc + " contains karbo " + karboniteAt.get(a));
+        try {
+            Karbonite.karboMap = new int[Mapa.W][Mapa.H];
+            //System.out.println("In fillkarbomap");
+            for (Integer a : Karbonite.karboniteAt.keySet()) {
+                AuxMapLocation loc = new AuxMapLocation(a);
+                Karbonite.karboMap[loc.x][loc.y] = Karbonite.karboniteAt.get(a);
+                //System.out.println(loc + " contains karbo " + karboniteAt.get(a));
+            }
+        }catch(Exception e){
+            e.printStackTrace();
         }
     }
 
@@ -645,42 +685,53 @@ public class Wrapper {
 
 
     private static void checkIfIsolated(PlanetMap planetMap){
-        if (Mapa.onMars()) {
-            Units.isolated = false;
-            return;
-        }
-        ArrayList<AuxUnit> initUnits = getInitialUnits(planetMap);
-        boolean isolated = true;
-        for (AuxUnit u1: initUnits){
-            for (AuxUnit u2: initUnits){
-                if (u1.myTeam != u2.myTeam){
-                    if (u1.getMapLocation().distanceBFSTo(u2.getMapLocation()) < Const.INFS) isolated = false;
+        try {
+            if (Mapa.onMars()) {
+                Units.isolated = false;
+                return;
+            }
+            ArrayList<AuxUnit> initUnits = getInitialUnits(planetMap);
+            boolean isolated = true;
+            for (AuxUnit u1: initUnits){
+                for (AuxUnit u2: initUnits){
+                    if (u1.myTeam != u2.myTeam){
+                        if (u1.getMapLocation().distanceBFSTo(u2.getMapLocation()) < Const.INFS) isolated = false;
+                    }
                 }
             }
+            System.out.println("ARE WE ISOLATED? " + isolated);
+        }catch(Exception e){
+            e.printStackTrace();
         }
-        System.out.println("ARE WE ISOLATED? " + isolated);
-
     }
 
 
     public static void unitsInitMap(PlanetMap planetMap){
-        Units.declareArrays();
-        Units.rocketRequest = null;
-        Units.lastRoundEnemySeen = 1;
-        Units.lastRoundUnder100Karbo = 1;
-        Units.canBuildRockets = false;
-        Units.mapCenter = new AuxMapLocation(Mapa.W / 2 + 1, Mapa.H / 2 + 1);
-        Units.maxRadius = Units.mapCenter.distanceSquaredTo(new AuxMapLocation(0, 0));
-        checkIfIsolated(planetMap);
+        try {
+            Units.declareArrays();
+            Units.rocketRequest = null;
+            Units.lastRoundEnemySeen = 1;
+            Units.lastRoundUnder100Karbo = 1;
+            Units.canBuildRockets = false;
+            Units.mapCenter = new AuxMapLocation(Mapa.W / 2 + 1, Mapa.H / 2 + 1);
+            Units.maxRadius = Units.mapCenter.distanceSquaredTo(new AuxMapLocation(0, 0));
+            checkIfIsolated(planetMap);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
     }
 
     /*------------------ EXPLORE GAME -----------------------*/
 
 
     public static void exploreInitMap(PlanetMap planetMap){
-        createGrid();
-        Explore.objectiveArea = new HashMap<>();
-        getLocationEnemyBase(planetMap);
+        try {
+            createGrid();
+            Explore.objectiveArea = new HashMap<>();
+            getLocationEnemyBase(planetMap);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
     }
 
     static AuxMapLocation getAccessLocation(int xCenter, int yCenter){
@@ -770,47 +821,60 @@ public class Wrapper {
 
 
     public static void workerUtilInitMap(PlanetMap planetMap){
-        WorkerUtil.safe = true;
-        WorkerUtil.totalKarboCollected = 0;
-        WorkerUtil.workersCreated = 0;
-        WorkerUtil.workerActions = new int[Mapa.W][Mapa.H];
+        try {
+            WorkerUtil.safe = true;
+            WorkerUtil.totalKarboCollected = 0;
+            WorkerUtil.workersCreated = 0;
+            WorkerUtil.workerActions = new int[Mapa.W][Mapa.H];
 
-        preComputeConnectivity();
-        computeApproxMapValue(planetMap);
+            preComputeConnectivity();
+            computeApproxMapValue(planetMap);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
     }
 
     static void preComputeConnectivity(){
-        WorkerUtil.connectivityArray = new boolean[(1 << 9)-1];
-        for (int i = 0; i < (1 << 9) - 1; ++i){
-            WorkerUtil.connectivityArray[i] = computeConnectivity(i);
+        try {
+            WorkerUtil.connectivityArray = new boolean[(1 << 9)-1];
+            for (int i = 0; i < (1 << 9) - 1; ++i){
+                WorkerUtil.connectivityArray[i] = computeConnectivity(i);
+            }
+
+            //for (int i = 0; i < 32; ++i) System.out.println(connectivityArray[i]);
+
+        }catch(Exception e){
+            e.printStackTrace();
         }
-
-        //for (int i = 0; i < 32; ++i) System.out.println(connectivityArray[i]);
-
     }
 
     static boolean computeConnectivity(int s){
-        Queue<Integer> q = new LinkedList<>();
-        for (int i = 0; i < 8; ++i) {
-            if (((s >> i)&1) > 0){
-                q.add(i);
-                s = s & (~(1 << i));
-                break;
-            }
-        }
-        while (!q.isEmpty()){
-            int t = q.poll();
-            int x = 2;
-            if (t%2 == 1) x = 1;
-            for (int i = -x; i <= x; ++i){
-                int newT = (t+8-i)%8;
-                if (((s >> newT)&1) > 0){
-                    q.add(newT);
-                    s = s &(~(1 << newT));
+        try {
+            Queue<Integer> q = new LinkedList<>();
+            for (int i = 0; i < 8; ++i) {
+                if (((s >> i)&1) > 0){
+                    q.add(i);
+                    s = s & (~(1 << i));
+                    break;
                 }
             }
+            while (!q.isEmpty()){
+                int t = q.poll();
+                int x = 2;
+                if (t%2 == 1) x = 1;
+                for (int i = -x; i <= x; ++i){
+                    int newT = (t+8-i)%8;
+                    if (((s >> newT)&1) > 0){
+                        q.add(newT);
+                        s = s &(~(1 << newT));
+                    }
+                }
+            }
+            return s == 0;
+        }catch(Exception e){
+            e.printStackTrace();
         }
-        return s == 0;
+        return false;
     }
 
     static void computeApproxMapValue(PlanetMap planetMap) {
@@ -887,16 +951,20 @@ public class Wrapper {
     /*------------------ INIT GAME -----------------------*/
 
     static void initMap(){
-        Mapa.planet = GC.gc.planet();
-        PlanetMap planetMap = GC.gc.startingMap(Mapa.planet);
-        Mapa.W = (int) planetMap.getWidth();
-        Mapa.H = (int) planetMap.getHeight();
-        karboniteInitMap(planetMap); //ha d'anar despres de Mapa
-        pathfinderInitMap(planetMap); //ha d'anar despres de Mapa i Karbonite
-        unitsInitMap(planetMap); //ha d'anar despres de Mapa i pathfinder
-        exploreInitMap(planetMap); //ha d'anar despres de Mapa
-        workerUtilInitMap(planetMap); //ha d'anar despres de Mapa i Pathfinder
-        planetMap.delete();
+        try {
+            Mapa.planet = GC.gc.planet();
+            PlanetMap planetMap = GC.gc.startingMap(Mapa.planet);
+            Mapa.W = (int) planetMap.getWidth();
+            Mapa.H = (int) planetMap.getHeight();
+            karboniteInitMap(planetMap); //ha d'anar despres de Mapa
+            pathfinderInitMap(planetMap); //ha d'anar despres de Mapa i Karbonite
+            unitsInitMap(planetMap); //ha d'anar despres de Mapa i pathfinder
+            exploreInitMap(planetMap); //ha d'anar despres de Mapa
+            workerUtilInitMap(planetMap); //ha d'anar despres de Mapa i Pathfinder
+            planetMap.delete();
+        }catch(Exception e){
+            e.printStackTrace();
+        }
     }
 
 

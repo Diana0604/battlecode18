@@ -15,42 +15,54 @@ public class Pathfinder{
      static final double[] dists = {1, 1, 1, 1, 1, 1, 1, 1};
     static double [][] distToWalls;
 
-     static PathfinderNode[][][][] Nodes;
+    static final int off = 4;
+    static final int base_off = 0xF;
+
+     static short[][][][] Nodes;
     static int W;
     static int H;
 
+    static int[][] CC;
+
+    static final int connected_components = 0;
+
+    static int getDist(short a){
+        return (a >> off)&0xFFFF;
+    }
+
+    static int getDir(short a){
+        return (a&base_off)&0xFFFF;
+    }
+
+    static short encode(int dist, int dir){
+        return (short)(((dist << off) | dir)&0xFFFF);
+    }
+
     private static void bfs(int a,int b){
         try {
-            Nodes[a][b] = new PathfinderNode[W][H];
+            Nodes[a][b] = new short[W][H];
 
-            PriorityQueue<Integer> queue = new PriorityQueue<>();
+            Queue<AuxMapLocation> queue = new LinkedList<>();
 
+            short def = encode(Const.INFS, 8);
             for (int x = 0; x < W; ++x) {
                 for (int y = 0; y < H; ++y) {
-                    Nodes[a][b][x][y] = new PathfinderNode(8, Const.INFS);
+                    Nodes[a][b][x][y] = def;
                 }
             }
-
-            Nodes[a][b][a][b].dist = 0;
-            queue.add((a << AUX) | b);
-
+            Nodes[a][b][a][b] = 8;
+            queue.add(new AuxMapLocation(a,b));
             while (queue.size() > 0) {
-                int data = queue.poll();
-                int myPosX = (data >> AUX) & base;
-                int myPosY = data & base;
-                double dist = ((double) (data >> AUX2)) / distFactor;
-                for (int i = 0; i < X.length; ++i) {
-                    int newPosX = myPosX + X[i];
-                    int newPosY = myPosY + Y[i];
-                    double newDist = dist + dists[i];
-                    int parsedDist = (int) Math.round(distFactor * newDist);
-                    if (newPosX >= W || newPosX < 0 || newPosY >= H || newPosY < 0) continue;
-                    if (newDist < Nodes[a][b][newPosX][newPosY].dist) {
-                        if (passable[newPosX][newPosY]) queue.add((((parsedDist << AUX) | newPosX) << AUX) | newPosY);
-
-                        Nodes[a][b][newPosX][newPosY].dist = (short) newDist;
-                        if (newDist < 1.8) Nodes[a][b][newPosX][newPosY].dir = (short) i;
-                        else Nodes[a][b][newPosX][newPosY].dir = Nodes[a][b][myPosX][myPosY].dir;
+                AuxMapLocation loc = queue.poll();
+                int dist = getDist(Nodes[a][b][loc.x][loc.y]) + 1;
+                int dir = getDir(Nodes[a][b][loc.x][loc.y]);
+                for (int i = 0; i < 8; ++i) {
+                    AuxMapLocation newLoc = loc.add(i);
+                    if (!newLoc.isOnMap()) continue;
+                    if (getDist(Nodes[a][b][newLoc.x][newLoc.y]) >= Const.INFS) {
+                        if (passable[newLoc.x][newLoc.y]) queue.add(newLoc);
+                        if (dist == 1) Nodes[a][b][newLoc.x][newLoc.y] = encode(dist, i);
+                        else Nodes[a][b][newLoc.x][newLoc.y] = encode(dist, dir);
                     }
                 }
             }
@@ -60,22 +72,23 @@ public class Pathfinder{
     }
 
 
-    static PathfinderNode getNode(int x1, int y1, int x2, int y2){
+    static int getDist(int x1, int y1, int x2, int y2){
         try{
             if(Nodes[x1][y1] == null) bfs(x1, y1);
-            return Nodes[x1][y1][x2][y2];
+            return getDist(Nodes[x1][y1][x2][y2]);
         }catch(Exception e) {
             e.printStackTrace();
-            return null;
+            return 0;
         }
     }
 
-    public PathfinderNode getNode(AuxMapLocation loc1, AuxMapLocation loc2) {
-        try {
-            return getNode(loc1.x, loc1.y, loc2.x, loc2.y);
-        } catch (Exception e) {
+    static int getDir(int x1, int y1, int x2, int y2){
+        try{
+            if(Nodes[x1][y1] == null) bfs(x1, y1);
+            return getDir(Nodes[x1][y1][x2][y2]);
+        }catch(Exception e) {
             e.printStackTrace();
-            return null;
+            return 8;
         }
     }
 

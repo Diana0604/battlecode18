@@ -460,8 +460,9 @@ public class Wrapper {
         MapLocation realLoc = new MapLocation(Mapa.planet, loc.x, loc.y);
         if(!GC.gc.hasUnitAtLocation(realLoc)) return null;
         Unit possibleUnit = GC.gc.senseUnitAtLocation(realLoc);
-        if(possibleUnit.team() == Utils.myTeam) return new AuxUnit(possibleUnit, true);
-        return new AuxUnit(possibleUnit, false);
+        AuxUnit ans = new AuxUnit(possibleUnit, possibleUnit.team() == Utils.myTeam);
+        possibleUnit.delete();
+        return ans;
     }
 
     /*------------------ KARBONITE INIT GAME -----------------------*/
@@ -524,7 +525,7 @@ public class Wrapper {
             Pathfinder.W = Mapa.W;
             Pathfinder.H = Mapa.H;
 
-            Pathfinder.Nodes = new PathfinderNode[Pathfinder.W][Pathfinder.H][][];
+            Pathfinder.Nodes = new short[Pathfinder.W][Pathfinder.H][][];
             //init pathfinder nodes
             for (int x = 0; x < Pathfinder.W; ++x) {
                 for (int y = 0; y < Pathfinder.H; ++y) {
@@ -766,13 +767,13 @@ public class Wrapper {
                     for (int t = 0; t < initialPositions.size(); ++t) {
                         mindist = Math.min(mindist, initialPositions.get(t).distanceBFSTo(mloc));
                     }
-                    WorkerUtil.approxMapValue += Karbonite.karboMap[i][j] * Math.pow(WorkerUtil.decrease_rate, mindist);
+                    WorkerUtil.approxMapValue += Karbonite.karboMap[i][j] * Math.pow(WorkerUtil.decrease_rate, Math.max(0, mindist - WorkerUtil.MIN_DIST));
                 }
             }
 
             WorkerUtil.approxMapValue /= 2;
 
-            WorkerUtil.min_nb_workers = (int)Math.max(WorkerUtil.min_nb_workers, WorkerUtil.approxMapValue / WorkerUtil.worker_value);
+            WorkerUtil.min_nb_workers = (int)Math.max(WorkerUtil.min_nb_workers, Math.floor(WorkerUtil.approxMapValue / WorkerUtil.worker_value));
 
             //return approxMapValue;
         } catch (Exception e) {

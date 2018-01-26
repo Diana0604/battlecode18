@@ -25,10 +25,10 @@ public class WorkerUtil {
 
     static AuxMapLocation bestFactoryLocation;
 
-    static double worker_value1 = 60, worker_value = 75;
+    static double worker_value1 = 65, worker_value = 75;
 
-    final static double decrease_rate = 0.99;
-    final static int MIN_DIST = 0;
+    final static double decrease_rate = 0.95;
+    final static int MIN_DIST = 4;
 
     static int workerCont;
     static int workersCreated;
@@ -50,12 +50,12 @@ public class WorkerUtil {
     }
 
 
-    static void putAction(AuxMapLocation m, int val){
+    static void putAction(AuxMapLocation m, int val, int factor){
         workerActions[m.x][m.y] = val;
         for (int i = 0; i < 9; ++i){
             AuxMapLocation newLoc = m.add(i);
             if (newLoc.isOnMap() && newLoc.isPassable()){
-                workerActionsExpanded[newLoc.x][newLoc.y] += val;
+                workerActionsExpanded[newLoc.x][newLoc.y] += factor*val;
             }
         }
     }
@@ -74,15 +74,17 @@ public class WorkerUtil {
                     AuxMapLocation currentLoc = new AuxMapLocation(i,j);
                     AuxUnit unit = currentLoc.getUnit(true);
                     if (unit == null) {
-                        putAction(currentLoc, (Karbonite.karboMap[i][j] + (Units.harvestingPower - 1)) / Units.harvestingPower);
+                        putAction(currentLoc, (Karbonite.karboMap[i][j] + (Units.harvestingPower - 1)) / Units.harvestingPower, 1);
                         continue;
                     }
                     if (unit.getType() == UnitType.Factory || unit.getType() == UnitType.Rocket) {
                         int dif = Units.getMaxHealth(unit.getType()) - unit.getHealth();
                         if (dif > 0) {
-                            if (!unit.isBuilt()) putAction(currentLoc, (dif + Units.buildingPower - 1) / Units.buildingPower);
+                            int factor = 1;
+                            if (Danger.enemySeen) factor = 2;
+                            if (!unit.isBuilt()) putAction(currentLoc, (dif + Units.buildingPower - 1) / Units.buildingPower, factor);
 
-                            else putAction(currentLoc, (dif + Units.repairingPower - 1) / Units.repairingPower);
+                            else putAction(currentLoc, (dif + Units.repairingPower - 1) / Units.repairingPower, 1);
                         }
                     } else {
                         if (unit.getType() == UnitType.Worker){
@@ -91,16 +93,17 @@ public class WorkerUtil {
                                 if (newLoc.isOnMap()) ++workerAreas[newLoc.x][newLoc.y];
                             }
                         }
-                        putAction(currentLoc, (Karbonite.karboMap[i][j] + Units.harvestingPower - 1) / Units.harvestingPower);
+                        putAction(currentLoc, (Karbonite.karboMap[i][j] + Units.harvestingPower - 1) / Units.harvestingPower, 1);
                     }
                 }
             }
 
             for (int i = 0; i < Mapa.W; ++i) {
                 for (int j = 0; j < Mapa.H; ++j) {
-                    if (workerActionsExpanded[i][j] > 0) importantLocations.add(new AuxMapLocation(i,j));
+                    if (workerActions[i][j] > 0) importantLocations.add(new AuxMapLocation(i,j));
                 }
             }
+            //System.out.println(importantLocations.size());
         }catch(Exception e) {
             e.printStackTrace();;
         }

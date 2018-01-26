@@ -151,10 +151,14 @@ public class AuxMapLocation {
         return true;
     }
 
+    public double getDanger(){
+        return (double)(Danger.myDist[x][y]+1)/(Danger.enemyDist[x][y]+1);
+    }
+
     public boolean isDangerousForWorker(){
         if (Danger.enemyDist[x][y] == 0) return false;
         if (Danger.myDist[x][y] == 0) return true;
-        return (Danger.myDist[x][y] -10 < Danger.enemyDist[x][y]);
+        return (Danger.myDist[x][y] + 6 < Danger.enemyDist[x][y]);
     }
 
     @Override

@@ -12,6 +12,8 @@ class Danger {
     static int[][] myDist;
     static int[][] enemyDist;
 
+    static boolean enemySeen = false;
+
     private static HashMap<Integer, DangerData> dangerData;
 
     static final double winningProportion = 1.05;
@@ -133,6 +135,8 @@ class Danger {
 
     private static void updateAttackers(){
         try {
+
+            if (Units.enemies.size() > 0) enemySeen = true;
             myQueue = new LinkedList<>();
             enemyQueue = new LinkedList<>();
             int n = Units.myUnits.size();
@@ -159,7 +163,7 @@ class Danger {
                 if (locUnits[i] == null) dangUnits[i] = false;
                 visitedUnits[i] = false;
                 if (unit.getType() != UnitType.Worker){
-                    myQueue.add(unit.getMapLocation().encode());
+                    myQueue.add(locUnits[i].encode());
                     myDist[locUnits[i].x][locUnits[i].y] = 1;
                 }
             }
@@ -170,7 +174,7 @@ class Danger {
                 dangEnemyUnits[i] = dangerousUnit(unit);
                 visitedEnemyUnits[i] = false;
                 if (unit.getType() != UnitType.Worker){
-                    enemyQueue.add(unit.getMapLocation().encode());
+                    enemyQueue.add(locEnemyUnits[i].encode());
                     enemyDist[locEnemyUnits[i].x][locEnemyUnits[i].y] = 1;
                 }
             }

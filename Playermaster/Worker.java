@@ -80,7 +80,8 @@ public class Worker {
             Units.workers.add(index);
             Units.unitMap[newWorker.getX()][newWorker.getY()] = index + 1;
             WorkerUtil.hasReplicated = true;
-            newWorker.target = getTarget(newWorker);
+            newWorker.target = unit.target;
+            if(newWorker.target == null) newWorker.target = getTarget(newWorker);
             doAction(newWorker, true);
             UnitManager.move(newWorker);
             doAction(newWorker, false);
@@ -186,7 +187,10 @@ public class Worker {
         if (Mapa.onMars()) return true;
         if (!WorkerUtil.safe) return false;
         if (Units.unitTypeCount.get(UnitType.Worker) < WorkerUtil.min_nb_workers) return true;
-        if (Utils.round < WorkerUtil.minSafeTurns && WorkerUtil.totalKarboCollected < 0.7*WorkerUtil.approxMapValue) return true;
+        if (Utils.round < WorkerUtil.minSafeTurns) {
+            if (Danger.enemySeen) return false;
+            if (WorkerUtil.totalKarboCollected < 0.8*WorkerUtil.approxMapValue) return true;
+        }
 
         return false;
     }
@@ -261,7 +265,7 @@ public class Worker {
 
     double hasTarget(AuxUnit unit){
         if (!targets.containsKey(unit.getID())) return 0;
-        return targets.get(unit.getID());
+        return 0.5 - 0.001*targets.get(unit.getID());
     }
 
 
@@ -285,26 +289,56 @@ public class Worker {
                 newPriority /= (WorkerUtil.workersDeployed[loc.x][loc.y]+1);
                 newPriority /= (dist + dist_offset);
                 if (newPriority > priority) {
-                    if (!MovementManager.getInstance().kamikazeWorker() && loc.isDangerousForWorker()) continue;
-                    priority = newPriority;
-                    targetLoc = loc;
+                    if (Utils.round < 150 || MovementManager.getInstance().kamikazeWorker() || !loc.isDangerousForWorker()) {
+
+                        priority = newPriority;
+                        targetLoc = loc;
+                    }
+
+                    else{
+                        //System.out.println("Cannot go to " + loc.x + " " + loc.y);
+                        //System.out.println("My Distance: " + Danger.myDist[loc.x][loc.y]);
+                        //System.out.println("Enemy Distance: " + Danger.enemyDist[loc.x][loc.y]);
+                    }
+
                 }
             }
 
             if (targetLoc != null){
                 WorkerUtil.addWorkers(targetLoc, 1);
                 WorkerUtil.workerCont++;
-                targets.put(unit.getID(), (double)unit.getMapLocation().distanceBFSTo(targetLoc));
+                //targets.put(unit.getID(), (double)unit.getMapLocation().distanceBFSTo(targetLoc));
+                targets.put(unit.getID(), priority);
+                return targetLoc;
             }
+
+            targetLoc = getBackLine();
+            return targetLoc;
 
             //System.out.println("I got target " + targetLoc.x + " " + targetLoc.y);
 
-            return targetLoc;
 
         }catch(Exception e) {
             e.printStackTrace();
         }
         return null;
+    }
+
+    AuxMapLocation getBackLine(){
+        double mostDanger = 0;
+        AuxMapLocation ans = null;
+
+        for (int i = 0; i < Units.myUnits.size(); ++i){
+            AuxUnit unit = Units.myUnits.get(i);
+            if (unit.isInSpace() || unit.isInGarrison()) continue;
+            AuxMapLocation loc = Units.myUnits.get(i).getMapLocation();
+            double dang = loc.getDanger();
+            if (!loc.isDangerousForWorker() && dang > mostDanger){
+                mostDanger = dang;
+                ans = loc;
+            }
+        }
+        return ans;
     }
 
     private AuxMapLocation marsTarget(AuxUnit unit){

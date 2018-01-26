@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="71f64d24-17d9-4332-bb4e-252ae65615b9" name="Default" comment="">
+<<<<<<< Updated upstream
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Playermaster/Knight.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Playermaster/Const.java" afterPath="$PROJECT_DIR$/Playermaster/Const.java" />
@@ -11,6 +12,13 @@
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Playermaster/Units.java" afterPath="$PROJECT_DIR$/Playermaster/Units.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Playermaster/Worker.java" afterPath="$PROJECT_DIR$/Playermaster/Worker.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Playermaster/WorkerUtil.java" afterPath="$PROJECT_DIR$/Playermaster/WorkerUtil.java" />
+=======
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Playermaster/AuxMapLocation.java" afterPath="$PROJECT_DIR$/Playermaster/AuxMapLocation.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Playermaster/Danger.java" afterPath="$PROJECT_DIR$/Playermaster/Danger.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Playermaster/Worker.java" afterPath="$PROJECT_DIR$/Playermaster/Worker.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Playermaster/WorkerUtil.java" afterPath="$PROJECT_DIR$/Playermaster/WorkerUtil.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Playermaster/Wrapper.java" afterPath="$PROJECT_DIR$/Playermaster/Wrapper.java" />
+>>>>>>> Stashed changes
     </list>
     <ignored path="$PROJECT_DIR$/Old players/" />
     <ignored path="$PROJECT_DIR$/Overcharge-mages/" />
@@ -44,13 +52,19 @@
       <file leaf-file-name="Worker.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Playermaster/Worker.java">
           <provider selected="true" editor-type-id="text-editor">
+<<<<<<< Updated upstream
             <state relative-caret-position="272">
               <caret line="186" column="25" lean-forward="false" selection-start-line="186" selection-start-column="25" selection-end-line="186" selection-end-column="25" />
+=======
+            <state relative-caret-position="527">
+              <caret line="52" column="0" lean-forward="false" selection-start-line="52" selection-start-column="0" selection-end-line="52" selection-end-column="0" />
+>>>>>>> Stashed changes
               <folding />
             </state>
           </provider>
         </entry>
       </file>
+<<<<<<< Updated upstream
       <file leaf-file-name="UnitManager.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Playermaster/UnitManager.java">
           <provider selected="true" editor-type-id="text-editor">
@@ -128,16 +142,61 @@
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="85">
               <caret line="4" column="0" lean-forward="true" selection-start-line="4" selection-start-column="0" selection-end-line="4" selection-end-column="0" />
+=======
+      <file leaf-file-name="Worker.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Playermaster/Worker.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="142">
+              <caret line="193" column="9" lean-forward="false" selection-start-line="193" selection-start-column="9" selection-end-line="193" selection-end-column="9" />
+>>>>>>> Stashed changes
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="AuxMapLocation.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="Wrapper.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Playermaster/Wrapper.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="380">
+              <caret line="841" column="38" lean-forward="false" selection-start-line="841" selection-start-column="38" selection-end-line="841" selection-end-column="38" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="WorkerUtil.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Playermaster/WorkerUtil.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="238">
+              <caret line="105" column="14" lean-forward="false" selection-start-line="105" selection-start-column="14" selection-end-line="105" selection-end-column="14" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="AuxMapLocation.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Playermaster/AuxMapLocation.java">
           <provider selected="true" editor-type-id="text-editor">
+<<<<<<< Updated upstream
             <state relative-caret-position="360">
               <caret line="114" column="33" lean-forward="false" selection-start-line="114" selection-start-column="33" selection-end-line="114" selection-end-column="33" />
+=======
+            <state relative-caret-position="370">
+              <caret line="160" column="39" lean-forward="false" selection-start-line="160" selection-start-column="39" selection-end-line="160" selection-end-column="39" />
+              <folding>
+                <element signature="e#3792#3793#0" expanded="true" />
+                <element signature="e#3873#3874#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Danger.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Playermaster/Danger.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="51">
+              <caret line="138" column="59" lean-forward="false" selection-start-line="138" selection-start-column="59" selection-end-line="138" selection-end-column="59" />
+>>>>>>> Stashed changes
               <folding />
             </state>
           </provider>
@@ -154,7 +213,22 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
+<<<<<<< Updated upstream
       <find>range</find>
+=======
+      <find>checkNeeded</find>
+      <find>check</find>
+      <find>searchNearby</find>
+      <find>Direction.values()</find>
+      <find>Nodes</find>
+      <find>tryReplicate</find>
+      <find>shouldReplicat</find>
+      <find>factory</find>
+      <find>minSa</find>
+      <find>addworkers</find>
+      <find>workersDeployed</find>
+      <find>canWait</find>
+>>>>>>> Stashed changes
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -169,6 +243,7 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/Playermaster/Ranger.java" />
+<<<<<<< Updated upstream
         <option value="$PROJECT_DIR$/Playermaster/WorkerUtil.java" />
         <option value="$PROJECT_DIR$/Playermaster/Const.java" />
         <option value="$PROJECT_DIR$/Playermaster/Knight.java" />
@@ -176,6 +251,54 @@
         <option value="$PROJECT_DIR$/Playermaster/Worker.java" />
         <option value="$PROJECT_DIR$/Playermaster/UnitManager.java" />
         <option value="$PROJECT_DIR$/Playermaster/Units.java" />
+=======
+        <option value="$PROJECT_DIR$/Player-07/BugPathfindingData.java" />
+        <option value="$PROJECT_DIR$/Player-07/ConstructionQueue.java" />
+        <option value="$PROJECT_DIR$/Player-07/Factory.java" />
+        <option value="$PROJECT_DIR$/Player-07/MarsPlanning.java" />
+        <option value="$PROJECT_DIR$/Player-07/Pathfinder.java" />
+        <option value="$PROJECT_DIR$/Player-07/PathfinderNode.java" />
+        <option value="$PROJECT_DIR$/Player-07/Rocket.java" />
+        <option value="$PROJECT_DIR$/Player-07/Utils.java" />
+        <option value="$PROJECT_DIR$/Player-07/WorkerData.java" />
+        <option value="$PROJECT_DIR$/Player-07/MovementManager.java" />
+        <option value="$PROJECT_DIR$/Player06-java/EnemyData.java" />
+        <option value="$PROJECT_DIR$/Player06-java/UnitManager.java" />
+        <option value="$PROJECT_DIR$/Player-07/Player.java" />
+        <option value="$PROJECT_DIR$/TODO" />
+        <option value="$PROJECT_DIR$/Player-07/Research.java" />
+        <option value="$PROJECT_DIR$/Player-07/Danger.java" />
+        <option value="$PROJECT_DIR$/Player-07/UnitManager.java" />
+        <option value="$PROJECT_DIR$/Player-07/Worker.java" />
+        <option value="$PROJECT_DIR$/Player-07/Ranger.java" />
+        <option value="$PROJECT_DIR$/Player14-java/AuxMapLocation.java" />
+        <option value="$PROJECT_DIR$/Player14-java/AuxUnit.java" />
+        <option value="$PROJECT_DIR$/Player14-java/ConstructionQueue.java" />
+        <option value="$PROJECT_DIR$/Player14-java/Danger.java" />
+        <option value="$PROJECT_DIR$/Player14-java/Data.java" />
+        <option value="$PROJECT_DIR$/Player14-java/Factory.java" />
+        <option value="$PROJECT_DIR$/Player14-java/Healer.java" />
+        <option value="$PROJECT_DIR$/Player14-java/MarsPlanning.java" />
+        <option value="$PROJECT_DIR$/Player14-java/MovementManager.java" />
+        <option value="$PROJECT_DIR$/Player14-java/Pathfinder.java" />
+        <option value="$PROJECT_DIR$/Player14-java/Player.java" />
+        <option value="$PROJECT_DIR$/Player14-java/Ranger.java" />
+        <option value="$PROJECT_DIR$/Player14-java/Research.java" />
+        <option value="$PROJECT_DIR$/Player14-java/UnitManager.java" />
+        <option value="$PROJECT_DIR$/Player14-java/Worker.java" />
+        <option value="$PROJECT_DIR$/Player14-java/WorkerUtil.java" />
+        <option value="$PROJECT_DIR$/Player14-java/Wrapper.java" />
+        <option value="$PROJECT_DIR$/Playermaster/Utils.java" />
+        <option value="$PROJECT_DIR$/Playermaster/run.sh" />
+        <option value="$PROJECT_DIR$/run.sh" />
+        <option value="$PROJECT_DIR$/Playermaster/Player.java" />
+        <option value="$PROJECT_DIR$/Playermaster/Pathfinder.java" />
+        <option value="$PROJECT_DIR$/Playermaster/Danger.java" />
+        <option value="$PROJECT_DIR$/Playermaster/Wrapper.java" />
+        <option value="$PROJECT_DIR$/Playermaster/WorkerUtil.java" />
+        <option value="$PROJECT_DIR$/Playermaster/Worker.java" />
+        <option value="$PROJECT_DIR$/Playermaster/AuxMapLocation.java" />
+>>>>>>> Stashed changes
       </list>
     </option>
   </component>
@@ -226,6 +349,20 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="Playermaster" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="battlecode18" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="battlecode18" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Player23-java" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -633,6 +770,19 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
+<<<<<<< Updated upstream
+=======
+    <entry file="file://$PROJECT_DIR$/Player06-java/Danger.java" />
+    <entry file="file://$PROJECT_DIR$/Player06-java/BugPathfindingData.java" />
+    <entry file="file://$PROJECT_DIR$/Player06-java/UnitManager.java" />
+    <entry file="file://$PROJECT_DIR$/TODO">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="18">
+          <caret line="1" column="22" lean-forward="false" selection-start-line="1" selection-start-column="22" selection-end-line="1" selection-end-column="22" />
+        </state>
+      </provider>
+    </entry>
+>>>>>>> Stashed changes
     <entry file="file://$PROJECT_DIR$/Playermaster/Research.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="558">
@@ -647,10 +797,17 @@
         </state>
       </provider>
     </entry>
+<<<<<<< Updated upstream
     <entry file="file://$PROJECT_DIR$/Playermaster/Danger.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="574">
           <caret line="90" column="43" lean-forward="false" selection-start-line="90" selection-start-column="43" selection-end-line="90" selection-end-column="43" />
+=======
+    <entry file="file://$PROJECT_DIR$/Playermaster/Ranger.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1368">
+          <caret line="80" column="0" lean-forward="false" selection-start-line="80" selection-start-column="0" selection-end-line="80" selection-end-column="0" />
+>>>>>>> Stashed changes
         </state>
       </provider>
     </entry>
@@ -882,6 +1039,7 @@
         </state>
       </provider>
     </entry>
+<<<<<<< Updated upstream
     <entry file="file://$PROJECT_DIR$/Playermaster/ConstructionQueue.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="510">
@@ -897,6 +1055,8 @@
         </state>
       </provider>
     </entry>
+=======
+>>>>>>> Stashed changes
     <entry file="file://$PROJECT_DIR$/.idea/workspace.xml">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="308">
@@ -913,6 +1073,7 @@
         </state>
       </provider>
     </entry>
+<<<<<<< Updated upstream
     <entry file="file://$PROJECT_DIR$/Playermaster/Ranger.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="198">
@@ -975,12 +1136,63 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="118">
           <caret line="29" column="0" lean-forward="true" selection-start-line="29" selection-start-column="0" selection-end-line="29" selection-end-column="0" />
+=======
+    <entry file="file://$PROJECT_DIR$/Player23-java/Wrapper.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="176">
+          <caret line="837" column="28" lean-forward="false" selection-start-line="837" selection-start-column="23" selection-end-line="837" selection-end-column="28" />
+          <folding>
+            <element signature="imports" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Player23-java/Worker.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="176">
+          <caret line="184" column="19" lean-forward="false" selection-start-line="184" selection-start-column="12" selection-end-line="184" selection-end-column="19" />
+          <folding>
+            <element signature="imports" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Playermaster/Danger.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="51">
+          <caret line="138" column="59" lean-forward="false" selection-start-line="138" selection-start-column="59" selection-end-line="138" selection-end-column="59" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Playermaster/Wrapper.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="380">
+          <caret line="841" column="38" lean-forward="false" selection-start-line="841" selection-start-column="38" selection-end-line="841" selection-end-column="38" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Playermaster/ConstructionQueue.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="527">
+          <caret line="52" column="0" lean-forward="false" selection-start-line="52" selection-start-column="0" selection-end-line="52" selection-end-column="0" />
+>>>>>>> Stashed changes
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Playermaster/WorkerUtil.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="238">
+          <caret line="105" column="14" lean-forward="false" selection-start-line="105" selection-start-column="14" selection-end-line="105" selection-end-column="14" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Playermaster/Worker.java">
       <provider selected="true" editor-type-id="text-editor">
+<<<<<<< Updated upstream
         <state relative-caret-position="272">
           <caret line="186" column="25" lean-forward="false" selection-start-line="186" selection-start-column="25" selection-end-line="186" selection-end-column="25" />
           <folding />
@@ -999,9 +1211,104 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="396">
           <caret line="64" column="54" lean-forward="false" selection-start-line="64" selection-start-column="54" selection-end-line="64" selection-end-column="54" />
+=======
+        <state relative-caret-position="142">
+          <caret line="193" column="9" lean-forward="false" selection-start-line="193" selection-start-column="9" selection-end-line="193" selection-end-column="9" />
+>>>>>>> Stashed changes
           <folding />
         </state>
       </provider>
     </entry>
+<<<<<<< Updated upstream
+=======
+    <entry file="file://$PROJECT_DIR$/Playermaster/AuxMapLocation.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="370">
+          <caret line="160" column="39" lean-forward="false" selection-start-line="160" selection-start-column="39" selection-end-line="160" selection-end-column="39" />
+          <folding>
+            <element signature="e#3792#3793#0" expanded="true" />
+            <element signature="e#3873#3874#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+  </component>
+  <component name="masterDetails">
+    <states>
+      <state key="ArtifactsStructureConfigurable.UI">
+        <settings>
+          <artifact-editor />
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="FacetStructureConfigurable.UI">
+        <settings>
+          <last-edited>No facets are configured</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="GlobalLibrariesConfigurable.UI">
+        <settings>
+          <last-edited>bc</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="JdkListConfigurable.UI">
+        <settings>
+          <last-edited>1.8</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="ModuleStructureConfigurable.UI">
+        <settings>
+          <last-edited>Battlecode18</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+                <option value="0.6" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="ProjectLibrariesConfigurable.UI">
+        <settings>
+          <last-edited>bc</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+    </states>
+>>>>>>> Stashed changes
   </component>
 </project>

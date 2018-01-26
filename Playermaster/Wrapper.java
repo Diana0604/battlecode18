@@ -839,7 +839,7 @@ public class Wrapper {
                 }
             }
 
-            WorkerUtil.minSafeTurns = 10 + 0.75*minDist;
+            WorkerUtil.minSafeTurns = minDist;
 
             Utils.startingLocations = new ArrayList<>();
             Utils.enemyStartingLocations = new ArrayList<>();

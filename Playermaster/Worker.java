@@ -183,6 +183,7 @@ public class Worker {
     }
 
     boolean canWait(){
+        if (Mapa.onMars()) return true;
         if (!WorkerUtil.safe) return false;
         if (Units.unitTypeCount.get(UnitType.Worker) < WorkerUtil.min_nb_workers) return true;
         if (Utils.round < WorkerUtil.minSafeTurns && WorkerUtil.totalKarboCollected < 0.7*WorkerUtil.approxMapValue) return true;
@@ -194,7 +195,6 @@ public class Worker {
     private boolean tryPlaceBlueprint(AuxUnit unit){
         try {
             if (canWait()) return false;
-            if (Mapa.onMars()) return false;
             UnitType type = chooseStructure();
             if (type == null) return false;
             if (Utils.karbonite < Units.getCost(type)) return false;

@@ -24,7 +24,7 @@ public class WorkerUtil {
 
     static AuxMapLocation bestFactoryLocation;
 
-    static double worker_value = 85;
+    static double worker_value = 75;
 
     final static double decrease_rate = 0.9;
     final static int MIN_DIST = 5;

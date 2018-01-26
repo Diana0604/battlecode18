@@ -239,7 +239,7 @@ public class Worker {
         int roundsOver100Karbo = Utils.round - Units.lastRoundUnder100Karbo;
         if (roundsOver100Karbo == 5 && numFactories < MAX_FACTORIES) return UnitType.Factory;
 
-        if (Units.rocketRequest != null) return UnitType.Rocket;
+        if (Units.canBuildRockets && Units.rocketRequest != null) return UnitType.Rocket;
 
         if (Utils.karbonite >= 800) return UnitType.Factory;
 

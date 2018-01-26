@@ -64,7 +64,7 @@ public class Healer {
             for (int index: Units.robots){
                 AuxUnit u = Units.myUnits.get(index);
                 if (!u.frontline) continue;
-                if (!(u.getType() == UnitType.Ranger)) continue;
+                if (!(u.getType() == UnitType.Ranger) && !(u.getType() == UnitType.Mage) && !(u.getType() == UnitType.Knight)) continue;
                 //if (bestUnit == null || loc.distanceBFSTo(bestUnit.getMapLocation()) > loc.distanceBFSTo(u.getMapLocation())) bestUnit = u;
                 bestUnit = compareUnits(loc, bestUnit, u);
             }

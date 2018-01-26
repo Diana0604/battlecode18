@@ -45,6 +45,8 @@ class UnitManager{
             if (unit.getType() == UnitType.Mage) {
                 unit.target = Mage.getInstance().getTarget(unit);
             }
+
+
         }
     }
 
@@ -72,7 +74,7 @@ class UnitManager{
             //System.err.println("playing unit " + GC.myUnits[i].getType());
             if (unit.isInGarrison() || unit.isInSpace()) continue;
             if (unit.getType() == UnitType.Worker) {
-                Worker.getInstance().doAction(unit, true);
+                //Worker.getInstance().doAction(unit, true);
             }
             if (unit.getType() == UnitType.Ranger || unit.getType() == UnitType.Knight) { //LOLZ
                 Ranger.getInstance().attack(unit);
@@ -83,6 +85,7 @@ class UnitManager{
             if (unit.getType() == UnitType.Mage) {
                 Mage.getInstance().doAction(unit);
             }
+            WorkerUtil.doFirstActions();
         }
     }
 

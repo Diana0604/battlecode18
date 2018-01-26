@@ -837,13 +837,19 @@ public class Wrapper {
 
             WorkerUtil.minSafeTurns = 10 + 0.75*minDist;
 
+            Utils.startingLocations = new ArrayList<>();
+            Utils.enemyStartingLocations = new ArrayList<>();
+
             for (int i = 0; i < initialUnits.size(); ++i) {
                 AuxUnit unit = initialUnits.get(i);
                 if (!unit.isInGarrison()) {
                     initialPositions.add(unit.getMapLocation());
+                    if (unit.myTeam) Utils.startingLocations.add(unit.getMapLocation());
+                    else Utils.enemyStartingLocations.add(unit.getMapLocation());
                     if (i % 2 == 0){
                         ++WorkerUtil.min_nb_workers;
                         ++WorkerUtil.workersCreated;
+                        ++WorkerUtil.min_nb_workers1;
                     }
                 }
             }
@@ -862,6 +868,7 @@ public class Wrapper {
             WorkerUtil.approxMapValue /= 2;
 
             WorkerUtil.min_nb_workers = (int)Math.max(WorkerUtil.min_nb_workers, Math.floor(WorkerUtil.approxMapValue / WorkerUtil.worker_value));
+            WorkerUtil.min_nb_workers1 = (int)Math.max(WorkerUtil.min_nb_workers, Math.floor(WorkerUtil.approxMapValue / WorkerUtil.worker_value1));
 
 
             System.out.println("Map value = " + WorkerUtil.approxMapValue);

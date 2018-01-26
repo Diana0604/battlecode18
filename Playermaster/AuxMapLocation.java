@@ -152,6 +152,8 @@ public class AuxMapLocation {
     }
 
     public boolean isDangerousForWorker(){
+        if (Danger.enemyDist[x][y] == 0) return false;
+        if (Danger.myDist[x][y] == 0) return true;
         return (Danger.myDist[x][y] -10 < Danger.enemyDist[x][y]);
     }
 

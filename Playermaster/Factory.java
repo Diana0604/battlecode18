@@ -107,7 +107,7 @@ public class Factory {
 
             AuxUnit[] enemies = Wrapper.senseUnits(unit.getMapLocation(), 18, false);
             for (AuxUnit enemy : enemies){
-                if (enemy.getMapLocation().distanceBFSTo(unit.getMapLocation()) <= 3 && knights < 2) return UnitType.Knight;
+                if (enemy.getMapLocation().distanceBFSTo(unit.getMapLocation()) <= 3 && knights < 2 && rangers <= 2) return UnitType.Knight;
             }
 
 

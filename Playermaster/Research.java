@@ -5,7 +5,7 @@ import bc.UnitType;
 
 public class Research {
     static ResearchInfo researchInfo;
-    private static UnitType[] fixedTree = new UnitType[]{UnitType.Ranger, UnitType.Healer, UnitType.Healer, UnitType.Healer, UnitType.Rocket, UnitType.Ranger, UnitType.Mage, UnitType.Mage, UnitType.Mage, UnitType.Mage};
+    private static UnitType[] fixedTree = new UnitType[]{UnitType.Healer, UnitType.Healer, UnitType.Healer, UnitType.Mage, UnitType.Mage, UnitType.Mage, UnitType.Mage, UnitType.Rocket, UnitType.Ranger, UnitType.Ranger, UnitType.Ranger};
 
     public static void initGame(){
         try{

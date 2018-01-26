@@ -1,10 +1,13 @@
 import bc.Team;
+import java.util.ArrayList;
 
 public class Utils {
     static int round;
     static Team myTeam;
     static Team enemyTeam;
     static Integer karbonite;
+
+    static ArrayList<AuxMapLocation> startingLocations, enemyStartingLocations;
 
     public static void initGame(){
         round = 1;

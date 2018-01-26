@@ -29,10 +29,10 @@ public class Worker {
     public void doAction(AuxUnit unit, boolean firstTime){
         try {
             boolean acted;
-            boolean willReplicate = shouldReplicate(unit) && canReplicate(unit);
+            //boolean willReplicate = shouldReplicate(unit) && canReplicate(unit);
             if (unit.canAttack()) {
                 acted = tryBuildAndRepair(unit);
-                if (!acted && !willReplicate) acted = tryPlaceBlueprint(unit);
+                if (!acted && firstTime) acted = tryPlaceBlueprint(unit);
                 if (!acted) tryMine(unit);
             }
             if (!firstTime) tryReplicate(unit);
@@ -107,11 +107,12 @@ public class Worker {
             Danger.computeDanger(unit);
             boolean danger = (Danger.DPSlong[8] > 0);
             if (danger) return false;
-            int nb_actions = WorkerUtil.getWorkerActions(unit.getMapLocation(), 16);
+            int nb_actions = WorkerUtil.getWorkerActions(unit.getMapLocation(), 30);
             if (WorkerUtil.workersCreated < WorkerUtil.min_nb_workers){
                 return true;
             }
-            return (nb_actions >= 30);
+            if (WorkerUtil.workersCreated <  WorkerUtil.min_nb_workers1) return (nb_actions >= 15);
+            return nb_actions >= 35;
         }catch(Exception e) {
             e.printStackTrace();
             return false;
@@ -120,7 +121,7 @@ public class Worker {
 
     private boolean shouldReplicateMars(AuxUnit unit){
         if (Utils.round > 750) return true;
-        if (Utils.karbonite > 120) return true;
+        if (Utils.karbonite > 240) return true;
         //if (Utils.karbonite < 40) return false; //no se si aixo va be o no
         HashMap<Integer, Integer> tasks = Karbonite.asteroidTasksLocs;
         HashMap<Integer, Integer> karboAt = Karbonite.karboniteAt;
@@ -192,11 +193,14 @@ public class Worker {
     }
 
     //Posen un blueprint en una posicio adjacent (aixo s'ha de canviar quan ho fem global)
-    private boolean tryPlaceBlueprint(AuxUnit unit){
+    public boolean tryPlaceBlueprint(AuxUnit unit){
         try {
+            if (!unit.canAttack()) return false;
             if (canWait()) return false;
             UnitType type = chooseStructure();
             if (type == null) return false;
+            //int extra_cost = 0;
+            //if (shouldReplicate(unit) && !WorkerUtil.hasReplicated) extra_cost = 60;
             if (Utils.karbonite < Units.getCost(type)) return false;
             int i;
             if (type == UnitType.Factory) i = WorkerUtil.getBestFactoryLocation(unit);
@@ -210,6 +214,7 @@ public class Worker {
                     if (MovementManager.getInstance().move(rip) == 8)
                         Wrapper.disintegrate(rip);
                 Wrapper.placeBlueprint(unit, type, i);
+                Units.unitTypeCount.put(type, Units.unitTypeCount.get(type)+1);
                 unit.canMove = false;
                 targets.put(unit.getID(), 100.0);
                 return true;
@@ -226,12 +231,15 @@ public class Worker {
         int numFactories = Units.unitTypeCount.get(UnitType.Factory);
         if (numFactories < 3) return UnitType.Factory;
 
-        if (Units.rocketRequest != null && Units.rocketRequest.urgent) return UnitType.Rocket;
+        if (Units.canBuildRockets && Units.rocketRequest != null && Units.rocketRequest.urgent) return UnitType.Rocket;
 
         int roundsOver100Karbo = Utils.round - Units.lastRoundUnder100Karbo;
         if (roundsOver100Karbo == 5 && numFactories < MAX_FACTORIES) return UnitType.Factory;
 
         if (Units.rocketRequest != null) return UnitType.Rocket;
+
+        if (Utils.karbonite >= 800) return UnitType.Factory;
+
         return null;
     }
 
@@ -276,6 +284,7 @@ public class Worker {
                 newPriority /= (WorkerUtil.workersDeployed[loc.x][loc.y]+1);
                 newPriority /= (loc.distanceBFSTo(unit.getMapLocation()) + dist_offset);
                 if (newPriority > priority) {
+                    if (!MovementManager.getInstance().kamikazeWorker() && loc.isDangerousForWorker()) continue;
                     priority = newPriority;
                     targetLoc = loc;
                 }

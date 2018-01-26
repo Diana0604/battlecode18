@@ -171,7 +171,7 @@ class Danger {
                 visitedEnemyUnits[i] = false;
                 if (unit.getType() != UnitType.Worker){
                     enemyQueue.add(unit.getMapLocation().encode());
-                    myDist[locEnemyUnits[i].x][locEnemyUnits[i].y] = 1;
+                    enemyDist[locEnemyUnits[i].x][locEnemyUnits[i].y] = 1;
                 }
             }
 

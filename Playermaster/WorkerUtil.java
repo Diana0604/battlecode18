@@ -13,6 +13,7 @@ public class WorkerUtil {
     static int[][] workerActionsExpanded;
     static int approxMapValue = 0;
     static int min_nb_workers = 2;
+    static int min_nb_workers1 = 2;
     static int extra_workers;
 
     static boolean[] connectivityArray;
@@ -24,10 +25,10 @@ public class WorkerUtil {
 
     static AuxMapLocation bestFactoryLocation;
 
-    static double worker_value = 75;
+    static double worker_value1 = 60, worker_value = 75;
 
-    final static double decrease_rate = 0.9;
-    final static int MIN_DIST = 5;
+    final static double decrease_rate = 0.99;
+    final static int MIN_DIST = 0;
 
     static int workerCont;
     static int workersCreated;
@@ -100,6 +101,64 @@ public class WorkerUtil {
             }
         }catch(Exception e) {
             e.printStackTrace();;
+        }
+    }
+
+    static boolean isSafe(AuxMapLocation loc){
+        int dist1 = 100000, dist2 = 100000;
+        for (int i = 0; i < Utils.startingLocations.size(); ++i){
+            dist1 = Math.min(dist1, loc.distanceBFSTo(Utils.startingLocations.get(i)));
+        }
+        for (int i = 0; i < Utils.enemyStartingLocations.size(); ++i){
+            dist2 = Math.min(dist2, loc.distanceBFSTo(Utils.enemyStartingLocations.get(i)));
+        }
+
+        return (dist1 <= dist2);
+    }
+
+    static boolean isCloseToFactory(AuxMapLocation loc){
+        AuxUnit[] closeUnits = Wrapper.senseUnits(loc, 16, true);
+        for (int i = 0; i < closeUnits.length; ++i){
+            if (closeUnits[i].getType() == UnitType.Factory) return true;
+        }
+        return false;
+    }
+
+    static int value(AuxUnit worker){
+        int val = 0;
+        int mindist = 10000;
+        for (int i = 0; i < Utils.enemyStartingLocations.size(); ++i){
+            mindist = Math.min(mindist, worker.getMapLocation().distanceBFSTo(Utils.enemyStartingLocations.get(i)));
+        }
+
+        if (getConnectivity(worker.getMapLocation())) val += (1 << 21);
+        if (isSafe(worker.getMapLocation())){
+            val += (1 << 20) - mindist;
+        }
+        else val += mindist;
+        if (isCloseToFactory(worker.getMapLocation())) val += (1 << 19);
+
+        return -val;
+    }
+
+    static void doFirstActions(){
+        ArrayList<AuxUnit> workers = new ArrayList<>();
+        for (int i : Units.workers){
+            AuxUnit worker = Units.myUnits.get(i);
+            workers.add(worker);
+        }
+        //if (Utils.round < 60 && Utils.round > 30) {
+            //System.out.println("Placing blueprint!!");
+       // }
+
+        workers.sort((a, b) -> value(a) < value(b) ? -1 : value(a) == value(b) ? 0 : 1);
+        for (int i = 0; i < workers.size(); ++i){
+            if(workers.get(i).isInSpace() || workers.get(i).isInGarrison()) continue;
+            Worker.getInstance().doAction(workers.get(i), true);
+            //if (Utils.round < 60 && Utils.round > 30) {
+                //System.out.println("Working on " + workers.get(i).getMapLocation().x + " " + workers.get(i).getMapLocation().y);
+                //System.out.println(sd);
+            //}
         }
     }
 

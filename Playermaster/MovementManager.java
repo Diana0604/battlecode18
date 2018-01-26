@@ -184,6 +184,14 @@ public class MovementManager {
 
             myLoc = unit.getMapLocation();
 
+            Danger.computeDanger(unit);
+
+            int dirGreedy = greedyMove(unit);
+            if (dirGreedy != 8){
+                doMovement(unit, dirGreedy);
+                return dirGreedy; //Todo
+            }
+
             long d = myLoc.distanceSquaredTo(unit.target);
             if (d == 0) return 8;
             if (d <= 2) {
@@ -195,13 +203,6 @@ public class MovementManager {
                 return 8;
             }
 
-            Danger.computeDanger(unit); //Todo aixo es pot borrar no?
-
-            int dirGreedy = greedyMove(unit);
-            if (dirGreedy != 8){
-                doMovement(unit, dirGreedy);
-                return dirGreedy;
-            }
 
             ArrayList<Integer> directions = new ArrayList<>();
             for (int i = 0; i < 9; ++i){

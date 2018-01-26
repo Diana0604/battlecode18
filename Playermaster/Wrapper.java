@@ -83,6 +83,10 @@ public class Wrapper {
             AuxUnit unloadedUnit = Units.myUnits.get(posAtArray);
             unloadedUnit.canMove = false;
             unloadedUnit.garrison = false;
+            if (unloadedUnit.getType() == UnitType.Worker) {
+                unloadedUnit.canAttack = false;
+                unloadedUnit.canUseAbility = false;
+            }
             unloadedUnit.mloc = newLoc;
             Units.unitMap[newLoc.x][newLoc.y] = posAtArray + 1;
 

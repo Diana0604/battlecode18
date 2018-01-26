@@ -92,8 +92,9 @@ class Danger {
                 double dps = 0;
                 long arshort = 0;
                 long arslong = 0;
-                if (MovementManager.getInstance().dangerousUnit(enemy.getType())) {
+                if (unit.getType() == UnitType.Worker || MovementManager.getInstance().dangerousUnit(enemy.getType())) {
                     dps = Units.getDamage(enemy.getType()) / Units.getAttackCooldown(enemy.getType());
+                    if (unit.getType() == UnitType.Worker && enemy.getType() != UnitType.Worker && enemy.getType() != UnitType.Healer && enemy.getType() != UnitType.Rocket) dps += 0.0001;
                     arslong = Units.getAttackRangeLong(enemy.getType());
                     arshort = Units.getAttackRangeSafe(enemy.getType());
                 }

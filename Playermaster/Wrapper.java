@@ -257,7 +257,9 @@ public class Wrapper {
             AuxMapLocation mloc = unit.getMapLocation();
             AuxMapLocation newLoc = mloc.add(dir);
             GC.gc.replicate(unit.getID(), Const.allDirs[dir]);
-            Unit newWorker = GC.gc.senseUnitAtLocation(new MapLocation(Mapa.planet, newLoc.x, newLoc.y));
+            MapLocation newMapLoc = new MapLocation(Mapa.planet, newLoc.x, newLoc.y);
+            Unit newWorker = GC.gc.senseUnitAtLocation(newMapLoc);
+            newMapLoc.delete();
             Utils.karbonite -= Const.replicateCost;
             Units.newOccupiedPositions.add(newLoc.encode());
             unit.canUseAbility = false;
@@ -450,6 +452,7 @@ public class Wrapper {
             u2.mloc = u1.getMapLocation();
             u2.canMove = false;
             u2.canAttack = false;
+            u2.canUseAbility = false;
             u1.getGarrisonUnits().add(u2.getID());
             GC.gc.load(u1.getID(), u2.getID());
         }catch(Exception e) {
@@ -816,6 +819,24 @@ public class Wrapper {
             ArrayList<AuxUnit> initialUnits = getInitialUnits(planetMap);
             ArrayList<AuxMapLocation> initialPositions = new ArrayList<>();
 
+            double minDist = 10000;
+
+
+            for (int i = 0; i < initialUnits.size(); ++i){
+                AuxUnit unit = initialUnits.get(i);
+                if (unit.myTeam){
+                    for (int j = 0; j < initialUnits.size(); ++j){
+                        AuxUnit unit2 = initialUnits.get(j);
+                        if (!unit2.myTeam){
+                            if (unit.getMapLocation() == null || unit2.getMapLocation() == null) continue;
+                            minDist = Math.min(minDist, unit.getMapLocation().distanceBFSTo(unit2.getMapLocation()));
+                        }
+                    }
+                }
+            }
+
+            WorkerUtil.minSafeTurns = 10 + 0.75*minDist;
+
             for (int i = 0; i < initialUnits.size(); ++i) {
                 AuxUnit unit = initialUnits.get(i);
                 if (!unit.isInGarrison()) {
@@ -842,7 +863,11 @@ public class Wrapper {
 
             WorkerUtil.min_nb_workers = (int)Math.max(WorkerUtil.min_nb_workers, Math.floor(WorkerUtil.approxMapValue / WorkerUtil.worker_value));
 
-            //return approxMapValue;
+
+            System.out.println("Map value = " + WorkerUtil.approxMapValue);
+            System.out.println("Minimum number of workers = " + WorkerUtil.min_nb_workers);
+            System.out.println("Minimum safe turns: "+ WorkerUtil.minSafeTurns);
+
         } catch (Exception e) {
             e.printStackTrace();
         }

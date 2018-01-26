@@ -12,7 +12,7 @@ public class WorkerUtil {
     static int[][] workerActions;
     static int[][] workerActionsExpanded;
     static int approxMapValue = 0;
-    static int min_nb_workers = 3;
+    static int min_nb_workers = 2;
     static int extra_workers;
 
     static boolean[] connectivityArray;
@@ -24,10 +24,10 @@ public class WorkerUtil {
 
     static AuxMapLocation bestFactoryLocation;
 
-    static double worker_value = 60;
+    static double worker_value = 85;
 
     final static double decrease_rate = 0.9;
-    final static int MIN_DIST = 6;
+    final static int MIN_DIST = 5;
 
     static int workerCont;
     static int workersCreated;
@@ -35,6 +35,8 @@ public class WorkerUtil {
     static boolean safe;
     static boolean hasReplicated;
     static int totalKarboCollected;
+
+    static double minSafeTurns;
 
 
     public static void initTurn(){

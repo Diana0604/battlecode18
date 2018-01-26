@@ -7,13 +7,13 @@ public class Player {
             GC.initGame(gc);
             while (true) {
                 try {
+
+                    //System.out.println("Round " + Utils.round);
+
                     GC.initTurn();
-                    //if(GC.onEarth() && GC.round >= 745) System.err.println("Before moving");
-                    //if(GC.onEarth() && GC.round >= 745) GC.printData();
-                    //unitManager.update();
+
                     GC.playUnits();
-                    //if(GC.onEarth() && GC.round >= 745) System.err.println("After moving");
-                    //if(GC.onEarth() && GC.round >= 745) GC.printData();
+
                     GC.endTurn();
 
                     if (Utils.round % 100 == 1) {

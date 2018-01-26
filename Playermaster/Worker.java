@@ -7,7 +7,7 @@ import java.util.Map;
 public class Worker {
 
     static Worker instance = null;
-    static final int dist_offset = 1;
+    static final int dist_offset = 5;
 
     static Worker getInstance(){
         if (instance == null) instance = new Worker();
@@ -111,7 +111,7 @@ public class Worker {
             if (WorkerUtil.workersCreated < WorkerUtil.min_nb_workers){
                 return true;
             }
-            return (nb_actions >= 20);
+            return (nb_actions >= 30);
         }catch(Exception e) {
             e.printStackTrace();
             return false;
@@ -160,13 +160,19 @@ public class Worker {
             if (minDifIndex >= 0) {
                 AuxUnit structure = adjUnits[minDifIndex];
                 Wrapper.build(unit, structure);
-                /*if (structure.getHealth() < Units.getMaxHealth(structure.getType()))*/ unit.canMove = false;
+                unit.canMove = false; // ho he mogut perque quan un worker acaba un rocket tampoc es mogui (aixi se l'emporta a mars)
+                if (structure.getHealth() < Units.getMaxHealth(structure.getType())){
+                    targets.put(unit.getID(), 100.0);
+                }
                 return true;
             }
             if (minHPIndex >= 0) {
                 AuxUnit structure = adjUnits[minHPIndex];
                 Wrapper.repair(unit, adjUnits[minHPIndex]);
-                if (structure.getHealth() < Units.getMaxHealth(structure.getType())) unit.canMove = false;
+                if (structure.getHealth() < Units.getMaxHealth(structure.getType())){
+                    unit.canMove = false;
+                    targets.put(unit.getID(), 100.0);
+                }
                 return true;
             }
             return false;
@@ -176,10 +182,18 @@ public class Worker {
         }
     }
 
+    boolean canWait(){
+        if (!WorkerUtil.safe) return false;
+        if (Units.unitTypeCount.get(UnitType.Worker) < WorkerUtil.min_nb_workers) return true;
+        if (Utils.round < WorkerUtil.minSafeTurns && WorkerUtil.totalKarboCollected < 0.7*WorkerUtil.approxMapValue) return true;
+
+        return false;
+    }
+
     //Posen un blueprint en una posicio adjacent (aixo s'ha de canviar quan ho fem global)
     private boolean tryPlaceBlueprint(AuxUnit unit){
         try {
-            if (WorkerUtil.safe && Units.unitTypeCount.get(UnitType.Worker) < WorkerUtil.min_nb_workers) return false;
+            if (canWait()) return false;
             if (Mapa.onMars()) return false;
             UnitType type = chooseStructure();
             if (type == null) return false;
@@ -197,6 +211,7 @@ public class Worker {
                         Wrapper.disintegrate(rip);
                 Wrapper.placeBlueprint(unit, type, i);
                 unit.canMove = false;
+                targets.put(unit.getID(), 100.0);
                 return true;
             }
             return false;
@@ -209,7 +224,7 @@ public class Worker {
 
     private UnitType chooseStructure(){
         int numFactories = Units.unitTypeCount.get(UnitType.Factory);
-        if (numFactories < 2) return UnitType.Factory;
+        if (numFactories < 3) return UnitType.Factory;
 
         if (Units.rocketRequest != null && Units.rocketRequest.urgent) return UnitType.Rocket;
 
@@ -257,7 +272,7 @@ public class Worker {
             double priority = 0;
             for (int i = 0; i < WorkerUtil.importantLocations.size(); ++i){
                 AuxMapLocation loc = WorkerUtil.importantLocations.get(i);
-                double newPriority = WorkerUtil.workerActionsExpanded[loc.x][loc.y];
+                double newPriority = WorkerUtil.workerActions[loc.x][loc.y];
                 newPriority /= (WorkerUtil.workersDeployed[loc.x][loc.y]+1);
                 newPriority /= (loc.distanceBFSTo(unit.getMapLocation()) + dist_offset);
                 if (newPriority > priority) {
@@ -273,37 +288,9 @@ public class Worker {
                 WorkerUtil.workerCont++;
             }
 
+            //System.out.println("I got target " + targetLoc.x + " " + targetLoc.y);
+
             return targetLoc;
-
-            /*
-
-            if (!unit.canMove()) return null;
-
-            ArrayList<Target> targets = new ArrayList<>();
-
-            Target rocket = getRocketTarget(unit);
-            if (rocket != null) targets.add(rocket);
-
-            Target karboTarget = getKarboniteTarget(unit);
-            if (karboTarget != null) targets.add(karboTarget);
-
-            Target buildTarget = getBuildTarget(unit);
-            if (buildTarget != null) targets.add(buildTarget);
-
-            Target repairTarget = getRepairTarget(unit);
-            if (repairTarget != null) targets.add(repairTarget);
-
-            targets.sort((a, b) -> targetEval(a) < targetEval(b) ? -1 : targetEval(a) == targetEval(b) ? 0 : 1);
-
-            AuxMapLocation dest;
-            if (targets.size() > 0) {
-                Target bestTarget = targets.get(0);
-                dest = bestTarget.mloc;
-            }else dest = unit.getMapLocation(); //move to self per evitar perill
-            //System.out.println("Worker " + unit.getID() + " loc " + unit.getMapLocation().x + "," + unit.getMapLocation().y + " va a " + dest.x + "," + dest.y + "   " + wait);
-            //MovementManager.getInstance().move(unit, dest);
-            return dest;
-            */
 
         }catch(Exception e) {
             e.printStackTrace();

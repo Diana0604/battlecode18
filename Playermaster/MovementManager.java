@@ -120,12 +120,12 @@ public class MovementManager {
             int dir;
             if (data.obstacle != null && !data.obstacle.isOnMap()) {
                 data.soft_reset(myLoc);
-                System.err.println("User error: out of map obstacle bugpath");
+                //System.err.println("User error: out of map obstacle bugpath");
             }
             if (data.obstacle == null) dir = myLoc.dirBFSTo(data.target);
             else dir = myLoc.dirBFSTo(data.obstacle);
             if (canMove[dir]) {
-                if (dir == 8) System.err.println("User error: self-obstacle bugpath");
+                //if (dir == 8) System.err.println("User error: self-obstacle bugpath");
                 data.obstacle = null;
             } else {
                 int cont = 0;
@@ -133,7 +133,6 @@ public class MovementManager {
                     AuxMapLocation newLoc = myLoc.add(dir);
                     if (!newLoc.isOnMap()) {
                         data.left = !data.left;
-                        --cont;
                     }
                     data.obstacle = newLoc;
                     if (data.left) dir = (dir + 1) % 8;
@@ -170,6 +169,9 @@ public class MovementManager {
 
     public int move(AuxUnit unit){
         try {
+
+            //System.out.println("Trying to move from " + unit.getX() + " " + unit.getY() + " to " + unit.target.x + " " + unit.target.y);
+
             if (unit.visited) return 8;
             unit.visited = true;
             if (unit.target == null) return 8;
@@ -193,7 +195,7 @@ public class MovementManager {
             ArrayList<Integer> directions = new ArrayList<>();
             for (int i = 0; i < 9; ++i){
                 AuxMapLocation newLoc = myLoc.add(i);
-                if (newLoc.isOnMap() && newLoc.isPassable() && isSafe(i)) directions.add(i);
+                if (newLoc.isOnMap() && newLoc.isPassable() && (i == 8 || isSafe(i))) directions.add(i);
             }
 
             directions.sort((a,b) -> raw_dist(a) < raw_dist(b) ? -1 : raw_dist(a) == raw_dist(b) ? 0 : 1);

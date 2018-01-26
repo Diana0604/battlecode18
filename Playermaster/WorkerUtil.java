@@ -39,6 +39,8 @@ public class WorkerUtil {
 
     static double minSafeTurns;
 
+    static boolean closeFactory = true;
+
 
     public static void initTurn(){
         workerCont = 0;
@@ -136,7 +138,7 @@ public class WorkerUtil {
             val += (1 << 20) - mindist;
         }
         else val += mindist;
-        if (isCloseToFactory(worker.getMapLocation())) val += (1 << 19);
+        if (closeFactory && isCloseToFactory(worker.getMapLocation())) val += (1 << 19);
 
         return -val;
     }

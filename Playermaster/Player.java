@@ -5,6 +5,9 @@ public class Player {
         try {
             GameController gc = new GameController();
             GC.initGame(gc);
+
+
+            System.out.println(WorkerUtil.closeFactory);
             while (true) {
                 try {
 

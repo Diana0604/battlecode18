@@ -262,7 +262,7 @@ public class Worker {
 
     double hasTarget(AuxUnit unit){
         if (!targets.containsKey(unit.getID())) return 0;
-        return 0.5 - 0.0001*targets.get(unit.getID());
+        return targets.get(unit.getID());
     }
 
 
@@ -294,7 +294,7 @@ public class Worker {
             if (targetLoc != null){
                 WorkerUtil.addWorkers(targetLoc, 1);
                 WorkerUtil.workerCont++;
-                targets.put(unit.getID(), (double)WorkerUtil.workerCont);
+                targets.put(unit.getID(), (double)unit.getMapLocation().distanceBFSTo(targetLoc));
             }
 
             //System.out.println("I got target " + targetLoc.x + " " + targetLoc.y);

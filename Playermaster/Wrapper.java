@@ -831,6 +831,10 @@ public class Wrapper {
                             if (unit.getMapLocation() == null || unit2.getMapLocation() == null) continue;
                             minDist = Math.min(minDist, unit.getMapLocation().distanceBFSTo(unit2.getMapLocation()));
                         }
+                        else{
+                            if (unit.getMapLocation() == null || unit2.getMapLocation() == null) continue;
+                            if (unit.getMapLocation().distanceBFSTo(unit2.getMapLocation()) >= Const.INFS) WorkerUtil.closeFactory = false;
+                        }
                     }
                 }
             }

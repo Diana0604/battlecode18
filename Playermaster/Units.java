@@ -10,8 +10,10 @@ import java.util.List;
 public class Units {
     private static AuxMapLocation mapCenter;
     private static long maxRadius;
-    static boolean firstRocket = true;
     static int rocketsLaunched = 0;
+    static int rocketsBuilt = 0;
+    static int troopsSinceRocketResearch = 0;
+    static RocketRequest rocketRequest;
     static HashMap<Integer, Integer> allUnits; //allUnits.get(id) = index de myUnits
     static HashMap<UnitType, Integer> unitTypeCount;
     static HashSet<Integer> structures;
@@ -42,10 +44,12 @@ public class Units {
     static boolean canBuildRockets;
     static HashSet<Integer> newOccupiedPositions;
 
+
     static boolean firstFactory = false;
 
     public static void initGame(){
         declareArrays();
+        rocketRequest = null;
         lastRoundEnemySeen = 1;
         lastRoundUnder100Karbo = 1;
         canBuildRockets = false;
@@ -63,6 +67,7 @@ public class Units {
         updateWorkers();
         updateBlueprintsToBuild();
         updateStructuresToRepair();
+        updateRocketRequest();
         if (Utils.karbonite < 100) lastRoundUnder100Karbo = Utils.round;
         if (enemies.size() != 0) lastRoundEnemySeen = Utils.round;
     }
@@ -294,6 +299,43 @@ public class Units {
             this.unit = unit;
         }
     }
+
+    static void updateRocketRequest(){
+        if (!canBuildRockets) return;
+        if (Mapa.onMars()) return;
+
+        if (rocketRequest != null){
+            if (rocketRequest.urgent) return;
+            if (Utils.round - rocketRequest.roundRequested >= 10){
+                rocketRequest.urgent = true;
+            }
+        }
+        if (rocketsLaunched == 0 && rockets.size() == 0){
+            //firstrocket
+            rocketRequest = new RocketRequest(Utils.round, true);
+            return;
+        }
+        if (Utils.round >= 500){
+            //endgame
+            rocketRequest = new RocketRequest(Utils.round, true);
+            return;
+        }
+        if (rocketRequest == null && rocketsBuilt * 8 < troopsSinceRocketResearch){
+            //1 rocket cada 8 tropes fetes
+            rocketRequest = new RocketRequest(Utils.round, false);
+        }
+    }
+
+    static class RocketRequest{
+        boolean urgent;
+        int roundRequested;
+
+        RocketRequest(int round, boolean urgent){
+            this.urgent = urgent;
+            roundRequested = round;
+        }
+    }
+
 
     static AuxUnit getUnitByID(int id){
         if (!allUnits.containsKey(id)){

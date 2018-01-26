@@ -183,11 +183,18 @@ public class Worker {
             if (Mapa.onMars()) return false;
             UnitType type = chooseStructure();
             if (type == null) return false;
-
-            int i = WorkerUtil.getBestFactoryLocation(unit);
+            if (Utils.karbonite < Units.getCost(type)) return false;
+            int i;
+            if (type == UnitType.Factory) i = WorkerUtil.getBestFactoryLocation(unit);
+            else i = WorkerUtil.getBestRocketLocation(unit);
             if (i < 8) {
                 Danger.computeDanger(unit);
                 if(Danger.DPSlong[i] > 0) return false;
+                AuxMapLocation placeLoc = unit.getMapLocation().add(i);
+                AuxUnit rip = placeLoc.getUnit();
+                if (rip != null)
+                    if (MovementManager.getInstance().move(rip) == 8)
+                        Wrapper.disintegrate(rip);
                 Wrapper.placeBlueprint(unit, type, i);
                 unit.canMove = false;
                 return true;

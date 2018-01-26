@@ -9,7 +9,8 @@ public class Rocket {
     public static HashMap<Integer, AuxMapLocation> callsToRocket;
     public static HashSet<AuxMapLocation> rocketTakeoffs;
 
-    static int[] maxUnitTypes = {1, 12, 12, 12, 12, 0, 0};
+    // worker - knight - ranger - mage - healer - factory - rocket
+    static int[] maxUnitTypes = {1, 12, 12, 5, 2, 0, 0};
     static final int MAX_ROUNDS_IDDLE = 50;
 
     static HashSet<AuxMapLocation> allyRocketLandingsLocs;

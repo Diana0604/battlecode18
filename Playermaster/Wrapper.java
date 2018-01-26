@@ -262,7 +262,7 @@ public class Wrapper {
             Units.newOccupiedPositions.add(newLoc.encode());
             unit.canUseAbility = false;
             unit.canAttack = false;
-            AuxUnit nW = new AuxUnit(newWorker, true);
+            AuxUnit nW = new AuxUnit(newWorker);
             newWorker.delete();
             return nW;
         }catch(Exception e) {
@@ -302,6 +302,15 @@ public class Wrapper {
         }catch(Exception e) {
             e.printStackTrace();
         }
+    }
+
+    static void disintegrate(AuxUnit unit){
+        if (!unit.myTeam || unit.isStructure()) return;
+        //todo mirar que res no peti per culpa de que no troba la unit morta
+        System.out.println(Utils.round + " CUIDAOOOO!!! DESINTEGRATE UNIT " + unit.id + " location " + unit.getMapLocation());
+        unit.inSpace = true; //we don't desintegrate units, we kick them to space
+        Units.unitMap[unit.getMapLocation().x][unit.getMapLocation().y] = 0;
+        GC.gc.disintegrateUnit(unit.id);
     }
 
     static boolean canHarvest(AuxUnit unit, int dir){
@@ -468,9 +477,22 @@ public class Wrapper {
         MapLocation realLoc = new MapLocation(Mapa.planet, loc.x, loc.y);
         if(!GC.gc.hasUnitAtLocation(realLoc)) return null;
         Unit possibleUnit = GC.gc.senseUnitAtLocation(realLoc);
-        AuxUnit ans = new AuxUnit(possibleUnit, possibleUnit.team() == Utils.myTeam);
+        AuxUnit ans = new AuxUnit(possibleUnit);
         possibleUnit.delete();
         return ans;
+    }
+
+    /*------------------ GENERAL INIT GAME -----------------------*/
+
+
+    static ArrayList<AuxUnit> getInitialUnits(PlanetMap planetMap){
+        ArrayList<AuxUnit> units = new ArrayList<>();
+        VecUnit initialUnits = planetMap.getInitial_units();
+        for (int i = 0; i < initialUnits.size(); ++i) {
+            units.add(new AuxUnit(initialUnits.get(i)));
+        }
+        initialUnits.delete();
+        return units;
     }
 
     /*------------------ KARBONITE INIT GAME -----------------------*/
@@ -522,8 +544,6 @@ public class Wrapper {
         putMine(new AuxMapLocation(x,y),value);
     }
 
-
-    /*------------------ UNITS GAME -----------------------*/
 
 
     /*------------------ PATHFINDER GAME -----------------------*/
@@ -605,6 +625,39 @@ public class Wrapper {
         }
     }
 
+    /*------------------ UNITS GAME -----------------------*/
+
+
+    private static void checkIfIsolated(PlanetMap planetMap){
+        if (Mapa.onMars()) {
+            Units.isolated = false;
+            return;
+        }
+        ArrayList<AuxUnit> initUnits = getInitialUnits(planetMap);
+        boolean isolated = true;
+        for (AuxUnit u1: initUnits){
+            for (AuxUnit u2: initUnits){
+                if (u1.myTeam != u2.myTeam){
+                    if (u1.getMapLocation().distanceBFSTo(u2.getMapLocation()) < Const.INFS) isolated = false;
+                }
+            }
+        }
+        System.out.println("ARE WE ISOLATED? " + isolated);
+
+    }
+
+
+    public static void unitsInitMap(PlanetMap planetMap){
+        Units.declareArrays();
+        Units.rocketRequest = null;
+        Units.lastRoundEnemySeen = 1;
+        Units.lastRoundUnder100Karbo = 1;
+        Units.canBuildRockets = false;
+        Units.mapCenter = new AuxMapLocation(Mapa.W / 2 + 1, Mapa.H / 2 + 1);
+        Units.maxRadius = Units.mapCenter.distanceSquaredTo(new AuxMapLocation(0, 0));
+        checkIfIsolated(planetMap);
+    }
+
     /*------------------ EXPLORE GAME -----------------------*/
 
 
@@ -682,17 +735,16 @@ public class Wrapper {
         }
     }
 
+
     static void getLocationEnemyBase(PlanetMap planetMap){
         try {
-            VecUnit initialUnits = planetMap.getInitial_units();
-            for (int i = 0; i < initialUnits.size(); ++i) {
-                Unit possibleEnemy = initialUnits.get(i);
-                if (possibleEnemy.team() == Utils.enemyTeam) {
-                    Integer enemyArea = locationToArea((new AuxUnit(possibleEnemy, false).getMapLocation()));
+            ArrayList<AuxUnit> initialUnits = getInitialUnits(planetMap);
+            for (AuxUnit unit: initialUnits){
+                if (!unit.myTeam) {
+                    Integer enemyArea = locationToArea(unit.getMapLocation());
                     addExploreGrid(enemyArea, Explore.enemyBaseValue);
                 }
             }
-            initialUnits.delete();
         }catch(Exception e) {
             e.printStackTrace();
         }
@@ -748,25 +800,19 @@ public class Wrapper {
     static void computeApproxMapValue(PlanetMap planetMap) {
         try {
             WorkerUtil.approxMapValue = 0;
-            VecUnit v = planetMap.getInitial_units();
-
+            ArrayList<AuxUnit> initialUnits = getInitialUnits(planetMap);
             ArrayList<AuxMapLocation> initialPositions = new ArrayList<>();
 
-            for (int i = 0; i < v.size(); ++i) {
-                Location loc = v.get(i).location();
-                if (!loc.isInGarrison()) {
-                    MapLocation mLoc = loc.mapLocation();
-                    int x = mLoc.getX();
-                    int y = mLoc.getY();
-                    AuxMapLocation mloc = new AuxMapLocation(x, y);
-                    initialPositions.add(mloc);
+            for (int i = 0; i < initialUnits.size(); ++i) {
+                AuxUnit unit = initialUnits.get(i);
+                if (!unit.isInGarrison()) {
+                    initialPositions.add(unit.getMapLocation());
                     if (i % 2 == 0){
                         ++WorkerUtil.min_nb_workers;
                         ++WorkerUtil.workersCreated;
                     }
                 }
             }
-            v.delete();
 
             for (int i = 0; i < Mapa.W; ++i) {
                 for (int j = 0; j < Mapa.H; ++j) {
@@ -797,8 +843,8 @@ public class Wrapper {
         Mapa.W = (int) planetMap.getWidth();
         Mapa.H = (int) planetMap.getHeight();
         karboniteInitMap(planetMap); //ha d'anar despres de Mapa
-        Units.initGame(); //ha d'anar despres de Mapa. No cal portar la funcio a wrapper, no utilitza api calls
         pathfinderInitMap(planetMap); //ha d'anar despres de Mapa i Karbonite
+        unitsInitMap(planetMap); //ha d'anar despres de Mapa i pathfinder
         exploreInitMap(planetMap); //ha d'anar despres de Mapa
         workerUtilInitMap(planetMap); //ha d'anar despres de Mapa i Pathfinder
         planetMap.delete();

@@ -36,8 +36,11 @@ class UnitManager{
             if (unit.getType() == UnitType.Worker) {
                 unit.target = Worker.getInstance().getTarget(unit);
             }
-            if (unit.getType() == UnitType.Ranger || unit.getType() == UnitType.Knight) { //LOLZ
+            if (unit.getType() == UnitType.Ranger) {
                 unit.target = Ranger.getInstance().getTarget(unit);
+            }
+            if (unit.getType() == UnitType.Knight) {
+                unit.target = Knight.getInstance().getTarget(unit);
             }
             if (unit.getType() == UnitType.Healer) {
                 unit.target = Healer.getInstance().getTarget(unit);
@@ -76,8 +79,11 @@ class UnitManager{
             if (unit.getType() == UnitType.Worker) {
                 //Worker.getInstance().doAction(unit, true);
             }
-            if (unit.getType() == UnitType.Ranger || unit.getType() == UnitType.Knight) { //LOLZ
+            if (unit.getType() == UnitType.Ranger) {
                 Ranger.getInstance().attack(unit);
+            }
+            if (unit.getType() == UnitType.Knight) {
+                Knight.getInstance().attack(unit);
             }
             if (unit.getType() == UnitType.Healer) {
                 Healer.getInstance().heal(unit);
@@ -101,8 +107,11 @@ class UnitManager{
             if (unit.getType() == UnitType.Factory) {
                 Factory.getInstance().play(unit);
             }
-            if (unit.getType() == UnitType.Ranger || unit.getType() == UnitType.Knight) { //LOLZ
+            if (unit.getType() == UnitType.Ranger) {
                 Ranger.getInstance().attack(unit);
+            }
+            if (unit.getType() == UnitType.Knight) {
+                Knight.getInstance().attack(unit);
             }
             if (unit.getType() == UnitType.Rocket) {
                 Rocket.play(unit);

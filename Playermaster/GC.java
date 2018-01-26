@@ -7,12 +7,12 @@ class GC {
         try {
             gc = _gc;
             Vision.initialize();
-            Research.initGame();
             Utils.initGame();
             MarsPlanning.initGame();
             Rocket.initGame();
 
             Wrapper.initMap();
+            Research.initGame();
         }catch(Exception e) {
             e.printStackTrace();
         }

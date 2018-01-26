@@ -37,6 +37,7 @@ public class Units {
     static int buildingPower;
     static int repairingPower;
     static int harvestingPower;
+    static int knightBlock;
     private static int mageDamage;
     static boolean canBlink = false;
     static boolean canOverCharge = false;
@@ -61,6 +62,7 @@ public class Units {
         updateRocketRequest();
         if (Utils.karbonite < 100) lastRoundUnder100Karbo = Utils.round;
         if (enemies.size() != 0) lastRoundEnemySeen = Utils.round;
+        if (Utils.round > 50) WorkerUtil.safe = false;
     }
 
     public static void declareArrays(){
@@ -93,11 +95,13 @@ public class Units {
         int healerLevel = (int) Research.researchInfo.getLevel(UnitType.Healer);
         int rocketLevel = (int) Research.researchInfo.getLevel(UnitType.Rocket);
         int mageLevel = (int) Research.researchInfo.getLevel(UnitType.Mage);
+        int knightLevel = (int) Research.researchInfo.getLevel(UnitType.Knight);
         buildingPower = Const.buildingPowers[workerLevel];
         repairingPower = Const.repairingPowers[workerLevel];
         harvestingPower = Const.harvestingPowers[workerLevel];
         healingPower = Const.healingPowers[healerLevel];
         mageDamage = Const.mageDamages[mageLevel];
+        knightBlock = Const.knightBlocks[knightLevel];
         if (mageLevel >= 4) canBlink = true;
         if (healerLevel >= 3) canOverCharge = true;
         rocketCapacity = Const.rocketCapacities[rocketLevel];

@@ -1,20 +1,22 @@
+import bc.UnitType;
+
 import java.util.HashMap;
 
-public class Ranger {
-    static Ranger instance = null;
+public class Knight {
+    static Knight instance = null;
 
     HashMap<Integer, Integer> objectiveArea;
 
     HashMap<Integer, Integer> distToTarget;
 
-    static Ranger getInstance(){
+    static Knight getInstance(){
         if (instance == null){
-            instance = new Ranger();
+            instance = new Knight();
         }
         return instance;
     }
 
-    public Ranger(){
+    public Knight(){
         objectiveArea = new HashMap();
     }
 
@@ -22,7 +24,27 @@ public class Ranger {
         try {
             if (A == null) return B;
             if (B == null) return A;
-            if (A.getHealth() < B.getHealth()) return A;
+
+            //prioritzem factories i knights
+            if ((A.type == UnitType.Factory || A.type == UnitType.Knight) && B.type != UnitType.Factory && B.type != UnitType.Knight) {
+                return A;
+            }
+            if ((B.type == UnitType.Factory || B.type == UnitType.Knight) && A.type != UnitType.Factory && A.type != UnitType.Knight) {
+                return B;
+            }
+
+            //ataquem el que aguanta menys hits
+            int dmgReceivedA = Const.knightDamage;
+            int dmgReceivedB = Const.knightDamage;
+            if (A.type == UnitType.Knight) dmgReceivedA -= Units.knightBlock;
+            if (B.type == UnitType.Knight) dmgReceivedB -= Units.knightBlock;
+
+            double hitsA = Math.ceil((double)A.health / (double)dmgReceivedA);
+            double hitsB = Math.ceil((double)B.health / (double)dmgReceivedB);
+
+            if (hitsA < hitsB) {
+                return A;
+            }
             return B;
         }catch(Exception e) {
             e.printStackTrace();
@@ -40,6 +62,7 @@ public class Ranger {
             for (AuxUnit u : enemiesInRange) {
                 if (!Wrapper.canAttack(unit, u)) continue;
                 bestVictim = getBestAttackTarget(bestVictim, u);
+
             }
             if (bestVictim == null) return;
             if (!unit.canAttack()){
@@ -99,6 +122,7 @@ public class Ranger {
                 if (enemy.getHealth() <= 0) continue;
                 AuxMapLocation enemyLocation = enemy.getMapLocation();
                 double d = enemyLocation.distanceBFSTo(myLoc);
+                if (enemy.type == UnitType.Factory && d <= 5) d -= 10; //si tenim factory a d <= 5 hi anem segur
                 if (d < minDist) {
                     minDist = d;
                     target = enemyLocation;

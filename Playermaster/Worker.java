@@ -104,6 +104,7 @@ public class Worker {
     private boolean shouldReplicateEarth(AuxUnit unit){
         try {
             if (WorkerUtil.hasReplicated) return false;
+            if (Units.workers.size() > 40) return false; //evita timeout
             Danger.computeDanger(unit);
             boolean danger = (Danger.DPSlong[8] > 0);
             if (danger) return false;
@@ -278,16 +279,17 @@ public class Worker {
             double priority = 0;
             for (int i = 0; i < WorkerUtil.importantLocations.size(); ++i){
                 AuxMapLocation loc = WorkerUtil.importantLocations.get(i);
+                int dist = loc.distanceBFSTo(unit.getMapLocation());
+                if (dist > 10000) continue;
                 double newPriority = WorkerUtil.workerActionsExpanded[loc.x][loc.y];
                 newPriority /= (WorkerUtil.workersDeployed[loc.x][loc.y]+1);
-                newPriority /= (loc.distanceBFSTo(unit.getMapLocation()) + dist_offset);
+                newPriority /= (dist + dist_offset);
                 if (newPriority > priority) {
                     if (!MovementManager.getInstance().kamikazeWorker() && loc.isDangerousForWorker()) continue;
                     priority = newPriority;
                     targetLoc = loc;
                 }
             }
-
 
             if (targetLoc != null){
                 WorkerUtil.addWorkers(targetLoc, 1);

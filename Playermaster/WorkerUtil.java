@@ -251,6 +251,7 @@ public class WorkerUtil {
         int n = Vision.Mx[largeRad].length;
         for (int i = 0; i < n; ++i){
             AuxMapLocation newLoc = loc.add(new AuxMapLocation(Vision.Mx[largeRad][i], Vision.My[largeRad][i]));
+            if (!newLoc.isOnMap()) continue;
             int dist = loc.distanceBFSTo(newLoc);
             if (newLoc.isOnMap() && dist * dist <= workerRadius) workersDeployed[newLoc.x][newLoc.y] += val;
         }

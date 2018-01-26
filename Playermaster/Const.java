@@ -17,6 +17,7 @@ public class Const {
     final static int[] repairingPowers = {10, 10, 11, 12, 15};
     final static int[] harvestingPowers = {3, 4, 4, 4, 4};
     final static int[] mageDamages = {60, 75, 90, 105, 105};
+    final static int[] knightBlocks = {5, 10, 15, 15};
     final static int[] rocketCapacities = {8, 8, 8, 12};
 
     final static int rangerDamage = 30;
@@ -59,7 +60,6 @@ public class Const {
     final static int healerMaxHealth = 100;
     final static int factoryMaxHealth= 300;
     final static int rocketMaxHealth = 200;
-
 
     final static int workerVisionRange = 50;
     final static int knightVisionRange = 50;

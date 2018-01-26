@@ -34,17 +34,10 @@ public class MarsPlanning{
     static int[][] clear;
     static int[] areaCC;
     static int sumaArees;
-    static int[] rocketsInCC;
+    static double karbo350 = -1;
+    static double biggestArea;
+    static double biggestAreaPercent;
 
-
-    static MarsPlanning getInstance(){
-        if (instance == null) instance = new MarsPlanning();
-        return instance;
-    }
-
-    private MarsPlanning(){
-        initGame();
-    }
 
     public static void initGame(){
         try {
@@ -127,6 +120,9 @@ public class MarsPlanning{
 
             marsInitialKarbonite = Wrapper.getMarsInitialKarbonite();
             marsInitialPriorityKarbo = computeInitialPriorityKarboMars();
+
+            int round350 = optimArrivalTime[276+27];
+            bestPlaceForRound(round350); // aixo calcula biggestArea i karbo350
         }
         catch(Exception e) {
             e.printStackTrace();
@@ -193,16 +189,21 @@ public class MarsPlanning{
     }
 
     private static double[][] computeInitialPriorityKarboMars() {
-        double[][] initialPriorityKarbo = new double[W][H];
-        double[][] rocketNear = new double[W][H];
-        for (int x = 0; x < W; ++x) {
-            for (int y = 0; y < H; ++y) {
-                double value = marsInitialKarbonite[x][y];
-                boolean addValueToAdj = passable[x][y];
-                addGradually(initialPriorityKarbo, new AuxMapLocation(x,y), DEPTH, value, addValueToAdj, rocketNear);
+        try {
+            double[][] initialPriorityKarbo = new double[W][H];
+            double[][] rocketNear = new double[W][H];
+            for (int x = 0; x < W; ++x) {
+                for (int y = 0; y < H; ++y) {
+                    double value = marsInitialKarbonite[x][y];
+                    boolean addValueToAdj = passable[x][y];
+                    addGradually(initialPriorityKarbo, new AuxMapLocation(x,y), DEPTH, value, addValueToAdj, rocketNear);
+                }
             }
+            return initialPriorityKarbo;
+        }catch(Exception e) {
+            e.printStackTrace();
         }
-        return initialPriorityKarbo;
+        return null;
     }
 
     private static int getRocketsInAdjCCs(AuxMapLocation loc) {
@@ -294,33 +295,46 @@ public class MarsPlanning{
     }
 
     private static void addAsteroids(double[][] priorityKarbo, double[] karbo_cc, int round, double[][] rocketNear) {
-        for (int i = 0; i < Karbonite.asteroidRounds.length; ++i) {
-            int round_i = Karbonite.asteroidRounds[i];
-            if (round_i - round > 20) return; // no tenim en compte la karbonite que arriba en mes de 20 torns
-            AuxMapLocation loc = Karbonite.asteroidLocations[i];
-            addGradually(priorityKarbo, loc, DEPTH, Karbonite.asteroidKarbo[i], passable[loc.x][loc.y], rocketNear);
-            double value = (double) Karbonite.asteroidKarbo[i] / ((double) getRocketsInAdjCCs(loc) + 1);
-            addKarboCC(karbo_cc, loc, value, rocketNear);
+        try {
+            for (int i = 0; i < Karbonite.asteroidRounds.length; ++i) {
+                int round_i = Karbonite.asteroidRounds[i];
+                if (round_i - round > 20) return; // no tenim en compte la karbonite que arriba en mes de 20 torns
+                AuxMapLocation loc = Karbonite.asteroidLocations[i];
+                addGradually(priorityKarbo, loc, DEPTH, Karbonite.asteroidKarbo[i], passable[loc.x][loc.y], rocketNear);
+                double value = (double) Karbonite.asteroidKarbo[i] / ((double) getRocketsInAdjCCs(loc) + 1);
+                addKarboCC(karbo_cc, loc, value, rocketNear);
+            }
+        }catch(Exception e) {
+            e.printStackTrace();
         }
     }
 
     private static double[][] computeRocketNearAdj(double[][] rocketNear, double[][] rocketAdj) {
-        for (AuxMapLocation loc : Rocket.allyRocketLandingsLocs) {
-            putToOneNear(rocketNear, rocketAdj, loc, 2*DEPTH, true);
+        try {
+            for (AuxMapLocation loc : Rocket.allyRocketLandingsLocs) {
+                putToOneNear(rocketNear, rocketAdj, loc, 2*DEPTH, true);
+            }
+            for (AuxMapLocation loc: Rocket.enemyRocketLandingsLocs) {
+                putToOneNear(rocketNear, rocketAdj, loc, 2*DEPTH, false);
+            }
+            return rocketNear;
+        }catch(Exception e) {
+            e.printStackTrace();
         }
-        for (AuxMapLocation loc: Rocket.enemyRocketLandingsLocs) {
-            putToOneNear(rocketNear, rocketAdj, loc, 2*DEPTH, false);
-        }
-        return rocketNear;
+        return null;
     }
 
     private static void addUpdatedInitialKarbo(double[] karbo_cc, double[][] rocketNear) {
-        for (int x = 0; x < W; ++x) {
-            for (int y = 0; y < H; ++y) {
-                int rocketsInAdjCCs = getRocketsInAdjCCs(new AuxMapLocation(x,y));
-                double value = marsInitialKarbonite[x][y] / (double)(rocketsInAdjCCs + 1);
-                addKarboCC(karbo_cc, new AuxMapLocation(x,y), value, rocketNear);
+        try {
+            for (int x = 0; x < W; ++x) {
+                for (int y = 0; y < H; ++y) {
+                    int rocketsInAdjCCs = getRocketsInAdjCCs(new AuxMapLocation(x,y));
+                    double value = marsInitialKarbonite[x][y] / (double)(rocketsInAdjCCs + 1);
+                    addKarboCC(karbo_cc, new AuxMapLocation(x,y), value, rocketNear);
+                }
             }
+        }catch(Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -366,6 +380,11 @@ public class MarsPlanning{
                         bestLoc = new AuxMapLocation(x, y);
                     }
                 }
+            }
+            if (karbo350 == -1) {
+                karbo350 = karbo_cc[cc[bestLoc.x][bestLoc.y]];
+                biggestArea = (double)areaCC[cc[bestLoc.x][bestLoc.y]];
+                biggestAreaPercent = biggestArea / (double)sumaArees;
             }
             return bestLoc;
         }

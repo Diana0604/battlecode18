@@ -10,15 +10,23 @@ public class Utils {
     static ArrayList<AuxMapLocation> startingLocations, enemyStartingLocations;
 
     public static void initGame(){
-        round = 1;
-        myTeam = GC.gc.team();
-        if (myTeam == Team.Blue) enemyTeam = Team.Red;
-        else enemyTeam = Team.Blue;
+        try {
+            round = 1;
+            myTeam = GC.gc.team();
+            if (myTeam == Team.Blue) enemyTeam = Team.Red;
+            else enemyTeam = Team.Blue;
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public static void initTurn(){
-        round++;
-        karbonite = (int) GC.gc.karbonite();
+        try {
+            round++;
+            karbonite = (int) GC.gc.karbonite();
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
     }
 
     static Integer encode(int i, int j){

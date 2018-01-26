@@ -65,41 +65,56 @@ public class Worker {
     }
 
     private boolean tryReplicateDir(AuxUnit unit, int dir){
-        if (Wrapper.canReplicate(unit, dir)) {
+        try {
+            if (Wrapper.canReplicate(unit, dir)) {
 
-            AuxUnit newWorker = Wrapper.replicate(unit, dir);
-            Units.unitTypeCount.put(UnitType.Worker, Units.unitTypeCount.get(UnitType.Worker) + 1);
-            WorkerUtil.extra_workers++;
-            WorkerUtil.workersCreated++;
+                AuxUnit newWorker = Wrapper.replicate(unit, dir);
+                Units.unitTypeCount.put(UnitType.Worker, Units.unitTypeCount.get(UnitType.Worker) + 1);
+                WorkerUtil.extra_workers++;
+                WorkerUtil.workersCreated++;
 
-            int index = Units.myUnits.size();
-            int newID = newWorker.getID();
-            Units.myUnits.add(newWorker);
-            Units.allUnits.put(newID, index);
-            Units.robots.add(index);
-            Units.workers.add(index);
-            Units.unitMap[newWorker.getX()][newWorker.getY()] = index + 1;
-            WorkerUtil.hasReplicated = true;
-            newWorker.target = unit.target;
-            if(newWorker.target == null) newWorker.target = getTarget(newWorker);
-            doAction(newWorker, true);
-            UnitManager.move(newWorker);
-            doAction(newWorker, false);
-            return true;
+                int index = Units.myUnits.size();
+                int newID = newWorker.getID();
+                Units.myUnits.add(newWorker);
+                Units.allUnits.put(newID, index);
+                Units.robots.add(index);
+                Units.workers.add(index);
+                Units.unitMap[newWorker.getX()][newWorker.getY()] = index + 1;
+                WorkerUtil.hasReplicated = true;
+                newWorker.target = unit.target;
+                if (newWorker.target == null) newWorker.target = getTarget(newWorker);
+                doAction(newWorker, true);
+                UnitManager.move(newWorker);
+                doAction(newWorker, false);
+                return true;
+            }
+            return false;
+        }catch(Exception e){
+            e.printStackTrace();
         }
         return false;
     }
 
     private boolean canReplicate(AuxUnit unit){
-        for (int i = 0; i < 8; ++i) {
-            if (Wrapper.canReplicate(unit, i)) return true;
+        try {
+            for (int i = 0; i < 8; ++i) {
+                if (Wrapper.canReplicate(unit, i)) return true;
+            }
+            return false;
+        }catch(Exception e){
+            e.printStackTrace();
         }
         return false;
     }
 
     private boolean shouldReplicate(AuxUnit unit){
-        if (Mapa.onEarth()) return shouldReplicateEarth(unit);
-        else return shouldReplicateMars(unit);
+        try {
+            if (Mapa.onEarth()) return shouldReplicateEarth(unit);
+            else return shouldReplicateMars(unit);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return false;
     }
 
     private boolean shouldReplicateEarth(AuxUnit unit){
@@ -120,15 +135,20 @@ public class Worker {
     }
 
     private boolean shouldReplicateMars(AuxUnit unit){
-        if (Utils.round > 750) return true;
-        if (Utils.karbonite > 400) return true;
-        //if (Utils.karbonite < 40) return false; //no se si aixo va be o no
-        HashMap<Integer, Integer> tasks = Karbonite.asteroidTasksLocs;
-        HashMap<Integer, Integer> karboAt = Karbonite.karboniteAt;
-        for(Integer encoding: karboAt.keySet()){
-            if (!tasks.containsKey(encoding)) continue; //no hauria de passar mai pero just in case
-            int assignedID = tasks.get(encoding);
-            if (!Units.allUnits.containsKey(assignedID)) return true; //ha trobat una mina sense assignar, crea worker per enviar-li
+        try {
+            if (Utils.round > 750) return true;
+            if (Utils.karbonite > 400) return true;
+            //if (Utils.karbonite < 40) return false; //no se si aixo va be o no
+            HashMap<Integer, Integer> tasks = Karbonite.asteroidTasksLocs;
+            HashMap<Integer, Integer> karboAt = Karbonite.karboniteAt;
+            for(Integer encoding: karboAt.keySet()){
+                if (!tasks.containsKey(encoding)) continue; //no hauria de passar mai pero just in case
+                int assignedID = tasks.get(encoding);
+                if (!Units.allUnits.containsKey(assignedID)) return true; //ha trobat una mina sense assignar, crea worker per enviar-li
+            }
+            return false;
+        }catch(Exception e){
+            e.printStackTrace();
         }
         return false;
     }
@@ -184,14 +204,19 @@ public class Worker {
     }
 
     boolean canWait(){
-        if (Mapa.onMars()) return true;
-        if (!WorkerUtil.safe) return false;
-        if (Units.unitTypeCount.get(UnitType.Worker) < WorkerUtil.min_nb_workers) return true;
-        if (Utils.round < WorkerUtil.minSafeTurns) {
-            if (Danger.enemySeen) return false;
-            if (WorkerUtil.totalKarboCollected < 0.8*WorkerUtil.approxMapValue) return true;
-        }
+        try {
+            if (Mapa.onMars()) return true;
+            if (!WorkerUtil.safe) return false;
+            if (Units.unitTypeCount.get(UnitType.Worker) < WorkerUtil.min_nb_workers) return true;
+            if (Utils.round < WorkerUtil.minSafeTurns) {
+                if (Danger.enemySeen) return false;
+                if (WorkerUtil.totalKarboCollected < 0.8*WorkerUtil.approxMapValue) return true;
+            }
 
+            return false;
+        }catch(Exception e){
+            e.printStackTrace();
+        }
         return false;
     }
 
@@ -231,18 +256,23 @@ public class Worker {
     }
 
     private UnitType chooseStructure(){
-        int numFactories = Units.unitTypeCount.get(UnitType.Factory);
-        if (numFactories < 3) return UnitType.Factory;
+        try {
+            int numFactories = Units.unitTypeCount.get(UnitType.Factory);
+            if (numFactories < 3) return UnitType.Factory;
 
-        if (Units.canBuildRockets && Units.rocketRequest != null && Units.rocketRequest.urgent) return UnitType.Rocket;
+            if (Units.canBuildRockets && Units.rocketRequest != null && Units.rocketRequest.urgent) return UnitType.Rocket;
 
-        int roundsOver100Karbo = Utils.round - Units.lastRoundUnder100Karbo;
-        if (roundsOver100Karbo == 5 && numFactories < MAX_FACTORIES) return UnitType.Factory;
+            int roundsOver100Karbo = Utils.round - Units.lastRoundUnder100Karbo;
+            if (roundsOver100Karbo == 5 && numFactories < MAX_FACTORIES) return UnitType.Factory;
 
-        if (Units.canBuildRockets && Units.rocketRequest != null) return UnitType.Rocket;
+            if (Units.canBuildRockets && Units.rocketRequest != null) return UnitType.Rocket;
 
-        if (Utils.karbonite >= 800) return UnitType.Factory;
+            if (Utils.karbonite >= 800) return UnitType.Factory;
 
+            return null;
+        }catch(Exception e){
+            e.printStackTrace();
+        }
         return null;
     }
 
@@ -325,20 +355,25 @@ public class Worker {
     }
 
     AuxMapLocation getBackLine(){
-        double mostDanger = 0;
-        AuxMapLocation ans = null;
+        try {
+            double mostDanger = 0;
+            AuxMapLocation ans = null;
 
-        for (int i = 0; i < Units.myUnits.size(); ++i){
-            AuxUnit unit = Units.myUnits.get(i);
-            if (unit.isInSpace() || unit.isInGarrison()) continue;
-            AuxMapLocation loc = Units.myUnits.get(i).getMapLocation();
-            double dang = loc.getDanger();
-            if (!loc.isDangerousForWorker() && dang > mostDanger){
-                mostDanger = dang;
-                ans = loc;
+            for (int i = 0; i < Units.myUnits.size(); ++i){
+                AuxUnit unit = Units.myUnits.get(i);
+                if (unit.isInSpace() || unit.isInGarrison()) continue;
+                AuxMapLocation loc = Units.myUnits.get(i).getMapLocation();
+                double dang = loc.getDanger();
+                if (!loc.isDangerousForWorker() && dang > mostDanger){
+                    mostDanger = dang;
+                    ans = loc;
+                }
             }
+            return ans;
+        }catch(Exception e){
+            e.printStackTrace();
         }
-        return ans;
+        return null;
     }
 
     private AuxMapLocation marsTarget(AuxUnit unit){

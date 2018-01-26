@@ -43,14 +43,14 @@ public class Const {
     final static int knightExtraAttackRange = 8;
     final static int mageExtraAttackRange = 65;
 
-    final static int workerCost = 25;
-    final static int knightCost = 20;
-    final static int rangerCost = 20;
-    final static int mageCost   = 20;
-    final static int healerCost = 20;
-    final static int factoryCost= 100;
-    final static int rocketCost = 75;
-    final static int replicateCost = 30;
+    final static int workerCost = 50;
+    final static int knightCost = 40;
+    final static int rangerCost = 40;
+    final static int mageCost   = 40;
+    final static int healerCost = 40;
+    final static int factoryCost= 200;
+    final static int rocketCost = 150;
+    final static int replicateCost = 60;
 
     final static int workerMaxHealth = 100;
     final static int knightMaxHealth = 250;

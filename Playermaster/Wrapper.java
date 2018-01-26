@@ -649,17 +649,20 @@ public class Wrapper {
             Units.isolated = false;
             return;
         }
+        int minDist = Const.INFS;
         ArrayList<AuxUnit> initUnits = getInitialUnits(planetMap);
         boolean isolated = true;
         for (AuxUnit u1: initUnits){
             for (AuxUnit u2: initUnits){
                 if (u1.myTeam != u2.myTeam){
-                    if (u1.getMapLocation().distanceBFSTo(u2.getMapLocation()) < Const.INFS) isolated = false;
+                    int dist = u1.getMapLocation().distanceBFSTo(u2.getMapLocation());
+                    minDist = Math.min(minDist, dist);
+                    if (dist < Const.INFS) isolated = false;
                 }
             }
         }
-        System.out.println("ARE WE ISOLATED? " + isolated);
-
+        Units.isolated = isolated;
+        Units.initDistToEnemy = minDist;
     }
 
 

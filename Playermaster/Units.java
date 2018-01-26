@@ -45,6 +45,7 @@ public class Units {
     static boolean canBuildRockets;
     static HashSet<Integer> newOccupiedPositions;
     static boolean isolated;
+    static int initDistToEnemy;
 
 
     static boolean firstFactory = false;

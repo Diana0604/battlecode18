@@ -5,6 +5,7 @@ public class Communication {
 
     public static final int MAX_MESSAGES = 99;
     public static final int ROCKET_LOC = 0;
+    public static final int ROCKET_LANDING = 1;
     public static final int subjectBits = 3;
 
     private static Communication instance;
@@ -39,12 +40,13 @@ public class Communication {
     }
 
     public void sendRocketLocation(AuxMapLocation loc) {
-        sendLocation(ROCKET_LOC, loc);
+        int body = loc.x << 6 | loc.y;
+        sendMessage(ROCKET_LOC, body);
     }
 
-    private void sendLocation(int subject, AuxMapLocation loc) {
-        int body = loc.x << 6 | loc.y;
-        sendMessage(subject, body);
+    public void sendRocketLanding(int round, AuxMapLocation loc) {
+        int body = (round << 12) | (loc.x << 6) | loc.y;
+        sendMessage(ROCKET_LANDING, body);
     }
 
     private void sendMessage(int subject, int body) {
@@ -75,6 +77,10 @@ public class Communication {
         msg.body = msg_i & ((1<<(32-subjectBits))-1);
         if (msg.subject == ROCKET_LOC) {
             msg.mapLoc = new AuxMapLocation((msg.body >> 6) & 0x3F, msg.body&0x3F);
+        }
+        if (msg.subject == ROCKET_LANDING) {
+            msg.mapLoc = new AuxMapLocation((msg.body >> 6) & 0x3F, msg.body & 0x3F);
+            msg.round = (msg.body >> 12) & 0x3FF;
         }
         return msg;
     }

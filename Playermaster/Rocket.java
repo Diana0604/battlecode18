@@ -16,12 +16,14 @@ public class Rocket {
     static HashSet<AuxMapLocation> enemyRocketLandingsLocs;
     static int[] allyRocketLandingsCcs; // s'instancia a MarsPlanning despres de calculars les ccs
     static int[] enemyRocketLandingsCcs; // idem
+    static HashMap<Integer,HashSet<AuxMapLocation>> rocketLandingsByRound;
     static HashMap<Integer, RocketData> rocketDatas;
 
     static void initGame(){
         allyRocketLandingsLocs = new HashSet<>();
         enemyRocketLandingsLocs = new HashSet<>();
         rocketDatas = new HashMap<>();
+        rocketLandingsByRound = new HashMap<>();
     }
 
     static void initTurn() {
@@ -188,7 +190,9 @@ public class Rocket {
             //System.out.println(arrivalLoc.x + " " + arrivalLoc.y);
             allyRocketLandingsLocs.add(arrivalLoc);
             allyRocketLandingsCcs[MarsPlanning.cc[arrivalLoc.x][arrivalLoc.y]]++;
+            Communication.getInstance().sendRocketLanding(arrivalRound, arrivalLoc);
             Wrapper.launchRocket(rocket, arrivalLoc);
+            System.out.println("Tirant " + arrivalLoc.x + "," + arrivalLoc.y + " per arribar a la ronda " + arrivalRound);
         } catch(Exception e) {
             e.printStackTrace();
         }

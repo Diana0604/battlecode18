@@ -21,15 +21,17 @@ public class Explore {
     static int[][] locToArea;
 
     public static void initTurn(){
-        updateCurrentArea();
-        if (Mapa.onMars()) {
-            sendLocationsEnemyRockets();
-            receiveRocketLandings();
+        try {
+            updateCurrentArea();
+            if (Mapa.onMars()) {
+                sendLocationsEnemyRockets();
+                receiveRocketLandings();
+            }
+            if (Mapa.onEarth()) receiveLocationsEnemyRockets();
+        }catch(Exception e) {
+            e.printStackTrace();
         }
-        if (Mapa.onEarth()) receiveLocationsEnemyRockets();
     }
-
-
 
     static AuxMapLocation areaToLocation(Integer area){
         try {
@@ -92,33 +94,45 @@ public class Explore {
     }
 
     static void sendLocationsEnemyRockets() {
-        for (AuxUnit unit:Units.enemies) {
-            if (unit.getType() == UnitType.Rocket && !unit.isInSpace()) {
-                if (Communication.getInstance().canSendMessage()) {
-                    Communication.getInstance().sendRocketLocation(unit.getMapLocation());
+        try {
+            for (AuxUnit unit:Units.enemies) {
+                if (unit.getType() == UnitType.Rocket && !unit.isInSpace()) {
+                    if (Communication.getInstance().canSendMessage()) {
+                        Communication.getInstance().sendRocketLocation(unit.getMapLocation());
+                    }
                 }
             }
+        }catch(Exception e) {
+            e.printStackTrace();
         }
     }
 
     static void receiveLocationsEnemyRockets() {
-        ArrayList<Message> messages = Communication.getInstance().getMessagesToRead();
-        for (Message msg:messages) {
-            if (msg.subject == Communication.ROCKET_LOC) {
-                Rocket.enemyRocketLandingsLocs.add(msg.mapLoc);
-                Rocket.enemyRocketLandingsCcs[MarsPlanning.cc[msg.mapLoc.x][msg.mapLoc.y]]++;
+        try {
+            ArrayList<Message> messages = Communication.getInstance().getMessagesToRead();
+            for (Message msg:messages) {
+                if (msg.subject == Communication.ROCKET_LOC) {
+                    Rocket.enemyRocketLandingsLocs.add(msg.mapLoc);
+                    Rocket.enemyRocketLandingsCcs[MarsPlanning.cc[msg.mapLoc.x][msg.mapLoc.y]]++;
+                }
             }
+        }catch(Exception e) {
+            e.printStackTrace();
         }
     }
 
     static void receiveRocketLandings() {
-        ArrayList<Message> messages = Communication.getInstance().getMessagesToRead();
-        for (Message msg:messages) {
-            if (msg.subject == Communication.ROCKET_LANDING) {
-                if (!Rocket.rocketLandingsByRound.containsKey(msg.round))
-                    Rocket.rocketLandingsByRound.put(msg.round, new HashSet<>());
-                Rocket.rocketLandingsByRound.get(msg.round).add(msg.mapLoc);
+        try {
+            ArrayList<Message> messages = Communication.getInstance().getMessagesToRead();
+            for (Message msg:messages) {
+                if (msg.subject == Communication.ROCKET_LANDING) {
+                    if (!Rocket.rocketLandingsByRound.containsKey(msg.round))
+                        Rocket.rocketLandingsByRound.put(msg.round, new HashSet<>());
+                    Rocket.rocketLandingsByRound.get(msg.round).add(msg.mapLoc);
+                }
             }
+        }catch(Exception e) {
+            e.printStackTrace();
         }
     }
 

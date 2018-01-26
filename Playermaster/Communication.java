@@ -22,17 +22,21 @@ public class Communication {
     }
 
     public void initInstanceTurn() {
-        messagesToSend = new ArrayList<>();
-        messagesToRead = new ArrayList<>();
+        try {
+            messagesToSend = new ArrayList<>();
+            messagesToRead = new ArrayList<>();
 
-        Planet otherPlanet = Planet.Mars;
-        if (Mapa.onMars()) otherPlanet = Planet.Earth;
-        Veci32 otherPlanetArray = GC.gc.getTeamArray(otherPlanet);
-        int M = Math.min(MAX_MESSAGES, otherPlanetArray.get(0));
-        for (int i = 0; i < M; ++i) {
-            messagesToRead.add(decode(otherPlanetArray.get(i+1)));
+            Planet otherPlanet = Planet.Mars;
+            if (Mapa.onMars()) otherPlanet = Planet.Earth;
+            Veci32 otherPlanetArray = GC.gc.getTeamArray(otherPlanet);
+            int M = Math.min(MAX_MESSAGES, otherPlanetArray.get(0));
+            for (int i = 0; i < M; ++i) {
+                messagesToRead.add(decode(otherPlanetArray.get(i+1)));
+            }
+            otherPlanetArray.delete();
+        }catch(Exception e) {
+            e.printStackTrace();
         }
-        otherPlanetArray.delete();
     }
 
     public static void endTurn() {
@@ -50,9 +54,13 @@ public class Communication {
     }
 
     private void sendMessage(int subject, int body) {
-        if (subject >= 1<<subjectBits) System.out.println("El subject es passa de bits");
-        int msg = (subject << (32-subjectBits)) | body;
-        messagesToSend.add(msg);
+        try {
+            if (subject >= 1 << subjectBits) System.out.println("El subject es passa de bits");
+            int msg = (subject << (32 - subjectBits)) | body;
+            messagesToSend.add(msg);
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public boolean canSendMessage() {
@@ -60,10 +68,14 @@ public class Communication {
     }
 
     public void doSendMessages() {
-        int N = messagesToSend.size();
-        GC.gc.writeTeamArray(0, N);
-        for (int i = 0; i < N; ++i) {
-            GC.gc.writeTeamArray(i+1, messagesToSend.get(i));
+        try {
+            int N = messagesToSend.size();
+            GC.gc.writeTeamArray(0, N);
+            for (int i = 0; i < N; ++i) {
+                GC.gc.writeTeamArray(i+1, messagesToSend.get(i));
+            }
+        }catch(Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -72,17 +84,22 @@ public class Communication {
     }
 
     static Message decode(int msg_i) {
-        Message msg = new Message();
-        msg.subject = (msg_i >> (32-subjectBits)) & ((1<<(subjectBits))-1);
-        msg.body = msg_i & ((1<<(32-subjectBits))-1);
-        if (msg.subject == ROCKET_LOC) {
-            msg.mapLoc = new AuxMapLocation((msg.body >> 6) & 0x3F, msg.body&0x3F);
+        try {
+            Message msg = new Message();
+            msg.subject = (msg_i >> (32-subjectBits)) & ((1<<(subjectBits))-1);
+            msg.body = msg_i & ((1<<(32-subjectBits))-1);
+            if (msg.subject == ROCKET_LOC) {
+                msg.mapLoc = new AuxMapLocation((msg.body >> 6) & 0x3F, msg.body&0x3F);
+            }
+            if (msg.subject == ROCKET_LANDING) {
+                msg.mapLoc = new AuxMapLocation((msg.body >> 6) & 0x3F, msg.body & 0x3F);
+                msg.round = (msg.body >> 12) & 0x3FF;
+            }
+            return msg;
+        }catch(Exception e) {
+            e.printStackTrace();
         }
-        if (msg.subject == ROCKET_LANDING) {
-            msg.mapLoc = new AuxMapLocation((msg.body >> 6) & 0x3F, msg.body & 0x3F);
-            msg.round = (msg.body >> 12) & 0x3FF;
-        }
-        return msg;
+        return null;
     }
 
 

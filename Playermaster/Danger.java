@@ -30,35 +30,38 @@ class Danger {
     }
 
     static void updateDangerMatrix(){
-
-        while (!myQueue.isEmpty()){
-            int a = myQueue.poll();
-            AuxMapLocation loc = new AuxMapLocation(a);
-            int d = myDist[loc.x][loc.y];
-            for (int i = 0; i < 8; ++i){
-                AuxMapLocation newLoc = loc.add(i);
-                if (newLoc.isOnMap()){
-                    if (myDist[newLoc.x][newLoc.y] == 0){
-                        myDist[newLoc.x][newLoc.y] = d+1;
-                        if (newLoc.isPassable()) myQueue.add(newLoc.encode());
+        try {
+            while (!myQueue.isEmpty()){
+                int a = myQueue.poll();
+                AuxMapLocation loc = new AuxMapLocation(a);
+                int d = myDist[loc.x][loc.y];
+                for (int i = 0; i < 8; ++i){
+                    AuxMapLocation newLoc = loc.add(i);
+                    if (newLoc.isOnMap()){
+                        if (myDist[newLoc.x][newLoc.y] == 0){
+                            myDist[newLoc.x][newLoc.y] = d+1;
+                            if (newLoc.isPassable()) myQueue.add(newLoc.encode());
+                        }
                     }
                 }
             }
-        }
 
-        while (!enemyQueue.isEmpty()){
-            int a = enemyQueue.poll();
-            AuxMapLocation loc = new AuxMapLocation(a);
-            int d = enemyDist[loc.x][loc.y];
-            for (int i = 0; i < 8; ++i){
-                AuxMapLocation newLoc = loc.add(i);
-                if (newLoc.isOnMap()){
-                    if (enemyDist[newLoc.x][newLoc.y] == 0){
-                        enemyDist[newLoc.x][newLoc.y] = d+1;
-                        if (newLoc.isPassable()) enemyQueue.add(newLoc.encode());
+            while (!enemyQueue.isEmpty()){
+                int a = enemyQueue.poll();
+                AuxMapLocation loc = new AuxMapLocation(a);
+                int d = enemyDist[loc.x][loc.y];
+                for (int i = 0; i < 8; ++i){
+                    AuxMapLocation newLoc = loc.add(i);
+                    if (newLoc.isOnMap()){
+                        if (enemyDist[newLoc.x][newLoc.y] == 0){
+                            enemyDist[newLoc.x][newLoc.y] = d+1;
+                            if (newLoc.isPassable()) enemyQueue.add(newLoc.encode());
+                        }
                     }
                 }
             }
+        }catch(Exception e) {
+            e.printStackTrace();
         }
     }
 

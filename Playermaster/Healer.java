@@ -77,24 +77,29 @@ public class Healer {
     }
 
     private AuxUnit compareUnits(AuxMapLocation myLoc, AuxUnit unit1, AuxUnit unit2){
-        if (unit1 == null) return unit2;
-        if (unit2 == null) return unit1;
+        try {
+            if (unit1 == null) return unit2;
+            if (unit2 == null) return unit1;
 
-        if (unit1.frontline && !unit2.frontline) return unit1;
-        if (!unit1.frontline && unit2.frontline) return unit2;
+            if (unit1.frontline && !unit2.frontline) return unit1;
+            if (!unit1.frontline && unit2.frontline) return unit2;
 
 
-        boolean maxHealth1 = unit1.isMaxHealth(), maxHealth2 = unit2.isMaxHealth();
-        if (maxHealth1 && !maxHealth2) return unit2;
-        if (maxHealth2 && !maxHealth1) return unit1;
+            boolean maxHealth1 = unit1.isMaxHealth(), maxHealth2 = unit2.isMaxHealth();
+            if (maxHealth1 && !maxHealth2) return unit2;
+            if (maxHealth2 && !maxHealth1) return unit1;
 
-        if (unit1.isTroop() && !unit2.isTroop()) return unit1;
-        if (!unit1.isTroop() && unit2.isTroop()) return unit2;
+            if (unit1.isTroop() && !unit2.isTroop()) return unit1;
+            if (!unit1.isTroop() && unit2.isTroop()) return unit2;
 
-        double d1 = myLoc.distanceBFSTo(unit1.getMapLocation());
-        double d2 = myLoc.distanceBFSTo(unit2.getMapLocation());
-        //if (d1 > d2) return unit1; //triem la tropa mes llunyana (?)
-        if (d1 < d2) return unit1;
-        return unit2;
+            double d1 = myLoc.distanceBFSTo(unit1.getMapLocation());
+            double d2 = myLoc.distanceBFSTo(unit2.getMapLocation());
+            //if (d1 > d2) return unit1; //triem la tropa mes llunyana (?)
+            if (d1 < d2) return unit1;
+            return unit2;
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

@@ -6,19 +6,19 @@ import java.util.*;
 public class Pathfinder{
     static boolean[][] passable; //si no hi ha muntanyes
 
-     static final int AUX = 6;
-     static final int AUX2 = 12;
-     static final double distFactor = 100;
-     static final int base = 0x3F;
-     static final int[] X = {0, 1, 1, 1, 0, -1, -1, -1};
-     static final int[] Y = {1, 1, 0, -1, -1, -1, 0, 1};
-     static final double[] dists = {1, 1, 1, 1, 1, 1, 1, 1};
+    static final int AUX = 6;
+    static final int AUX2 = 12;
+    static final double distFactor = 100;
+    static final int base = 0x3F;
+    static final int[] X = {0, 1, 1, 1, 0, -1, -1, -1};
+    static final int[] Y = {1, 1, 0, -1, -1, -1, 0, 1};
+    static final double[] dists = {1, 1, 1, 1, 1, 1, 1, 1};
     static double [][] distToWalls;
 
     static final int off = 4;
     static final int base_off = 0xF;
 
-     static short[][][][] Nodes;
+    static short[][][][] Nodes;
     static int W;
     static int H;
 

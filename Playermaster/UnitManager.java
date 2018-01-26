@@ -50,6 +50,7 @@ class UnitManager{
             }
 
 
+
         }
     }
 
@@ -91,8 +92,11 @@ class UnitManager{
             if (unit.getType() == UnitType.Mage) {
                 Mage.getInstance().doAction(unit);
             }
-            WorkerUtil.doFirstActions();
+            if (unit.getType() == UnitType.Factory) {
+                Factory.getInstance().play(unit);
+            }
         }
+        WorkerUtil.doFirstActions();
     }
 
     static void actUnits2(){
@@ -124,4 +128,9 @@ class UnitManager{
             }
         }
     }
+
+    static boolean factoriesFirst(){
+        return true;
+    }
+
 }

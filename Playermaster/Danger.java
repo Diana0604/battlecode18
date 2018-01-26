@@ -107,7 +107,7 @@ class Danger {
                     if (dps > 0 && d <= arshort) data.DPS[j] += dps;
                     if (dps > 0 && d <= arslong) data.DPSlong[j] += dps / (d + 1);
                     if (unit.getType() == UnitType.Ranger){
-                        if (d <= 10) data.minDist[j] = Math.min(data.minDist[j], (int) d);
+                        if (Utils.round >= 150 && d <= 10) data.minDist[j] = Math.min(data.minDist[j], (int) d);
                         else if (!(enemy.getType() == UnitType.Worker)) data.minDist[j] = Math.min(data.minDist[j], (int) d);
                     }
                     else data.minDist[j] = Math.min(data.minDist[j], (int) d);

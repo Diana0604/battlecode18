@@ -53,6 +53,17 @@ public class Factory {
             int bestDir = -1;
             double bestDist = 10000000;
             AuxUnit garrisonUnit = Units.getUnitByID(units.get(0));
+
+            MovementManager.getInstance().setData(garrisonUnit);
+            int dir = MovementManager.getInstance().greedyMove(garrisonUnit);
+            if (dir != 8){
+               if (Wrapper.canUnload(unit, dir)){
+                   Wrapper.unload(unit, dir);
+                   checkGarrison(unit);
+                   return;
+               }
+            }
+
             AuxMapLocation target = garrisonUnit.target;
             if (target == null) target = unit.getMapLocation();
             for (int j = 0; j < 8; ++j) {

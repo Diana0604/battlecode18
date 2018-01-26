@@ -384,6 +384,12 @@ public class MovementManager {
         }
     }
 
+    public void setData(AuxUnit unit){
+        Danger.computeDanger(unit);
+        this.unit = unit;
+        attacker = dangerousUnit(unit.getType());
+    }
+
 
 
 }

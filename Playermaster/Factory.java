@@ -95,10 +95,11 @@ public class Factory {
             //prioritzem fer rockets a units
             if (karbo < Const.replicateCost + Const.rocketCost && Units.rocketRequest != null) return null;
 
-            int rangers = Units.rangers.size();
-            int healers = Units.healers.size();
-            int mages =   Units.mages.size();
-            int workers = Units.workers.size();
+            HashMap<UnitType, Integer> typeCount = Units.unitTypeCount;
+            int rangers = typeCount.get(UnitType.Ranger);
+            int healers = typeCount.get(UnitType.Healer);
+            int mages =   typeCount.get(UnitType.Mage);
+            int workers = typeCount.get(UnitType.Knight);
 
             if (workers < 2) return UnitType.Worker; //potser millor si workers < 2-3?
 

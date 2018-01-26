@@ -8,8 +8,8 @@ import java.util.HashSet;
 import java.util.List;
 
 public class Units {
-    private static AuxMapLocation mapCenter;
-    private static long maxRadius;
+    static AuxMapLocation mapCenter;
+    static long maxRadius;
     static int rocketsLaunched = 0;
     static int rocketsBuilt = 0;
     static int troopsSinceRocketResearch = 0;
@@ -43,19 +43,10 @@ public class Units {
     static int rocketCapacity;
     static boolean canBuildRockets;
     static HashSet<Integer> newOccupiedPositions;
+    static boolean isolated;
 
 
     static boolean firstFactory = false;
-
-    public static void initGame(){
-        declareArrays();
-        rocketRequest = null;
-        lastRoundEnemySeen = 1;
-        lastRoundUnder100Karbo = 1;
-        canBuildRockets = false;
-        mapCenter = new AuxMapLocation(Mapa.W / 2 + 1, Mapa.H / 2 + 1);
-        maxRadius = mapCenter.distanceSquaredTo(new AuxMapLocation(0, 0));
-    }
 
     public static void initTurn(){
         declareArrays();
@@ -140,7 +131,7 @@ public class Units {
         VecUnit enemyUnits = GC.gc.senseNearbyUnitsByTeam(center, maxRadius, Utils.enemyTeam);
 
         int size = (int) enemyUnits.size();
-        for (int i = 0; i < size; ++i) enemies.add(new AuxUnit(enemyUnits.get(i), false));
+        for (int i = 0; i < size; ++i) enemies.add(new AuxUnit(enemyUnits.get(i)));
 
         enemyUnits.delete();
 
@@ -155,7 +146,7 @@ public class Units {
         VecUnit vecMyUnits = GC.gc.myUnits();
 
         int size = (int) vecMyUnits.size();
-        for (int i = 0; i < size; ++i) myUnits.add(new AuxUnit(vecMyUnits.get(i), true));
+        for (int i = 0; i < size; ++i) myUnits.add(new AuxUnit(vecMyUnits.get(i)));
 
         vecMyUnits.delete();
         //First to last: Mage - Ranger - Healer - Knight - Worker - Rocket - Factory
@@ -305,13 +296,19 @@ public class Units {
         if (!canBuildRockets) return;
         if (Mapa.onMars()) return;
 
+        if (rocketRequest != null && rocketRequest.urgent) return;
         if (rocketRequest != null){
-            if (rocketRequest.urgent) return;
+            //check if normal request becomes urgent
             if (Utils.round - rocketRequest.roundRequested >= 10){
                 rocketRequest.urgent = true;
             }
         }
-        if (rocketsLaunched == 0 && rockets.size() == 0){
+        //check urgent requests
+        final int MAX_ROCKETS_BUILT = 5; //per si de cas lol
+
+        if (unitTypeCount.get(UnitType.Rocket) >= MAX_ROCKETS_BUILT) return;
+
+        if (rocketsLaunched == 0 && unitTypeCount.get(UnitType.Rocket) == 0){
             //firstrocket
             rocketRequest = new RocketRequest(Utils.round, true);
             return;
@@ -321,9 +318,21 @@ public class Units {
             rocketRequest = new RocketRequest(Utils.round, true);
             return;
         }
-        if (rocketRequest == null && rocketsBuilt * 8 < troopsSinceRocketResearch){
+
+        //check normal requests
+        if (rocketsBuilt * 8 < troopsSinceRocketResearch){
             //1 rocket cada 8 tropes fetes
             rocketRequest = new RocketRequest(Utils.round, false);
+            return;
+        }
+        if (isolated){
+            rocketRequest = new RocketRequest(Utils.round, false);
+            return;
+        }
+        if (Utils.round - lastRoundEnemySeen > 10){
+            //enemy exterminated
+            rocketRequest = new RocketRequest(Utils.round, false);
+            return;
         }
     }
 

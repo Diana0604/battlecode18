@@ -49,7 +49,6 @@ class UnitManager{
     }
 
     static void move(AuxUnit unit){
-        if (Utils.round > 335) System.out.println(Utils.round + " init move " + unit.id);
         if (unit.isInGarrison() || unit.isInSpace()) return;
         if (unit.getType() == UnitType.Factory || unit.getType() == UnitType.Rocket) {
             return;

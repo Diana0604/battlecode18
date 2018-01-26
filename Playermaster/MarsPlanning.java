@@ -34,17 +34,9 @@ public class MarsPlanning{
     static int[][] clear;
     static int[] areaCC;
     static int sumaArees;
-    static int[] rocketsInCC;
+    static double karbo350 = -1;
+    static double area350;
 
-
-    static MarsPlanning getInstance(){
-        if (instance == null) instance = new MarsPlanning();
-        return instance;
-    }
-
-    private MarsPlanning(){
-        initGame();
-    }
 
     public static void initGame(){
         try {
@@ -127,6 +119,9 @@ public class MarsPlanning{
 
             marsInitialKarbonite = Wrapper.getMarsInitialKarbonite();
             marsInitialPriorityKarbo = computeInitialPriorityKarboMars();
+
+            int round350 = optimArrivalTime[276+27];
+            bestPlaceForRound(round350); // aixo calcula area350 i karbo350
         }
         catch(Exception e) {
             e.printStackTrace();
@@ -384,6 +379,10 @@ public class MarsPlanning{
                         bestLoc = new AuxMapLocation(x, y);
                     }
                 }
+            }
+            if (karbo350 == -1) {
+                karbo350 = karbo_cc[cc[bestLoc.x][bestLoc.y]];
+                area350 = (double)areaCC[cc[bestLoc.x][bestLoc.y]] / (double)sumaArees;
             }
             return bestLoc;
         }

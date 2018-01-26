@@ -57,8 +57,10 @@ public class Rocket {
                 rocketDatas.get(rocket.getID()).roundsIdle++;
                 ArrayList<Pair> sortedUnits = getSortedUnits(rocket);
                 int[] unitTypes = getUnitTypesGarrison(rocket);
-                loadUnits(rocket, sortedUnits, unitTypes, maxUnitTypes);
-                callRemainingRobots(rocket, sortedUnits, unitTypes, maxUnitTypes);
+                int[] _maxUnitTypes = maxUnitTypes;
+                if (Units.rocketsLaunched == 0 && Utils.round < Utils.OneWorkerToMars) _maxUnitTypes = new int[]{1, 0, 0, 0, 0, 0, 0};
+                loadUnits(rocket, sortedUnits, unitTypes, _maxUnitTypes);
+                callRemainingRobots(rocket, sortedUnits, unitTypes, _maxUnitTypes);
                 boolean willLaunch = shouldLaunch(rocket);
                 if (willLaunch) rocketTakeoffs.add(rocket.getMapLocation());
             } else if (Mapa.onMars()) {
@@ -170,7 +172,7 @@ public class Rocket {
             if (shouldWait) return false;
 
             int garrisonSize = rocket.getGarrisonUnits().size();
-            if (garrisonSize == 2 && Units.rocketsLaunched == 0) return true; //first rocket ple
+            if (garrisonSize == 1 && Units.rocketsLaunched == 0 && Utils.round < Utils.OneWorkerToMars) return true; //first rocket ple
             if (garrisonSize == Units.rocketCapacity) return true; //rocket ple
 
             if (rocketDatas.get(rocket.getID()).roundsIdle > MAX_ROUNDS_IDDLE) return true;

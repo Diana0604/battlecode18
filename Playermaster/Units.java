@@ -13,6 +13,7 @@ public class Units {
     static boolean oneWorkerToMars = true;
     static int rocketsLaunched = 0;
     static int rocketsBuilt = 0;
+    static int knightsBuilt = 0;
     static int troopsSinceRocketResearch = 0;
     static RocketRequest rocketRequest;
     static HashMap<Integer, Integer> allUnits; //allUnits.get(id) = index de myUnits

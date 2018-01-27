@@ -116,6 +116,10 @@ public class Factory {
 
             if (workers < 2) return UnitType.Worker; //potser millor si workers < 2-3?
 
+            if (Units.initDistToEnemy < 20 && Units.knightsBuilt < 4) return UnitType.Knight;
+            if (Units.initDistToEnemy < 25 && Units.knightsBuilt < 3) return UnitType.Knight;
+            if (Units.initDistToEnemy < 30 && Units.knightsBuilt < 2) return UnitType.Knight;
+
             AuxUnit[] enemies = Wrapper.senseUnits(unit.getMapLocation(), 18, false);
             for (AuxUnit enemy : enemies){
                 if (enemy.getMapLocation().distanceBFSTo(unit.getMapLocation()) <= 3 && knights < 2 && rangers <= 2) return UnitType.Knight;

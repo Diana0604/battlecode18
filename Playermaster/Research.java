@@ -30,9 +30,6 @@ public class Research {
         if (Units.isolated) {
             System.out.println("Isolated, triem R1");
             tree = R1;
-        }else if (Units.initDistToEnemy > 80 && MarsPlanning.karbo350 > 1000) {
-            System.out.println("Lluny de l'enemic, triem R1");
-            tree = R1;
         }else if (Units.initDistToEnemy < 25) {
             System.out.println("A tocar l'enemic, triem R3");
             tree = R3;

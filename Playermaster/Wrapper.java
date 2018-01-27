@@ -138,6 +138,7 @@ public class Wrapper {
             GC.gc.produceRobot(unit.getID(), type);
             Utils.karbonite -= Units.getCost(type);
             if (type != UnitType.Worker) Units.troopsSinceRocketResearch++;
+            if (type == UnitType.Knight) Units.knightsBuilt++;
             unit.canAttack = false;
         }catch(Exception e) {
             e.printStackTrace();

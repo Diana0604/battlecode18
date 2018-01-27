@@ -128,7 +128,7 @@ public class Factory {
                 if (rangers + healers + mages +knights > 30 && (rangers+healers+mages+knights) > 8*typeCount.get(UnitType.Rocket)) return null;
             }
 
-            if (2 * healers < (rangers +knights) +1) return UnitType.Healer;
+            if (3 * healers < (rangers +knights) - 1) return UnitType.Healer;
             if (rangers < maxRangers) return UnitType.Ranger;
             if (healers < 1.25 * rangers) return UnitType.Healer;
             return UnitType.Mage;

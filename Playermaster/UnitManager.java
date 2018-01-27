@@ -94,6 +94,9 @@ class UnitManager{
             for (AuxUnit unit : units) {
                 //System.err.println("playing unit " + GC.myUnits[i].getType());
                 if (unit.isInGarrison() || unit.isInSpace()) continue;
+                if (unit.getType() == UnitType.Factory) {
+                    Factory.getInstance().play(unit);
+                }
                 if (unit.getType() == UnitType.Worker) {
                     //Worker.getInstance().doAction(unit, true);
                 }
@@ -109,9 +112,6 @@ class UnitManager{
                 if (unit.getType() == UnitType.Mage) {
                     Mage.getInstance().doAction(unit);
                 }
-                if (unit.getType() == UnitType.Factory) {
-                    Factory.getInstance().play(unit);
-                }
             }
             WorkerUtil.doFirstActions();
         }catch(Exception e) {
@@ -126,11 +126,11 @@ class UnitManager{
             for (AuxUnit unit : units) {
                 //System.err.println("playing unit " + GC.myUnits[i].getType());
                 if (unit.isInGarrison() || unit.isInSpace()) continue;
-                if (unit.getType() == UnitType.Worker) {
-                    Worker.getInstance().doAction(unit, false);
-                }
                 if (unit.getType() == UnitType.Factory) {
                     Factory.getInstance().play(unit);
+                }
+                if (unit.getType() == UnitType.Worker) {
+                    Worker.getInstance().doAction(unit, false);
                 }
                 if (unit.getType() == UnitType.Ranger) {
                     Ranger.getInstance().attack(unit);

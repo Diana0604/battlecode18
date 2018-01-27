@@ -330,8 +330,8 @@ public class WorkerUtil {
                 else if (unit2 != null) {
                     //hi ha un aliat
                     if (unit2.isStructure()) continue;
-                    if (Units.rocketRequest != null && !Units.rocketRequest.urgent) continue;
-                    //falta el forced move
+                    if (Units.rocketRequest != null && !Units.rocketRequest.urgent) continue; //si no es urgent suda
+                    if (Units.rocketRequest != null && Units.rocketRequest.roundRequested - Utils.round < 3) continue; //si fa menys de 3 rondes que s'ha demanat
                 }
                 int score = getRocketBlueprintScore(newLoc);
                 if (score > bestScore){

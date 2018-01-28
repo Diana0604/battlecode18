@@ -210,7 +210,20 @@ public class Units {
             int rockets = 0;
             for (AuxUnit u: myUnits) {
                 UnitType type = u.getType();
-                if (type == UnitType.Factory) factories++;
+                if (type == UnitType.Factory){
+                    factories++;
+                    if (u.isBuilt()) {
+                        type = Wrapper.getBuildingUnit(u);
+                        if (type != null){
+                            switch(type){
+                                case Worker: ++workers;
+                                case Mage: ++mages;
+                                case Healer: ++healers;
+                                case Knight: ++knights;
+                            }
+                        }
+                    }
+                }
                 else if (type == UnitType.Rocket) rockets++;
                 else if (type == UnitType.Worker) ++workers;
                 else if (type == UnitType.Ranger) ++rangers;

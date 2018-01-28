@@ -509,6 +509,22 @@ public class Wrapper {
         return null;
     }
 
+    static int factoryRoundsLeft(AuxUnit unit){
+        if (unit.canAttack()) return 0;
+        Unit _unit = GC.gc.unit(unit.getID());
+        int ans = (int) _unit.factoryRoundsLeft();
+        _unit.delete();
+        return ans;
+    }
+
+    static UnitType getBuildingUnit(AuxUnit unit){
+        if(unit.canAttack()) return null;
+        Unit _unit = GC.gc.unit(unit.getID());
+        UnitType ans = _unit.factoryUnitType();
+        _unit.delete();
+        return ans;
+    }
+
     /*------------------ GENERAL INIT GAME -----------------------*/
 
 

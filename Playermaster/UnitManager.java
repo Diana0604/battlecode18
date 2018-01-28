@@ -1,9 +1,6 @@
 import bc.*;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 
 class UnitManager{
     static void moveUnits() {
@@ -45,7 +42,7 @@ class UnitManager{
                     unit.target = Ranger.getInstance().getTarget(unit);
                 }
                 if (unit.getType() == UnitType.Knight) {
-                    unit.target = Knight.getInstance().getTarget(unit);
+                    unit.target = Knight.getInstance().updateTarget(unit);
                 }
                 if (unit.getType() == UnitType.Healer) {
                     unit.target = Healer.getInstance().getTarget(unit);
@@ -113,7 +110,8 @@ class UnitManager{
                     Mage.getInstance().doAction(unit);
                 }
             }
-            WorkerUtil.doFirstActions();
+            Worker.actWorkers(true);
+            //WorkerUtil.doFirstActions();
         }catch(Exception e) {
             e.printStackTrace();
         }
@@ -128,9 +126,6 @@ class UnitManager{
                 if (unit.isInGarrison() || unit.isInSpace()) continue;
                 if (unit.getType() == UnitType.Factory) {
                     Factory.getInstance().play(unit);
-                }
-                if (unit.getType() == UnitType.Worker) {
-                    Worker.doAction(unit, false);
                 }
                 if (unit.getType() == UnitType.Ranger) {
                     Ranger.getInstance().attack(unit);
@@ -148,6 +143,7 @@ class UnitManager{
                     Mage.getInstance().doAction(unit);
                 }
             }
+            Worker.actWorkers(false);
         }catch(Exception e) {
             e.printStackTrace();
         }

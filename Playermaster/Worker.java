@@ -1,3 +1,4 @@
+import bc.Direction;
 import bc.UnitType;
 
 import java.util.HashMap;
@@ -24,6 +25,60 @@ public class Worker {
 
     /*----------- ACTIONS ------------*/
 
+    static void actWorkers(boolean firstTime){
+        if (Mapa.onEarth()) tryBuildAndRepair();
+        if (Mapa.onEarth()) tryPlaceBlueprint();
+        tryMine();
+        if (!firstTime) tryReplicate();
+    }
+
+    static void actReplicatedWorker(AuxUnit worker){
+        if (worker.canAttack()) {
+            tryMine(worker);
+        }
+    }
+
+    private static void tryBuildAndRepair(){
+        for (int index: Units.workers){
+            AuxUnit worker = Units.myUnits.get(index);
+            tryBuildAndRepair(worker);
+        }
+    }
+
+    private static void tryPlaceBlueprint(){
+        UnitType strType = Build.nextStructureType;
+        if (strType == null) return;
+        if (Utils.karbonite < Units.getCost(strType)) return;
+        if (canWait()) return;
+
+        if (strType == UnitType.Factory) tryBuildFactory();
+        if (strType == UnitType.Rocket ) tryBuildRocket();
+
+    }
+
+
+    private static void tryMine(){
+        for (int index: Units.workers){
+            AuxUnit worker = Units.myUnits.get(index);
+            tryMine(worker);
+        }
+    }
+
+    private static void tryReplicate(){
+        Integer[] indexes = Units.workers.toArray(new Integer[Units.workers.size()]);
+        for (int index: indexes){
+            AuxUnit worker = Units.myUnits.get(index);
+            tryReplicate(worker);
+        }
+    }
+
+
+
+
+
+
+
+/*
     public static void doAction(AuxUnit unit, boolean firstTime){
         try {
             boolean acted;
@@ -38,7 +93,7 @@ public class Worker {
             e.printStackTrace();
         }
     }
-
+*/
     /*----------- REPLICATE ------------*/
 
 
@@ -84,22 +139,10 @@ public class Worker {
                 WorkerUtil.hasReplicated = true;
                 newWorker.target = unit.target;
                 if (newWorker.target == null) newWorker.target = getTarget(newWorker);
-                doAction(newWorker, true);
+                actReplicatedWorker(newWorker);
                 UnitManager.move(newWorker);
-                doAction(newWorker, false);
+                actReplicatedWorker(newWorker);
                 return true;
-            }
-            return false;
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    private boolean canReplicate(AuxUnit unit){
-        try {
-            for (int i = 0; i < 8; ++i) {
-                if (Wrapper.canReplicate(unit, i)) return true;
             }
             return false;
         }catch(Exception e){
@@ -159,11 +202,11 @@ public class Worker {
 
     /*----------- BUILD/REPAIR ------------*/
 
-
     //Intenta reparar o construir una structure adjacent
-    private static boolean tryBuildAndRepair(AuxUnit unit){
+    static boolean tryBuildAndRepair(AuxUnit unit){
         try {
             if (Mapa.onMars()) return false;
+            if (!unit.canAttack()) return false;
             int minDif = 1000;
             int minDifIndex = -1;
             int minHP = 1000;
@@ -230,6 +273,173 @@ public class Worker {
         return false;
     }
 
+    private static void tryBuildFactory(){
+        AuxMapLocation loc = getBestFactoryLocation(); //retorna la millor location adjacent a un worker
+        for (int i = 0; i < 8; i++){
+            AuxMapLocation workerLoc = loc.add(i);
+            AuxUnit worker = workerLoc.getUnit();
+            if (worker == null) continue;
+            if (!worker.myTeam || worker.type != UnitType.Worker) continue;
+            if (worker.isInGarrison() || worker.isInSpace()) continue;
+            if (!worker.canAttack()) continue;
+            //hem trobat un worker nostre, li fem construir la factory!
+            int dirBuild = workerLoc.dirBFSTo(loc);
+            if (!Wrapper.canPlaceBlueprint(worker,UnitType.Factory, dirBuild)){
+                System.out.println("oops algo ha anat malament a Worker.tryBuildFactory");
+                continue;
+            }
+            Wrapper.placeBlueprint(worker, UnitType.Factory, dirBuild);
+            Units.unitTypeCount.put(UnitType.Factory, Units.unitTypeCount.get(UnitType.Factory)+1);
+            worker.canMove = false; //no volem que marxi sense construir
+            targets.put(worker.getID(), 100.0);
+            return;
+        }
+        System.out.println("No s'ha pogut construir factory :(");
+    }
+
+    private static AuxMapLocation getBestFactoryLocation(){
+        AuxMapLocation bestLoc = null;
+        for (int index: Units.workers) {
+            AuxUnit worker = Units.myUnits.get(index);
+            if (worker.isInGarrison() || worker.isInSpace()) continue;
+            if (!worker.canAttack()) continue;
+            AuxMapLocation workerLoc = worker.getMapLocation();
+            FactoryData bestFactory = null;
+            for (int i = 0; i < 8; ++i) {
+                if (Wrapper.canPlaceBlueprint(worker, UnitType.Factory, i)) {
+                    FactoryData fd = new FactoryData(workerLoc.add(i));
+                    if (fd.isBetter(bestFactory)) {
+                        bestFactory = fd;
+                        bestLoc = workerLoc.add(i);
+                    }
+                }
+            }
+        }
+        return bestLoc;
+    }
+
+    static class FactoryData{
+        AuxMapLocation loc;
+        boolean connectivity;
+        double distToWalls;
+        double workersNear;
+
+        FactoryData(AuxMapLocation _loc){
+            try {
+                loc = _loc;
+                if (!loc.isOnMap()) return;
+                connectivity = WorkerUtil.getConnectivity(loc);
+                distToWalls = Pathfinder.distToWalls[loc.x][loc.y];
+                if (distToWalls > 3) distToWalls = 3;
+                workersNear = WorkerUtil.workerAreas[loc.x][loc.y];
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+        }
+
+        boolean isBetter(FactoryData B){
+            // todo: donar mes score per numero de factories properes
+            try {
+                if (B == null) return true;
+                if (connectivity && !B.connectivity) return true;
+                if (B.connectivity && !connectivity) return false;
+                if (distToWalls > B.distToWalls) return true;
+                if (B.distToWalls < distToWalls) return false;
+                return workersNear > B.workersNear;
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+            return false;
+        }
+
+    }
+
+    private static void tryBuildRocket(){
+        AuxMapLocation loc = getBestRocketLocation(); //retorna la millor location adjacent a un worker
+        //Potser hi ha una unit nostra a la loc, hem de fer que es mogui o sino que es suicidi
+        for (int i = 0; i < 8; i++){
+            AuxMapLocation workerLoc = loc.add(i);
+            AuxUnit worker = workerLoc.getUnit();
+            if (worker == null) continue;
+            if (!worker.myTeam || worker.type != UnitType.Worker) continue;
+            if (worker.isInGarrison() || worker.isInSpace()) continue;
+            if (!worker.canAttack()) continue;
+            //hem trobat un worker nostre, li fem construir el rocket!
+            int dirBuild = workerLoc.dirBFSTo(loc);
+            AuxUnit unitToKill = loc.getUnit();
+            if (unitToKill != null && MovementManager.getInstance().move(unitToKill) == 8)
+                Wrapper.disintegrate(unitToKill);
+
+            if (!Wrapper.canPlaceBlueprint(worker,UnitType.Rocket, dirBuild)){
+                System.out.println("oops algo ha anat malament a Worker.tryBuildRocket");
+                continue;
+            }
+            Wrapper.placeBlueprint(worker, UnitType.Rocket, dirBuild);
+            Units.unitTypeCount.put(UnitType.Rocket, Units.unitTypeCount.get(UnitType.Rocket)+1);
+            worker.canMove = false; //no volem que marxi sense construir
+            targets.put(worker.getID(), 100.0);
+        }
+        System.out.println("No s'ha pogut construir rocket :(");
+    }
+
+    private static AuxMapLocation getBestRocketLocation(){
+        AuxMapLocation bestLoc = null;
+        int bestScore = -100;
+        for (int index: Units.workers) {
+            AuxUnit worker = Units.myUnits.get(index);
+            if (worker.isInGarrison() || worker.isInSpace()) continue;
+            if (!worker.canAttack()) continue;
+            Danger.computeDanger(worker);
+            for (int i = 0; i < 8; ++i) {
+                AuxMapLocation rocketLoc = worker.getMapLocation().add(i);
+                if (!rocketLoc.isOnMap()) continue;
+                if (!rocketLoc.isPassable()) continue;
+                if (!Wrapper.canPlaceBlueprint(worker, UnitType.Rocket, i)) continue;
+                if (Danger.DPS[i] != 0) continue;
+                AuxUnit unit2 = rocketLoc.getUnit();
+                if (unit2 != null && !unit2.myTeam) continue; //hi ha un enemic
+                else if (unit2 != null) {
+                    //hi ha un aliat
+                    if (unit2.isStructure()) continue;
+                    if (Build.rocketRequest != null && !Build.rocketRequest.urgent) continue; //si no es urgent suda
+                    if (Build.rocketRequest != null && Build.rocketRequest.roundRequested - Utils.round < 3)
+                        continue; //si fa menys de 3 rondes que s'ha demanat l'urgent, intentem no haver de suicidar
+                }
+                int score = getRocketBlueprintScore(rocketLoc);
+                if (score > bestScore) {
+                    bestLoc = rocketLoc;
+                    bestScore = score;
+                }
+            }
+        }
+        //nomes
+        if (Build.rocketRequest != null && !Build.rocketRequest.urgent && bestScore < 0) return null;
+        return bestLoc;
+    }
+
+    private static int getRocketBlueprintScore(AuxMapLocation loc){
+        try {
+            final int DISINTEGRATE_PENALTY = -6;
+            final int ADJACENT_FACTORY_PENALTY = -2;
+            final int ADJACENT_ROCKET_PENALTY = -3;
+            int score = 0;
+            if (loc.getUnit() != null) score += DISINTEGRATE_PENALTY;
+            for (int i = 0; i < 8; i++){
+                AuxMapLocation newLoc = loc.add(i);
+                AuxUnit unit2 = newLoc.getUnit();
+                if (unit2 == null) continue;
+                if (!unit2.myTeam) continue;
+                if (unit2.type == UnitType.Factory) score += ADJACENT_FACTORY_PENALTY;
+                if (unit2.type == UnitType.Rocket) score += ADJACENT_ROCKET_PENALTY;
+            }
+            return score;
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+/*
     //Posen un blueprint en una posicio adjacent (aixo s'ha de canviar quan ho fem global)
     public static boolean tryPlaceBlueprint(AuxUnit unit){
         try {
@@ -256,14 +466,15 @@ public class Worker {
         }
 
     }
-
+*/
     /*----------- MINE ------------*/
 
 
     //minen una mina adjacent
     private static boolean tryMine(AuxUnit unit){
         try {
-              int dir = WorkerUtil.getMostKarboLocation(unit.getMapLocation());
+            int dir = WorkerUtil.getMostKarboLocation(unit.getMapLocation());
+            System.out.println(Utils.round + "  " + unit.getMapLocation() + " tries to mine, dir " + Direction.swigToEnum(dir));
             AuxMapLocation newLoc = unit.getMapLocation().add(dir);
             if (Karbonite.karboMap[newLoc.x][newLoc.y] > 0 && Wrapper.canHarvest(unit, dir)) {
                 Wrapper.harvest(unit, dir);

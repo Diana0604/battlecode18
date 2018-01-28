@@ -509,6 +509,22 @@ public class Wrapper {
         return null;
     }
 
+    static int factoryRoundsLeft(AuxUnit unit){
+        if (unit.canAttack()) return 0;
+        Unit _unit = GC.gc.unit(unit.getID());
+        int ans = (int) _unit.factoryRoundsLeft();
+        _unit.delete();
+        return ans;
+    }
+
+    static UnitType getBuildingUnit(AuxUnit unit){
+        if(unit.canAttack()) return null;
+        Unit _unit = GC.gc.unit(unit.getID());
+        UnitType ans = _unit.factoryUnitType();
+        _unit.delete();
+        return ans;
+    }
+
     /*------------------ GENERAL INIT GAME -----------------------*/
 
 
@@ -950,7 +966,7 @@ public class Wrapper {
             WorkerUtil.min_nb_workers1 = (int)Math.max(WorkerUtil.min_nb_workers, Math.floor(WorkerUtil.approxMapValue / WorkerUtil.worker_value1));
 
 
-            System.out.println("Map value = " + WorkerUtil.approxMapValue);
+            System.out.println("Map getFactoryValue = " + WorkerUtil.approxMapValue);
             System.out.println("Minimum number of workers = " + WorkerUtil.min_nb_workers);
             System.out.println("Minimum safe turns: "+ WorkerUtil.minSafeTurns);
 

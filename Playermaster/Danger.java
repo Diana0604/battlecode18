@@ -13,6 +13,7 @@ class Danger {
     static int[][] enemyDist;
 
     static boolean enemySeen = false;
+    static boolean knightSeen = false;
 
     private static HashMap<Integer, DangerData> dangerData;
 
@@ -113,7 +114,7 @@ class Danger {
                         if (Utils.round >= 150 && d <= 10) data.minDist[j] = Math.min(data.minDist[j], (int) d);
                         else if (!(enemy.getType() == UnitType.Worker)) data.minDist[j] = Math.min(data.minDist[j], (int) d);
                     }
-                    else data.minDist[j] = Math.min(data.minDist[j], (int) d);
+                    else if (enemy.getType() != UnitType.Worker) data.minDist[j] = Math.min(data.minDist[j], (int) d);
                 }
             }
 
@@ -143,6 +144,7 @@ class Danger {
     private static void updateAttackers(){
         try {
 
+            knightSeen = false;
             if (Units.enemies.size() > 0) enemySeen = true;
             myQueue = new LinkedList<>();
             enemyQueue = new LinkedList<>();
@@ -184,6 +186,7 @@ class Danger {
                     enemyQueue.add(locEnemyUnits[i].encode());
                     enemyDist[locEnemyUnits[i].x][locEnemyUnits[i].y] = 1;
                 }
+                if (Units.enemies.get(i).getType() == UnitType.Knight) knightSeen = true;
             }
 
 

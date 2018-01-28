@@ -333,7 +333,7 @@ public class Mage {
         int computeValue() {
             try {
                 AuxMapLocation finalLoc = unit.getMapLocation().add(dir).add(mloc);
-                if (expandedTargetArray[finalLoc.x][finalLoc.y] < min_group) return 0;
+                if (expandedTargetArray[finalLoc.x][finalLoc.y] < 1) return 0;
                 int mostenemies = 0;
                 for (int j = 0; j < Vision.Mx[30].length; ++j) {
                     AuxMapLocation newLoc = finalLoc.add(new AuxMapLocation(Vision.Mx[30][j], Vision.My[30][j]));

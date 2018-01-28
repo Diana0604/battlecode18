@@ -24,11 +24,11 @@ public class Knight {
 
     private int typePriority(UnitType t){
         switch(t){
-            case Mage: return 7;
-            case Knight: return 6;
-            case Healer: return 5;
-            case Ranger: return 4;
-            case Factory: return 3;
+            case Mage: return 6;
+            case Knight: return 5;
+            case Factory: return 5;
+            case Healer: return 4;
+            case Ranger: return 3;
             case Worker: return 2;
             case Rocket: return 1;
             default: return 0;
@@ -73,7 +73,6 @@ public class Knight {
             for (AuxUnit u : enemiesInRange) {
                 if (!Wrapper.canAttack(unit, u)) continue;
                 bestVictim = getBestAttackTarget(unit, bestVictim, u);
-
             }
             if (bestVictim == null) return;
             if (!unit.canAttack()){
@@ -108,7 +107,7 @@ public class Knight {
         }
     }
 
-    AuxMapLocation getTarget(AuxUnit unit){
+    AuxMapLocation updateTarget(AuxUnit unit){
         try {
             if (Units.canOverCharge && Utils.round%10 == 9) return null;
             if (Rocket.callsToRocket.containsKey(unit.getID())) return Rocket.callsToRocket.get(unit.getID());
@@ -116,7 +115,7 @@ public class Knight {
                 AuxMapLocation ans = getBestHealer(unit.getMapLocation());
                 if (ans != null) return ans;
             }
-            AuxMapLocation ans = getBestEnemy(unit.getMapLocation());
+            AuxMapLocation ans = targetBestEnemy(unit.getMapLocation());
             if (ans != null) return ans;
             return Explore.findExploreObjective(unit);
         }catch(Exception e) {
@@ -125,7 +124,7 @@ public class Knight {
         }
     }
 
-    AuxMapLocation getBestEnemy(AuxMapLocation myLoc){
+    AuxMapLocation targetBestEnemy(AuxMapLocation myLoc){
         try {
             double minDist = Const.INFL;
             AuxMapLocation target = null;

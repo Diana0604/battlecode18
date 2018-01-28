@@ -46,11 +46,13 @@ public class Build {
 
      */
 
+
+
     /*------------ NEXT STRUCTURE -------------*/
 
     static void pickNextStructure(){
         nextStructureType = chooseStructureType();
-        nextStructureLocation = chooseStructureLocation();
+        //nextStructureLocation = chooseStructureLocation();
     }
 
     private static UnitType chooseStructureType(){

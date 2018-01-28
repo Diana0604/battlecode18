@@ -1,6 +1,7 @@
 import bc.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by Ivan on 1/20/2018.
@@ -38,6 +39,9 @@ public class WorkerUtil {
     static double minSafeTurns;
 
     static boolean closeFactory = true;
+
+
+    static HashMap<AuxMapLocation, Integer> valueForFactory;
 
 
     public static void initTurn(){
@@ -145,20 +149,21 @@ public class WorkerUtil {
         return false;
     }
 
-    static int value(AuxUnit worker){
+    //factory getFactoryValue
+    static int getFactoryValue(AuxMapLocation location){
         try {
             int val = 0;
             int mindist = 10000;
             for (int i = 0; i < Utils.enemyStartingLocations.size(); ++i){
-                mindist = Math.min(mindist, worker.getMapLocation().distanceBFSTo(Utils.enemyStartingLocations.get(i)));
+                mindist = Math.min(mindist, location.distanceBFSTo(Utils.enemyStartingLocations.get(i)));
             }
 
-            if (getConnectivity(worker.getMapLocation())) val += (1 << 21);
-            if (isSafe(worker.getMapLocation())){
+            if (getConnectivity(location)) val += (1 << 21);
+            if (isSafe(location)){
                 val += (1 << 20) - mindist;
             }
             else val += mindist;
-            if (closeFactory && isCloseToFactory(worker.getMapLocation())) val += (1 << 19);
+            if (closeFactory && isCloseToFactory(location)) val += (1 << 19);
 
             return -val;
         }catch(Exception e){
@@ -167,6 +172,24 @@ public class WorkerUtil {
         return 0;
     }
 
+
+    static void updateValueForFactory(){
+        valueForFactory = new HashMap<>();
+        for (int index: Units.workers){
+            AuxUnit worker = Units.myUnits.get(index);
+            if (!worker.canAttack()) continue;
+            AuxMapLocation workerLoc = worker.getMapLocation();
+            for (int i = 0; i < 8; i++){
+                AuxMapLocation adjLoc = workerLoc.add(i);
+                if (!adjLoc.isAccessible()) continue;
+                if (!valueForFactory.containsKey(adjLoc)){
+                    int value = getFactoryValue(adjLoc);
+                    valueForFactory.put(adjLoc, value);
+                }
+            }
+        }
+    }
+/*
     static void doFirstActions(){
         try {
             ArrayList<AuxUnit> workers = new ArrayList<>();
@@ -178,7 +201,7 @@ public class WorkerUtil {
                 //System.out.println("Placing blueprint!!");
            // }
 
-            workers.sort((a, b) -> value(a) < value(b) ? -1 : value(a) == value(b) ? 0 : 1);
+            workers.sort((a, b) -> getFactoryValue(a.getMapLocation()) < getFactoryValue(b.getMapLocation()) ? -1 : getFactoryValue(a.getMapLocation()) == getFactoryValue(b.getMapLocation()) ? 0 : 1);
             for (int i = 0; i < workers.size(); ++i){
                 if(workers.get(i).isInSpace() || workers.get(i).isInGarrison()) continue;
                 Worker.doAction(workers.get(i), true);
@@ -190,6 +213,26 @@ public class WorkerUtil {
         }catch(Exception e){
             e.printStackTrace();
         }
+    }
+*/
+
+    static void doAction(){
+        ArrayList<AuxUnit> workers = new ArrayList<>();
+        for (int i : Units.workers){
+            AuxUnit worker = Units.myUnits.get(i);
+            workers.add(worker);
+        }
+        updateValueForFactory();
+        for (AuxUnit worker: workers) {
+            if (worker.canAttack()) Worker.tryBuildAndRepair(worker);
+        }
+        for (AuxUnit worker: workers) {
+            if (worker.canAttack()) Worker.tryBuildAndRepair(worker);
+        }
+        for (AuxUnit worker: workers) {
+            if (worker.canAttack()) Worker.tryBuildAndRepair(worker);
+        }
+
     }
 
     /*
@@ -222,6 +265,7 @@ public class WorkerUtil {
 
     //retorna la direccio on hi ha mes karbo (nomes adjacent)
     static int getMostKarboLocation(AuxMapLocation loc){
+        //BUG: no detecten la karbonite de llocs on abans hi havia hagut una factory, perque l'han borrat de l'array
         try {
             int bestDir = 0;
             int bestKarbo = -1;
@@ -312,6 +356,8 @@ public class WorkerUtil {
         }
         return false;
     }
+
+
 
 
 }

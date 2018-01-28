@@ -20,31 +20,42 @@ public class Knight {
         objectiveArea = new HashMap();
     }
 
-    AuxUnit getBestAttackTarget(AuxUnit A, AuxUnit B){
+
+
+    private int typePriority(UnitType t){
+        switch(t){
+            case Mage: return 7;
+            case Knight: return 6;
+            case Healer: return 5;
+            case Ranger: return 4;
+            case Factory: return 3;
+            case Worker: return 2;
+            case Rocket: return 1;
+            default: return 0;
+        }
+    }
+
+    private int hitsLeft(AuxUnit unit){
+        int dmgReceived = Const.knightDamage;
+        if(unit.type == UnitType.Knight) dmgReceived -= Units.knightBlock;
+        return (int) Math.ceil((double)unit.health / (double)dmgReceived);
+    }
+
+    AuxUnit getBestAttackTarget(AuxUnit knight, AuxUnit A, AuxUnit B){
         try {
             if (A == null) return B;
             if (B == null) return A;
 
-            //prioritzem factories i knights
-            if ((A.type == UnitType.Factory || A.type == UnitType.Knight) && B.type != UnitType.Factory && B.type != UnitType.Knight) {
+            if (typePriority(A.getType()) > typePriority(B.getType())) return A;
+            if (typePriority(A.getType()) < typePriority(B.getType())) return B;
+
+            int hitsA = hitsLeft(A);
+            int hitsB = hitsLeft(B);
+            if (hitsA < hitsB) return A;
+            if (hitsA > hitsB) return B;
+
+            if (knight.getMapLocation().distanceBFSTo(A.getMapLocation()) < knight.getMapLocation().distanceBFSTo(B.getMapLocation()))
                 return A;
-            }
-            if ((B.type == UnitType.Factory || B.type == UnitType.Knight) && A.type != UnitType.Factory && A.type != UnitType.Knight) {
-                return B;
-            }
-
-            //ataquem el que aguanta menys hits
-            int dmgReceivedA = Const.knightDamage;
-            int dmgReceivedB = Const.knightDamage;
-            if (A.type == UnitType.Knight) dmgReceivedA -= Units.knightBlock;
-            if (B.type == UnitType.Knight) dmgReceivedB -= Units.knightBlock;
-
-            double hitsA = Math.ceil((double)A.health / (double)dmgReceivedA);
-            double hitsB = Math.ceil((double)B.health / (double)dmgReceivedB);
-
-            if (hitsA < hitsB) {
-                return A;
-            }
             return B;
         }catch(Exception e) {
             e.printStackTrace();
@@ -61,7 +72,7 @@ public class Knight {
             AuxUnit[] enemiesInRange = Wrapper.senseUnits(myLoc.x, myLoc.y, Units.getAttackRange(unit.getType()), false);
             for (AuxUnit u : enemiesInRange) {
                 if (!Wrapper.canAttack(unit, u)) continue;
-                bestVictim = getBestAttackTarget(bestVictim, u);
+                bestVictim = getBestAttackTarget(unit, bestVictim, u);
 
             }
             if (bestVictim == null) return;

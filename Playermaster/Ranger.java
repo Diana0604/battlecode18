@@ -1,3 +1,5 @@
+import bc.UnitType;
+
 import java.util.HashMap;
 
 public class Ranger {
@@ -21,12 +23,41 @@ public class Ranger {
 
     /*------------------ ATTACK -----------------*/
 
+    private int typePriority(UnitType t){
+        switch(t){
+            case Mage: return 6;
+            case Knight: return 5;
+            case Healer: return 4;
+            case Ranger: return 4;
+            case Factory: return 3;
+            case Worker: return 2;
+            case Rocket: return 1;
+            default: return 0;
+        }
+    }
+
+    private int hitsLeft(AuxUnit unit){
+        int dmgReceived = Const.rangerDamage;
+        if(unit.type == UnitType.Knight) dmgReceived -= Units.knightBlock;
+        return (int) Math.ceil((double)unit.health / (double)dmgReceived);
+    }
+
     //todo: fer que prioritzi per unit
-    private AuxUnit compareAttackTargets(AuxUnit A, AuxUnit B){
+    private AuxUnit compareAttackTargets(AuxUnit ranger, AuxUnit A, AuxUnit B){
         try {
             if (A == null) return B;
             if (B == null) return A;
-            if (A.getHealth() < B.getHealth()) return A;
+
+            if (typePriority(A.getType()) > typePriority(B.getType())) return A;
+            if (typePriority(A.getType()) < typePriority(B.getType())) return B;
+
+            int hitsA = hitsLeft(A);
+            int hitsB = hitsLeft(B);
+            if (hitsA < hitsB) return A;
+            if (hitsA > hitsB) return B;
+
+            if (ranger.getMapLocation().distanceBFSTo(A.getMapLocation()) < ranger.getMapLocation().distanceBFSTo(B.getMapLocation()))
+                return A;
             return B;
         }catch(Exception e) {
             e.printStackTrace();
@@ -40,7 +71,7 @@ public class Ranger {
         AuxUnit[] enemiesInRange = Wrapper.senseUnits(myLoc.x, myLoc.y, Units.getAttackRange(unit.getType()), false);
         for (AuxUnit u : enemiesInRange) {
             if (!Wrapper.canAttack(unit, u)) continue;
-            bestVictim = compareAttackTargets(bestVictim, u);
+            bestVictim = compareAttackTargets(unit, bestVictim, u);
         }
         return bestVictim;
     }

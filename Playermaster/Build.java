@@ -294,6 +294,8 @@ public class Build {
                 return;
             }
 
+            if (Units.robots.size() - Units.workers.size() < 6) return;
+
             //check normal requests
             if (rocketsBuilt * 8 < troopsSinceRocketResearch){
                 //1 rocket cada 8 tropes fetes

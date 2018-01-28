@@ -1,11 +1,11 @@
 import java.util.HashMap;
 
 public class Ranger {
-    static Ranger instance = null;
+    private static Ranger instance = null;
 
-    HashMap<Integer, Integer> objectiveArea;
+    //todo esborrar aixo?
+    private HashMap<Integer, Integer> objectiveArea;
 
-    HashMap<Integer, Integer> distToTarget;
 
     static Ranger getInstance(){
         if (instance == null){
@@ -15,10 +15,14 @@ public class Ranger {
     }
 
     public Ranger(){
-        objectiveArea = new HashMap();
+        objectiveArea = new HashMap<>();
     }
 
-    AuxUnit getBestAttackTarget(AuxUnit A, AuxUnit B){
+
+    /*------------------ ATTACK -----------------*/
+
+    //todo: fer que prioritzi per unit
+    private AuxUnit compareAttackTargets(AuxUnit A, AuxUnit B){
         try {
             if (A == null) return B;
             if (B == null) return A;
@@ -30,30 +34,40 @@ public class Ranger {
         }
     }
 
+    private AuxUnit pickAttackTarget(AuxUnit unit){
+        AuxUnit bestVictim = null;
+        AuxMapLocation myLoc = unit.getMapLocation();
+        AuxUnit[] enemiesInRange = Wrapper.senseUnits(myLoc.x, myLoc.y, Units.getAttackRange(unit.getType()), false);
+        for (AuxUnit u : enemiesInRange) {
+            if (!Wrapper.canAttack(unit, u)) continue;
+            bestVictim = compareAttackTargets(bestVictim, u);
+        }
+        return bestVictim;
+    }
+
     void attack(AuxUnit unit) {
         try {
             if (Units.canOverCharge && Utils.round%10 == 9) return;
             int posAtArray = Units.allUnits.get(unit.getID());
-            AuxUnit bestVictim = null;
-            AuxMapLocation myLoc = unit.getMapLocation();
-            AuxUnit[] enemiesInRange = Wrapper.senseUnits(myLoc.x, myLoc.y, Units.getAttackRange(unit.getType()), false);
-            for (AuxUnit u : enemiesInRange) {
-                if (!Wrapper.canAttack(unit, u)) continue;
-                bestVictim = getBestAttackTarget(bestVictim, u);
-            }
-            if (bestVictim == null) return;
-            if (!unit.canAttack()){
-                if (!Overcharge.getOvercharged(posAtArray)) return;
-            }
-            Wrapper.attack(unit, bestVictim);
+
+            AuxUnit targetUnit = pickAttackTarget(unit);
+            if (targetUnit == null) return;
+
+            if (!unit.canAttack() && !Overcharge.getOvercharged(posAtArray)) return;
+            Wrapper.attack(unit, targetUnit);
             if (Overcharge.canGetOvercharged(posAtArray)) attack(unit);
         }catch(Exception e) {
             e.printStackTrace();
         }
     }
 
-    AuxMapLocation getBestHealer(AuxMapLocation loc){
+
+    /*------------------ PICK TARGET -----------------*/
+
+    //retorna el healer mes proper
+    private AuxMapLocation getBestHealer(AuxMapLocation loc){
         try {
+            //todo posar un limit de distancia maxima?
             double minDist = 100000;
             AuxMapLocation ans = null;
             for (int index: Units.healers) {
@@ -74,28 +88,12 @@ public class Ranger {
         }
     }
 
-    AuxMapLocation getTarget(AuxUnit unit){
+    private AuxMapLocation getBestEnemy(AuxMapLocation myLoc) {
         try {
-            if (Units.canOverCharge && Utils.round%10 == 9) return null;
-            if (Rocket.callsToRocket.containsKey(unit.getID())) return Rocket.callsToRocket.get(unit.getID());
-            if (unit.getHealth() < 100) {
-                AuxMapLocation ans = getBestHealer(unit.getMapLocation());
-                if (ans != null) return ans;
-            }
-            AuxMapLocation ans = getBestEnemy(unit.getMapLocation());
-            if (ans != null) return ans;
-            return Explore.findExploreObjective(unit);
-        }catch(Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    AuxMapLocation getBestEnemy(AuxMapLocation myLoc){
-        try {
+            //todo prioritzar tropes abans que workers? idk
             double minDist = Const.INFL;
             AuxMapLocation target = null;
-            for (AuxUnit enemy: Units.enemies) {
+            for (AuxUnit enemy : Units.enemies) {
                 if (enemy.getHealth() <= 0) continue;
                 AuxMapLocation enemyLocation = enemy.getMapLocation();
                 double d = enemyLocation.distanceBFSTo(myLoc);
@@ -105,6 +103,25 @@ public class Ranger {
                 }
             }
             return target;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+
+    AuxMapLocation getTarget(AuxUnit unit){
+        try {
+            final int MAX_HP_TO_RETREAT = 100; //todo: crec que es millor canviar aixo per 110 pq mages no facin oneshot
+            if (Units.canOverCharge && Utils.round % 10 == 9) return null;
+            if (Rocket.callsToRocket.containsKey(unit.getID())) return Rocket.callsToRocket.get(unit.getID());
+            if (unit.getHealth() < MAX_HP_TO_RETREAT) {
+                AuxMapLocation ans = getBestHealer(unit.getMapLocation());
+                if (ans != null) return ans;
+            }
+            AuxMapLocation ans = getBestEnemy(unit.getMapLocation());
+            if (ans != null) return ans;
+            return Explore.findExploreObjective(unit);
         }catch(Exception e) {
             e.printStackTrace();
             return null;

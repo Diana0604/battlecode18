@@ -7,7 +7,7 @@ import java.util.Objects;
  * Created by Ivan on 1/18/2018.
  */
 public class AuxUnit {
-    Integer id;
+    private int id;
     public Boolean garrison;
     public Boolean inSpace;
     public AuxMapLocation mloc;

@@ -363,7 +363,7 @@ public class MovementManager {
 
     boolean kamikazeWorker(){
         try {
-            if (!Units.firstFactory || Units.unitTypeCount.get(UnitType.Worker) > 8) return true;
+            if (!Build.firstFactory || Units.unitTypeCount.get(UnitType.Worker) > 8) return true;
             return false;
         }catch(Exception e) {
             e.printStackTrace();

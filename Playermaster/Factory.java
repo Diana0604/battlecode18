@@ -104,7 +104,7 @@ public class Factory {
             //if (karbo < Const.replicateCost) return null;
 
             //prioritzem fer rockets a units
-            if (Units.canBuildRockets && karbo < Const.replicateCost + Const.rocketCost && Units.rocketRequest != null) return null;
+            if (Build.canBuildRockets && karbo < Const.replicateCost + Const.rocketCost && Build.rocketRequest != null) return null;
 
 
             HashMap<UnitType, Integer> typeCount = Units.unitTypeCount;
@@ -116,9 +116,9 @@ public class Factory {
 
             if (workers < 2) return UnitType.Worker; //potser millor si workers < 2-3?
 
-            if (Units.initDistToEnemy < 20 && Units.knightsBuilt < 4) return UnitType.Knight;
-            if (Units.initDistToEnemy < 25 && Units.knightsBuilt < 3) return UnitType.Knight;
-            if (Units.initDistToEnemy < 30 && Units.knightsBuilt < 2) return UnitType.Knight;
+            if (Build.initDistToEnemy < 20 && Build.knightsBuilt < 4) return UnitType.Knight;
+            if (Build.initDistToEnemy < 25 && Build.knightsBuilt < 3) return UnitType.Knight;
+            if (Build.initDistToEnemy < 30 && Build.knightsBuilt < 2) return UnitType.Knight;
 
             AuxUnit[] enemies = Wrapper.senseUnits(unit.getMapLocation(), 18, false);
             for (AuxUnit enemy : enemies){
@@ -126,7 +126,7 @@ public class Factory {
             }
 
 
-            int roundsEnemyUnseen = Utils.round - Units.lastRoundEnemySeen;
+            int roundsEnemyUnseen = Utils.round - Build.lastRoundEnemySeen;
             if ((Utils.round > 250 && roundsEnemyUnseen > 10) || Utils.round >= ROCKET_RUSH) {
                 if (workers < 3) return UnitType.Worker;
                 if (rangers + healers + mages +knights > 30 && (rangers+healers+mages+knights) > 8*typeCount.get(UnitType.Rocket)) return null;

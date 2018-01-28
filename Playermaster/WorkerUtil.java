@@ -1,8 +1,6 @@
 import bc.*;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Queue;
 
 /**
  * Created by Ivan on 1/20/2018.
@@ -183,7 +181,7 @@ public class WorkerUtil {
             workers.sort((a, b) -> value(a) < value(b) ? -1 : value(a) == value(b) ? 0 : 1);
             for (int i = 0; i < workers.size(); ++i){
                 if(workers.get(i).isInSpace() || workers.get(i).isInGarrison()) continue;
-                Worker.getInstance().doAction(workers.get(i), true);
+                Worker.doAction(workers.get(i), true);
                 //if (Utils.round < 60 && Utils.round > 30) {
                     //System.out.println("Working on " + workers.get(i).getMapLocation().x + " " + workers.get(i).getMapLocation().y);
                     //System.out.println(sd);
@@ -330,8 +328,8 @@ public class WorkerUtil {
                 else if (unit2 != null) {
                     //hi ha un aliat
                     if (unit2.isStructure()) continue;
-                    if (Units.rocketRequest != null && !Units.rocketRequest.urgent) continue; //si no es urgent suda
-                    if (Units.rocketRequest != null && Units.rocketRequest.roundRequested - Utils.round < 3) continue; //si fa menys de 3 rondes que s'ha demanat
+                    if (Build.rocketRequest != null && !Build.rocketRequest.urgent) continue; //si no es urgent suda
+                    if (Build.rocketRequest != null && Build.rocketRequest.roundRequested - Utils.round < 3) continue; //si fa menys de 3 rondes que s'ha demanat
                 }
                 int score = getRocketBlueprintScore(newLoc);
                 if (score > bestScore){
@@ -339,7 +337,7 @@ public class WorkerUtil {
                     bestScore = score;
                 }
             }
-            if (Units.rocketRequest != null && !Units.rocketRequest.urgent && bestScore < 0) return 8;
+            if (Build.rocketRequest != null && !Build.rocketRequest.urgent && bestScore < 0) return 8;
             return bestDir;
         }catch(Exception e){
             e.printStackTrace();

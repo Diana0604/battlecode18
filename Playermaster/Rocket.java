@@ -58,7 +58,7 @@ public class Rocket {
                 ArrayList<Pair> sortedUnits = getSortedUnits(rocket);
                 int[] unitTypes = getUnitTypesGarrison(rocket);
                 int[] _maxUnitTypes = maxUnitTypes;
-                if (Units.rocketsLaunched == 0 && Units.oneWorkerToMars) _maxUnitTypes = new int[]{1, 0, 0, 0, 0, 0, 0};
+                if (Build.rocketsLaunched == 0 && Build.oneWorkerToMars) _maxUnitTypes = new int[]{1, 0, 0, 0, 0, 0, 0};
                 loadUnits(rocket, sortedUnits, unitTypes, _maxUnitTypes);
                 callRemainingRobots(rocket, sortedUnits, unitTypes, _maxUnitTypes);
                 boolean willLaunch = shouldLaunch(rocket);
@@ -172,7 +172,7 @@ public class Rocket {
             if (shouldWait) return false;
 
             int garrisonSize = rocket.getGarrisonUnits().size();
-            if (garrisonSize == 1 && Units.rocketsLaunched == 0 && Units.oneWorkerToMars) return true; //first rocket ple
+            if (garrisonSize == 1 && Build.rocketsLaunched == 0 && Build.oneWorkerToMars) return true; //first rocket ple
             if (garrisonSize == Units.rocketCapacity) return true; //rocket ple
 
             if (rocketDatas.get(rocket.getID()).roundsIdle > MAX_ROUNDS_IDDLE) return true;

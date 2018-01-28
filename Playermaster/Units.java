@@ -1,21 +1,15 @@
 import bc.MapLocation;
+import bc.ResearchInfo;
 import bc.UnitType;
 import bc.VecUnit;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 
 public class Units {
     static AuxMapLocation mapCenter;
     static long maxRadius;
-    static boolean oneWorkerToMars = true;
-    static int rocketsLaunched = 0;
-    static int rocketsBuilt = 0;
-    static int knightsBuilt = 0;
-    static int troopsSinceRocketResearch = 0;
-    static RocketRequest rocketRequest;
     static HashMap<Integer, Integer> allUnits; //allUnits.get(id) = index de myUnits
     static HashMap<UnitType, Integer> unitTypeCount;
     static HashSet<Integer> structures;
@@ -28,13 +22,9 @@ public class Units {
     static HashSet<Integer> rangers;
     static HashSet<Integer> mages;
     static HashSet<Integer> knights;
-    static HashMap<Integer, Integer> blueprintsToBuild;
-    static HashMap<Integer, Integer> structuresToRepair;
     static int[][] unitMap;
     static ArrayList<AuxUnit> myUnits; //myUnits.get(i) retorna una unit random meva
     static ArrayList<AuxUnit> enemies;
-    static int lastRoundEnemySeen;
-    static int lastRoundUnder100Karbo;
     static int healingPower;
     static int buildingPower;
     static int repairingPower;
@@ -44,13 +34,8 @@ public class Units {
     static boolean canBlink = false;
     static boolean canOverCharge = false;
     static int rocketCapacity;
-    static boolean canBuildRockets;
     static HashSet<Integer> newOccupiedPositions;
-    static boolean isolated;
-    static int initDistToEnemy;
 
-
-    static boolean firstFactory = false;
 
     public static void initTurn(){
         try {
@@ -61,13 +46,6 @@ public class Units {
             updateUnitTypeCount();
             updateStructures();
             updateWorkers();
-            updateBlueprintsToBuild();
-            updateStructuresToRepair();
-            updateRocketRequest();
-            if (Utils.karbonite < 100) lastRoundUnder100Karbo = Utils.round;
-            if (enemies.size() != 0) lastRoundEnemySeen = Utils.round;
-            if (Utils.round > 50) WorkerUtil.safe = false;
-            if (Utils.round > 400) Units.oneWorkerToMars = false;
         }catch(Exception e) {
             e.printStackTrace();
         }
@@ -91,8 +69,8 @@ public class Units {
             blueprints = new HashSet<>();
             structures = new HashSet<>();
 
-            blueprintsToBuild = new HashMap<>();
-            structuresToRepair = new HashMap<>();
+            Build.blueprintsToBuild = new HashMap<>();
+            Build.structuresToRepair = new HashMap<>();
 
             newOccupiedPositions = new HashSet<>();
 
@@ -104,11 +82,12 @@ public class Units {
 
     private static void updateUnitPowers(){
         try {
-            int workerLevel = (int) Research.researchInfo.getLevel(UnitType.Worker);
-            int healerLevel = (int) Research.researchInfo.getLevel(UnitType.Healer);
-            int rocketLevel = (int) Research.researchInfo.getLevel(UnitType.Rocket);
-            int mageLevel = (int) Research.researchInfo.getLevel(UnitType.Mage);
-            int knightLevel = (int) Research.researchInfo.getLevel(UnitType.Knight);
+            ResearchInfo researchInfo = Research.researchInfo;
+            int workerLevel = (int) researchInfo.getLevel(UnitType.Worker);
+            int healerLevel = (int) researchInfo.getLevel(UnitType.Healer);
+            int rocketLevel = (int) researchInfo.getLevel(UnitType.Rocket);
+            int mageLevel = (int) researchInfo.getLevel(UnitType.Mage);
+            int knightLevel = (int) researchInfo.getLevel(UnitType.Knight);
             buildingPower = Const.buildingPowers[workerLevel];
             repairingPower = Const.repairingPowers[workerLevel];
             harvestingPower = Const.harvestingPowers[workerLevel];
@@ -118,7 +97,7 @@ public class Units {
             if (mageLevel >= 4) canBlink = true;
             if (healerLevel >= 3) canOverCharge = true;
             rocketCapacity = Const.rocketCapacities[rocketLevel];
-            if (rocketLevel > 0) canBuildRockets = true;
+            if (rocketLevel > 0) Build.canBuildRockets = true;
         }catch(Exception e) {
             e.printStackTrace();
         }
@@ -136,7 +115,7 @@ public class Units {
                 case Knight:
                     return 3;
                 case Worker:
-                    return 4 + Worker.getInstance().hasTarget(u);
+                    return 4 + Worker.hasTarget(u);
                 case Rocket:
                     return 5;
                 case Factory:
@@ -202,7 +181,7 @@ public class Units {
                     if (type == UnitType.Rocket) rockets.add(i);
                     if (type == UnitType.Factory){
                         factories.add(i);
-                        if (unit.isBuilt()) firstFactory = true;
+                        if (unit.isBuilt()) Build.firstFactory = true;
                     }
                     if (unit.isBlueprint()) blueprints.add(i);
                 }else{
@@ -260,142 +239,6 @@ public class Units {
             }
         }catch(Exception e) {
             e.printStackTrace();
-        }
-    }
-
-    private static void updateBlueprintsToBuild(){
-        try {
-            final int MAX_WORKERS_TO_CALL = 6;
-
-            for (int index : blueprints) {
-                //Per cada blueprint, crida els 6 workers mes propers a construir-lo
-                AuxUnit bp = myUnits.get(index);
-                if (bp.isMaxHealth()) continue;
-                ArrayList<Pair> sorted = new ArrayList<>();
-                for (int index2 : workers) {
-                    AuxUnit worker = myUnits.get(index2);
-                    AuxMapLocation workerLoc = worker.getMapLocation();
-                    if (workerLoc == null) continue;
-                    Pair p = new Pair(bp.getMapLocation().distanceSquaredTo(worker.getMapLocation()), worker);
-                    sorted.add(p);
-                }
-                sorted.sort((a, b) -> a.dist < b.dist ? -1 : a.dist == b.dist ? 0 : 1);
-                int workersToCall =  Math.min(MAX_WORKERS_TO_CALL, sorted.size() - 1);
-                if (workersToCall == 0) workersToCall = 1;
-                if (workersToCall < 0) workersToCall = 0;
-                List<Pair> cut = sorted.subList(0, workersToCall);
-                for (Pair p : cut) {
-                    int key = p.unit.getID();
-                    int value = bp.getID();
-                    if (!blueprintsToBuild.containsKey(key)) blueprintsToBuild.put(key, value);
-                }
-            }
-        }catch(Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private static void updateStructuresToRepair(){
-        try {
-            final int MAX_WORKERS_TO_CALL = 3;
-
-            for (int index : structures) {
-                //Per cada blueprint, crida els 8 workers mes propers a construir-lo
-                AuxUnit s = myUnits.get(index);
-                if (s.isBlueprint()) continue;
-                if (s.isMaxHealth()) continue;
-
-                ArrayList<Pair> sorted = new ArrayList<>();
-                for (int index2 : workers) {
-                    AuxUnit worker = myUnits.get(index2);
-                    //no fiquem workers si ja son cridats per un blueprint
-                    if (blueprintsToBuild.containsKey(worker.getID())) continue;
-                    AuxMapLocation workerLoc = worker.getMapLocation();
-                    if (workerLoc == null) continue;
-                    Pair p = new Pair(s.getMapLocation().distanceSquaredTo(worker.getMapLocation()), worker);
-                    sorted.add(p);
-                }
-                sorted.sort((a, b) -> a.dist < b.dist ? -1 : a.dist == b.dist ? 0 : 1);
-                int workersToCall =  Math.min(MAX_WORKERS_TO_CALL, sorted.size() - 1);
-                if (workersToCall == 0) workersToCall = 1;
-                if (workersToCall <= 0) workersToCall = 0;
-                List<Pair> cut = sorted.subList(0, workersToCall);
-                for (Pair p : cut) {
-                    int key = p.unit.getID();
-                    int value = s.getID();
-                    if (!structuresToRepair.containsKey(key)) structuresToRepair.put(key, value);
-                }
-            }
-        }catch(Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private static class Pair {
-        double dist;
-        AuxUnit unit;
-
-        Pair(double dist, AuxUnit unit){
-            this.dist = dist;
-            this.unit = unit;
-        }
-    }
-
-    static void updateRocketRequest(){
-        try {
-            if (!canBuildRockets) return;
-            if (Mapa.onMars()) return;
-
-            if (rocketRequest != null && rocketRequest.urgent) return;
-            if (rocketRequest != null){
-                //check if normal request becomes urgent
-                if (Utils.round - rocketRequest.roundRequested >= 10){
-                    rocketRequest.urgent = true;
-                }
-            }
-            //check urgent requests
-            final int MAX_ROCKETS_BUILT = 5; //per si de cas lol
-
-            if (unitTypeCount.get(UnitType.Rocket) >= MAX_ROCKETS_BUILT) return;
-
-            if (rocketsLaunched == 0 && unitTypeCount.get(UnitType.Rocket) == 0){
-                //firstrocket
-                rocketRequest = new RocketRequest(Utils.round, true);
-                return;
-            }
-            if (Utils.round >= 500){
-                //endgame
-                rocketRequest = new RocketRequest(Utils.round, true);
-                return;
-            }
-
-            //check normal requests
-            if (rocketsBuilt * 8 < troopsSinceRocketResearch){
-                //1 rocket cada 8 tropes fetes
-                rocketRequest = new RocketRequest(Utils.round, false);
-                return;
-            }
-            if (isolated){
-                rocketRequest = new RocketRequest(Utils.round, false);
-                return;
-            }
-            if (Utils.round - lastRoundEnemySeen > 10){
-                //enemy exterminated
-                rocketRequest = new RocketRequest(Utils.round, false);
-                return;
-            }
-        }catch(Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    static class RocketRequest{
-        boolean urgent;
-        int roundRequested;
-
-        RocketRequest(int round, boolean urgent){
-            this.urgent = urgent;
-            roundRequested = round;
         }
     }
 

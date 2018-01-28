@@ -5,7 +5,7 @@ import java.util.Map;
 
 public class Worker {
     private static final int dist_offset = 5;
-    private static final int MAX_FACTORIES = 5;
+    static final int MAX_FACTORIES = 5;
     private static HashMap<Integer, Double> targets = new HashMap<>();
     private static final int MAX_WORKERS_EARTH = 40;
     private static final int MAX_WORKERS_MARS = 15;
@@ -235,55 +235,26 @@ public class Worker {
         try {
             if (!unit.canAttack()) return false;
             if (canWait()) return false;
-            UnitType type = chooseStructure();
+            UnitType type = Build.nextStructureType;
             if (type == null) return false;
-            //int extra_cost = 0;
-            //if (shouldReplicate(unit) && !WorkerUtil.hasReplicated) extra_cost = 60;
             if (Utils.karbonite < Units.getCost(type)) return false;
-            int i;
-            if (type == UnitType.Factory) i = WorkerUtil.getBestFactoryLocation(unit);
-            else i = WorkerUtil.getBestRocketLocation(unit);
-            if (i < 8) {
-                Danger.computeDanger(unit);
-                if(Danger.DPSlong[i] > 0) return false;
-                AuxMapLocation placeLoc = unit.getMapLocation().add(i);
-                AuxUnit rip = placeLoc.getUnit();
-                if (rip != null)
-                    if (MovementManager.getInstance().move(rip) == 8)
-                        Wrapper.disintegrate(rip);
-                Wrapper.placeBlueprint(unit, type, i);
-                Units.unitTypeCount.put(type, Units.unitTypeCount.get(type)+1);
-                unit.canMove = false;
-                targets.put(unit.getID(), 100.0);
-                return true;
-            }
-            return false;
+            AuxMapLocation myLoc = unit.getMapLocation();
+            AuxMapLocation blueprintLoc = Build.nextStructureLocation;
+            if (myLoc.distanceSquaredTo(blueprintLoc) > 2) return false;
+            AuxUnit rip = blueprintLoc.getUnit();
+            if (rip != null && MovementManager.getInstance().move(rip) == 8) Wrapper.disintegrate(rip);
+            int dir = myLoc.dirBFSTo(blueprintLoc);
+            //if (!Wrapper.canPlaceBlueprint(unit, type, dir)) return false;
+            Wrapper.placeBlueprint(unit, type, dir);
+            Units.unitTypeCount.put(type, Units.unitTypeCount.get(type)+1);
+            unit.canMove = false;
+            targets.put(unit.getID(), 100.0);
+            return true;
         }catch(Exception e) {
             e.printStackTrace();
             return false;
         }
 
-    }
-
-    private static UnitType chooseStructure(){
-        try {
-            int numFactories = Units.unitTypeCount.get(UnitType.Factory);
-            if (numFactories < 3) return UnitType.Factory;
-
-            if (Build.canBuildRockets && Build.rocketRequest != null && Build.rocketRequest.urgent) return UnitType.Rocket;
-
-            int roundsOver100Karbo = Utils.round - Build.lastRoundUnder200Karbo;
-            if (roundsOver100Karbo == 5 && numFactories < MAX_FACTORIES) return UnitType.Factory;
-
-            if (Build.canBuildRockets && Build.rocketRequest != null) return UnitType.Rocket;
-
-            if (Utils.karbonite >= 800) return UnitType.Factory;
-
-            return null;
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-        return null;
     }
 
     /*----------- MINE ------------*/
@@ -418,7 +389,7 @@ public class Worker {
                         minLoc = loc;
                     }
                 }
-                if (minLoc == null){
+                if (minLoc == null || minDist > 20){
                     //si no queda cap mina passable per assignar, va a la mes propera
                     minDist = 100000000;
                     minLoc = null;
@@ -433,7 +404,7 @@ public class Worker {
                     if (minLoc == null) destination = unit.getMapLocation();
                     else destination = minLoc;
                 }else{
-                    //ha trobat una mina buida, se l'assigna
+                    //ha trobat una mina buida a distancia < 20, se l'assigna
                     int encoding = minLoc.encode();
                     //System.out.println(GC.round + " worker " + id + " s'assigna la mina " + minLoc.x + "," + minLoc.y + "   " + tasksLocs.get(encoding));
                     tasksIDs.put(id, encoding);

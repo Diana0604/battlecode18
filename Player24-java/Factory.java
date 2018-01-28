@@ -2,11 +2,11 @@
 
 import bc.UnitType;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Factory {
     static Factory instance = null;
-    static ConstructionQueue queue;
     int units;
 
     static final int ROCKET_RUSH = 500;
@@ -25,7 +25,6 @@ public class Factory {
     }
 
     public Factory(){
-        queue = Units.queue;
         units = 0;
 
         //rangers + healers + mags + knights
@@ -38,7 +37,7 @@ public class Factory {
     void play(AuxUnit _unit){
         try {
             unit = _unit;
-            if (!unit.getIsBuilt()) return;
+            if (!unit.isBuilt()) return;
             checkGarrison(unit);
             tryBuild();
         }catch(Exception e) {
@@ -49,11 +48,38 @@ public class Factory {
     private void checkGarrison(AuxUnit unit){
         try {
             Danger.computeDanger(unit);
-            for (int i = 0; i < 9; ++i) {
-                //if (Danger.DPS[i] > 0) continue;
-                if (Wrapper.canUnload(unit, i)) {
-                    Wrapper.unload(unit, i);
+            ArrayList<Integer> units = unit.getGarrisonUnits();
+            if (units.size() == 0) return;
+            int bestDir = -1;
+            double bestDist = 10000000;
+            AuxUnit garrisonUnit = Units.getUnitByID(units.get(0));
+
+            MovementManager.getInstance().setData(garrisonUnit);
+            int dir = MovementManager.getInstance().greedyMove(garrisonUnit);
+            if (dir != 8){
+               if (Wrapper.canUnload(unit, dir)){
+                   Wrapper.unload(unit, dir);
+                   checkGarrison(unit);
+                   return;
+               }
+            }
+
+            AuxMapLocation target = garrisonUnit.target;
+            if (target == null) target = unit.getMapLocation();
+            for (int j = 0; j < 8; ++j) {
+                if (Wrapper.canUnload(unit, j)) {
+                    AuxMapLocation newLoc = unit.getMapLocation().add(j);
+                    double d = newLoc.distanceBFSTo(target);
+                    if (d < bestDist) {
+                        bestDist = d;
+                        bestDir = j;
+                    }
                 }
+            }
+
+            if (bestDir != -1){
+                Wrapper.unload(unit, bestDir);
+                checkGarrison(unit);
             }
         }catch(Exception e) {
             e.printStackTrace();
@@ -74,22 +100,39 @@ public class Factory {
 
     private UnitType chooseNextUnit(){
         try {
-            if (Utils.karbonite < 30) return null;
+            int karbo = Utils.karbonite;
+            //if (karbo < Const.replicateCost) return null;
+
+            //prioritzem fer rockets a units
+            if (Build.canBuildRockets && karbo < Const.replicateCost + Const.rocketCost && Build.rocketRequest != null) return null;
+
+
             HashMap<UnitType, Integer> typeCount = Units.unitTypeCount;
             int rangers = typeCount.get(UnitType.Ranger);
             int healers = typeCount.get(UnitType.Healer);
-            int mages = typeCount.get(UnitType.Mage);
+            int mages =   typeCount.get(UnitType.Mage);
             int workers = typeCount.get(UnitType.Worker);
+            int knights = typeCount.get(UnitType.Knight);
 
             if (workers < 2) return UnitType.Worker; //potser millor si workers < 2-3?
 
-            int roundsEnemyUnseen = Utils.round - Units.lastRoundEnemySeen;
-            if ((Utils.round > 250 && roundsEnemyUnseen > 10) || Utils.round >= ROCKET_RUSH) {
-                if (workers < 5) return UnitType.Worker;
-                if (rangers + healers + mages > 30) return null;
+            if (Build.initDistToEnemy < 20 && Build.knightsBuilt < 4) return UnitType.Knight;
+            if (Build.initDistToEnemy < 25 && Build.knightsBuilt < 3) return UnitType.Knight;
+            if (Build.initDistToEnemy < 30 && Build.knightsBuilt < 2) return UnitType.Knight;
+
+            AuxUnit[] enemies = Wrapper.senseUnits(unit.getMapLocation(), 18, false);
+            for (AuxUnit enemy : enemies){
+                if (enemy.getMapLocation().distanceBFSTo(unit.getMapLocation()) <= 3 && knights < 2 && rangers <= 2) return UnitType.Knight;
             }
 
-            if (3 * healers < rangers - 1) return UnitType.Healer;
+
+            int roundsEnemyUnseen = Utils.round - Build.lastRoundEnemySeen;
+            if ((Utils.round > 250 && roundsEnemyUnseen > 10) || Utils.round >= ROCKET_RUSH) {
+                if (workers < 3) return UnitType.Worker;
+                if (rangers + healers + mages +knights > 30 && (rangers+healers+mages+knights) > 8*typeCount.get(UnitType.Rocket)) return null;
+            }
+
+            if (2 * healers < (rangers +knights) +1) return UnitType.Healer;
             if (rangers < maxRangers) return UnitType.Ranger;
             if (healers < 1.25 * rangers) return UnitType.Healer;
             return UnitType.Mage;
@@ -118,7 +161,7 @@ public class Factory {
         try {
             int money = 0;
             for (UnitType type : types) {
-                if (Units.queue.needsUnit(type)) money += Units.getCost(type);
+                //if (Units.queue.needsUnit(type)) money += Units.getCost(type);
             }
             return (Utils.karbonite < money + 20);
         }catch(Exception e) {

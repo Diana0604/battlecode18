@@ -34,11 +34,15 @@ public class MovementManager {
     }
 
     public void reset(AuxUnit unit){
-        id = unit.getID();
-        if (!bugpathData.keySet().contains(id)) {
-            data = new BugPathfindingData();
-        } else data = bugpathData.get(id);
-        data.reset();
+        try {
+            id = unit.getID();
+            if (!bugpathData.keySet().contains(id)) {
+                data = new BugPathfindingData();
+            } else data = bugpathData.get(id);
+            data.reset();
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public int moveBFSTo(AuxMapLocation target) {
@@ -120,12 +124,12 @@ public class MovementManager {
             int dir;
             if (data.obstacle != null && !data.obstacle.isOnMap()) {
                 data.soft_reset(myLoc);
-                System.err.println("User error: out of map obstacle bugpath");
+                //System.err.println("User error: out of map obstacle bugpath");
             }
             if (data.obstacle == null) dir = myLoc.dirBFSTo(data.target);
             else dir = myLoc.dirBFSTo(data.obstacle);
             if (canMove[dir]) {
-                if (dir == 8) System.err.println("User error: self-obstacle bugpath");
+                //if (dir == 8) System.err.println("User error: self-obstacle bugpath");
                 data.obstacle = null;
             } else {
                 int cont = 0;
@@ -133,7 +137,6 @@ public class MovementManager {
                     AuxMapLocation newLoc = myLoc.add(dir);
                     if (!newLoc.isOnMap()) {
                         data.left = !data.left;
-                        --cont;
                     }
                     data.obstacle = newLoc;
                     if (data.left) dir = (dir + 1) % 8;
@@ -155,21 +158,34 @@ public class MovementManager {
     }
 
     BugPathfindingData getData(AuxUnit unit){
-        BugPathfindingData data;
-        if (!bugpathData.keySet().contains(unit.getID())) {
-            data = new BugPathfindingData();
-            bugpathData.put(unit.getID(), data);
-        } else data = bugpathData.get(unit.getID());
-        return data;
+        try {
+            BugPathfindingData data;
+            if (!bugpathData.keySet().contains(unit.getID())) {
+                data = new BugPathfindingData();
+                bugpathData.put(unit.getID(), data);
+            } else data = bugpathData.get(unit.getID());
+            return data;
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     double raw_dist(int dir){
-        return myLoc.add(dir).distanceBFSTo(unit.target);
+        try {
+            return myLoc.add(dir).distanceBFSTo(unit.target);
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 
 
     public int move(AuxUnit unit){
         try {
+
+            //System.out.println("Trying to move from " + unit.getX() + " " + unit.getY() + " to " + unit.target.x + " " + unit.target.y);
+
             if (unit.visited) return 8;
             unit.visited = true;
             if (unit.target == null) return 8;
@@ -182,21 +198,30 @@ public class MovementManager {
 
             myLoc = unit.getMapLocation();
 
-            Danger.computeDanger(unit); //Todo aixo es pot borrar no?
+            Danger.computeDanger(unit);
 
             int dirGreedy = greedyMove(unit);
             if (dirGreedy != 8){
                 doMovement(unit, dirGreedy);
-                return dirGreedy;
+                return dirGreedy; //Todo
             }
 
-            int dirOP = unit.getMapLocation().dirBFSTo(unit.target);
-            //System.out.println("Best dir: " + dirOP);
+            long d = myLoc.distanceSquaredTo(unit.target);
+            if (d == 0) return 8;
+            if (d <= 2) {
+                int dir = myLoc.dirBFSTo(unit.target);
+                if (Wrapper.canMove(unit, dir)){
+                    doMovement(unit, dir);
+                    return dir;
+                }
+                return 8;
+            }
+
 
             ArrayList<Integer> directions = new ArrayList<>();
             for (int i = 0; i < 9; ++i){
                 AuxMapLocation newLoc = myLoc.add(i);
-                if (newLoc.isOnMap() && newLoc.isPassable() && isSafe(i)) directions.add(i);
+                if (newLoc.isOnMap() && newLoc.isPassable() && (i == 8 || isSafe(i))) directions.add(i);
             }
 
             directions.sort((a,b) -> raw_dist(a) < raw_dist(b) ? -1 : raw_dist(a) == raw_dist(b) ? 0 : 1);
@@ -204,7 +229,6 @@ public class MovementManager {
             for (int i = 0; i < directions.size(); ++i){
 
                 int dirBFS = directions.get(i);
-                //System.out.println("Getting dir: " + dirBFS);
 
                 if (dirBFS == 8) break;
                 if (Wrapper.canMove(unit, dirBFS)){
@@ -221,35 +245,17 @@ public class MovementManager {
                             return dirBFS;
                         }
                     }
-                    if (u.getType() != UnitType.Factory && u.getType() != UnitType.Rocket) {
-                        if (u.getType() == unit.getType()){
-                            if (u.target != null){
-                                AuxMapLocation auxTarget = u.target;
-                                u.target = unit.target;
-                                unit.target = auxTarget;
-                            }
-                        }
+                    if (u.getType() != UnitType.Factory && u.getType() != UnitType.Rocket && u.canMove()) {
                         if (move(u) != 8) {
                             doMovement(unit, dirBFS);
                             return dirBFS;
                         }
                     }
                 }
+
             }
 
             myLoc = unit.getMapLocation();
-            long d = myLoc.distanceSquaredTo(unit.target);
-            if (d == 0) return 8;
-            if (d <= 2) {
-                int dir = myLoc.dirBFSTo(unit.target);
-                //System.err.println(dir);
-                //System.err.println(Pathfinder.getIndex(dir));
-                if (Wrapper.canMove(unit, dir)){
-                    doMovement(unit, dir);
-                    return dir;
-                }
-                return 8;
-            }
 
             this.unit = unit;
             id = unit.getID();
@@ -293,8 +299,12 @@ public class MovementManager {
     }
 
     void doMovement(AuxUnit unit, int dir){
-        Wrapper.moveRobot(unit, dir);
-        getData(unit).soft_reset(unit.getMapLocation());
+        try {
+            Wrapper.moveRobot(unit, dir);
+            getData(unit).soft_reset(unit.getMapLocation());
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
     }
 
     double danger(int i){
@@ -352,14 +362,19 @@ public class MovementManager {
     }
 
     boolean kamikazeWorker(){
-        if (!Units.firstFactory || Units.unitTypeCount.get(UnitType.Worker) > 8) return true;
+        try {
+            if (!Build.firstFactory || Units.unitTypeCount.get(UnitType.Worker) > 8) return true;
+            return false;
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
         return false;
     }
 
     int greedyMove(AuxUnit unit){
-        if (unit.getType() == UnitType.Knight) return 8;
-        if (unit.getType() == UnitType.Worker && kamikazeWorker()) return 8;
         try {
+            if (unit.getType() == UnitType.Knight) return 8;
+            if (unit.getType() == UnitType.Worker && kamikazeWorker()) return 8;
             int index = 8;
             for (int i = 0; i < 8; ++i) if (Wrapper.canMove(unit, i)) index = bestIndex(index, i);
 
@@ -389,6 +404,16 @@ public class MovementManager {
         } catch (Exception e) {
             e.printStackTrace();
             return false;
+        }
+    }
+
+    public void setData(AuxUnit unit){
+        try {
+            Danger.computeDanger(unit);
+            this.unit = unit;
+            attacker = dangerousUnit(unit.getType());
+        }catch(Exception e) {
+            e.printStackTrace();
         }
     }
 

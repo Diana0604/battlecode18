@@ -12,8 +12,8 @@ public class Mage {
 
     public AuxUnit unit;
 
-    private int[][] multitargetArraY;
-    private int[][] expandedTargetArray;
+    private int[][] multitargetArraY; //[i][j] = num. enemics - aliats que hi ha al quadrat 3x3
+    private int[][] expandedTargetArray; //[i][j] = maxim score possible de disparar a rang <= 30
 
     private HashMap<Integer, Integer> objectiveArea; //todo borrar aixo??
 
@@ -24,9 +24,13 @@ public class Mage {
         return instance;
     }
 
+    //emplena les matrius (init turn)
     void computeMultiTarget(){
         try {
             multitargetArraY = new int[Mapa.W][Mapa.H];
+            //todo donar diferents pesos a cada unit
+
+            //per cada enemic, sumem 1 al quadrat 3x3
             for (AuxUnit enemy: Units.enemies) {
                 if (enemy.getHealth() <= 0) continue;
                 AuxMapLocation loc = enemy.getMapLocation();
@@ -37,6 +41,8 @@ public class Mage {
                     }
                 }
             }
+
+            //per cada aliat, sumem 1 al quadrat 3x3
             for (AuxUnit unit: Units.myUnits) {
                 if (unit.isInGarrison()) continue;
                 AuxMapLocation loc = unit.getMapLocation();

@@ -295,6 +295,10 @@ public class Wrapper {
             AuxMapLocation newLoc = mloc.add(dir);
             GC.gc.blueprint(unit.getID(), type, Const.allDirs[dir]);
 
+            if (type == UnitType.Rocket || type == UnitType.Factory){
+                Build.pickNextStructure();
+            }
+
             if (type == UnitType.Rocket) {
                 Build.rocketRequest = null;
                 Build.rocketsBuilt++;

@@ -23,6 +23,7 @@ public class Research {
 - si initDist gran (> 60) i kp350 no petit (>300) R H M
 - is size molt gran (> 0.95), H R M
 */
+        if (Mapa.onMars()) return;
         UnitType[] R1 = new UnitType[]{UnitType.Rocket, UnitType.Healer, UnitType.Healer, UnitType.Healer, UnitType.Mage, UnitType.Mage, UnitType.Mage, UnitType.Mage, UnitType.Ranger, UnitType.Ranger, UnitType.Ranger};
         UnitType[] R2 = new UnitType[]{UnitType.Healer, UnitType.Healer, UnitType.Healer, UnitType.Rocket, UnitType.Mage, UnitType.Mage, UnitType.Mage, UnitType.Mage, UnitType.Ranger, UnitType.Ranger, UnitType.Ranger};
         UnitType[] R3 = new UnitType[]{UnitType.Healer, UnitType.Healer, UnitType.Healer, UnitType.Mage, UnitType.Mage, UnitType.Mage, UnitType.Mage, UnitType.Rocket, UnitType.Ranger, UnitType.Ranger, UnitType.Ranger};

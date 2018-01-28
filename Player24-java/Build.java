@@ -21,7 +21,7 @@ public class Build {
     static int initDistToEnemy;
     static boolean firstFactory = false;
 
-    static UnitType nextStructureType = null;
+    static UnitType nextStructure = null;
     static AuxMapLocation nextStructureLocation = null;
 
     static void initTurn(){
@@ -32,8 +32,7 @@ public class Build {
         if (Units.enemies.size() != 0) lastRoundEnemySeen = Utils.round;
         if (Utils.round > 50) WorkerUtil.safe = false;
         if (Utils.round > 400) oneWorkerToMars = false;
-        if (Mapa.onMars()) return;
-        pickNextStructure();
+        if (nextStructure == null) pickNextStructure();
     }
 
     /* todo
@@ -46,14 +45,12 @@ public class Build {
 
      */
 
-    /*------------ NEXT STRUCTURE -------------*/
-
-    static void pickNextStructure(){
-        nextStructureType = chooseStructureType();
+    private static void pickNextStructure(){
+        nextStructure = chooseStructure();
         nextStructureLocation = chooseStructureLocation();
     }
 
-    private static UnitType chooseStructureType(){
+    private static UnitType chooseStructure(){
         try {
             int numFactories = Units.unitTypeCount.get(UnitType.Factory);
             if (numFactories < 3) return UnitType.Factory;
@@ -75,8 +72,9 @@ public class Build {
     }
 
     private static AuxMapLocation chooseStructureLocation(){
-        if (nextStructureType == UnitType.Factory) return chooseFactoryLocation();
-        if (nextStructureType == UnitType.Rocket) return chooseRocketLocation();
+        if (nextStructure == null) return null;
+        if (nextStructure == UnitType.Factory) return chooseFactoryLocation();
+        if (nextStructure == UnitType.Rocket) return chooseRocketLocation();
         return null;
     }
 
@@ -86,10 +84,10 @@ public class Build {
         for (int index: Units.workers) {
             AuxUnit worker = Units.myUnits.get(index);
             AuxMapLocation workerLoc = worker.getMapLocation();
-            FactoryData bestFactory = null;
+            WorkerUtil.FactoryData bestFactory = null;
             for (int i = 0; i < 8; ++i) {
                 if (Wrapper.canPlaceBlueprint(worker, UnitType.Factory, i)) {
-                    FactoryData fd = new FactoryData(workerLoc.add(i));
+                    WorkerUtil.FactoryData fd = new WorkerUtil.FactoryData(workerLoc.add(i));
                     if (fd.isBetter(bestFactory)) {
                         bestFactory = fd;
                         bestLoc = workerLoc.add(i);
@@ -98,41 +96,6 @@ public class Build {
             }
         }
         return bestLoc;
-    }
-
-    static class FactoryData{
-        AuxMapLocation loc;
-        boolean connectivity;
-        double distToWalls;
-        double workersNear;
-
-        public FactoryData(AuxMapLocation _loc){
-            try {
-                loc = _loc;
-                if (!loc.isOnMap()) return;
-                connectivity = WorkerUtil.getConnectivity(loc);
-                distToWalls = Pathfinder.distToWalls[loc.x][loc.y];
-                if (distToWalls > 3) distToWalls = 3;
-                workersNear = WorkerUtil.workerAreas[loc.x][loc.y];
-            }catch(Exception e){
-                e.printStackTrace();
-            }
-        }
-
-        public boolean isBetter(FactoryData B){
-            try {
-                if (B == null) return true;
-                if (connectivity && !B.connectivity) return true;
-                if (B.connectivity && !connectivity) return false;
-                if (distToWalls > B.distToWalls) return true;
-                if (B.distToWalls < distToWalls) return false;
-                return workersNear > B.workersNear;
-            }catch(Exception e){
-                e.printStackTrace();
-            }
-            return false;
-        }
-
     }
 
     private static AuxMapLocation chooseRocketLocation(){
@@ -195,8 +158,6 @@ public class Build {
         return 0;
     }
 
-
-    /*---------------random shit-----------------*/
 
     static void updateBlueprintsToBuild(){
         try {
@@ -334,5 +295,4 @@ public class Build {
             roundRequested = round;
         }
     }
-
 }

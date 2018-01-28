@@ -137,7 +137,8 @@ public class Wrapper {
         try {
             GC.gc.produceRobot(unit.getID(), type);
             Utils.karbonite -= Units.getCost(type);
-            if (type != UnitType.Worker) Units.troopsSinceRocketResearch++;
+            if (type != UnitType.Worker) Build.troopsSinceRocketResearch++;
+            if (type == UnitType.Knight) Build.knightsBuilt++;
             unit.canAttack = false;
         }catch(Exception e) {
             e.printStackTrace();
@@ -280,7 +281,7 @@ public class Wrapper {
             AuxMapLocation mloc = unit.getMapLocation();
             AuxMapLocation newLoc = mloc.add(dir);
             if (!newLoc.isAccessible()) return false;
-            if (type == UnitType.Rocket && !Units.canBuildRockets) return false;
+            if (type == UnitType.Rocket && !Build.canBuildRockets) return false;
             return true;
         }catch(Exception e) {
             e.printStackTrace();
@@ -295,8 +296,8 @@ public class Wrapper {
             GC.gc.blueprint(unit.getID(), type, Const.allDirs[dir]);
 
             if (type == UnitType.Rocket) {
-                Units.rocketRequest = null;
-                Units.rocketsBuilt++;
+                Build.rocketRequest = null;
+                Build.rocketsBuilt++;
             }
             unit.canAttack = false;
             Utils.karbonite -= Units.getCost(type);
@@ -310,10 +311,10 @@ public class Wrapper {
         try {
             if (!unit.myTeam || unit.isStructure()) return;
             //todo mirar que res no peti per culpa de que no troba la unit morta
-            System.out.println(Utils.round + " CUIDAOOOO!!! DESINTEGRATE UNIT " + unit.id + " location " + unit.getMapLocation());
+            System.out.println(Utils.round + " CUIDAOOOO!!! DESINTEGRATE UNIT " + unit.getID() + " location " + unit.getMapLocation());
             unit.inSpace = true; //we don't desintegrate units, we kick them to space
             Units.unitMap[unit.getMapLocation().x][unit.getMapLocation().y] = 0;
-            GC.gc.disintegrateUnit(unit.id);
+            GC.gc.disintegrateUnit(unit.getID());
         }catch(Exception e){
             e.printStackTrace();
         }
@@ -424,8 +425,8 @@ public class Wrapper {
 
             GC.gc.launchRocket(unit.getID(), new MapLocation(Planet.Mars, loc.x, loc.y));
             AuxMapLocation mloc = unit.getMapLocation();
-            Units.rocketsLaunched++;
-            Units.oneWorkerToMars = false;
+            Build.rocketsLaunched++;
+            Build.oneWorkerToMars = false;
             Units.unitMap[mloc.x][mloc.y] = 0;
             Units.structures.remove(unit.getID());
 
@@ -688,7 +689,7 @@ public class Wrapper {
     private static void checkIfIsolated(PlanetMap planetMap){
         try {
             if (Mapa.onMars()) {
-                Units.isolated = false;
+                Build.isolated = false;
                 return;
             }
             int minDist = Const.INFS;
@@ -704,8 +705,8 @@ public class Wrapper {
                 }
             }
             System.out.println("ARE WE ISOLATED? " + isolated);
-            Units.isolated = isolated;
-            Units.initDistToEnemy = minDist;
+            Build.isolated = isolated;
+            Build.initDistToEnemy = minDist;
         }catch(Exception e) {
             e.printStackTrace();
         }
@@ -715,10 +716,10 @@ public class Wrapper {
     public static void unitsInitMap(PlanetMap planetMap){
         try {
             Units.declareArrays();
-            Units.rocketRequest = null;
-            Units.lastRoundEnemySeen = 1;
-            Units.lastRoundUnder100Karbo = 1;
-            Units.canBuildRockets = false;
+            Build.rocketRequest = null;
+            Build.lastRoundEnemySeen = 1;
+            Build.lastRoundUnder200Karbo = 1;
+            Build.canBuildRockets = false;
             Units.mapCenter = new AuxMapLocation(Mapa.W / 2 + 1, Mapa.H / 2 + 1);
             Units.maxRadius = Units.mapCenter.distanceSquaredTo(new AuxMapLocation(0, 0));
             checkIfIsolated(planetMap);

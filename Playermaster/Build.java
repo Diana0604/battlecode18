@@ -211,8 +211,8 @@ public class Build {
                     AuxUnit worker = Units.myUnits.get(index2);
                     AuxMapLocation workerLoc = worker.getMapLocation();
                     if (workerLoc == null) continue;
-                    Pair p = new Pair(bp.getMapLocation().distanceSquaredTo(worker.getMapLocation()), worker);
-                    sorted.add(p);
+                    int dist = bp.getMapLocation().distanceSquaredTo(worker.getMapLocation());
+                    if (dist < 15) sorted.add(new Pair(dist, worker));
                 }
                 sorted.sort((a, b) -> a.dist < b.dist ? -1 : a.dist == b.dist ? 0 : 1);
                 int workersToCall =  Math.min(MAX_WORKERS_TO_CALL, sorted.size() - 1);

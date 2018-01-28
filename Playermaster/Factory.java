@@ -110,7 +110,7 @@ public class Factory {
             HashMap<UnitType, Integer> typeCount = Units.unitTypeCount;
             int rangers = typeCount.get(UnitType.Ranger);
             int healers = typeCount.get(UnitType.Healer);
-            int mages =   typeCount.get(UnitType.Mage);
+            int mages   = typeCount.get(UnitType.Mage);
             int workers = typeCount.get(UnitType.Worker);
             int knights = typeCount.get(UnitType.Knight);
 
@@ -131,7 +131,7 @@ public class Factory {
                 if (workers < 3) return UnitType.Worker;
                 if (rangers + healers + mages +knights > 30 && (rangers+healers+mages+knights) > 8*typeCount.get(UnitType.Rocket)) return null;
             }
-
+            if (rangers == 0) return UnitType.Ranger;
             if (2 * healers < (rangers +knights) +1) return UnitType.Healer;
             if (rangers < maxRangers) return UnitType.Ranger;
             if (healers < 1.25 * rangers) return UnitType.Healer;

@@ -38,31 +38,8 @@ public class Worker {
         }
     }
 
-    private static void tryBuildAndRepair(){
-        for (int index: Units.workers){
-            AuxUnit worker = Units.myUnits.get(index);
-            tryBuildAndRepair(worker);
-        }
-    }
+    /*----------- REPLICATE ------------*/
 
-    private static void tryPlaceBlueprint(){
-        UnitType strType = Build.nextStructureType;
-        if (strType == null) return;
-        if (Utils.karbonite < Units.getCost(strType)) return;
-        if (canWait()) return;
-
-        if (strType == UnitType.Factory) tryBuildFactory();
-        if (strType == UnitType.Rocket ) tryBuildRocket();
-
-    }
-
-
-    private static void tryMine(){
-        for (int index: Units.workers){
-            AuxUnit worker = Units.myUnits.get(index);
-            tryMine(worker);
-        }
-    }
 
     private static void tryReplicate(){
         Integer[] indexes = Units.workers.toArray(new Integer[Units.workers.size()]);
@@ -71,31 +48,6 @@ public class Worker {
             tryReplicate(worker);
         }
     }
-
-
-
-
-
-
-
-/*
-    public static void doAction(AuxUnit unit, boolean firstTime){
-        try {
-            boolean acted;
-            //boolean willReplicate = shouldReplicate(unit) && canReplicate(unit);
-            if (unit.canAttack()) {
-                acted = tryBuildAndRepair(unit);
-                if (!acted && firstTime) acted = tryPlaceBlueprint(unit);
-                if (!acted) tryMine(unit);
-            }
-            if (!firstTime) tryReplicate(unit);
-        }catch(Exception e) {
-            e.printStackTrace();
-        }
-    }
-*/
-    /*----------- REPLICATE ------------*/
-
 
     private static boolean tryReplicate(AuxUnit unit){
         try {
@@ -203,6 +155,15 @@ public class Worker {
 
     /*----------- BUILD/REPAIR ------------*/
 
+
+    private static void tryBuildAndRepair(){
+        for (int index: Units.workers){
+            AuxUnit worker = Units.myUnits.get(index);
+            tryBuildAndRepair(worker);
+        }
+    }
+
+
     //Intenta reparar o construir una structure adjacent
     static boolean tryBuildAndRepair(AuxUnit unit){
         try {
@@ -257,6 +218,18 @@ public class Worker {
 
     /*----------- PLACE BLUEPRINT ------------*/
 
+
+
+    private static void tryPlaceBlueprint(){
+        UnitType strType = Build.nextStructureType;
+        if (strType == null) return;
+        if (Utils.karbonite < Units.getCost(strType)) return;
+        if (canWait()) return;
+
+        if (strType == UnitType.Factory) tryBuildFactory();
+        if (strType == UnitType.Rocket ) tryBuildRocket();
+
+    }
 
     private static boolean canWait(){
         try {
@@ -443,36 +416,15 @@ public class Worker {
         return 0;
     }
 
-/*
-    //Posen un blueprint en una posicio adjacent (aixo s'ha de canviar quan ho fem global)
-    public static boolean tryPlaceBlueprint(AuxUnit unit){
-        try {
-            if (!unit.canAttack()) return false;
-            if (canWait()) return false;
-            UnitType type = Build.nextStructureType;
-            if (type == null) return false;
-            if (Utils.karbonite < Units.getCost(type)) return false;
-            AuxMapLocation myLoc = unit.getMapLocation();
-            AuxMapLocation blueprintLoc = Build.nextStructureLocation;
-            if (myLoc.distanceSquaredTo(blueprintLoc) > 2) return false;
-            AuxUnit rip = blueprintLoc.getUnit();
-            if (rip != null && MovementManager.getInstance().move(rip) == 8) Wrapper.disintegrate(rip);
-            int dir = myLoc.dirBFSTo(blueprintLoc);
-            //if (!Wrapper.canPlaceBlueprint(unit, type, dir)) return false;
-            Wrapper.placeBlueprint(unit, type, dir);
-            Units.unitTypeCount.put(type, Units.unitTypeCount.get(type)+1);
-            unit.canMove = false;
-            targets.put(unit.getID(), 100.0);
-            return true;
-        }catch(Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-
-    }
-*/
     /*----------- MINE ------------*/
 
+
+    private static void tryMine(){
+        for (int index: Units.workers){
+            AuxUnit worker = Units.myUnits.get(index);
+            tryMine(worker);
+        }
+    }
 
     //minen una mina adjacent
     private static boolean tryMine(AuxUnit unit){

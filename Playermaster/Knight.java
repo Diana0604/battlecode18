@@ -85,36 +85,11 @@ public class Knight {
         }
     }
 
-    AuxMapLocation getBestHealer(AuxMapLocation loc){
-        try {
-            double minDist = 100000;
-            AuxMapLocation ans = null;
-            for (int index: Units.healers) {
-                AuxUnit u = Units.myUnits.get(index);
-                AuxMapLocation mLoc = u.getMapLocation();
-                if (mLoc != null) {
-                    double d = loc.distanceBFSTo(mLoc);
-                    if (d < minDist) {
-                        minDist = d;
-                        ans = mLoc;
-                    }
-                }
-            }
-            return ans;
-        }catch(Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
     AuxMapLocation updateTarget(AuxUnit unit){
         try {
             if (Units.canOverCharge && Utils.round%10 == 9) return null;
             if (Rocket.callsToRocket.containsKey(unit.getID())) return Rocket.callsToRocket.get(unit.getID());
-            if (unit.getHealth() < 100) {
-                AuxMapLocation ans = getBestHealer(unit.getMapLocation());
-                if (ans != null) return ans;
-            }
+
             AuxMapLocation ans = targetBestEnemy(unit.getMapLocation());
             if (ans != null) return ans;
             return Explore.findExploreObjective(unit);

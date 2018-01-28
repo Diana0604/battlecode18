@@ -100,6 +100,7 @@ public class Worker {
     private static boolean tryReplicate(AuxUnit unit){
         try {
             if (!unit.canUseAbility()) return false;
+            if (unit.isInGarrison() || unit.isInSpace()) return false;
             if (shouldReplicate(unit)) {
                 int dir = 0;
                 if (unit.target != null){
@@ -207,6 +208,7 @@ public class Worker {
         try {
             if (Mapa.onMars()) return false;
             if (!unit.canAttack()) return false;
+            if (unit.isInGarrison() || unit.isInSpace()) return false;
             int minDif = 1000;
             int minDifIndex = -1;
             int minHP = 1000;
@@ -275,6 +277,7 @@ public class Worker {
 
     private static void tryBuildFactory(){
         AuxMapLocation loc = getBestFactoryLocation(); //retorna la millor location adjacent a un worker
+        if (loc == null) return;
         for (int i = 0; i < 8; i++){
             AuxMapLocation workerLoc = loc.add(i);
             AuxUnit worker = workerLoc.getUnit();
@@ -285,7 +288,7 @@ public class Worker {
             //hem trobat un worker nostre, li fem construir la factory!
             int dirBuild = workerLoc.dirBFSTo(loc);
             if (!Wrapper.canPlaceBlueprint(worker,UnitType.Factory, dirBuild)){
-                System.out.println("oops algo ha anat malament a Worker.tryBuildFactory");
+                //System.out.println("oops algo ha anat malament a Worker.tryBuildFactory");
                 continue;
             }
             Wrapper.placeBlueprint(worker, UnitType.Factory, dirBuild);
@@ -294,7 +297,7 @@ public class Worker {
             targets.put(worker.getID(), 100.0);
             return;
         }
-        System.out.println("No s'ha pogut construir factory :(");
+        //System.out.println("No s'ha pogut construir factory :(");
     }
 
     private static AuxMapLocation getBestFactoryLocation(){
@@ -357,6 +360,7 @@ public class Worker {
     private static void tryBuildRocket(){
         AuxMapLocation loc = getBestRocketLocation(); //retorna la millor location adjacent a un worker
         //Potser hi ha una unit nostra a la loc, hem de fer que es mogui o sino que es suicidi
+        if (loc == null) return;
         for (int i = 0; i < 8; i++){
             AuxMapLocation workerLoc = loc.add(i);
             AuxUnit worker = workerLoc.getUnit();
@@ -371,7 +375,7 @@ public class Worker {
                 Wrapper.disintegrate(unitToKill);
 
             if (!Wrapper.canPlaceBlueprint(worker,UnitType.Rocket, dirBuild)){
-                System.out.println("oops algo ha anat malament a Worker.tryBuildRocket");
+                //System.out.println("oops algo ha anat malament a Worker.tryBuildRocket");
                 continue;
             }
             Wrapper.placeBlueprint(worker, UnitType.Rocket, dirBuild);
@@ -379,7 +383,7 @@ public class Worker {
             worker.canMove = false; //no volem que marxi sense construir
             targets.put(worker.getID(), 100.0);
         }
-        System.out.println("No s'ha pogut construir rocket :(");
+//        System.out.println(Utils.round + " No s'ha pogut construir rocket " + loc);
     }
 
     private static AuxMapLocation getBestRocketLocation(){
@@ -474,7 +478,6 @@ public class Worker {
     private static boolean tryMine(AuxUnit unit){
         try {
             int dir = WorkerUtil.getMostKarboLocation(unit.getMapLocation());
-            System.out.println(Utils.round + "  " + unit.getMapLocation() + " tries to mine, dir " + Direction.swigToEnum(dir));
             AuxMapLocation newLoc = unit.getMapLocation().add(dir);
             if (Karbonite.karboMap[newLoc.x][newLoc.y] > 0 && Wrapper.canHarvest(unit, dir)) {
                 Wrapper.harvest(unit, dir);

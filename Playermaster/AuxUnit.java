@@ -13,6 +13,7 @@ public class AuxUnit {
     public AuxMapLocation mloc;
     public int VisionRange;
 
+    public AuxMapLocation[] possibleTargets;
 
     //private Integer x;
     //private Integer y;

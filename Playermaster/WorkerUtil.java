@@ -119,6 +119,7 @@ public class WorkerUtil {
         }
     }
 
+    //si una casella esta mes a prop nostra que de l'enemic
     static boolean isSafe(AuxMapLocation loc){
         try {
             int dist1 = 100000, dist2 = 100000;
@@ -136,7 +137,8 @@ public class WorkerUtil {
         return false;
     }
 
-    static boolean isCloseToFactory(AuxMapLocation loc){
+    //a distancia <= 16 d'una factory
+    private static boolean isCloseToFactory(AuxMapLocation loc){
         try {
             AuxUnit[] closeUnits = Wrapper.senseUnits(loc, 16, true);
             for (int i = 0; i < closeUnits.length; ++i){
@@ -147,120 +149,6 @@ public class WorkerUtil {
             e.printStackTrace();
         }
         return false;
-    }
-
-    //factory getFactoryValue
-    static int getFactoryValue(AuxMapLocation location){
-        try {
-            int val = 0;
-            int mindist = 10000;
-            for (int i = 0; i < Utils.enemyStartingLocations.size(); ++i){
-                mindist = Math.min(mindist, location.distanceBFSTo(Utils.enemyStartingLocations.get(i)));
-            }
-
-            if (getConnectivity(location)) val += (1 << 21);
-            if (isSafe(location)){
-                val += (1 << 20) - mindist;
-            }
-            else val += mindist;
-            if (closeFactory && isCloseToFactory(location)) val += (1 << 19);
-
-            return -val;
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-        return 0;
-    }
-
-
-    static void updateValueForFactory(){
-        valueForFactory = new HashMap<>();
-        for (int index: Units.workers){
-            AuxUnit worker = Units.myUnits.get(index);
-            if (!worker.canAttack()) continue;
-            AuxMapLocation workerLoc = worker.getMapLocation();
-            for (int i = 0; i < 8; i++){
-                AuxMapLocation adjLoc = workerLoc.add(i);
-                if (!adjLoc.isAccessible()) continue;
-                if (!valueForFactory.containsKey(adjLoc)){
-                    int value = getFactoryValue(adjLoc);
-                    valueForFactory.put(adjLoc, value);
-                }
-            }
-        }
-    }
-/*
-    static void doFirstActions(){
-        try {
-            ArrayList<AuxUnit> workers = new ArrayList<>();
-            for (int i : Units.workers){
-                AuxUnit worker = Units.myUnits.get(i);
-                workers.add(worker);
-            }
-            //if (Utils.round < 60 && Utils.round > 30) {
-                //System.out.println("Placing blueprint!!");
-           // }
-
-            workers.sort((a, b) -> getFactoryValue(a.getMapLocation()) < getFactoryValue(b.getMapLocation()) ? -1 : getFactoryValue(a.getMapLocation()) == getFactoryValue(b.getMapLocation()) ? 0 : 1);
-            for (int i = 0; i < workers.size(); ++i){
-                if(workers.get(i).isInSpace() || workers.get(i).isInGarrison()) continue;
-                Worker.doAction(workers.get(i), true);
-                //if (Utils.round < 60 && Utils.round > 30) {
-                    //System.out.println("Working on " + workers.get(i).getMapLocation().x + " " + workers.get(i).getMapLocation().y);
-                    //System.out.println(sd);
-                //}
-            }
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-    }
-*/
-
-    static void doAction(){
-        ArrayList<AuxUnit> workers = new ArrayList<>();
-        for (int i : Units.workers){
-            AuxUnit worker = Units.myUnits.get(i);
-            workers.add(worker);
-        }
-        updateValueForFactory();
-        for (AuxUnit worker: workers) {
-            if (worker.canAttack()) Worker.tryBuildAndRepair(worker);
-        }
-        for (AuxUnit worker: workers) {
-            if (worker.canAttack()) Worker.tryBuildAndRepair(worker);
-        }
-        for (AuxUnit worker: workers) {
-            if (worker.canAttack()) Worker.tryBuildAndRepair(worker);
-        }
-
-    }
-
-    /*
-    static AuxMapLocation getBestFactoryLocation(){
-        bestFactoryLocation = null;
-
-        HashSet<Integer> locations = new HashSet<Integer>();
-        for (int i = 0; i < GC.myUnits.length; ++i){
-            if (GC.myUnits[i].getType() != UnitType.Worker) continue;
-            AuxMapLocation loc = GC.myUnits[i].getMapLocation();
-            if (loc != null){
-                locations.add(Utils.encode(loc.x, loc.y));
-            }
-        }
-
-    }*/
-
-    //quants workers adjacents hi ha a la posicio mLoc
-    static int getAdjacentWorkers(AuxMapLocation mLoc){
-        try {
-            int ans = 0;
-            AuxUnit[] units = Wrapper.senseUnits(mLoc, 2, true);
-            for (AuxUnit unit : units) if (unit.getType() == UnitType.Worker) ++ans;
-            return ans;
-        }catch(Exception e) {
-            e.printStackTrace();;
-            return 0;
-        }
     }
 
     //retorna la direccio on hi ha mes karbo (nomes adjacent)

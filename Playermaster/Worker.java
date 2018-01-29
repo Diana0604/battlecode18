@@ -314,7 +314,7 @@ public class Worker {
         }
 
         boolean isBetter(FactoryData B){
-            // todo: donar mes score per numero de factories properes
+            // todo: donar menys score per numero de factories properes (apilonarles es dolent)
             try {
                 if (B == null) return true;
                 if (connectivity && !B.connectivity) return true;

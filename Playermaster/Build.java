@@ -22,7 +22,6 @@ public class Build {
     static boolean firstFactory = false;
 
     static UnitType nextStructureType = null;
-    static AuxMapLocation nextStructureLocation = null;
 
     static void initTurn(){
         updateBlueprintsToBuild();
@@ -46,13 +45,10 @@ public class Build {
 
      */
 
-
-
     /*------------ NEXT STRUCTURE -------------*/
 
     static void pickNextStructure(){
         nextStructureType = chooseStructureType();
-        //nextStructureLocation = chooseStructureLocation();
     }
 
     private static UnitType chooseStructureType(){
@@ -75,128 +71,6 @@ public class Build {
         }
         return null;
     }
-
-    private static AuxMapLocation chooseStructureLocation(){
-        if (nextStructureType == UnitType.Factory) return chooseFactoryLocation();
-        if (nextStructureType == UnitType.Rocket) return chooseRocketLocation();
-        return null;
-    }
-
-    //triem la millor location adjacent a qualsevol worker
-    private static AuxMapLocation chooseFactoryLocation(){
-        AuxMapLocation bestLoc = null;
-        for (int index: Units.workers) {
-            AuxUnit worker = Units.myUnits.get(index);
-            AuxMapLocation workerLoc = worker.getMapLocation();
-            FactoryData bestFactory = null;
-            for (int i = 0; i < 8; ++i) {
-                if (Wrapper.canPlaceBlueprint(worker, UnitType.Factory, i)) {
-                    FactoryData fd = new FactoryData(workerLoc.add(i));
-                    if (fd.isBetter(bestFactory)) {
-                        bestFactory = fd;
-                        bestLoc = workerLoc.add(i);
-                    }
-                }
-            }
-        }
-        return bestLoc;
-    }
-
-    static class FactoryData{
-        AuxMapLocation loc;
-        boolean connectivity;
-        double distToWalls;
-        double workersNear;
-
-        public FactoryData(AuxMapLocation _loc){
-            try {
-                loc = _loc;
-                if (!loc.isOnMap()) return;
-                connectivity = WorkerUtil.getConnectivity(loc);
-                distToWalls = Pathfinder.distToWalls[loc.x][loc.y];
-                if (distToWalls > 3) distToWalls = 3;
-                workersNear = WorkerUtil.workerAreas[loc.x][loc.y];
-            }catch(Exception e){
-                e.printStackTrace();
-            }
-        }
-
-        public boolean isBetter(FactoryData B){
-            try {
-                if (B == null) return true;
-                if (connectivity && !B.connectivity) return true;
-                if (B.connectivity && !connectivity) return false;
-                if (distToWalls > B.distToWalls) return true;
-                if (B.distToWalls < distToWalls) return false;
-                return workersNear > B.workersNear;
-            }catch(Exception e){
-                e.printStackTrace();
-            }
-            return false;
-        }
-
-    }
-
-    private static AuxMapLocation chooseRocketLocation(){
-        try {
-            AuxMapLocation bestLoc = null;
-            int bestScore = -100;
-            for (int index: Units.workers) {
-                AuxUnit worker = Units.myUnits.get(index);
-                //hem de tenir en compte els workers que no poden construir?
-                Danger.computeDanger(worker);
-                for (int i = 0; i < 8; ++i) {
-                    AuxMapLocation rocketLoc = worker.getMapLocation().add(i);
-                    if (!rocketLoc.isOnMap()) continue;
-                    if (!rocketLoc.isPassable()) continue;
-                    if (!Wrapper.canPlaceBlueprint(worker, UnitType.Rocket, i)) continue;
-                    if (Danger.DPS[i] != 0) continue;
-                    AuxUnit unit2 = rocketLoc.getUnit();
-                    if (unit2 != null && !unit2.myTeam) continue; //hi ha un enemic
-                    else if (unit2 != null) {
-                        //hi ha un aliat
-                        if (unit2.isStructure()) continue;
-                        if (Build.rocketRequest != null && !Build.rocketRequest.urgent) continue; //si no es urgent suda
-                        if (Build.rocketRequest != null && Build.rocketRequest.roundRequested - Utils.round < 3)
-                            continue; //si fa menys de 3 rondes que s'ha demanat
-                    }
-                    int score = getRocketBlueprintScore(rocketLoc);
-                    if (score > bestScore) {
-                        bestLoc = rocketLoc;
-                        bestScore = score;
-                    }
-                }
-            }
-            if (Build.rocketRequest != null && !Build.rocketRequest.urgent && bestScore < 0) return null;
-            return bestLoc;
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    private static int getRocketBlueprintScore(AuxMapLocation loc){
-        try {
-            final int DISINTEGRATE_PENALTY = -6;
-            final int ADJACENT_FACTORY_PENALTY = -2;
-            final int ADJACENT_ROCKET_PENALTY = -3;
-            int score = 0;
-            if (loc.getUnit() != null) score += DISINTEGRATE_PENALTY;
-            for (int i = 0; i < 8; i++){
-                AuxMapLocation newLoc = loc.add(i);
-                AuxUnit unit2 = newLoc.getUnit();
-                if (unit2 == null) continue;
-                if (!unit2.myTeam) continue;
-                if (unit2.type == UnitType.Factory) score += ADJACENT_FACTORY_PENALTY;
-                if (unit2.type == UnitType.Rocket) score += ADJACENT_ROCKET_PENALTY;
-            }
-            return score;
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-        return 0;
-    }
-
 
     /*---------------random shit-----------------*/
 

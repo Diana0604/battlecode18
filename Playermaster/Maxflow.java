@@ -101,7 +101,7 @@ public class Maxflow {
         int[][] graph = new int[numberOfVertices + 1][numberOfVertices + 1];
         int sourceIndex = 1;
         int sinkIndex = numberOfVertices;
-        
+
         for (int i = 0; i < units.length; i++)
             if (units[i].canMove()) graph[1][2 + i] = 1;
 
@@ -127,5 +127,7 @@ public class Maxflow {
                 }
             }
         }
+
+        //FALTA POSAR L'OUTPUT, ARA AIXO NO RETORNA RES, NOMES ESCRIU PER PANTALLA
     }
 }

@@ -138,8 +138,6 @@ public class Factory {
             if (workers < 1) return UnitType.Worker; //potser millor si workers < 2-3?
 
             AuxUnit[] enemies = Wrapper.senseUnits(unit.getMapLocation(), 50, false);
-
-
             for (AuxUnit enemy : enemies){
                 if (enemy.getType() != UnitType.Worker && enemy.getMapLocation().distanceBFSTo(unit.getMapLocation()) <= 5){
                     return UnitType.Knight;
@@ -147,9 +145,9 @@ public class Factory {
             }
 
             int minRushtroops = 0;
-            if (Build.initDistToEnemy <= 10) minRushtroops = 6;
-            else if (Build.initDistToEnemy <= 15) minRushtroops = 5;
-            else if (Build.initDistToEnemy <= 20 || (Mapa.H*Mapa.W) <= 500) minRushtroops = 3;
+            if (Build.initDistToEnemy <= 10) minRushtroops = 8;
+            else if (Build.initDistToEnemy <= 15) minRushtroops = 7;
+            else if (Build.initDistToEnemy <= 20 || (Mapa.H*Mapa.W) <= 500) minRushtroops = 6;
 
             if (constructedMages + constructedKnights < minRushtroops){
                 if (constructedKnights > constructedMages) return UnitType.Mage;

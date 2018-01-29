@@ -58,12 +58,11 @@ public class Build {
 
             if (Build.canBuildRockets && Build.rocketRequest != null && Build.rocketRequest.urgent) return UnitType.Rocket;
 
-            int roundsOver200Karbo = Utils.round - Build.lastRoundUnder200Karbo;
-            if (roundsOver200Karbo == 5 && numFactories < Worker.MAX_FACTORIES) return UnitType.Factory;
+            if (Utils.karbonite > Const.factoryCost && numFactories < Worker.MAX_FACTORIES) return UnitType.Factory;
 
             if (Build.canBuildRockets && Build.rocketRequest != null) return UnitType.Rocket;
 
-            if (Utils.karbonite >= 800) return UnitType.Factory;
+            if (Utils.karbonite >= 400) return UnitType.Factory;
 
             return null;
         }catch(Exception e){
@@ -76,7 +75,7 @@ public class Build {
 
     static void updateBlueprintsToBuild(){
         try {
-            final int MAX_WORKERS_TO_CALL = 6;
+            final int MAX_WORKERS_TO_CALL = 7;
 
             for (int index : Units.blueprints) {
                 //Per cada blueprint, crida els 6 workers mes propers a construir-lo
@@ -87,8 +86,8 @@ public class Build {
                     AuxUnit worker = Units.myUnits.get(index2);
                     AuxMapLocation workerLoc = worker.getMapLocation();
                     if (workerLoc == null) continue;
-                    int dist = bp.getMapLocation().distanceSquaredTo(worker.getMapLocation());
-                    if (dist < 15) sorted.add(new Pair(dist, worker));
+                    int dist = bp.getMapLocation().distanceBFSTo(worker.getMapLocation());
+                    if (dist < 6) sorted.add(new Pair(dist, worker));
                 }
                 sorted.sort((a, b) -> a.dist < b.dist ? -1 : a.dist == b.dist ? 0 : 1);
                 int workersToCall =  Math.min(MAX_WORKERS_TO_CALL, sorted.size() - 1);

@@ -16,6 +16,10 @@ public class Research {
         }
     }
 
+    public static int getLevel(UnitType type){
+        return (int) researchInfo.getLevel(type);
+    }
+
     static void pickResearch(){
         /*
 - Si isolated, R H M

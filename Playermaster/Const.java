@@ -68,4 +68,6 @@ public class Const {
     final static int healerVisionRange = 50;
     final static int rocketVisionRange = 2;
     final static int factoryVisionRange = 2;
+
+    final static int overchargeRange = 30;
 }

@@ -64,7 +64,15 @@ public class AuxUnit {
         else if (getType() == UnitType.Factory) canAttack = (u.isFactoryProducing() == 0);
         else canAttack = false;
 
-        canUseAbility = robot && u.abilityHeat() < 10;
+        boolean abilityUnlocked;
+        switch(type){
+            case Ranger: abilityUnlocked = Research.getLevel(UnitType.Ranger) > 2; break;
+            case Mage:   abilityUnlocked = Research.getLevel(UnitType.Mage) > 3; break;
+            case Knight: abilityUnlocked = Research.getLevel(UnitType.Knight) > 2; break;
+            case Healer: abilityUnlocked = Research.getLevel(UnitType.Healer) > 2; break;
+            default: abilityUnlocked = true; break;
+        }
+        canUseAbility = robot && u.abilityHeat() < 10 && abilityUnlocked;
 
         garrisonUnits = new ArrayList<>();
         if (structure) {

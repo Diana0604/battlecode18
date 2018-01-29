@@ -87,6 +87,13 @@ public class Wrapper {
                 unloadedUnit.canAttack = false;
                 unloadedUnit.canUseAbility = false;
             }
+            if (unloadedUnit.getType() == UnitType.Healer){
+                updateOverchargeMapForHealer(unloadedUnit);
+                if (unloadedUnit.canUseAbility()){
+                    updateOverchargeMatrix(newLoc, true);
+                }
+            }
+            if (unloadedUnit.isTroop()) updateOverchargeMapForTroop(unloadedUnit);
             unloadedUnit.mloc = newLoc;
             Units.unitMap[newLoc.x][newLoc.y] = posAtArray + 1;
 
@@ -220,6 +227,14 @@ public class Wrapper {
             Units.unitMap[newLoc.x][newLoc.y] = Units.allUnits.get(unit.getID()) + 1;
             GC.gc.moveRobot(unit.getID(), Const.allDirs[dir]);
             if(Utils.round%10 == 0) Vision.checkAndUpdateSeen(newLoc, unit.getVisionRange());
+            if (unit.getType() == UnitType.Healer){
+                updateOverchargeMapForHealer(unit);
+                if (unit.canUseAbility()){
+                    updateOverchargeMatrix(mloc, false);
+                    updateOverchargeMatrix(newLoc, true);
+                }
+            }
+            if (unit.isTroop()) updateOverchargeMapForTroop(unit);
         }catch(Exception e) {
             e.printStackTrace();
         }
@@ -316,8 +331,12 @@ public class Wrapper {
             if (!unit.myTeam || unit.isStructure()) return;
             //todo mirar que res no peti per culpa de que no troba la unit morta
             System.out.println(Utils.round + " CUIDAOOOO!!! DESINTEGRATE UNIT " + unit.getID() + " location " + unit.getMapLocation());
-            unit.inSpace = true; //we don't desintegrate units, we kick them to space
+            unit.inSpace = true; //we don't desintegrate units, we kick them to space :D
             Units.unitMap[unit.getMapLocation().x][unit.getMapLocation().y] = 0;
+            if (unit.getType() == UnitType.Healer){
+                updateOverchargeMapForHealer(unit);
+                if (unit.canUseAbility()) updateOverchargeMatrix(unit.getMapLocation(), false);
+            }
             GC.gc.disintegrateUnit(unit.getID());
         }catch(Exception e){
             e.printStackTrace();
@@ -441,7 +460,7 @@ public class Wrapper {
 
     static boolean canLoad(AuxUnit u1, AuxUnit u2) {
         try {
-            if (u1.getType() != UnitType.Factory && u1.getType() != UnitType.Rocket) return false;
+            if (!u1.isStructure()) return false;
             if (!u2.canMove()) return false;
             if (u1.getGarrisonUnits().size() >= 8) return false;
             if (u2.isInGarrison()) return false;
@@ -462,21 +481,29 @@ public class Wrapper {
             u2.mloc = u1.getMapLocation();
             u2.canMove = false;
             u2.canAttack = false;
+            if (u2.getType() == UnitType.Healer){
+                updateOverchargeMapForHealer(u2);
+                if (u2.canUseAbility()) updateOverchargeMatrix(mloc, false);
+            }
+            if (u2.isTroop()) updateOverchargeMapForTroop(u2);
             u2.canUseAbility = false;
             u1.getGarrisonUnits().add(u2.getID());
             GC.gc.load(u1.getID(), u2.getID());
+
         }catch(Exception e) {
             e.printStackTrace();
         }
     }
 
-    static void overcharge(AuxUnit u1, AuxUnit u2){
+    static void overcharge(AuxUnit healer, AuxUnit troop){
         try {
-            u1.canUseAbility = false;
-            u2.canMove = true;
-            u2.canAttack = true;
-            u2.canUseAbility = true;
-            GC.gc.overcharge(u1.getID(), u2.getID());
+            healer.canUseAbility = false;
+            troop.canMove = true;
+            troop.canAttack = true;
+            troop.canUseAbility = true;
+            GC.gc.overcharge(healer.getID(), troop.getID());
+            updateOverchargeMapForHealer(healer);
+            updateOverchargeMatrix(healer.getMapLocation(), false);
         }catch(Exception e){
             e.printStackTrace();
         }
@@ -525,6 +552,47 @@ public class Wrapper {
         return ans;
     }
 
+    static void updateOverchargeMatrix(AuxMapLocation loc, boolean add){
+        int range = Const.overchargeRange;
+        int x = loc.x;
+        int y = loc.y;
+        for (int i = 0; i < Vision.Mx[range].length; i++){
+            int dx = Vision.Mx[range][i];
+            int dy = Vision.My[range][i];
+            AuxMapLocation newLoc = new AuxMapLocation(x+dx, y+dy);
+            if (!newLoc.isOnMap()) continue;
+            if (add) Overcharge.overchargeMatrix[x+dx][y+dy]++;
+            else Overcharge.overchargeMatrix[x+dx][y+dy]--;
+        }
+    }
+
+    static void updateOverchargeMapForHealer(AuxUnit healer){
+        int healerIndex = Units.myUnits.indexOf(healer);
+        for(Map.Entry<Integer, HashSet<Integer>> entry: Overcharge.overchargeInRange.entrySet()){
+            int troopIndex = entry.getKey();
+            AuxUnit troop = Units.myUnits.get(troopIndex);
+            HashSet<Integer> healerList = entry.getValue();
+            if (troop.getMapLocation().distanceSquaredTo(healer.getMapLocation()) <= Const.overchargeRange &&
+                    healer.canUseAbility() && !healer.isInGarrison() && !healer.isInSpace() &&
+                    !troop.isInGarrison() && !troop.isInSpace())
+                healerList.add(healerIndex);
+            else healerList.remove(healerIndex);
+        }
+    }
+
+    static void updateOverchargeMapForTroop(AuxUnit troop){
+        int troopIndex = Units.myUnits.indexOf(troop);
+        HashSet<Integer> healerList = new HashSet<>();
+        if (troop.isInGarrison() || troop.isInSpace()) return;
+
+        for (int healerIndex: Units.healers){
+            AuxUnit healer = Units.myUnits.get(healerIndex);
+            if (troop.getMapLocation().distanceSquaredTo(healer.getMapLocation()) <= Const.overchargeRange &&
+                    healer.canUseAbility() && !healer.isInGarrison() && !healer.isInSpace())
+                healerList.add(healerIndex);
+        }
+        Overcharge.overchargeInRange.put(troopIndex, healerList);
+    }
     /*------------------ GENERAL INIT GAME -----------------------*/
 
 

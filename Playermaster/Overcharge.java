@@ -1,14 +1,54 @@
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 
 import bc.UnitType;
 
-/**
- * Created by Ivan on 1/23/2018.
- */
 public class Overcharge {
 
     static ArrayList<Integer>[] adjMatrix;
+    static int[][] overchargeMatrix; //[i][j] = nº healers amb overcharge a rang de i,j
+    static HashMap<Integer, HashSet<Integer>> overchargeInRange; //troop index -> healers indexs with overcharge in range
 
+    static void initTurn(){
+        updateOverchargeMatrix();
+        updateOverchargeInRange();
+    }
+
+    private static void updateOverchargeMatrix(){
+        overchargeMatrix = new int[Mapa.W][Mapa.H];
+        if (Research.researchInfo.getLevel(UnitType.Healer) < 3) return;
+        for (int index: Units.healers){
+            AuxUnit healer = Units.myUnits.get(index);
+            if (!healer.canUseAbility()) continue;
+            int x = healer.getX();
+            int y = healer.getY();
+            int range = Const.overchargeRange;
+            for (int i = 0; i < Vision.Mx[range].length; i++){
+                int dx = Vision.Mx[range][i];
+                int dy = Vision.My[range][i];
+                AuxMapLocation loc = new AuxMapLocation(x+dx, y+dy);
+                if (!loc.isOnMap()) continue;
+                overchargeMatrix[x+dx][y+dy]++;
+            }
+        }
+    }
+
+    private static void updateOverchargeInRange(){
+        overchargeInRange = new HashMap<>();
+        for (int rangerIndex: Units.rangers){
+            AuxUnit ranger = Units.myUnits.get(rangerIndex);
+            overchargeInRange.put(rangerIndex, new HashSet<>());
+            if (ranger.isInGarrison() || ranger.isInSpace()) continue;
+            for (int healerIndex: Units.healers){
+                AuxUnit healer = Units.myUnits.get(healerIndex);
+                if (healer.isInGarrison() || healer.isInSpace()) continue;
+                if (!healer.canUseAbility()) continue;
+                int l = ranger.getMapLocation().distanceSquaredTo(healer.getMapLocation());
+                if (l <= Const.overchargeRange) overchargeInRange.get(rangerIndex).add(healerIndex);
+            }
+        }
+    }
 
     static void generateMatrix(){
         try {
@@ -19,8 +59,6 @@ public class Overcharge {
 
             for (int i = 0; i < n; ++i) adjMatrix[i] = new ArrayList<>();
 
-            int MAX_RANGE = 30;
-
             for (int index: Units.rangers){
                 AuxUnit unit1 = Units.myUnits.get(index);
                 if (unit1.isInGarrison()) continue;
@@ -29,7 +67,7 @@ public class Overcharge {
                     if (unit2.isInGarrison()) continue;
                     if (!unit2.canUseAbility()) continue;
                     int l = (unit1.getMapLocation().distanceSquaredTo(unit2.getMapLocation()));
-                    if (l <= MAX_RANGE) adjMatrix[index].add(index2);
+                    if (l <= Const.overchargeRange) adjMatrix[index].add(index2);
                 }
             }
         } catch(Exception e) {
@@ -57,7 +95,8 @@ public class Overcharge {
 
     static boolean canGetOvercharged(int i){
         try {
-            if (!Units.canOverCharge || Utils.round % 10 != 0) return false;
+            //if (!Units.canOverCharge || Utils.round % 10 != 0) return false;
+            if (!Units.canOverCharge) return false;
             while (adjMatrix[i].size() > 0 && !Units.myUnits.get(adjMatrix[i].get(0)).canUseAbility()) {
                 adjMatrix[i].remove(0);
             }
@@ -67,4 +106,6 @@ public class Overcharge {
         }
         return false;
     }
+
+
 }

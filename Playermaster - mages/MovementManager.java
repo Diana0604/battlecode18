@@ -34,15 +34,11 @@ public class MovementManager {
     }
 
     public void reset(AuxUnit unit){
-        try {
-            id = unit.getID();
-            if (!bugpathData.keySet().contains(id)) {
-                data = new BugPathfindingData();
-            } else data = bugpathData.get(id);
-            data.reset();
-        }catch(Exception e) {
-            e.printStackTrace();
-        }
+        id = unit.getID();
+        if (!bugpathData.keySet().contains(id)) {
+            data = new BugPathfindingData();
+        } else data = bugpathData.get(id);
+        data.reset();
     }
 
     public int moveBFSTo(AuxMapLocation target) {
@@ -158,30 +154,20 @@ public class MovementManager {
     }
 
     BugPathfindingData getData(AuxUnit unit){
-        try {
-            BugPathfindingData data;
-            if (!bugpathData.keySet().contains(unit.getID())) {
-                data = new BugPathfindingData();
-                bugpathData.put(unit.getID(), data);
-            } else data = bugpathData.get(unit.getID());
-            return data;
-        }catch(Exception e) {
-            e.printStackTrace();
-        }
-        return null;
+        BugPathfindingData data;
+        if (!bugpathData.keySet().contains(unit.getID())) {
+            data = new BugPathfindingData();
+            bugpathData.put(unit.getID(), data);
+        } else data = bugpathData.get(unit.getID());
+        return data;
     }
 
     double raw_dist(int dir){
-        try {
-            return myLoc.add(dir).distanceBFSTo(unit.target);
-        }catch(Exception e) {
-            e.printStackTrace();
-        }
-        return 0;
+        return myLoc.add(dir).distanceBFSTo(unit.target);
     }
 
 
-    public int move(AuxUnit unit){
+    public int move(AuxUnit unit, boolean forced){
         try {
 
             //System.out.println("Trying to move from " + unit.getX() + " " + unit.getY() + " to " + unit.target.x + " " + unit.target.y);
@@ -200,10 +186,13 @@ public class MovementManager {
 
             Danger.computeDanger(unit);
 
-            int dirGreedy = greedyMove(unit);
-            if (dirGreedy != 8){
-                doMovement(unit, dirGreedy);
-                return dirGreedy; //Todo
+            if (!forced) {
+
+                int dirGreedy = greedyMove(unit);
+                if (dirGreedy != 8) {
+                    doMovement(unit, dirGreedy);
+                    return dirGreedy; //Todo
+                }
             }
 
             long d = myLoc.distanceSquaredTo(unit.target);
@@ -219,10 +208,11 @@ public class MovementManager {
 
 
             ArrayList<Integer> directions = new ArrayList<>();
-            for (int i = 0; i < 9; ++i){
+            for (int i = 0; i < 8; ++i){
                 AuxMapLocation newLoc = myLoc.add(i);
-                if (newLoc.isOnMap() && newLoc.isPassable() && (i == 8 || isSafe(i))) directions.add(i);
+                if (newLoc.isOnMap() && newLoc.isPassable() && (forced || isSafe(i))) directions.add(i);
             }
+            if (!forced) directions.add(8);
 
             directions.sort((a,b) -> raw_dist(a) < raw_dist(b) ? -1 : raw_dist(a) == raw_dist(b) ? 0 : 1);
 
@@ -246,13 +236,18 @@ public class MovementManager {
                         }
                     }
                     if (u.getType() != UnitType.Factory && u.getType() != UnitType.Rocket && u.canMove()) {
-                        if (move(u) != 8) {
+                        if (move(u, forced) != 8) {
                             doMovement(unit, dirBFS);
                             return dirBFS;
                         }
                     }
                 }
 
+            }
+
+            if (forced){
+                Wrapper.disintegrate(unit);
+                return 0;
             }
 
             myLoc = unit.getMapLocation();
@@ -287,7 +282,7 @@ public class MovementManager {
             if (unit.getType() == UnitType.Mage) {
                 //if (!GC.canBlink) return false;
                 //if (!unit.canUseAbility()) return false;
-                return true;
+                return false;
             }
             if (Danger.attackers.contains(id)) return true;
             if (Mapa.onEarth() && Units.canBlink) return true;
@@ -299,12 +294,8 @@ public class MovementManager {
     }
 
     void doMovement(AuxUnit unit, int dir){
-        try {
-            Wrapper.moveRobot(unit, dir);
-            getData(unit).soft_reset(unit.getMapLocation());
-        }catch(Exception e) {
-            e.printStackTrace();
-        }
+        Wrapper.moveRobot(unit, dir);
+        getData(unit).soft_reset(unit.getMapLocation());
     }
 
     double danger(int i){
@@ -362,19 +353,14 @@ public class MovementManager {
     }
 
     boolean kamikazeWorker(){
-        try {
-            if (!Build.firstFactory || Units.unitTypeCount.get(UnitType.Worker) > 8) return true;
-            return false;
-        }catch(Exception e) {
-            e.printStackTrace();
-        }
+        if (!Units.firstFactory || Units.unitTypeCount.get(UnitType.Worker) > 8) return true;
         return false;
     }
 
     int greedyMove(AuxUnit unit){
+        if (unit.getType() == UnitType.Knight) return 8;
+        if (unit.getType() == UnitType.Worker && kamikazeWorker()) return 8;
         try {
-            if (unit.getType() == UnitType.Knight) return 8;
-            if (unit.getType() == UnitType.Worker && kamikazeWorker()) return 8;
             int index = 8;
             for (int i = 0; i < 8; ++i) if (Wrapper.canMove(unit, i)) index = bestIndex(index, i);
 
@@ -408,13 +394,9 @@ public class MovementManager {
     }
 
     public void setData(AuxUnit unit){
-        try {
-            Danger.computeDanger(unit);
-            this.unit = unit;
-            attacker = dangerousUnit(unit.getType());
-        }catch(Exception e) {
-            e.printStackTrace();
-        }
+        Danger.computeDanger(unit);
+        this.unit = unit;
+        attacker = dangerousUnit(unit.getType());
     }
 
 

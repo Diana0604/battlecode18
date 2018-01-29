@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Playermaster" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/Old players" />
+      <excludeFolder url="file://$MODULE_DIR$/Overcharge-mages" />
+      <excludeFolder url="file://$MODULE_DIR$/Overcharge-old" />
+      <excludeFolder url="file://$MODULE_DIR$/Player13-java" />
+      <excludeFolder url="file://$MODULE_DIR$/Player14-java" />
+      <excludeFolder url="file://$MODULE_DIR$/Player15-java" />
+      <excludeFolder url="file://$MODULE_DIR$/Player16-java" />
+      <excludeFolder url="file://$MODULE_DIR$/Player17-java" />
+      <excludeFolder url="file://$MODULE_DIR$/Player18-java" />
+      <excludeFolder url="file://$MODULE_DIR$/Player19-java" />
+      <excludeFolder url="file://$MODULE_DIR$/Player20-java" />
+      <excludeFolder url="file://$MODULE_DIR$/Player21-java" />
+      <excludeFolder url="file://$MODULE_DIR$/Player22-java" />
+      <excludeFolder url="file://$MODULE_DIR$/Player23-java" />
+      <excludeFolder url="file://$MODULE_DIR$/Player24-java" />
+      <excludeFolder url="file://$MODULE_DIR$/Playermaster - Factory" />
+      <excludeFolder url="file://$MODULE_DIR$/Playermaster - mages" />
+      <excludeFolder url="file://$MODULE_DIR$/Playermaster Prime" />
+      <excludeFolder url="file://$MODULE_DIR$/Replays" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+</module>

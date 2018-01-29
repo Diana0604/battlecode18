@@ -1,6 +1,9 @@
 import bc.*;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 
 class UnitManager{
     static void moveUnits() {
@@ -16,6 +19,19 @@ class UnitManager{
         }
     }
 
+// de moment aixo no cal pq ja ho fem en un altre lloc
+    static void countUnits(){
+        try {
+            int[] count = {0,0,0,0,0,0,0};
+            for (AuxUnit unit: Units.myUnits) count[unit.getType().swigValue()]++;
+            HashMap<UnitType, Integer> mapa = new HashMap<UnitType, Integer>();
+            for (UnitType type: UnitType.values()) mapa.put(type,count[type.swigValue()]);
+            Units.unitTypeCount = mapa;
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     static void selectTargets(){
         try {
             for (AuxUnit unit: Units.myUnits) {
@@ -23,13 +39,13 @@ class UnitManager{
                 //System.err.println("playing unit " + GC.myUnits[i].getType());
                 //if (unit.isInGarrison()) continue;
                 if (unit.getType() == UnitType.Worker) {
-                    unit.target = Worker.getTarget(unit);
+                    unit.target = Worker.getInstance().getTarget(unit);
                 }
                 if (unit.getType() == UnitType.Ranger) {
                     unit.target = Ranger.getInstance().getTarget(unit);
                 }
                 if (unit.getType() == UnitType.Knight) {
-                    unit.target = Knight.getInstance().updateTarget(unit);
+                    unit.target = Knight.getInstance().getTarget(unit);
                 }
                 if (unit.getType() == UnitType.Healer) {
                     unit.target = Healer.getInstance().getTarget(unit);
@@ -97,8 +113,7 @@ class UnitManager{
                     Mage.getInstance().doAction(unit);
                 }
             }
-            Worker.actWorkers(true);
-            //WorkerUtil.doFirstActions();
+            WorkerUtil.doFirstActions();
         }catch(Exception e) {
             e.printStackTrace();
         }
@@ -113,6 +128,9 @@ class UnitManager{
                 if (unit.isInGarrison() || unit.isInSpace()) continue;
                 if (unit.getType() == UnitType.Factory) {
                     Factory.getInstance().play(unit);
+                }
+                if (unit.getType() == UnitType.Worker) {
+                    Worker.getInstance().doAction(unit, false);
                 }
                 if (unit.getType() == UnitType.Ranger) {
                     Ranger.getInstance().attack(unit);
@@ -130,7 +148,6 @@ class UnitManager{
                     Mage.getInstance().doAction(unit);
                 }
             }
-            Worker.actWorkers(false);
         }catch(Exception e) {
             e.printStackTrace();
         }

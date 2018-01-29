@@ -287,7 +287,7 @@ public class MovementManager {
             if (unit.getType() == UnitType.Mage) {
                 //if (!GC.canBlink) return false;
                 //if (!unit.canUseAbility()) return false;
-                return true;
+                return false;
             }
             if (Danger.attackers.contains(id)) return true;
             if (Mapa.onEarth() && Units.canBlink) return true;
@@ -363,7 +363,7 @@ public class MovementManager {
 
     boolean kamikazeWorker(){
         try {
-            if (!Build.firstFactory || Units.unitTypeCount.get(UnitType.Worker) > 8) return true;
+            if (!Units.firstFactory || Units.unitTypeCount.get(UnitType.Worker) > 8) return true;
             return false;
         }catch(Exception e) {
             e.printStackTrace();

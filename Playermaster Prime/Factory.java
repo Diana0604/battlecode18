@@ -17,12 +17,6 @@ public class Factory {
     static int maxUnits;
     private static int diag;
 
-    static int savings;
-
-    static int constructedKnights = 0, constructedMages = 0;
-
-    static int[] roundsLeft;
-
     static Factory getInstance(){
         if (instance == null){
             instance = new Factory();
@@ -39,20 +33,6 @@ public class Factory {
         maxRangers = (int) (1.25*diag);
     }
 
-    void initTurn(){
-        roundsLeft = new int[16];
-    }
-
-    void computeSavings(){
-        savings = 0;
-        int waste = -10;
-        for (int i = 0; i < 16; ++i){
-            waste += 10;
-            waste -= 40*Factory.roundsLeft[i];
-            savings = Math.max(savings, -waste);
-        }
-    }
-
 
     void play(AuxUnit _unit){
         try {
@@ -60,7 +40,6 @@ public class Factory {
             if (!unit.isBuilt()) return;
             checkGarrison(unit);
             tryBuild();
-            //++roundsLeft[Wrapper.factoryRoundsLeft(_unit)];
         }catch(Exception e) {
             e.printStackTrace();
         }
@@ -125,57 +104,31 @@ public class Factory {
             //if (karbo < Const.replicateCost) return null;
 
             //prioritzem fer rockets a units
-            if (Build.canBuildRockets && karbo < Const.replicateCost + Const.rocketCost && Build.rocketRequest != null) return null;
+            if (Units.canBuildRockets && karbo < Const.replicateCost + Const.rocketCost && Units.rocketRequest != null) return null;
 
 
             HashMap<UnitType, Integer> typeCount = Units.unitTypeCount;
             int rangers = typeCount.get(UnitType.Ranger);
             int healers = typeCount.get(UnitType.Healer);
-            int mages   = typeCount.get(UnitType.Mage);
+            int mages =   typeCount.get(UnitType.Mage);
             int workers = typeCount.get(UnitType.Worker);
             int knights = typeCount.get(UnitType.Knight);
 
-            if (workers < 1) return UnitType.Worker; //potser millor si workers < 2-3?
+            if (workers < 2) return UnitType.Worker; //potser millor si workers < 2-3?
 
-            AuxUnit[] enemies = Wrapper.senseUnits(unit.getMapLocation(), 50, false);
-            boolean factory = false;
-            boolean closeEnemy = false;
+            AuxUnit[] enemies = Wrapper.senseUnits(unit.getMapLocation(), 18, false);
             for (AuxUnit enemy : enemies){
-                if (enemy.getType() != UnitType.Worker && enemy.getMapLocation().distanceBFSTo(unit.getMapLocation()) <= 5){
-                    return UnitType.Knight;
-                }
+                if (enemy.getMapLocation().distanceBFSTo(unit.getMapLocation()) <= 3 && knights < 2 && rangers <= 2) return UnitType.Knight;
             }
 
-            int minRushtroops = 0;
-            if (Build.initDistToEnemy <= 10 || (Mapa.H*Mapa.W) <= 500) minRushtroops = 6;
-            else if (Build.initDistToEnemy <= 15 || (Mapa.H*Mapa.W) <= 600) minRushtroops = 5;
-            else if (Build.initDistToEnemy <= 20 || (Mapa.H*Mapa.W) <= 700) minRushtroops = 3;
 
-            if (constructedMages + constructedKnights < minRushtroops){
-                if (constructedKnights > constructedMages) return UnitType.Mage;
-                return UnitType.Knight;
-            }
-
-            //if (Danger.knightSeen && mages == 0) return UnitType.Mage;
-
-            int totalTroops = knights + rangers + mages;
-
-            if (totalTroops < 5){
-                //if (Danger.knightSeen && mages == 0) return UnitType.Mage;
-                return UnitType.Ranger;
-            }
-
-            if (totalTroops < 8){
-                if (2*healers < rangers) return UnitType.Healer;
-                return UnitType.Ranger;
-            }
-
-            int roundsEnemyUnseen = Utils.round - Build.lastRoundEnemySeen;
+            int roundsEnemyUnseen = Utils.round - Units.lastRoundEnemySeen;
             if ((Utils.round > 250 && roundsEnemyUnseen > 10) || Utils.round >= ROCKET_RUSH) {
-                if (workers < 2) return UnitType.Worker;
+                if (workers < 3) return UnitType.Worker;
                 if (rangers + healers + mages +knights > 30 && (rangers+healers+mages+knights) > 8*typeCount.get(UnitType.Rocket)) return null;
             }
-            if (healers < 1.5*totalTroops) return UnitType.Healer;
+
+            if (3 * healers < (rangers +knights) - 1) return UnitType.Healer;
             if (rangers < maxRangers) return UnitType.Ranger;
             if (healers < 1.25 * rangers) return UnitType.Healer;
             return UnitType.Mage;
@@ -192,8 +145,6 @@ public class Factory {
                 Wrapper.produceUnit(unit, type);
                 //System.out.println("Built " + type);
                 Units.unitTypeCount.put(type, Units.unitTypeCount.get(type) + 1);
-                if (type == UnitType.Knight) ++constructedKnights;
-                if (type == UnitType.Mage) ++constructedMages;
             }
         } catch(Exception e) {
             e.printStackTrace();

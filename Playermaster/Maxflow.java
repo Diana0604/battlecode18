@@ -117,7 +117,6 @@ public class Maxflow {
 
 
         int[][] flowGraph;
-
         flowGraph = fordFulkerson(graph, sourceIndex, sinkIndex);
 
         for (int i = 0; i < units.length; i++){

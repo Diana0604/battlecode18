@@ -196,7 +196,7 @@ public class Worker {
                 Wrapper.build(unit, structure);
                 unit.canMove = false; // ho he mogut perque quan un worker acaba un rocket tampoc es mogui (aixi se l'emporta a mars)
                 if (structure.getHealth() < Units.getMaxHealth(structure.getType())){
-                    targets.put(unit.getID(), 100.0);
+                    targets.put(unit.getID(), 0.0);
                 }
                 return true;
             }
@@ -205,7 +205,7 @@ public class Worker {
                 Wrapper.repair(unit, adjUnits[minHPIndex]);
                 if (structure.getHealth() < Units.getMaxHealth(structure.getType())){
                     unit.canMove = false;
-                    targets.put(unit.getID(), 100.0);
+                    targets.put(unit.getID(), 0.0);
                 }
                 return true;
             }
@@ -267,7 +267,7 @@ public class Worker {
             Wrapper.placeBlueprint(worker, UnitType.Factory, dirBuild);
             Units.unitTypeCount.put(UnitType.Factory, Units.unitTypeCount.get(UnitType.Factory)+1);
             worker.canMove = false; //no volem que marxi sense construir
-            targets.put(worker.getID(), 100.0);
+            targets.put(worker.getID(), 0.0);
             return;
         }
         //System.out.println("No s'ha pogut construir factory :(");
@@ -275,12 +275,12 @@ public class Worker {
 
     private static AuxMapLocation getBestFactoryLocation(){
         AuxMapLocation bestLoc = null;
+        FactoryData bestFactory = null;
         for (int index: Units.workers) {
             AuxUnit worker = Units.myUnits.get(index);
             if (worker.isInGarrison() || worker.isInSpace()) continue;
             if (!worker.canAttack()) continue;
             AuxMapLocation workerLoc = worker.getMapLocation();
-            FactoryData bestFactory = null;
             for (int i = 0; i < 8; ++i) {
                 if (Wrapper.canPlaceBlueprint(worker, UnitType.Factory, i)) {
                     FactoryData fd = new FactoryData(workerLoc.add(i));

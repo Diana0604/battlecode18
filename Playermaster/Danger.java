@@ -223,6 +223,13 @@ class Danger {
                             visitedEnemyUnits[j] = true;
                         }
                     }
+                    /*for (int j = 0; j < Units.myUnits.size(); ++j){
+                        AuxUnit ally = Units.myUnits.get(j);
+                        if (!visitedUnits[j] && ally.getType() == UnitType.Healer && locUnits[j].distanceSquaredTo(locUnits[x]) <= 30){
+                            possibleAttackers.add(ally.getID());
+                            visitedUnits[j] = true;
+                        }
+                    }*/
                 } else {
                     for (int j = 0; j < Units.myUnits.size(); ++j) {
                         AuxUnit unit2 = Units.myUnits.get(j);
@@ -236,6 +243,14 @@ class Danger {
                             visitedUnits[j] = true;
                         }
                     }
+                    /*
+                    for (int j = 0; j < Units.enemies.size(); ++j){
+                        AuxUnit enemy = Units.enemies.get(j);
+                        if (!visitedEnemyUnits[j] && enemy.getType() == UnitType.Healer && locEnemyUnits[j].distanceSquaredTo(locEnemyUnits[x]) <= 30){
+                            possibleDefenders.add(enemy.getID());
+                            visitedEnemyUnits[j] = true;
+                        }
+                    }*/
                 }
             }
             int siz = possibleDefenders.size();

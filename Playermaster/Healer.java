@@ -38,6 +38,10 @@ public class Healer {
             if (A == null) return B;
             if (B == null) return A;
 
+            boolean maxHealth1 = A.isMaxHealth(), maxHealth2 = B.isMaxHealth();
+            if (maxHealth1 && !maxHealth2) return B;
+            if (maxHealth2 && !maxHealth1) return A;
+
             if (A.frontline && !B.frontline) return A;
             if (!A.frontline && B.frontline) return B;
 

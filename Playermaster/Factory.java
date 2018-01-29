@@ -138,8 +138,8 @@ public class Factory {
             if (workers < 1) return UnitType.Worker; //potser millor si workers < 2-3?
 
             AuxUnit[] enemies = Wrapper.senseUnits(unit.getMapLocation(), 50, false);
-            boolean factory = false;
-            boolean closeEnemy = false;
+
+
             for (AuxUnit enemy : enemies){
                 if (enemy.getType() != UnitType.Worker && enemy.getMapLocation().distanceBFSTo(unit.getMapLocation()) <= 5){
                     return UnitType.Knight;
@@ -147,9 +147,9 @@ public class Factory {
             }
 
             int minRushtroops = 0;
-            if (Build.initDistToEnemy <= 10 || (Mapa.H*Mapa.W) <= 500) minRushtroops = 6;
-            else if (Build.initDistToEnemy <= 15 || (Mapa.H*Mapa.W) <= 600) minRushtroops = 5;
-            else if (Build.initDistToEnemy <= 20 || (Mapa.H*Mapa.W) <= 700) minRushtroops = 3;
+            if (Build.initDistToEnemy <= 10) minRushtroops = 6;
+            else if (Build.initDistToEnemy <= 15) minRushtroops = 5;
+            else if (Build.initDistToEnemy <= 20 || (Mapa.H*Mapa.W) <= 500) minRushtroops = 3;
 
             if (constructedMages + constructedKnights < minRushtroops){
                 if (constructedKnights > constructedMages) return UnitType.Mage;
@@ -165,17 +165,12 @@ public class Factory {
                 return UnitType.Ranger;
             }
 
-            if (totalTroops < 8){
-                if (2*healers < rangers) return UnitType.Healer;
-                return UnitType.Ranger;
-            }
-
             int roundsEnemyUnseen = Utils.round - Build.lastRoundEnemySeen;
             if ((Utils.round > 250 && roundsEnemyUnseen > 10) || Utils.round >= ROCKET_RUSH) {
                 if (workers < 2) return UnitType.Worker;
                 if (rangers + healers + mages +knights > 30 && (rangers+healers+mages+knights) > 8*typeCount.get(UnitType.Rocket)) return null;
             }
-            if (healers < 1.5*totalTroops) return UnitType.Healer;
+            if (2*healers < totalTroops-1) return UnitType.Healer;
             if (rangers < maxRangers) return UnitType.Ranger;
             if (healers < 1.25 * rangers) return UnitType.Healer;
             return UnitType.Mage;

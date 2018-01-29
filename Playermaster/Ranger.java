@@ -128,6 +128,7 @@ public class Ranger {
                 if (enemy.getHealth() <= 0) continue;
                 AuxMapLocation enemyLocation = enemy.getMapLocation();
                 double d = enemyLocation.distanceBFSTo(myLoc);
+                if (enemy.getType() == UnitType.Worker) d += 10;
                 if (d < minDist) {
                     minDist = d;
                     target = enemyLocation;
@@ -143,7 +144,7 @@ public class Ranger {
 
     AuxMapLocation getTarget(AuxUnit unit){
         try {
-            final int MAX_HP_TO_RETREAT = 100; //todo: crec que es millor canviar aixo per 110 pq mages no facin oneshot
+            final int MAX_HP_TO_RETREAT = 110; //todo: crec que es millor canviar aixo per 110 pq mages no facin oneshot
             if (Units.canOverCharge && Utils.round % 10 == 9) return null;
             if (Rocket.callsToRocket.containsKey(unit.getID())) return Rocket.callsToRocket.get(unit.getID());
             if (unit.getHealth() < MAX_HP_TO_RETREAT) {

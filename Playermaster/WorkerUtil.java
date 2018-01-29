@@ -130,7 +130,7 @@ public class WorkerUtil {
                 dist2 = Math.min(dist2, loc.distanceBFSTo(Utils.enemyStartingLocations.get(i)));
             }
 
-            return (dist1 <= dist2);
+            return (1.2*dist1 <= dist2);
         }catch(Exception e){
             e.printStackTrace();
         }
@@ -140,7 +140,7 @@ public class WorkerUtil {
     //a distancia <= 16 d'una factory
     private static boolean isCloseToFactory(AuxMapLocation loc){
         try {
-            AuxUnit[] closeUnits = Wrapper.senseUnits(loc, 16, true);
+            AuxUnit[] closeUnits = Wrapper.senseUnits(loc, 32, true);
             for (int i = 0; i < closeUnits.length; ++i){
                 if (closeUnits[i].getType() == UnitType.Factory) return true;
             }

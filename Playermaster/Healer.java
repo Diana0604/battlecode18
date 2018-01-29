@@ -21,24 +21,49 @@ public class Healer {
         objectiveArea = new HashMap();
     }
 
-    void heal(AuxUnit unit){
+
+    private int typePriority(UnitType t){
+        switch(t){
+            case Mage: return 4;
+            case Knight: return 3;
+            case Ranger: return 2;
+            case Healer: return 2;
+            case Worker: return 1;
+            default: return 0;
+        }
+    }
+
+    private AuxUnit compareTargets(AuxUnit A, AuxUnit B){
         try {
-            if (!unit.canAttack()) return;
+            if (A == null) return B;
+            if (B == null) return A;
+
+            if (A.frontline && !B.frontline) return A;
+            if (!A.frontline && B.frontline) return B;
+
+            if (typePriority(A.getType()) > typePriority(B.getType())) return A;
+            if (typePriority(A.getType()) < typePriority(B.getType())) return B;
+
+            if (A.getHealth() < B.getHealth()) return A;
+            return B;
+        }catch(Exception e) {
+            e.printStackTrace();
+            return B;
+        }
+    }
+
+    void heal(AuxUnit healer){
+        try {
+            if (!healer.canAttack()) return;
             //System.err.println("trying to heal");
-            AuxUnit[] v = Wrapper.senseUnits(unit.getX(), unit.getY(), 30, true);
-            long maxDiff = 0;
+            AuxUnit[] v = Wrapper.senseUnits(healer.getX(), healer.getY(), 30, true);
             AuxUnit healed = null;
-            for (int i = 0; i < v.length; ++i) {
-                if (v[i].getType() == UnitType.Factory || v[i].getType() == UnitType.Rocket) continue;
-                AuxUnit u = v[i];
-                long d = Units.getMaxHealth(u.getType()) - u.getHealth();
-                if (d > maxDiff) {
-                    maxDiff = d;
-                    healed = u;
-                }
+            for (AuxUnit unit : v) {
+                if (unit.isStructure()) continue;
+                healed = compareTargets(healed, unit);
             }
             if (healed != null) {
-                Wrapper.heal(unit, healed);
+                Wrapper.heal(healer, healed);
             }
         }catch(Exception e) {
             e.printStackTrace();
@@ -94,7 +119,6 @@ public class Healer {
 
             double d1 = myLoc.distanceBFSTo(unit1.getMapLocation());
             double d2 = myLoc.distanceBFSTo(unit2.getMapLocation());
-            //if (d1 > d2) return unit1; //triem la tropa mes llunyana (?)
             if (d1 < d2) return unit1;
             return unit2;
         }catch(Exception e) {

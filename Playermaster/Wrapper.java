@@ -1,9 +1,6 @@
 import java.util.*;
-
 import bc.*;
-/**
- * Created by Ivan on 1/18/2018.
- */
+
 public class Wrapper {
     static AuxUnit[] senseUnits(int x, int y, int r, boolean myTeam){ //Todo check if it is better to iterate over enemies
         try {
@@ -88,12 +85,10 @@ public class Wrapper {
                 unloadedUnit.canUseAbility = false;
             }
             if (unloadedUnit.getType() == UnitType.Healer){
-                updateOverchargeMapForHealer(unloadedUnit);
                 if (unloadedUnit.canUseAbility()){
-                    updateOverchargeMatrix(newLoc, true);
+                    updateOverchargeMatrix(newLoc, posAtArray, true);
                 }
             }
-            if (unloadedUnit.isTroop()) updateOverchargeMapForTroop(unloadedUnit);
             unloadedUnit.mloc = newLoc;
             Units.unitMap[newLoc.x][newLoc.y] = posAtArray + 1;
 
@@ -102,7 +97,7 @@ public class Wrapper {
         }
     }
 
-
+/*
     public static int getIndex(Direction dir) {
         switch (dir) {
             case North:
@@ -126,14 +121,12 @@ public class Wrapper {
 
         }
     }
-
+*/
 
 
     static boolean canProduceUnit(AuxUnit unit, UnitType type){
         try {
-            if (!unit.canAttack()) return false;
-            if (unit.getGarrisonUnits().size() >= 8) return false;
-            return (Utils.karbonite >= Units.getCost(type));
+            return unit.canAttack() && unit.getGarrisonUnits().size() < 8 && (Utils.karbonite >= Units.getCost(type));
         }catch(Exception e) {
             e.printStackTrace();
             return false;
@@ -176,7 +169,6 @@ public class Wrapper {
 
     static void build(AuxUnit unit, AuxUnit blueprint){
         try {
-            blueprint.getHealth();
             //blueprint.isBlueprint();
             blueprint.health += Units.buildingPower;
             int maxHP = Units.getMaxHealth(blueprint.getType());
@@ -194,7 +186,6 @@ public class Wrapper {
 
     static void repair(AuxUnit unit, AuxUnit structure){
         try {
-            structure.getHealth();
             structure.health += Units.repairingPower;
             int maxHP = Units.getMaxHealth(structure.getType());
             if (structure.health > maxHP) structure.health = maxHP;
@@ -225,13 +216,11 @@ public class Wrapper {
             GC.gc.moveRobot(unit.getID(), Const.allDirs[dir]);
             if(Utils.round%10 == 0) Vision.checkAndUpdateSeen(newLoc, unit.getVisionRange());
             if (unit.getType() == UnitType.Healer){
-                updateOverchargeMapForHealer(unit);
                 if (unit.canUseAbility()){
-                    updateOverchargeMatrix(mloc, false);
-                    updateOverchargeMatrix(newLoc, true);
+                    updateOverchargeMatrix(mloc, Units.myUnits.indexOf(unit), false);
+                    updateOverchargeMatrix(newLoc, Units.myUnits.indexOf(unit), true);
                 }
             }
-            if (unit.isTroop()) updateOverchargeMapForTroop(unit);
         }catch(Exception e) {
             e.printStackTrace();
         }
@@ -256,9 +245,7 @@ public class Wrapper {
             if (Utils.karbonite < Const.replicateCost) return false;
             AuxMapLocation mloc = unit.getMapLocation();
             AuxMapLocation newLoc = mloc.add(dir);
-            if (!newLoc.isAccessible()) return false;
-            if (!unit.canUseAbility()) return false;
-            return true;
+            return newLoc.isAccessible() && unit.canUseAbility();
         }catch(Exception e) {
             e.printStackTrace();
             return false;
@@ -292,9 +279,7 @@ public class Wrapper {
             if (Utils.karbonite < Units.getCost(type)) return false;
             AuxMapLocation mloc = unit.getMapLocation();
             AuxMapLocation newLoc = mloc.add(dir);
-            if (!newLoc.isAccessible()) return false;
-            if (type == UnitType.Rocket && !Build.canBuildRockets) return false;
-            return true;
+            return newLoc.isAccessible() && !(type == UnitType.Rocket && !Build.canBuildRockets);
         }catch(Exception e) {
             e.printStackTrace();
             return false;
@@ -331,8 +316,7 @@ public class Wrapper {
             unit.inSpace = true; //we don't desintegrate units, we kick them to space :D
             Units.unitMap[unit.getMapLocation().x][unit.getMapLocation().y] = 0;
             if (unit.getType() == UnitType.Healer){
-                updateOverchargeMapForHealer(unit);
-                if (unit.canUseAbility()) updateOverchargeMatrix(unit.getMapLocation(), false);
+                if (unit.canUseAbility()) updateOverchargeMatrix(unit.getMapLocation(), Units.myUnits.indexOf(unit), false);
             }
             GC.gc.disintegrateUnit(unit.getID());
         }catch(Exception e){
@@ -344,8 +328,7 @@ public class Wrapper {
         try {
             AuxMapLocation loc = unit.getMapLocation();
             AuxMapLocation mineLoc = loc.add(dir);
-            if (!mineLoc.isOnMap()) return false;
-            return GC.gc.canHarvest(unit.getID(), Const.allDirs[dir]);
+            return mineLoc.isOnMap() && GC.gc.canHarvest(unit.getID(), Const.allDirs[dir]);
         }catch(Exception e) {
             e.printStackTrace();
             return false;
@@ -367,7 +350,7 @@ public class Wrapper {
             if (newKarboAmount < 0) newKarboAmount = 0;
             if (newKarboAmount > 0) {
                 Karbonite.karboniteAt.put(mineLoc.encode(), newKarboAmount);
-            } else Karbonite.karboniteAt.remove(mineLoc);
+            } else Karbonite.karboniteAt.remove(mineLoc.encode());
             Karbonite.karboMap[mineLoc.x][mineLoc.y] = newKarboAmount;
             unit.canAttack = false;
             //System.out.println("Karbo after mining: " + newKarboAmount);
@@ -383,8 +366,7 @@ public class Wrapper {
         try {
             if (!unit.canAttack()) return false;
             int d = unit.getMapLocation().distanceSquaredTo(unit2.getMapLocation());
-            if (unit.getType() == UnitType.Ranger && d <= Const.rangerMinAttackRange) return false;
-            return (Units.getAttackRange(unit.getType()) >= d);
+            return !(unit.getType() == UnitType.Ranger && d <= Const.rangerMinAttackRange) && (Units.getAttackRange(unit.getType()) >= d);
         }catch(Exception e) {
             e.printStackTrace();
             return false;
@@ -394,7 +376,6 @@ public class Wrapper {
     static void attack(AuxUnit u1, AuxUnit u2){
         try {
             if (u1.getType() != UnitType.Mage) {
-                u2.getHealth();
                 u2.health -= Units.getDamage(u1.getType());
                 if (u2.health <= 0) Units.unitMap[u2.getX()][u2.getY()] = 0;
             } else {
@@ -403,7 +384,6 @@ public class Wrapper {
                     AuxMapLocation newLoc = mloc.add(i);
                     AuxUnit unit2 = newLoc.getUnit();
                     if (unit2 != null) {
-                        unit2.getHealth();
                         unit2.health -= Units.getDamage(u1.getType());
                         if (unit2.health <= 0){
                             Units.unitMap[unit2.getMapLocation().x][unit2.getMapLocation().y] = 0;
@@ -429,7 +409,7 @@ public class Wrapper {
             return round + (int) GC.gc.orbitPattern().duration(round);
         }catch(Exception e) {
             e.printStackTrace();
-            return Integer.parseInt(null);
+            return -1;
         }
     }
 
@@ -437,8 +417,9 @@ public class Wrapper {
         try {
             //System.out.println("Launching at " + unit.getX() + " " + unit.getY());
             ArrayList<Integer> IDs = unit.getGarrisonUnits();
-            for (int i = 0; i < IDs.size(); ++i){
-                AuxUnit u = Units.getUnitByID(IDs.get(i));
+            for (Integer ID : IDs) {
+                AuxUnit u = Units.getUnitByID(ID);
+                if (u == null) continue;
                 u.garrison = false;
                 u.inSpace = true;
             }
@@ -455,37 +436,31 @@ public class Wrapper {
         }
     }
 
-    static boolean canLoad(AuxUnit u1, AuxUnit u2) {
+    static boolean canLoad(AuxUnit structure, AuxUnit robot) {
         try {
-            if (!u1.isStructure()) return false;
-            if (!u2.canMove()) return false;
-            if (u1.getGarrisonUnits().size() >= 8) return false;
-            if (u2.isInGarrison()) return false;
-            if (u1.isBlueprint()) return false;
-            return (u1.getMapLocation().distanceSquaredTo(u2.getMapLocation()) <= 2);
+            return structure.isStructure() && robot.canMove() && structure.getGarrisonUnits().size() < 8 && !robot.isInGarrison() &&
+                    !structure.isBlueprint() && (structure.getMapLocation().distanceSquaredTo(robot.getMapLocation()) <= 2);
         } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
     }
 
-    static void load(AuxUnit u1, AuxUnit u2){
+    static void load(AuxUnit structure, AuxUnit robot){
         try {
-            //System.out.println("Loading! at " + u2.getMapLocation().x + " " + u2.getMapLocation().y + " " + u2.getID());
-            AuxMapLocation mloc = u2.getMapLocation();
+            //System.out.println("Loading! at " + robot.getMapLocation().x + " " + robot.getMapLocation().y + " " + robot.getID());
+            AuxMapLocation mloc = robot.getMapLocation();
             Units.unitMap[mloc.x][mloc.y] = 0;
-            u2.garrison = true;
-            u2.mloc = u1.getMapLocation();
-            u2.canMove = false;
-            u2.canAttack = false;
-            if (u2.getType() == UnitType.Healer){
-                updateOverchargeMapForHealer(u2);
-                if (u2.canUseAbility()) updateOverchargeMatrix(mloc, false);
+            robot.garrison = true;
+            robot.mloc = structure.getMapLocation();
+            robot.canMove = false;
+            robot.canAttack = false;
+            if (robot.getType() == UnitType.Healer){
+                if (robot.canUseAbility()) updateOverchargeMatrix(mloc, Units.myUnits.indexOf(robot), false);
             }
-            if (u2.isTroop()) updateOverchargeMapForTroop(u2);
-            u2.canUseAbility = false;
-            u1.getGarrisonUnits().add(u2.getID());
-            GC.gc.load(u1.getID(), u2.getID());
+            robot.canUseAbility = false;
+            structure.getGarrisonUnits().add(robot.getID());
+            GC.gc.load(structure.getID(), robot.getID());
 
         }catch(Exception e) {
             e.printStackTrace();
@@ -499,8 +474,7 @@ public class Wrapper {
             troop.canAttack = true;
             troop.canUseAbility = true;
             GC.gc.overcharge(healer.getID(), troop.getID());
-            updateOverchargeMapForHealer(healer);
-            updateOverchargeMatrix(healer.getMapLocation(), false);
+            updateOverchargeMatrix(healer.getMapLocation(), Units.myUnits.indexOf(healer), false);
         }catch(Exception e){
             e.printStackTrace();
         }
@@ -532,7 +506,7 @@ public class Wrapper {
         }
         return null;
     }
-
+/*
     static int factoryRoundsLeft(AuxUnit unit){
         if (unit.canAttack()) return 0;
         Unit _unit = GC.gc.unit(unit.getID());
@@ -540,7 +514,7 @@ public class Wrapper {
         _unit.delete();
         return ans;
     }
-
+*/
     static UnitType getBuildingUnit(AuxUnit unit){
         if(unit.canAttack()) return null;
         Unit _unit = GC.gc.unit(unit.getID());
@@ -549,7 +523,7 @@ public class Wrapper {
         return ans;
     }
 
-    static void updateOverchargeMatrix(AuxMapLocation loc, boolean add){
+    private static void updateOverchargeMatrix(AuxMapLocation loc, int index, boolean add){
         int range = Const.overchargeRange;
         int x = loc.x;
         int y = loc.y;
@@ -558,42 +532,15 @@ public class Wrapper {
             int dy = Vision.My[range][i];
             AuxMapLocation newLoc = new AuxMapLocation(x+dx, y+dy);
             if (!newLoc.isOnMap()) continue;
-            if (add) Overcharge.overchargeMatrix[x+dx][y+dy]++;
-            else Overcharge.overchargeMatrix[x+dx][y+dy]--;
+            if (add) Overcharge.overchargeMatrix.get(loc).add(index);
+            else Overcharge.overchargeMatrix.get(loc).remove(index);
         }
     }
 
-    static void updateOverchargeMapForHealer(AuxUnit healer){
-        int healerIndex = Units.myUnits.indexOf(healer);
-        for(Map.Entry<Integer, HashSet<Integer>> entry: Overcharge.overchargeInRange.entrySet()){
-            int troopIndex = entry.getKey();
-            AuxUnit troop = Units.myUnits.get(troopIndex);
-            HashSet<Integer> healerList = entry.getValue();
-            if (troop.getMapLocation().distanceSquaredTo(healer.getMapLocation()) <= Const.overchargeRange &&
-                    healer.canUseAbility() && !healer.isInGarrison() && !healer.isInSpace() && !healer.isDead() &&
-                    !troop.isInGarrison() && !troop.isInSpace() && !troop.isDead())
-                healerList.add(healerIndex);
-            else healerList.remove(healerIndex);
-        }
-    }
-
-    static void updateOverchargeMapForTroop(AuxUnit troop){
-        int troopIndex = Units.myUnits.indexOf(troop);
-        HashSet<Integer> healerList = new HashSet<>();
-        if (troop.isDead() || troop.isInGarrison() || troop.isInSpace()) return;
-
-        for (int healerIndex: Units.healers){
-            AuxUnit healer = Units.myUnits.get(healerIndex);
-            if (troop.getMapLocation().distanceSquaredTo(healer.getMapLocation()) <= Const.overchargeRange &&
-                    healer.canUseAbility() && !healer.isInGarrison() && !healer.isInSpace() && !healer.isDead())
-                healerList.add(healerIndex);
-        }
-        Overcharge.overchargeInRange.put(troopIndex, healerList);
-    }
     /*------------------ GENERAL INIT GAME -----------------------*/
 
 
-    static ArrayList<AuxUnit> getInitialUnits(PlanetMap planetMap){
+    private static ArrayList<AuxUnit> getInitialUnits(PlanetMap planetMap){
         try {
             ArrayList<AuxUnit> units = new ArrayList<>();
             VecUnit initialUnits = planetMap.getInitial_units();
@@ -610,7 +557,7 @@ public class Wrapper {
 
     /*------------------ KARBONITE INIT GAME -----------------------*/
 
-    public static int[][] getMarsInitialKarbonite() {
+    static int[][] getMarsInitialKarbonite() {
         try {
             PlanetMap marsMap = GC.gc.startingMap(Planet.Mars);
             int W = (int)marsMap.getWidth();
@@ -629,7 +576,7 @@ public class Wrapper {
         return null;
     }
 
-    public static void karboniteInitMap(PlanetMap planetMap){
+    private static void karboniteInitMap(PlanetMap planetMap){
         try {
             Karbonite.asteroidPattern = GC.gc.asteroidPattern();
             Karbonite.karboniteAt = new HashMap<>();
@@ -643,11 +590,11 @@ public class Wrapper {
     }
 
 
-    public static int getInitialKarbo(PlanetMap planetMap, int x, int y){
+    private static int getInitialKarbo(PlanetMap planetMap, int x, int y){
         return (int) planetMap.initialKarboniteAt(new MapLocation(Mapa.planet, x, y));
     }
 
-    static void addInitialKarbo(PlanetMap planetMap){
+    private static void addInitialKarbo(PlanetMap planetMap){
         try {
             //System.out.println("ok1");
             for (int x = 0; x < Mapa.W; ++x) {
@@ -679,7 +626,7 @@ public class Wrapper {
         }
     }
 
-    static void putMine(AuxMapLocation loc, int value){
+    private static void putMine(AuxMapLocation loc, int value){
         Karbonite.karboniteAt.put(loc.encode(), value);
     }
 
@@ -691,7 +638,7 @@ public class Wrapper {
 
     /*------------------ PATHFINDER GAME -----------------------*/
 
-    public static void pathfinderInitMap(PlanetMap planetMap){
+    private static void pathfinderInitMap(PlanetMap planetMap){
         try {
             Pathfinder.W = Mapa.W;
             Pathfinder.H = Mapa.H;
@@ -708,9 +655,7 @@ public class Wrapper {
 
             for (int x = 0; x < Pathfinder.W; ++x) {
                 for (int y = 0; y < Pathfinder.H; ++y) {
-                    if (planetMap.isPassableTerrainAt(new MapLocation(Mapa.planet, x, y)) > 0) {
-                        Pathfinder.passable[x][y] = true;
-                    } else Pathfinder.passable[x][y] = false;
+                    Pathfinder.passable[x][y] = planetMap.isPassableTerrainAt(new MapLocation(Mapa.planet, x, y)) > 0;
                 }
             }
             computeDistToWalls();
@@ -720,7 +665,7 @@ public class Wrapper {
         }
     }
 
-    static void computeDistToWalls(){
+    private static void computeDistToWalls(){
         try {
             PriorityQueue<Integer> queue = new PriorityQueue<>();
 
@@ -780,12 +725,14 @@ public class Wrapper {
             int minDist = Const.INFS;
             ArrayList<AuxUnit> initUnits = getInitialUnits(planetMap);
             boolean isolated = true;
-            for (AuxUnit u1: initUnits) {
-                for (AuxUnit u2 : initUnits) {
-                    if (u1.myTeam != u2.myTeam) {
-                        int dist = u1.getMapLocation().distanceBFSTo(u2.getMapLocation());
-                        minDist = Math.min(minDist, dist);
-                        if (dist < Const.INFS) isolated = false;
+            if (initUnits != null) {
+                for (AuxUnit u1 : initUnits) {
+                    for (AuxUnit u2 : initUnits) {
+                        if (u1.myTeam != u2.myTeam) {
+                            int dist = u1.getMapLocation().distanceBFSTo(u2.getMapLocation());
+                            minDist = Math.min(minDist, dist);
+                            if (dist < Const.INFS) isolated = false;
+                        }
                     }
                 }
             }
@@ -798,7 +745,7 @@ public class Wrapper {
     }
 
 
-    public static void unitsInitMap(PlanetMap planetMap){
+    private static void unitsInitMap(PlanetMap planetMap){
         try {
             Units.declareArrays();
             Build.rocketRequest = null;
@@ -816,7 +763,7 @@ public class Wrapper {
     /*------------------ EXPLORE GAME -----------------------*/
 
 
-    public static void exploreInitMap(PlanetMap planetMap){
+    private static void exploreInitMap(PlanetMap planetMap){
         try {
             createGrid();
             Explore.objectiveArea = new HashMap<>();
@@ -826,7 +773,7 @@ public class Wrapper {
         }
     }
 
-    static AuxMapLocation getAccessLocation(int xCenter, int yCenter){
+    private static AuxMapLocation getAccessLocation(int xCenter, int yCenter){
         try {
             AuxMapLocation realCenter = new AuxMapLocation(xCenter, yCenter);
             //TODO check apart from passable passable from origin in earth
@@ -841,7 +788,7 @@ public class Wrapper {
         return null;
     }
 
-    static void createGrid(){
+    private static void createGrid(){
         try {
             Explore.currentArea = new HashMap<>();
             Explore.exploreSizeX = Mapa.W / Explore.areaSize;
@@ -895,13 +842,15 @@ public class Wrapper {
     }
 
 
-    static void getLocationEnemyBase(PlanetMap planetMap){
+    private static void getLocationEnemyBase(PlanetMap planetMap){
         try {
             ArrayList<AuxUnit> initialUnits = getInitialUnits(planetMap);
-            for (AuxUnit unit: initialUnits){
-                if (!unit.myTeam) {
-                    Integer enemyArea = locationToArea(unit.getMapLocation());
-                    addExploreGrid(enemyArea, Explore.enemyBaseValue);
+            if (initialUnits != null) {
+                for (AuxUnit unit : initialUnits) {
+                    if (!unit.myTeam) {
+                        Integer enemyArea = locationToArea(unit.getMapLocation());
+                        addExploreGrid(enemyArea, Explore.enemyBaseValue);
+                    }
                 }
             }
         }catch(Exception e) {
@@ -912,7 +861,7 @@ public class Wrapper {
     /*------------------ WORKER UTIL GAME -----------------------*/
 
 
-    public static void workerUtilInitMap(PlanetMap planetMap){
+    private static void workerUtilInitMap(PlanetMap planetMap){
         try {
             WorkerUtil.safe = true;
             WorkerUtil.totalKarboCollected = 0;
@@ -926,7 +875,7 @@ public class Wrapper {
         }
     }
 
-    static void preComputeConnectivity(){
+    private static void preComputeConnectivity(){
         try {
             WorkerUtil.connectivityArray = new boolean[(1 << 9)-1];
             for (int i = 0; i < (1 << 9) - 1; ++i){
@@ -940,7 +889,7 @@ public class Wrapper {
         }
     }
 
-    static boolean computeConnectivity(int s){
+    private static boolean computeConnectivity(int s){
         try {
             Queue<Integer> q = new LinkedList<>();
             for (int i = 0; i < 8; ++i) {
@@ -969,7 +918,7 @@ public class Wrapper {
         return false;
     }
 
-    static void computeApproxMapValue(PlanetMap planetMap) {
+    private static void computeApproxMapValue(PlanetMap planetMap) {
         try {
             WorkerUtil.approxMapValue = 0;
             ArrayList<AuxUnit> initialUnits = getInitialUnits(planetMap);
@@ -977,54 +926,54 @@ public class Wrapper {
 
             double minDist = 10000;
 
-
-            for (int i = 0; i < initialUnits.size(); ++i){
-                AuxUnit unit = initialUnits.get(i);
-                if (unit.myTeam){
-                    for (int j = 0; j < initialUnits.size(); ++j){
-                        AuxUnit unit2 = initialUnits.get(j);
-                        if (!unit2.myTeam){
-                            if (unit.getMapLocation() == null || unit2.getMapLocation() == null) continue;
-                            minDist = Math.min(minDist, unit.getMapLocation().distanceBFSTo(unit2.getMapLocation()));
+            if (initialUnits != null) {
+                for (int i = 0; i < initialUnits.size(); ++i) {
+                    AuxUnit unit = initialUnits.get(i);
+                    if (unit.myTeam) {
+                        for (AuxUnit unit2 : initialUnits) {
+                            if (!unit2.myTeam) {
+                                if (unit.getMapLocation() == null || unit2.getMapLocation() == null) continue;
+                                minDist = Math.min(minDist, unit.getMapLocation().distanceBFSTo(unit2.getMapLocation()));
+                            } else {
+                                if (unit.getMapLocation() == null || unit2.getMapLocation() == null) continue;
+                                if (unit.getMapLocation().distanceBFSTo(unit2.getMapLocation()) >= Const.INFS)
+                                    WorkerUtil.closeFactory = false;
+                            }
                         }
-                        else{
-                            if (unit.getMapLocation() == null || unit2.getMapLocation() == null) continue;
-                            if (unit.getMapLocation().distanceBFSTo(unit2.getMapLocation()) >= Const.INFS) WorkerUtil.closeFactory = false;
+                    }
+                }
+
+
+                WorkerUtil.minSafeTurns = minDist;
+
+                Utils.startingLocations = new ArrayList<>();
+                Utils.enemyStartingLocations = new ArrayList<>();
+
+                for (int i = 0; i < initialUnits.size(); ++i) {
+                    AuxUnit unit = initialUnits.get(i);
+                    if (!unit.isInGarrison()) {
+                        initialPositions.add(unit.getMapLocation());
+                        if (unit.myTeam) Utils.startingLocations.add(unit.getMapLocation());
+                        else Utils.enemyStartingLocations.add(unit.getMapLocation());
+                        if (i % 2 == 0) {
+                            ++WorkerUtil.min_nb_workers;
+                            ++WorkerUtil.workersCreated;
+                            ++WorkerUtil.min_nb_workers1;
                         }
                     }
                 }
-            }
 
-            WorkerUtil.minSafeTurns = minDist;
-
-            Utils.startingLocations = new ArrayList<>();
-            Utils.enemyStartingLocations = new ArrayList<>();
-
-            for (int i = 0; i < initialUnits.size(); ++i) {
-                AuxUnit unit = initialUnits.get(i);
-                if (!unit.isInGarrison()) {
-                    initialPositions.add(unit.getMapLocation());
-                    if (unit.myTeam) Utils.startingLocations.add(unit.getMapLocation());
-                    else Utils.enemyStartingLocations.add(unit.getMapLocation());
-                    if (i % 2 == 0){
-                        ++WorkerUtil.min_nb_workers;
-                        ++WorkerUtil.workersCreated;
-                        ++WorkerUtil.min_nb_workers1;
+                for (int i = 0; i < Mapa.W; ++i) {
+                    for (int j = 0; j < Mapa.H; ++j) {
+                        AuxMapLocation mloc = new AuxMapLocation(i, j);
+                        double mindist = 1000000;
+                        for (AuxMapLocation initialPosition : initialPositions) {
+                            mindist = Math.min(mindist, initialPosition.distanceBFSTo(mloc));
+                        }
+                        WorkerUtil.approxMapValue += Karbonite.karboMap[i][j] * Math.pow(WorkerUtil.decrease_rate, Math.max(0, mindist - WorkerUtil.MIN_DIST));
                     }
                 }
             }
-
-            for (int i = 0; i < Mapa.W; ++i) {
-                for (int j = 0; j < Mapa.H; ++j) {
-                    AuxMapLocation mloc = new AuxMapLocation(i, j);
-                    double mindist = 1000000;
-                    for (int t = 0; t < initialPositions.size(); ++t) {
-                        mindist = Math.min(mindist, initialPositions.get(t).distanceBFSTo(mloc));
-                    }
-                    WorkerUtil.approxMapValue += Karbonite.karboMap[i][j] * Math.pow(WorkerUtil.decrease_rate, Math.max(0, mindist - WorkerUtil.MIN_DIST));
-                }
-            }
-
             WorkerUtil.approxMapValue /= 2;
 
             WorkerUtil.min_nb_workers = (int)Math.max(WorkerUtil.min_nb_workers, Math.floor(WorkerUtil.approxMapValue / WorkerUtil.worker_value));

@@ -87,12 +87,12 @@ public class Knight {
     }
 
 
-    void attack(AuxUnit unit) {
+    void attack(AuxUnit knight) {
         try {
             /*
-            System.out.println("ROUND " + Utils.round + " OVERCHARGE INFO FOR " + unit.getID() + ", ON " + unit.getMapLocation());
-            System.out.println("    Healers with overcharge in range: " + Overcharge.overchargeMatrix[unit.getX()][unit.getY()]);
-            HashSet<Integer> healers = Overcharge.overchargeInRange.get(Units.myUnits.indexOf(unit));
+            System.out.println("ROUND " + Utils.round + " OVERCHARGE INFO FOR " + knight.getID() + ", ON " + knight.getMapLocation());
+            System.out.println("    Healers with overcharge in range: " + Overcharge.overchargeMatrix[knight.getX()][knight.getY()]);
+            HashSet<Integer> healers = Overcharge.overchargeInRange.get(Units.myUnits.indexOf(knight));
             for (int index: healers){
                 AuxUnit healer = Units.myUnits.get(index);
                 System.out.println("        " + healer.getID() + " loc " + healer.getMapLocation());
@@ -100,33 +100,33 @@ public class Knight {
 */
             //if (Units.canOverCharge && Utils.round%10 == 9) return;
 
-            int posAtArray = Units.allUnits.get(unit.getID());
-            int attacks = Overcharge.overchargesAt(unit.getMapLocation());
-            if (unit.canAttack()) attacks++;
+            int posAtArray = Units.allUnits.get(knight.getID());
+            int attacks = Overcharge.overchargesAt(knight.getMapLocation());
+            if (knight.canAttack()) attacks++;
             if (attacks == 0) return;
 
-            AuxUnit targetUnit = pickAttackTarget(unit, attacks);
+            AuxUnit targetUnit = pickAttackTarget(knight, attacks);
             if (targetUnit == null) return;
             int attacksToKill = hitsLeft(targetUnit);
-            //System.out.println(Utils.round + " knight " + unit.getID() + " loc " + unit.getMapLocation() + " has target " + targetUnit.getMapLocation());
+            //System.out.println(Utils.round + " knight " + knight.getID() + " loc " + knight.getMapLocation() + " has target " + targetUnit.getMapLocation());
             //System.out.println("    Needs " + attacksToKill + " attacks, has " + attacks);
 
             if (attacks < attacksToKill){
                 //cant kill, estalvia overcharge
-                if (Wrapper.canAttack(unit, targetUnit)) Wrapper.attack(unit,targetUnit);
+                if (Wrapper.canAttack(knight, targetUnit)) Wrapper.attack(knight,targetUnit);
             }else{
                 while (attacksToKill > 0){
                     //A POR ELLOS, OEEEEEEEEEEE
                     //System.out.println("    CAN KILL " + attacksToKill);
-                    if (Wrapper.canAttack(unit, targetUnit)) {
-                        Wrapper.attack(unit,targetUnit);
+                    if (Wrapper.canAttack(knight, targetUnit)) {
+                        Wrapper.attack(knight,targetUnit);
                         attacksToKill--;
                         attacks--;
                     }else{
-                        Overcharge.getOvercharged(posAtArray, targetUnit.getMapLocation());
+                        Overcharge.getOvercharged(knight, targetUnit.getMapLocation());
                     }
                 }
-                if (attacks > 0) attack(unit); //si mata el target i li queden atacs mira que no pugui matar mes
+                if (attacks > 0) attack(knight); //si mata el target i li queden atacs mira que no pugui matar mes
             }
         }catch(Exception e) {
             e.printStackTrace();
@@ -139,9 +139,9 @@ public class Knight {
         switch(t){
             case Mage: return 8;
             case Ranger: return 8;
-            case Factory: return 4;
             case Healer: return 7;
             case Knight: return 7;
+            case Factory: return 4;
             case Worker: return 2;
             case Rocket: return 1;
             default: return 0;
@@ -158,10 +158,18 @@ public class Knight {
 
             int distA = myLoc.distanceBFSTo(A.getMapLocation());
             int distB = myLoc.distanceBFSTo(B.getMapLocation());
+            boolean farA = distA > 10;
+            boolean farB = distB > 10;
+
+            if (farA && !farB) return B;
+            if (!farA && farB) return A;
+
             int priorityA = moveTypePriority(A.getType());
             int priorityB = moveTypePriority(B.getType());
 
-            if (priorityA - distA > priorityB - distB) return A;
+            if (priorityA > priorityB) return A;
+            if (priorityA < priorityB) return B;
+
 
             if (distA < distB) return A;
             return B;

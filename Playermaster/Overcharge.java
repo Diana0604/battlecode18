@@ -6,17 +6,16 @@ import bc.UnitType;
 
 public class Overcharge {
 
-    static int[][] overchargeMatrix; //[i][j] = nº healers amb overcharge a rang de i,j
-    static HashMap<Integer, HashSet<Integer>> overchargeInRange; //troop index -> healers indexs with overcharge in range
+    static HashMap<AuxMapLocation, HashSet<Integer>> overchargeMatrix; //[i][j] = nº healers amb overcharge a rang de i,j
+
 
     static void initTurn(){
         updateOverchargeMatrix();
-        updateOverchargeInRange();
     }
 
 
     private static void updateOverchargeMatrix(){
-        overchargeMatrix = new int[Mapa.W][Mapa.H];
+        overchargeMatrix = new HashMap<>();
         if (!Units.canOverCharge) return;
         for (int index: Units.healers){
             AuxUnit healer = Units.myUnits.get(index);
@@ -30,7 +29,7 @@ public class Overcharge {
                 int dy = Vision.My[range][i];
                 AuxMapLocation loc = new AuxMapLocation(x+dx, y+dy);
                 if (!loc.isOnMap()) continue;
-                overchargeMatrix[x+dx][y+dy]++;
+                overchargeMatrix.get(loc).add(index);
             }
             /*
             if (Utils.round < 225) return;
@@ -44,38 +43,16 @@ public class Overcharge {
         }
     }
 
-
-    private static void updateOverchargeInRange(){
-        overchargeInRange = new HashMap<>();
-        auxUpdateOverchargeInRange(Units.rangers);
-        auxUpdateOverchargeInRange(Units.mages);
-        auxUpdateOverchargeInRange(Units.knights);
-    }
-
-    private static void auxUpdateOverchargeInRange(HashSet<Integer> troops){
-        for (int troopIndex: troops){
-            AuxUnit troop = Units.myUnits.get(troopIndex);
-            HashSet<Integer> healerList = new HashSet<>();
-            if (troop.isDead() || troop.isInGarrison() || troop.isInSpace()) continue;
-            for (int healerIndex: Units.healers){
-                AuxUnit healer = Units.myUnits.get(healerIndex);
-                if (healer.isDead() || healer.isInGarrison() || healer.isInSpace()) continue;
-                if (!healer.canUseAbility()) continue;
-                int l = troop.getMapLocation().distanceSquaredTo(healer.getMapLocation());
-                if (l <= Const.overchargeRange) healerList.add(healerIndex);
-            }
-            overchargeInRange.put(troopIndex, healerList);
-        }
-    }
-
     //quants overcharges pot rebre la tropa a posicio loc
     static int overchargesAt(AuxMapLocation loc){
-        return overchargeMatrix[loc.x][loc.y];
+        HashSet<Integer> overcharges = overchargeMatrix.get(loc);
+        if (overcharges == null) return 0;
+        return overcharges.size();
     }
 
-    //gasta un overcharge amb la tropa
-    static void getOvercharged(int troopIndex, AuxMapLocation target){
-        HashSet<Integer> healerList = overchargeInRange.get(troopIndex);
+    //gasta un overcharge amb la tropa, del healer mes llunya al target
+    static void getOvercharged(AuxUnit troop, AuxMapLocation target){
+        HashSet<Integer> healerList = overchargeMatrix.get(troop.getMapLocation());
         int maxDist = -1;
         int maxIndex = -1;
         for (int healerIndex: healerList){
@@ -86,7 +63,6 @@ public class Overcharge {
                 maxIndex = healerIndex;
             }
         }
-        AuxUnit troop = Units.myUnits.get(troopIndex);
         AuxUnit healer = Units.myUnits.get(maxIndex);
         Wrapper.overcharge(healer, troop);
     }

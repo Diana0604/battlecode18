@@ -47,8 +47,8 @@ public class Knight {
             if (A == null) return B;
             if (B == null) return A;
 
-            if (A.isInSpace() || A.isInGarrison()) return B; //si matem un tio, el posem que esta a l'espai
-            if (B.isInSpace() || B.isInGarrison()) return A;
+            if (A.getHealth() <= 0 || A.isInSpace() || A.isInGarrison()) return B; //si matem un tio, el posem que esta a l'espai
+            if (B.getHealth() <= 0 || B.isInSpace() || B.isInGarrison()) return A;
 
             int hitsA = hitsLeft(A);
             int hitsB = hitsLeft(B);
@@ -151,8 +151,8 @@ public class Knight {
             if (A == null) return B;
             if (B == null) return A;
 
-            if (A.isInSpace() || A.isInGarrison()) return B; //si matem un tio, el posem que esta a l'espai
-            if (B.isInSpace() || B.isInGarrison()) return A;
+            if (A.getHealth() <= 0 || A.isInSpace() || A.isInGarrison()) return B; //si matem un tio, el posem que esta a l'espai
+            if (B.getHealth() <= 0 || B.isInSpace() || B.isInGarrison()) return A;
 
             int distA = myLoc.distanceBFSTo(A.getMapLocation());
             int distB = myLoc.distanceBFSTo(B.getMapLocation());

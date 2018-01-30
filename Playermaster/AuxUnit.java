@@ -141,6 +141,10 @@ public class AuxUnit {
         return health;
     }
 
+    public boolean isDead(){
+        return health <= 0;
+    }
+
     public boolean isMaxHealth() {
         try {
             return (getHealth() >= Units.getMaxHealth(getType())); //no se si funciona amb .equals()?

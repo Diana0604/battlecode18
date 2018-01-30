@@ -2,7 +2,6 @@
 
 import bc.UnitType;
 
-import javax.naming.AuthenticationNotSupportedException;
 import java.util.HashMap;
 
 public class Healer {
@@ -22,6 +21,8 @@ public class Healer {
     }
 
 
+    /*---------- HEAL -----------*/
+
     private int typePriority(UnitType t){
         switch(t){
             case Mage: return 5;
@@ -33,7 +34,7 @@ public class Healer {
         }
     }
 
-    private AuxUnit compareTargets(AuxUnit A, AuxUnit B){
+    private AuxUnit compareHealTargets(AuxUnit A, AuxUnit B){
         try {
             if (A == null) return B;
             if (B == null) return A;
@@ -64,7 +65,7 @@ public class Healer {
             AuxUnit healed = null;
             for (AuxUnit unit : v) {
                 if (unit.isStructure()) continue;
-                healed = compareTargets(healed, unit);
+                healed = compareHealTargets(healed, unit);
             }
             if (healed != null) {
                 Wrapper.heal(healer, healed);
@@ -74,36 +75,8 @@ public class Healer {
         }
     }
 
+    /*------------ GET TARGET ------------*/
 
-    AuxMapLocation getTarget(AuxUnit unit) {
-        try {
-            if (Rocket.callsToRocket.containsKey(unit.getID())) return Rocket.callsToRocket.get(unit.getID());
-            AuxMapLocation ans = getBestUnit(unit.getMapLocation());
-            if (ans != null) return ans;
-            return Explore.findExploreObjective(unit);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    private AuxMapLocation getBestUnit(AuxMapLocation loc){
-        try {
-            AuxUnit bestUnit = null;
-            for (int index: Units.robots){
-                AuxUnit u = Units.myUnits.get(index);
-                if (!u.frontline) continue;
-                if (!(u.getType() == UnitType.Ranger) && !(u.getType() == UnitType.Mage) && !(u.getType() == UnitType.Knight)) continue;
-                //if (bestUnit == null || loc.distanceBFSTo(bestUnit.getMapLocation()) > loc.distanceBFSTo(u.getMapLocation())) bestUnit = u;
-                bestUnit = compareUnits(loc, bestUnit, u);
-            }
-            if (bestUnit == null) return null;
-            return bestUnit.getMapLocation();
-        }catch(Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
 
     private AuxUnit compareUnits(AuxMapLocation myLoc, AuxUnit unit1, AuxUnit unit2){
         try {
@@ -129,5 +102,36 @@ public class Healer {
             e.printStackTrace();
         }
         return null;
+    }
+
+    private AuxMapLocation getBestMoveTarget(AuxMapLocation loc){
+        try {
+            AuxUnit bestUnit = null;
+            for (int index: Units.robots){
+                AuxUnit u = Units.myUnits.get(index);
+                if (!u.frontline) continue;
+                if (!(u.getType() == UnitType.Ranger) && !(u.getType() == UnitType.Mage) && !(u.getType() == UnitType.Knight)) continue;
+                //if (bestUnit == null || loc.distanceBFSTo(bestUnit.getMapLocation()) > loc.distanceBFSTo(u.getMapLocation())) bestUnit = u;
+                bestUnit = compareUnits(loc, bestUnit, u);
+            }
+            if (bestUnit == null) return null;
+            return bestUnit.getMapLocation();
+        }catch(Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+
+    AuxMapLocation getTarget(AuxUnit unit) {
+        try {
+            if (Rocket.callsToRocket.containsKey(unit.getID())) return Rocket.callsToRocket.get(unit.getID());
+            AuxMapLocation ans = getBestMoveTarget(unit.getMapLocation());
+            if (ans != null) return ans;
+            return Explore.findExploreObjective(unit);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

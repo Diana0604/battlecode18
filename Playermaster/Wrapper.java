@@ -407,7 +407,7 @@ public class Wrapper {
                     AuxUnit unit2 = newLoc.getUnit();
                     if (unit2 != null) {
                         unit2.getHealth();
-                        unit2.health -= (int) Units.getDamage(u1.getType());
+                        unit2.health -= Units.getDamage(u1.getType());
                         if (unit2.health <= 0){
                             Units.unitMap[unit2.getMapLocation().x][unit2.getMapLocation().y] = 0;
                             unit2.canMove = false;

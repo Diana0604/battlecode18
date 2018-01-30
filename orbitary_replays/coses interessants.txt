@@ -16,6 +16,7 @@ OK - Curen healers abans que rangers
 OK - knights posen la mateixa prioritat a atacar rangers i factories i van a pel que te menys vida	
 OK - knights persegueixen rangers, suden de factories (la clau es posarse a prop i que no puguin atacar)
 - MAXIMITZAR KILLS, NO DAMAGE
+- tope = 90 troops
 - onlyenoughroomforoneofus, mirar torn 83: per que el mag fa aoe a la nostra propia factory??
 - 				^" 			, algo que no fan es fer la 4a factory i per culpa d'aixo mai acaben de gastar la karbo. Crec que hem de tenir almenys 4 factories a partir del torn 100 o així
 
@@ -36,3 +37,9 @@ Altres coses:
 	- Fer la primera factory a la CC amb mes karbo
 	
 	
+	
+	
+- Build order:
+	- Si initdist <= 25, fer 5 knights
+	- anar fent 1ranger:1healer
+	- quan tinguem overcharge, fer mags, tq (ranger+mag) = healer

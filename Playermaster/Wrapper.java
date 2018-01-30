@@ -412,7 +412,7 @@ public class Wrapper {
                             Units.unitMap[unit2.getMapLocation().x][unit2.getMapLocation().y] = 0;
                             unit2.canMove = false;
                             unit2.canAttack = false;
-                            if (u2.myTeam) {
+                            if (unit2.myTeam) {
                                 unit2.inSpace = true;
                                 unit2.mloc = null;
                             }

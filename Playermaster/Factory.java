@@ -137,25 +137,35 @@ public class Factory {
 
             if (workers < 2) return UnitType.Worker; //potser millor si workers < 2-3?
 
-            /*
+            boolean mageDetected = false;
+            boolean shouldBuildKnight = false;
+            AuxUnit[] enemies = Wrapper.senseUnits(unit.getMapLocation(), 50, false);
+            for (int i = 0; i < enemies.length; ++i){
+                if (!shouldBuildKnight && enemies[i].getType() != UnitType.Worker && enemies[i].getMapLocation().distanceBFSTo(unit.getMapLocation()) <= 5) shouldBuildKnight = true;
+                if (enemies[i].getType() == UnitType.Mage) mageDetected = false;
+            }
+
+            if(shouldBuildKnight && !mageDetected) return UnitType.Knight;
+
             int minRushtroops = 0;
-            if (Build.initDistToEnemy <= 10) minRushtroops = 8;
-            else if (Build.initDistToEnemy <= 15) minRushtroops = 7;
-            else if (Build.initDistToEnemy <= 20 || (Mapa.H*Mapa.W) <= 500) minRushtroops = 6;
+            if (Build.initDistToEnemy <= 20) minRushtroops = 6;
+            else if (Build.initDistToEnemy <= 25) minRushtroops = 5;
 
             if (constructedMages + constructedKnights < minRushtroops){
                 if (constructedKnights > constructedMages) return UnitType.Mage;
                 return UnitType.Knight;
             }
-*/
-            int rushKnights = 0;
-            if (Build.initDistToEnemy <= 25) rushKnights = 5;
 
-            if (constructedKnights < rushKnights) return UnitType.Knight;
+            //int rushKnights = 0;
+            //if (Build.initDistToEnemy <= 25) rushKnights = 5;
+
+            //if (constructedKnights < rushKnights) return UnitType.Knight;
 
             //if (Danger.knightSeen && mages == 0) return UnitType.Mage;
 
             int totalTroops = knights + rangers + mages;
+
+            if (totalTroops < 4) return UnitType.Ranger;
 
             int roundsEnemyUnseen = Utils.round - Build.lastRoundEnemySeen;
             if ((Utils.round > 250 && roundsEnemyUnseen > 10) || Utils.round >= ROCKET_RUSH) {

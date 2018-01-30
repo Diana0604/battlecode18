@@ -373,18 +373,19 @@ public class Wrapper {
         }
     }
 
-    static void attack(AuxUnit u1, AuxUnit u2){
+    static void attack(AuxUnit troop, AuxUnit target){
         try {
-            if (u1.getType() != UnitType.Mage) {
-                u2.health -= Units.getDamage(u1.getType());
-                if (u2.health <= 0) Units.unitMap[u2.getX()][u2.getY()] = 0;
+            if (troop.getType() != UnitType.Mage) {
+                target.health -= Units.getDamage(troop.getType());
+                if (target.health <= 0) Units.unitMap[target.getX()][target.getY()] = 0;
             } else {
-                AuxMapLocation mloc = u2.getMapLocation();
+                System.out.println("    MAGE ATTACK IN " + target.getMapLocation());
+                AuxMapLocation mloc = target.getMapLocation();
                 for (int i = 0; i < 9; ++i) {
                     AuxMapLocation newLoc = mloc.add(i);
                     AuxUnit unit2 = newLoc.getUnit();
                     if (unit2 != null) {
-                        unit2.health -= Units.getDamage(u1.getType());
+                        unit2.health -= Units.getDamage(troop.getType());
                         if (unit2.health <= 0){
                             Units.unitMap[unit2.getMapLocation().x][unit2.getMapLocation().y] = 0;
                             unit2.canMove = false;
@@ -397,8 +398,8 @@ public class Wrapper {
                     }
                 }
             }
-            u1.canAttack = false;
-            GC.gc.attack(u1.getID(), u2.getID());
+            troop.canAttack = false;
+            GC.gc.attack(troop.getID(), target.getID());
         }catch(Exception e) {
             e.printStackTrace();
         }
@@ -469,6 +470,7 @@ public class Wrapper {
 
     static void overcharge(AuxUnit healer, AuxUnit troop){
         try {
+            System.out.println(Utils.round + " Overcharge " + healer.getMapLocation() + " can? " + healer.canUseAbility());
             healer.canUseAbility = false;
             troop.canMove = true;
             troop.canAttack = true;
@@ -532,8 +534,9 @@ public class Wrapper {
             int dy = Vision.My[range][i];
             AuxMapLocation newLoc = new AuxMapLocation(x+dx, y+dy);
             if (!newLoc.isOnMap()) continue;
-            if (add) Overcharge.overchargeMatrix.get(loc).add(index);
-            else Overcharge.overchargeMatrix.get(loc).remove(index);
+            Overcharge.overchargeMatrix.computeIfAbsent(newLoc.encode(), k -> new HashSet<>());
+            if (add) Overcharge.overchargeMatrix.get(newLoc.encode()).add(index);
+            else Overcharge.overchargeMatrix.get(newLoc.encode()).remove(index);
         }
     }
 

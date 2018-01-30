@@ -175,8 +175,10 @@ public class Factory {
             if (totalTroops < 4) return UnitType.Ranger;
 
             if (2*healers < totalTroops-1) return UnitType.Healer;
-            if (rangers < maxRangers) return UnitType.Ranger;
-            if (healers < 1.25 * rangers) return UnitType.Healer;
+            if (rangers < 10) return UnitType.Ranger;
+            //if (rangers < maxRangers) return UnitType.Ranger; provisional, per testejar mags xd
+            if (healers < 0.75 * rangers) return UnitType.Healer;
+            //if (healers < 1.25 * rangers) return UnitType.Healer;
             return UnitType.Mage;
         } catch(Exception e) {
             e.printStackTrace();

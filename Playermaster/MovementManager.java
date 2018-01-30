@@ -171,9 +171,14 @@ public class MovementManager {
         return null;
     }
 
-    double raw_dist(int dir){
+    double raw_dist(int dir, boolean forced){
         try {
-            return myLoc.add(dir).distanceBFSTo(unit.target);
+            double a = 0;
+            if (dir == 8){
+                if (forced) a += 0.001;
+                else a -= 0.001;
+            }
+            return a + myLoc.add(dir).distanceBFSTo(unit.target);
         }catch(Exception e) {
             e.printStackTrace();
         }
@@ -181,10 +186,10 @@ public class MovementManager {
     }
 
 
-    public int move(AuxUnit unit){
+    public int move(AuxUnit unit, boolean forced){
         try {
 
-            //System.out.println("Trying to move from " + unit.getX() + " " + unit.getY() + " to " + unit.target.x + " " + unit.target.y);
+            //if (forced) System.out.println("Trying to move from " + unit.getX() + " " + unit.getY() + " to " + unit.target.x + " " + unit.target.y);
 
             if (unit.visited) return 8;
             unit.visited = true;
@@ -208,14 +213,6 @@ public class MovementManager {
 
             long d = myLoc.distanceSquaredTo(unit.target);
             if (d == 0) return 8;
-            if (d <= 2) {
-                int dir = myLoc.dirBFSTo(unit.target);
-                if (Wrapper.canMove(unit, dir)){
-                    doMovement(unit, dir);
-                    return dir;
-                }
-                return 8;
-            }
 
 
             ArrayList<Integer> directions = new ArrayList<>();
@@ -224,7 +221,7 @@ public class MovementManager {
                 if (newLoc.isOnMap() && newLoc.isPassable() && (i == 8 || isSafe(i))) directions.add(i);
             }
 
-            directions.sort((a,b) -> raw_dist(a) < raw_dist(b) ? -1 : raw_dist(a) == raw_dist(b) ? 0 : 1);
+            directions.sort((a,b) -> raw_dist(a, forced) < raw_dist(b, forced) ? -1 : raw_dist(a, forced) == raw_dist(b, forced) ? 0 : 1);
 
             for (int i = 0; i < directions.size(); ++i){
 
@@ -238,7 +235,7 @@ public class MovementManager {
                 AuxMapLocation newLoc = unit.getMapLocation().add(dirBFS);
                 AuxUnit u = newLoc.getUnit(true);
                 if (u != null){
-                    if (u.getType() == UnitType.Factory){
+                    if (u.getType() == UnitType.Factory && d > 2){
                         if (Wrapper.canLoad(u, unit)){
                             Wrapper.load(u, unit);
                             getData(unit).soft_reset(newLoc);
@@ -246,7 +243,7 @@ public class MovementManager {
                         }
                     }
                     if (u.getType() != UnitType.Factory && u.getType() != UnitType.Rocket && u.canMove()) {
-                        if (move(u) != 8) {
+                        if (move(u, true) != 8) {
                             doMovement(unit, dirBFS);
                             return dirBFS;
                         }
@@ -254,6 +251,8 @@ public class MovementManager {
                 }
 
             }
+
+            if (d <= 2) return 8;
 
             myLoc = unit.getMapLocation();
 

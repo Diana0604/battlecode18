@@ -61,8 +61,8 @@ public class WorkerUtil {
             workerActions[m.x][m.y] = val;
             for (int i = 0; i < 9; ++i){
                 AuxMapLocation newLoc = m.add(i);
-                if (newLoc.isOnMap() && newLoc.isPassable() && !newLoc.isOccupiedByStructure()){
-                    workerActionsExpanded[newLoc.x][newLoc.y] += factor*val;
+                if (newLoc.isOnMap() && newLoc.isPassable()){
+                    if((factor == 1 && i != 8 && !newLoc.isOccupiedByStructure()) || i == 8) workerActionsExpanded[newLoc.x][newLoc.y] += factor*val;
                 }
             }
         }catch(Exception e){

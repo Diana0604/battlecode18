@@ -194,7 +194,7 @@ public class Worker {
             if (minDifIndex >= 0) {
                 AuxUnit structure = adjUnits[minDifIndex];
                 Wrapper.build(unit, structure);
-                unit.canMove = false; // ho he mogut perque quan un worker acaba un rocket tampoc es mogui (aixi se l'emporta a mars)
+                unit.target = structure.getMapLocation(); // ho he mogut perque quan un worker acaba un rocket tampoc es mogui (aixi se l'emporta a mars)
                 if (structure.getHealth() < Units.getMaxHealth(structure.getType())){
                     targets.put(unit.getID(), 0.0);
                 }
@@ -204,7 +204,7 @@ public class Worker {
                 AuxUnit structure = adjUnits[minHPIndex];
                 Wrapper.repair(unit, adjUnits[minHPIndex]);
                 if (structure.getHealth() < Units.getMaxHealth(structure.getType())){
-                    unit.canMove = false;
+                    unit.target = structure.getMapLocation();
                     targets.put(unit.getID(), 0.0);
                 }
                 return true;
@@ -266,7 +266,7 @@ public class Worker {
             }
             Wrapper.placeBlueprint(worker, UnitType.Factory, dirBuild);
             Units.unitTypeCount.put(UnitType.Factory, Units.unitTypeCount.get(UnitType.Factory)+1);
-            worker.canMove = false; //no volem que marxi sense construir
+            worker.target = worker.getMapLocation().add(dirBuild); //no volem que marxi sense construir
             targets.put(worker.getID(), 0.0);
             return;
         }
@@ -355,7 +355,7 @@ public class Worker {
             //hem trobat un worker nostre, li fem construir el rocket!
             int dirBuild = workerLoc.dirBFSTo(loc);
             AuxUnit unitToKill = loc.getUnit();
-            if (unitToKill != null && MovementManager.getInstance().move(unitToKill) == 8)
+            if (unitToKill != null && MovementManager.getInstance().move(unitToKill, false) == 8)
                 Wrapper.disintegrate(unitToKill);
 
             if (!Wrapper.canPlaceBlueprint(worker,UnitType.Rocket, dirBuild)){
@@ -497,6 +497,7 @@ public class Worker {
                 WorkerUtil.workerCont++;
                 //targets.put(unit.getID(), (double)unit.getMapLocation().distanceBFSTo(targetLoc));
                 targets.put(unit.getID(), priority);
+                //System.out.println("I got target " + targetLoc.x + " " + targetLoc.y + " " + unit.getID());
                 return targetLoc;
             }
 

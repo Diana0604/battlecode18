@@ -62,7 +62,7 @@ public class WorkerUtil {
             for (int i = 0; i < 9; ++i){
                 AuxMapLocation newLoc = m.add(i);
                 if (newLoc.isOnMap() && newLoc.isPassable()){
-                    workerActionsExpanded[newLoc.x][newLoc.y] += factor*val;
+                    if(factor == 1 || i == 8) workerActionsExpanded[newLoc.x][newLoc.y] += factor*val;
                 }
             }
         }catch(Exception e){

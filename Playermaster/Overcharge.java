@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 
 import bc.UnitType;
 
@@ -15,12 +16,17 @@ public class Overcharge {
         updateOverchargeInRange();
     }
 
+    static int overchargesAt(AuxMapLocation loc){
+        return overchargeMatrix[loc.x][loc.y];
+    }
+
     private static void updateOverchargeMatrix(){
         overchargeMatrix = new int[Mapa.W][Mapa.H];
-        if (Research.researchInfo.getLevel(UnitType.Healer) < 3) return;
+        if (!Units.canOverCharge) return;
         for (int index: Units.healers){
             AuxUnit healer = Units.myUnits.get(index);
             if (!healer.canUseAbility()) continue;
+            if (healer.isInGarrison() || healer.isInSpace()) continue;
             int x = healer.getX();
             int y = healer.getY();
             int range = Const.overchargeRange;
@@ -31,22 +37,37 @@ public class Overcharge {
                 if (!loc.isOnMap()) continue;
                 overchargeMatrix[x+dx][y+dy]++;
             }
+            /*
+            if (Utils.round < 225) return;
+            System.out.println("OVERCHARGE MATRIX ROUND " + Utils.round + " AFTER HEALER " + healer.getMapLocation());
+            for (int i = 0; i < Mapa.W; i++){
+                for (int j = 0; j < Mapa.H; j++){
+                    System.out.print(overchargeMatrix[i][j] + " ");
+                }
+                System.out.println("");
+            }*/
         }
     }
 
     private static void updateOverchargeInRange(){
         overchargeInRange = new HashMap<>();
-        for (int rangerIndex: Units.rangers){
-            AuxUnit ranger = Units.myUnits.get(rangerIndex);
-            overchargeInRange.put(rangerIndex, new HashSet<>());
-            if (ranger.isInGarrison() || ranger.isInSpace()) continue;
+        auxUpdateOverchargeInRange(Units.rangers);
+        auxUpdateOverchargeInRange(Units.mages);
+    }
+
+    private static void auxUpdateOverchargeInRange(HashSet<Integer> troops){
+        for (int troopIndex: troops){
+            AuxUnit troop = Units.myUnits.get(troopIndex);
+            HashSet<Integer> healerList = new HashSet<>();
+            if (troop.isInGarrison() || troop.isInSpace()) continue;
             for (int healerIndex: Units.healers){
                 AuxUnit healer = Units.myUnits.get(healerIndex);
                 if (healer.isInGarrison() || healer.isInSpace()) continue;
                 if (!healer.canUseAbility()) continue;
-                int l = ranger.getMapLocation().distanceSquaredTo(healer.getMapLocation());
-                if (l <= Const.overchargeRange) overchargeInRange.get(rangerIndex).add(healerIndex);
+                int l = troop.getMapLocation().distanceSquaredTo(healer.getMapLocation());
+                if (l <= Const.overchargeRange) healerList.add(healerIndex);
             }
+            overchargeInRange.put(troopIndex, healerList);
         }
     }
 
@@ -75,6 +96,15 @@ public class Overcharge {
         }
     }
 
+    static void getOvercharged(int troopIndex){
+        HashSet<Integer> healerList = overchargeInRange.get(troopIndex);
+        Iterator<Integer> it = healerList.iterator();
+        int healerIndex = it.next();
+        AuxUnit troop = Units.myUnits.get(troopIndex);
+        AuxUnit healer = Units.myUnits.get(healerIndex);
+        Wrapper.overcharge(healer, troop);
+    }
+/*
     static boolean getOvercharged(int i){
         try {
             if (!Units.canOverCharge || Utils.round % 10 != 0) return false;
@@ -92,7 +122,7 @@ public class Overcharge {
         return false;
     }
 
-
+*/
     static boolean canGetOvercharged(int i){
         try {
             //if (!Units.canOverCharge || Utils.round % 10 != 0) return false;

@@ -398,7 +398,7 @@ public class Wrapper {
         try {
             if (u1.getType() != UnitType.Mage) {
                 u2.getHealth();
-                u2.health -= (int) Units.getDamage(u1.getType());
+                u2.health -= Units.getDamage(u1.getType());
                 if (u2.health <= 0) Units.unitMap[u2.getX()][u2.getY()] = 0;
             } else {
                 AuxMapLocation mloc = u2.getMapLocation();

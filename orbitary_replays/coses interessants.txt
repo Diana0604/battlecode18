@@ -1,13 +1,13 @@
 orbitary:
 
-- Fan factory quan tenen 200g sempre! (com a minim fins a tenir-ne 5)
+OK - Fan factory quan tenen 200g sempre! (com a minim fins a tenir-ne 5)
 - No van a pel target mes proper, sino que van a la casella mes propera que pot disparar al target (van per darrere parets i tal)
 - Trien el target segons unit type (ranger te mes prioritat que worker, etc)
 - Si una unit esta atacant per un lloc no canvia de target per anarsen lluny, es queda fins que ja no veu enemics
 - Els healers s'allunyen del tio al que estan curant tant com poden (mentre estan a rang) -> crec que nomes s'allunyen si poden ser atacats per un ranger fora del seu rang de visio
 - Els rangers fugen quan tenen <100hp i es posen en modo fugir fins que estan max hp (rs-latch) -> no estic segur que facin aixo
 - Curen healers abans que rangers
-- Fan overcharge healer + ranger si poden matar un target (suposo que no gasten aixo per matar workers
+- Fan overcharge healer + ranger si poden matar un target (suposo que no gasten aixo per matar workers)
 - els seus healers mai es posen adjacents a un altre healer (es veu super clar a pipes) -> excepte quan van cap a un coet?
 - els workers fugen dels coets per no palmar
 - A partir del torn 650 totes les tropes reben una senyal i van cap al mig per fugir, algo aixi (mirar la partida de pipes)

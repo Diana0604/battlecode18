@@ -75,9 +75,10 @@ public class Knight {
                 bestVictim = getBestAttackTarget(unit, bestVictim, u);
             }
             if (bestVictim == null) return;
-            if (!unit.canAttack()){
+            /*if (!unit.canAttack()){
+            //TODO: REFER AIXO
                 if (!Overcharge.getOvercharged(posAtArray)) return;
-            }
+            }*/
             Wrapper.attack(unit, bestVictim);
             if (Overcharge.canGetOvercharged(posAtArray)) attack(unit);
         }catch(Exception e) {

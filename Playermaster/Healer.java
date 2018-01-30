@@ -127,8 +127,10 @@ public class Healer {
         try {
             if (Rocket.callsToRocket.containsKey(unit.getID())) return Rocket.callsToRocket.get(unit.getID());
             AuxMapLocation ans = getBestMoveTarget(unit.getMapLocation());
-            if (ans != null) return ans;
-            return Explore.findExploreObjective(unit);
+            if (ans == null) return Explore.findExploreObjective(unit);
+            int dist = unit.getMapLocation().distanceSquaredTo(ans);
+            if (dist > Const.healerHealRange) return ans;
+            return null;
         } catch (Exception e) {
             e.printStackTrace();
             return null;

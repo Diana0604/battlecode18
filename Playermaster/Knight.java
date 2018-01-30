@@ -47,13 +47,8 @@ public class Knight {
             if (A == null) return B;
             if (B == null) return A;
 
-<<<<<<< HEAD
-            if (A.getHealth() <= 0) return B; //si matem un tio, el posem que esta a l'espai
-            if (B.getHealth() <= 0) return A;
-=======
-            if (A.isDead() || A.isInSpace() || A.isInGarrison()) return B; //si matem un tio, el posem que esta a l'espai
-            if (B.isDead() || B.isInSpace() || B.isInGarrison()) return A;
->>>>>>> 4aa0606a1ca07651f9633c31e84f24cbbee123a9
+            if (A.isDead()) return B; //si matem un tio, el posem que esta a l'espai
+            if (B.isDead()) return A;
 
             int hitsA = hitsLeft(A);
             int hitsB = hitsLeft(B);

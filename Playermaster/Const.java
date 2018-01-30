@@ -31,6 +31,7 @@ public class Const {
     final static int rangerAttackRange = 50;
     final static int knightAttackRange = 2;
     final static int mageAttackRange = 30;
+    final static int healerHealRange = 30;
 
     final static int rangerSafeAttackRange = 50;
     final static int knightSafeAttackRange = 8;

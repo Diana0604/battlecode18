@@ -96,7 +96,7 @@ public class Explore {
     static void sendLocationsEnemyRockets() {
         try {
             for (AuxUnit unit:Units.enemies) {
-                if (unit.getType() == UnitType.Rocket && !unit.isInSpace()) {
+                if (unit.getType() == UnitType.Rocket && !unit.isInSpace() && !unit.isDead()) {
                     if (Communication.getInstance().canSendMessage()) {
                         Communication.getInstance().sendRocketLocation(unit.getMapLocation());
                     }

@@ -52,7 +52,7 @@ public class Worker {
     private static boolean tryReplicate(AuxUnit unit){
         try {
             if (!unit.canUseAbility()) return false;
-            if (unit.isInGarrison() || unit.isInSpace()) return false;
+            if (unit.isDead() || unit.isInGarrison() || unit.isInSpace()) return false;
             if (shouldReplicate(unit)) {
                 int dir = 0;
                 if (unit.target != null){
@@ -165,11 +165,11 @@ public class Worker {
 
 
     //Intenta reparar o construir una structure adjacent
-    static boolean tryBuildAndRepair(AuxUnit unit){
+    private static boolean tryBuildAndRepair(AuxUnit unit){
         try {
             if (Mapa.onMars()) return false;
             if (!unit.canAttack()) return false;
-            if (unit.isInGarrison() || unit.isInSpace()) return false;
+            if (unit.isDead() || unit.isInGarrison() || unit.isInSpace()) return false;
             int minDif = 1000;
             int minDifIndex = -1;
             int minHP = 1000;
@@ -256,7 +256,7 @@ public class Worker {
             AuxUnit worker = workerLoc.getUnit();
             if (worker == null) continue;
             if (!worker.myTeam || worker.type != UnitType.Worker) continue;
-            if (worker.isInGarrison() || worker.isInSpace()) continue;
+            if (worker.isDead() || worker.isInGarrison() || worker.isInSpace()) continue;
             if (!worker.canAttack()) continue;
             //hem trobat un worker nostre, li fem construir la factory!
             int dirBuild = workerLoc.dirBFSTo(loc);
@@ -278,7 +278,7 @@ public class Worker {
         FactoryData bestFactory = null;
         for (int index: Units.workers) {
             AuxUnit worker = Units.myUnits.get(index);
-            if (worker.isInGarrison() || worker.isInSpace()) continue;
+            if (worker.isDead() || worker.isInGarrison() || worker.isInSpace()) continue;
             if (!worker.canAttack()) continue;
             AuxMapLocation workerLoc = worker.getMapLocation();
             for (int i = 0; i < 8; ++i) {
@@ -350,7 +350,7 @@ public class Worker {
             AuxUnit worker = workerLoc.getUnit();
             if (worker == null) continue;
             if (!worker.myTeam || worker.type != UnitType.Worker) continue;
-            if (worker.isInGarrison() || worker.isInSpace()) continue;
+            if (worker.isDead() || worker.isInGarrison() || worker.isInSpace()) continue;
             if (!worker.canAttack()) continue;
             //hem trobat un worker nostre, li fem construir el rocket!
             int dirBuild = workerLoc.dirBFSTo(loc);
@@ -375,7 +375,7 @@ public class Worker {
         int bestScore = -100;
         for (int index: Units.workers) {
             AuxUnit worker = Units.myUnits.get(index);
-            if (worker.isInGarrison() || worker.isInSpace()) continue;
+            if (worker.isDead() || worker.isInGarrison() || worker.isInSpace()) continue;
             if (!worker.canAttack()) continue;
             Danger.computeDanger(worker);
             for (int i = 0; i < 8; ++i) {
@@ -440,8 +440,7 @@ public class Worker {
     //minen una mina adjacent
     private static boolean tryMine(AuxUnit unit){
         try {
-            if (unit.isInGarrison()) return false;
-            if (unit.isInSpace()) return false;
+            if (unit.isDead() || unit.isInGarrison() || unit.isInSpace()) return false;
             if (!unit.canAttack()) return false;
             int dir = WorkerUtil.getMostKarboLocation(unit.getMapLocation());
             AuxMapLocation newLoc = unit.getMapLocation().add(dir);
@@ -520,7 +519,7 @@ public class Worker {
 
             for (int i = 0; i < Units.myUnits.size(); ++i){
                 AuxUnit unit = Units.myUnits.get(i);
-                if (unit.isInSpace() || unit.isInGarrison()) continue;
+                if (unit.isDead() || unit.isInSpace() || unit.isInGarrison()) continue;
                 AuxMapLocation loc = Units.myUnits.get(i).getMapLocation();
                 double dang = loc.getDanger();
                 if (!loc.isDangerousForWorker() && dang > mostDanger){

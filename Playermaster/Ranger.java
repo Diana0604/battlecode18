@@ -1,7 +1,7 @@
+import bc.Team;
 import bc.UnitType;
 
 import java.util.HashMap;
-import java.util.HashSet;
 
 public class Ranger {
     private static Ranger instance = null;
@@ -24,7 +24,7 @@ public class Ranger {
 
     /*------------------ ATTACK -----------------*/
 
-    private int typePriority(UnitType t){
+    int typePriority(UnitType t){
         switch(t){
             case Mage: return 6;
             case Knight: return 5;
@@ -86,12 +86,12 @@ public class Ranger {
         return bestVictim;
     }
 
-    void attack(AuxUnit unit) {
+    void attack(AuxUnit ranger) {
         try {
             /*
-            System.out.println("ROUND " + Utils.round + " OVERCHARGE INFO FOR " + unit.getID() + ", ON " + unit.getMapLocation());
-            System.out.println("    Healers with overcharge in range: " + Overcharge.overchargeMatrix[unit.getX()][unit.getY()]);
-            HashSet<Integer> healers = Overcharge.overchargeInRange.get(Units.myUnits.indexOf(unit));
+            System.out.println("ROUND " + Utils.round + " OVERCHARGE INFO FOR " + ranger.getID() + ", ON " + ranger.getMapLocation());
+            System.out.println("    Healers with overcharge in range: " + Overcharge.overchargeMatrix[ranger.getX()][ranger.getY()]);
+            HashSet<Integer> healers = Overcharge.overchargeInRange.get(Units.myUnits.indexOf(ranger));
             for (int index: healers){
                 AuxUnit healer = Units.myUnits.get(index);
                 System.out.println("        " + healer.getID() + " loc " + healer.getMapLocation());
@@ -99,32 +99,31 @@ public class Ranger {
 */
             //if (Units.canOverCharge && Utils.round%10 == 9) return;
 
-            int posAtArray = Units.allUnits.get(unit.getID());
-            int attacks = Overcharge.overchargesAt(unit.getMapLocation());
-            if (unit.canAttack()) attacks++;
+            int attacks = Overcharge.overchargesAt(ranger.getMapLocation());
+            if (ranger.canAttack()) attacks++;
             if (attacks == 0) return;
 
-            AuxUnit targetUnit = pickAttackTarget(unit, attacks);
+            AuxUnit targetUnit = pickAttackTarget(ranger, attacks);
             if (targetUnit == null) return;
             int attacksToKill = hitsLeft(targetUnit);
-            //System.out.println(Utils.round + " ranger " + unit.getID() + " loc " + unit.getMapLocation() + " has target " + targetUnit.getMapLocation());
+            //System.out.println(Utils.round + " ranger " + ranger.getID() + " loc " + ranger.getMapLocation() + " has target " + targetUnit.getMapLocation());
             //System.out.println("    Needs " + attacksToKill + " attacks, has " + attacks);
 
             if (attacks < attacksToKill){
                 //cant kill, estalvia overcharge
-                if (Wrapper.canAttack(unit, targetUnit)) Wrapper.attack(unit,targetUnit);
+                if (Wrapper.canAttack(ranger, targetUnit)) Wrapper.attack(ranger,targetUnit);
             }else{
                 while (attacksToKill > 0){
                     //System.out.println("    CAN KILL " + attacksToKill);
-                    if (Wrapper.canAttack(unit, targetUnit)) {
-                        Wrapper.attack(unit,targetUnit);
+                    if (Wrapper.canAttack(ranger, targetUnit)) {
+                        Wrapper.attack(ranger,targetUnit);
                         attacksToKill--;
                         attacks--;
                     }else{
-                        Overcharge.getOvercharged(posAtArray, targetUnit.getMapLocation());
+                        Overcharge.getOvercharged(ranger, targetUnit.getMapLocation());
                     }
                 }
-                if (attacks > 0) attack(unit); //si mata el target i li queden atacs mira que no pugui matar mes
+                if (attacks > 0) attack(ranger); //si mata el target i li queden atacs mira que no pugui matar mes
             }
 
         }catch(Exception e) {
@@ -181,6 +180,36 @@ public class Ranger {
         }
     }
 
+    private AuxMapLocation getBestPositionToShoot(AuxMapLocation myLoc) {
+        try {
+            int D = 10;
+            int bestScore = 0;
+            AuxMapLocation target = null;
+            for (int i = 0; i < Vision.Mx[D].length; ++i) {
+                AuxMapLocation newLoc = myLoc.add(new AuxMapLocation(Vision.Mx[D][i], Vision.My[D][i]));
+                if (newLoc.isOnMap()) {
+                    if (Target.rangerTargets[myLoc.x][myLoc.y] == 0) {
+                        if (Target.rangerTargets[newLoc.x][newLoc.y] > 0) {
+                            target = newLoc;
+                            break;
+                        }
+                    }
+                    else {
+                        // todo: provar si traient aixo millora
+                        if (Target.rangerTargets[newLoc.x][newLoc.y] > bestScore) {
+                            bestScore = Target.rangerTargets[newLoc.x][newLoc.y];
+                            target = newLoc;
+                        }
+                    }
+                }
+            }
+            return target;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
 
     AuxMapLocation getTarget(AuxUnit unit){
         try {
@@ -191,7 +220,10 @@ public class Ranger {
                 AuxMapLocation ans = getBestHealer(unit.getMapLocation());
                 if (ans != null) return ans;
             }
-            AuxMapLocation ans = getBestEnemy(unit.getMapLocation());
+            AuxMapLocation ans;
+            ans = getBestPositionToShoot(unit.getMapLocation());
+            if (ans != null) return ans;
+            ans = getBestEnemy(unit.getMapLocation());
             if (ans != null) return ans;
             return Explore.findExploreObjective(unit);
         }catch(Exception e) {

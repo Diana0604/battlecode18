@@ -8,8 +8,8 @@ import java.util.HashMap;
  */
 public class WorkerUtil {
 
-    static int[][] workerActions;
-    static int[][] workerActionsExpanded;
+    static int[][] workerActions; //(i,j) = nº de worker actions a (i,j)
+    static int[][] workerActionsExpanded; //nº de worker actions al 3x3 de (i,j)
     static int approxMapValue = 0;
     static int min_nb_workers = 2;
     static int min_nb_workers1 = 2;
@@ -20,7 +20,7 @@ public class WorkerUtil {
     static final int workerRadius = 16;
 
     static int[][] workersDeployed;
-    static ArrayList<AuxMapLocation> importantLocations;
+    static ArrayList<AuxMapLocation> importantLocations; //totes les locations amb workActions adjacents
 
     static AuxMapLocation bestFactoryLocation;
 
@@ -62,7 +62,7 @@ public class WorkerUtil {
             for (int i = 0; i < 9; ++i){
                 AuxMapLocation newLoc = m.add(i);
                 if (newLoc.isOnMap() && newLoc.isPassable()){
-                    if(factor == 1 || i == 8) workerActionsExpanded[newLoc.x][newLoc.y] += factor*val;
+                    if((factor == 1 && i != 8 && !newLoc.isOccupiedByStructure()) || i == 8) workerActionsExpanded[newLoc.x][newLoc.y] += factor*val;
                 }
             }
         }catch(Exception e){
@@ -87,13 +87,12 @@ public class WorkerUtil {
                         putAction(currentLoc, (Karbonite.karboMap[i][j] + (Units.harvestingPower - 1)) / Units.harvestingPower, 1);
                         continue;
                     }
-                    if (unit.getType() == UnitType.Factory || unit.getType() == UnitType.Rocket) {
+                    if (unit.isStructure()) {
                         int dif = Units.getMaxHealth(unit.getType()) - unit.getHealth();
                         if (dif > 0) {
                             int factor = 1;
                             if (Danger.enemySeen) factor = 2;
                             if (!unit.isBuilt()) putAction(currentLoc, (dif + Units.buildingPower - 1) / Units.buildingPower, factor);
-
                             else putAction(currentLoc, (dif + Units.repairingPower - 1) / Units.repairingPower, 2);
                         }
                     } else {
@@ -110,7 +109,7 @@ public class WorkerUtil {
 
             for (int i = 0; i < Mapa.W; ++i) {
                 for (int j = 0; j < Mapa.H; ++j) {
-                    if (workerActions[i][j] > 0) importantLocations.add(new AuxMapLocation(i,j));
+                    if (workerActionsExpanded[i][j] > 0) importantLocations.add(new AuxMapLocation(i,j));
                 }
             }
             //System.out.println(importantLocations.size());
@@ -137,11 +136,12 @@ public class WorkerUtil {
         return false;
     }
 
-    //a distancia <= 16 d'una factory
+    //a distancia <= 32 d'una factory
     private static boolean isCloseToFactory(AuxMapLocation loc){
         try {
             AuxUnit[] closeUnits = Wrapper.senseUnits(loc, 32, true);
             for (int i = 0; i < closeUnits.length; ++i){
+                if (loc.distanceSquaredTo(closeUnits[i].getMapLocation()) <= 8) continue; //no volem factories contigues
                 if (closeUnits[i].getType() == UnitType.Factory) return true;
             }
             return false;

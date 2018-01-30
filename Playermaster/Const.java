@@ -71,4 +71,5 @@ public class Const {
     final static int factoryVisionRange = 2;
 
     final static int overchargeRange = 30;
+    final static int overchargeExtendedRange = 45;
 }

@@ -19,7 +19,7 @@ class UnitManager{
     static void selectTargets(){
         try {
             for (AuxUnit unit: Units.myUnits) {
-                if (unit.isInSpace()) continue;
+                if (unit.isDead() || unit.isInSpace()) continue;
                 //System.err.println("playing unit " + GC.myUnits[i].getType());
                 //if (unit.isInGarrison()) continue;
                 if (unit.getType() == UnitType.Worker) {
@@ -48,7 +48,7 @@ class UnitManager{
 
     static void move(AuxUnit unit){
         try {
-            if (unit.isInGarrison() || unit.isInSpace()) return;
+            if (unit.isDead() || unit.isInGarrison() || unit.isInSpace()) return;
             if (unit.getType() == UnitType.Factory || unit.getType() == UnitType.Rocket) {
                 return;
             }
@@ -76,7 +76,7 @@ class UnitManager{
             AuxUnit[] units = Units.myUnits.toArray(new AuxUnit[Units.myUnits.size()]);
             for (AuxUnit unit : units) {
                 //System.err.println("playing unit " + GC.myUnits[i].getType());
-                if (unit.isInGarrison() || unit.isInSpace()) continue;
+                if (unit.isDead() || unit.isInGarrison() || unit.isInSpace()) continue;
                 if (unit.getType() == UnitType.Factory) {
                     Factory.getInstance().play(unit);
                 }
@@ -108,7 +108,7 @@ class UnitManager{
             AuxUnit[] units = Units.myUnits.toArray(new AuxUnit[Units.myUnits.size()]);
             for (AuxUnit unit : units) {
                 //System.err.println("playing unit " + GC.myUnits[i].getType());
-                if (unit.isInGarrison() || unit.isInSpace()) continue;
+                if (unit.isDead() || unit.isInGarrison() || unit.isInSpace()) continue;
                 if (unit.getType() == UnitType.Factory) {
                     Factory.getInstance().play(unit);
                 }

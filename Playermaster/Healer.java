@@ -67,7 +67,7 @@ public class Healer {
                 if (unit.isStructure()) continue;
                 healed = compareHealTargets(healed, unit);
             }
-            if (healed != null) {
+            if (healed != null && !healed.isMaxHealth()) {
                 Wrapper.heal(healer, healed);
             }
         }catch(Exception e) {
@@ -129,7 +129,7 @@ public class Healer {
             AuxMapLocation ans = getBestMoveTarget(unit.getMapLocation());
             if (ans == null) return Explore.findExploreObjective(unit);
             int dist = unit.getMapLocation().distanceSquaredTo(ans);
-            if (dist > Const.healerHealRange) return ans;
+            if (dist > 16) return ans;
             return null;
         } catch (Exception e) {
             e.printStackTrace();

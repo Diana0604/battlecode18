@@ -27,9 +27,9 @@ public class Knight {
         switch(t){
             case Mage: return 6;
             case Knight: return 5;
-            case Factory: return 3;
-            case Healer: return 5;
-            case Ranger: return 4;
+            case Factory: return 5;
+            case Healer: return 4;
+            case Ranger: return 3;
             case Worker: return 2;
             case Rocket: return 1;
             default: return 0;
@@ -47,13 +47,8 @@ public class Knight {
             if (A == null) return B;
             if (B == null) return A;
 
-<<<<<<< HEAD
-            if (A.getHealth() <= 0) return B; //si matem un tio, el posem que esta a l'espai
-            if (B.getHealth() <= 0) return A;
-=======
             if (A.isDead() || A.isInSpace() || A.isInGarrison()) return B; //si matem un tio, el posem que esta a l'espai
             if (B.isDead() || B.isInSpace() || B.isInGarrison()) return A;
->>>>>>> 4aa0606a1ca07651f9633c31e84f24cbbee123a9
 
             int hitsA = hitsLeft(A);
             int hitsB = hitsLeft(B);
@@ -84,10 +79,8 @@ public class Knight {
         AuxUnit[] enemiesInRange = Wrapper.senseUnits(myLoc.x, myLoc.y, Units.getAttackRange(knight.getType()), false);
         for (AuxUnit u : enemiesInRange) {
             if (!Wrapper.canAttack(knight, u)) continue;
-            //if (u.getType() == UnitType.Knight) System.out.println("Can attack " + u.getX() + " " + u.getY() + " " + knight.getID());
             bestVictim = compareAttackTargets(bestVictim, u, attacks);
         }
-        //if (bestVictim != null) System.out.println("Attacking " + bestVictim.getX() + " " + bestVictim.getY()+ " " + knight.getID());
         return bestVictim;
     }
 

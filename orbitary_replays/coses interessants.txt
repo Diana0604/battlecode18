@@ -1,21 +1,22 @@
 orbitary:
 
 OK - Fan factory quan tenen 200g sempre! (com a minim fins a tenir-ne 5)
+OK - Fan overcharge healer + ranger si poden matar un target (suposo que no gasten aixo per matar workers)
+
 - No van a pel target mes proper, sino que van a la casella mes propera que pot disparar al target (van per darrere parets i tal)
 - Trien el target segons unit type (ranger te mes prioritat que worker, etc)
 - Si una unit esta atacant per un lloc no canvia de target per anarsen lluny, es queda fins que ja no veu enemics
 - Els healers s'allunyen del tio al que estan curant tant com poden (mentre estan a rang) -> crec que nomes s'allunyen si poden ser atacats per un ranger fora del seu rang de visio
 - Els rangers fugen quan tenen <100hp i es posen en modo fugir fins que estan max hp (rs-latch) -> no estic segur que facin aixo
-- Curen healers abans que rangers
-OK - Fan overcharge healer + ranger si poden matar un target (suposo que no gasten aixo per matar workers)
+OK - Curen healers abans que rangers
 - els seus healers mai es posen adjacents a un altre healer (es veu super clar a pipes) -> excepte quan van cap a un coet?
 - els workers fugen dels coets per no palmar
 - A partir del torn 650 totes les tropes reben una senyal i van cap al mig per fugir, algo aixi (mirar la partida de pipes)
 - Per construir factory criden als 7 workers mes propers, amb rang maxim (entre 29 i 37, segurament sigui 30)
-- knights posen la mateixa prioritat a atacar rangers i factories i van a pel que te menys vida	
-- knights persegueixen rangers, suden de factories (la clau es posarse a prop i que no puguin atacar)
-- healers curen a si mateixos
+OK - knights posen la mateixa prioritat a atacar rangers i factories i van a pel que te menys vida	
+OK - knights persegueixen rangers, suden de factories (la clau es posarse a prop i que no puguin atacar)
 - MAXIMITZAR KILLS, NO DAMAGE
+- tope = 90 troops
 - onlyenoughroomforoneofus, mirar torn 83: per que el mag fa aoe a la nostra propia factory??
 - 				^" 			, algo que no fan es fer la 4a factory i per culpa d'aixo mai acaben de gastar la karbo. Crec que hem de tenir almenys 4 factories a partir del torn 100 o així
 
@@ -31,3 +32,14 @@ no entenc per que fan tantes unitats iguals de cop...
 TODO:
 	- retarlos al fools gold per veure que fan quan tenen molta karbo (quantes factories fan?)
 	- knights prioritzen rangers o healers?
+	
+Altres coses:
+	- Fer la primera factory a la CC amb mes karbo
+	
+	
+	
+	
+- Build order:
+	- Si initdist <= 25, fer 5 knights
+	- anar fent 1ranger:1healer
+	- quan tinguem overcharge, fer mags, tq (ranger+mag) = healer

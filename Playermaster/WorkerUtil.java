@@ -98,9 +98,9 @@ public class WorkerUtil {
                         }
                     } else {
                         if (unit.getType() == UnitType.Worker){
-                            for (int k = 0; k < Vision.Mx[workerRadius].length; ++k){
-                                AuxMapLocation newLoc = currentLoc.add(new AuxMapLocation(Vision.Mx[workerRadius][k], Vision.My[workerRadius][k]));
-                                if (newLoc.isOnMap()) ++workerAreas[newLoc.x][newLoc.y];
+                            for (int k = 0; k < Vision.Mx[2*workerRadius].length; ++k){
+                                AuxMapLocation newLoc = currentLoc.add(new AuxMapLocation(Vision.Mx[2*workerRadius][k], Vision.My[2*workerRadius][k]));
+                                if (newLoc.isOnMap() && newLoc.distanceBFSTo(currentLoc) <= workerRadius) ++workerAreas[newLoc.x][newLoc.y];
                             }
                         }
                         putAction(currentLoc, (Karbonite.karboMap[i][j] + Units.harvestingPower - 1) / Units.harvestingPower, 1);
@@ -159,12 +159,15 @@ public class WorkerUtil {
                 mindist = Math.min(mindist, location.distanceBFSTo(Utils.enemyStartingLocations.get(i)));
             }
 
-            if (getConnectivity(location)) val += (1 << 21);
+            if (getConnectivity(location)) val += (1 << 28);
+
+            if (closeFactory && isCloseToFactory(location)) val += (1 << 27);
+            val += workerAreas[location.x][location.y]*(1 << 22);
+
             if (isSafe(location)){
                 val += (1 << 20) - mindist;
             }
             else val += mindist;
-            if (closeFactory && isCloseToFactory(location)) val += (1 << 19);
 
             return -val;
         }catch(Exception e){

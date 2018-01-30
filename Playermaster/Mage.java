@@ -6,14 +6,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Mage {
-    private final int min_group = 3;
+    private final double min_group = 2.5;
     private static Mage instance = null;
 
 
     public AuxUnit unit;
 
-    private int[][] multitargetArraY; //[i][j] = num. enemics - aliats que hi ha al quadrat 3x3
-    private int[][] expandedTargetArray; //[i][j] = maxim score possible de disparar a rang <= 30
+    private double[][] multitargetArraY; //[i][j] = num. enemics - aliats que hi ha al quadrat 3x3
+    private double[][] expandedTargetArray; //[i][j] = maxim score possible de disparar a rang <= 30
 
     private HashMap<Integer, Integer> objectiveArea; //todo borrar aixo??
 
@@ -24,10 +24,18 @@ public class Mage {
         return instance;
     }
 
+    static double unitValue(UnitType type){
+        switch (type){
+            case Worker: return 0.45;
+            case Knight: return 1;
+            default: return 0.95;
+        }
+    }
+
     //emplena les matrius (init turn)
     void computeMultiTarget(){
         try {
-            multitargetArraY = new int[Mapa.W][Mapa.H];
+            multitargetArraY = new double[Mapa.W][Mapa.H];
             //todo donar diferents pesos a cada unit
 
             //per cada enemic, sumem 1 al quadrat 3x3
@@ -37,7 +45,7 @@ public class Mage {
                 for (int j = 0; j < 9; ++j) {
                     AuxMapLocation newLoc = loc.add(j);
                     if (newLoc.isOnMap()) {
-                        ++multitargetArraY[newLoc.x][newLoc.y];
+                        multitargetArraY[newLoc.x][newLoc.y] += unitValue(enemy.getType());
                     }
                 }
             }
@@ -49,16 +57,16 @@ public class Mage {
                 for (int j = 0; j < 9; ++j) {
                     AuxMapLocation newLoc = loc.add(j);
                     if (newLoc.isOnMap()) {
-                        --multitargetArraY[newLoc.x][newLoc.y];
+                        multitargetArraY[newLoc.x][newLoc.y] -= unitValue(unit.getType());
                     }
                 }
             }
 
-            expandedTargetArray = new int[Mapa.W][Mapa.H];
+            expandedTargetArray = new double[Mapa.W][Mapa.H];
             for (AuxUnit enemy: Units.enemies){
                 if (enemy.getHealth() <= 0) continue;
                 AuxMapLocation loc = enemy.getMapLocation();
-                int a = multitargetArraY[loc.x][loc.y];
+                double a = multitargetArraY[loc.x][loc.y];
                 for (int j = 0; j < Vision.Mx[30].length; ++j) {
                     AuxMapLocation newLoc = loc.add(new AuxMapLocation(Vision.Mx[30][j], Vision.My[30][j]));
                     if (newLoc.isOnMap()){
@@ -282,8 +290,8 @@ public class Mage {
             if (B == null) return true;
             if (!A.isOnMap()) return false;
             if (!B.isOnMap()) return true;
-            int a = multitargetArraY[A.x][A.y];
-            int b = multitargetArraY[B.x][B.y];
+            double a = multitargetArraY[A.x][A.y];
+            double b = multitargetArraY[B.x][B.y];
             if (b < min_group && a > b) return true;
             if (a < min_group && a < b) return false;
             return (myLoc.distanceBFSTo(A) < myLoc.distanceBFSTo(B));
@@ -312,7 +320,7 @@ public class Mage {
         AuxMapLocation mloc;
         int dir;
         boolean moveFirst;
-        Integer value = null;
+        Double value = null;
         AuxUnit bestTarget = null;
 
         MageMovement(AuxMapLocation loc, int d, boolean first){
@@ -325,30 +333,39 @@ public class Mage {
 
         }
 
-        public int getValue(){
+        public double getValue(){
             if (value == null) value = computeValue();
             return value;
         }
 
-        int computeValue() {
+        double getValue(AuxMapLocation loc){
+            double ans = 0;
+            AuxUnit[] units = Wrapper.senseUnits(loc.x, loc.y, 2);
+            for (int i = 0; i < units.length; ++i){
+                if (units[i].myTeam) ans -= unitValue(units[i].getType());
+                else ans += unitValue(units[i].getType());
+            }
+            return ans;
+        }
+
+        double computeValue() {
             try {
                 AuxMapLocation finalLoc = unit.getMapLocation().add(dir).add(mloc);
-                if (expandedTargetArray[finalLoc.x][finalLoc.y] < 1) return 0;
-                int mostenemies = 0;
+                if (expandedTargetArray[finalLoc.x][finalLoc.y] <= 0) return 0;
+                double mostValue = 0;
                 for (int j = 0; j < Vision.Mx[30].length; ++j) {
                     AuxMapLocation newLoc = finalLoc.add(new AuxMapLocation(Vision.Mx[30][j], Vision.My[30][j]));
                     if (newLoc.isOnMap()) {
-                        AuxUnit u = newLoc.getUnit(false); //TODO aixo no seria com fer newLoc.getUnit()?
-                        if (u == null) u = newLoc.getUnit(true);
+                        AuxUnit u = newLoc.getUnit();
                         if (u == null) continue;
-                        AuxUnit[] units = Wrapper.senseUnits(newLoc.x, newLoc.y, 2, false);
-                        if (units.length > mostenemies) {
-                            mostenemies = units.length;
+                        double x = getValue(newLoc);
+                        if (x > mostValue){
+                            mostValue = x;
                             bestTarget = u;
                         }
                     }
                 }
-                return mostenemies;
+                return mostValue;
             }
             catch(Exception e) {
                 e.printStackTrace();

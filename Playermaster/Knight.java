@@ -135,11 +135,11 @@ public class Knight {
 
     private int moveTypePriority(UnitType t){
         switch(t){
-            case Mage: return 7;
-            case Ranger: return 6;
-            case Factory: return 5;
-            case Healer: return 4;
-            case Knight: return 4;
+            case Mage: return 8;
+            case Ranger: return 8;
+            case Factory: return 4;
+            case Healer: return 7;
+            case Knight: return 7;
             case Worker: return 2;
             case Rocket: return 1;
             default: return 0;
@@ -151,17 +151,15 @@ public class Knight {
             if (A == null) return B;
             if (B == null) return A;
 
-            if (A.isInSpace() || A.isInGarrison()) return B; //si matem un tio, el posem que esta a l'espai
-            if (B.isInSpace() || B.isInGarrison()) return A;
+            if (A.getHealth() <= 0) return B;
+            if (B.getHealth() <= 0) return A;
 
             int distA = myLoc.distanceBFSTo(A.getMapLocation());
             int distB = myLoc.distanceBFSTo(B.getMapLocation());
+            int priorityA = moveTypePriority(A.getType());
+            int priorityB = moveTypePriority(B.getType());
 
-            if (distA > 10000) return B;
-            if (distB > 10000) return A;
-
-            if (moveTypePriority(A.getType()) > moveTypePriority(B.getType())) return A;
-            if (moveTypePriority(A.getType()) < moveTypePriority(B.getType())) return B;
+            if (priorityA - distA > priorityB - distB) return A;
 
             if (distA < distB) return A;
             return B;
@@ -176,9 +174,13 @@ public class Knight {
         try {
             AuxUnit bestTarget = null;
             for (AuxUnit enemy: Units.enemies) {
+                if (enemy.getType() == UnitType.Knight){
+                    //System.out.println("Saw a knight at " + enemy.getX() + " " + enemy.getY());
+                }
                 if (enemy.getHealth() <= 0) continue;
                 bestTarget = compareMoveTargets(myLoc, bestTarget, enemy);
             }
+            //if (bestTarget != null) System.out.println("Enemic at " + bestTarget.getX() + " " + bestTarget.getY());
             return bestTarget;
         }catch(Exception e) {
             e.printStackTrace();

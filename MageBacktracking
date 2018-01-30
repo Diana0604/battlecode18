@@ -1,0 +1,14 @@
+Al comencament de cada torn:
+- Es prcalcula un BFS per saber la minima distancia d'un mag a un lloc guai [on es pugui atacar a com a minim k enemics] si es pogues fer blink i moure multiples vegades optimament (distancia n = n blinks + n moves)
+
+Per moure els mags es fa el seguent:
+-Es fa un A* global amb tots els mags [amb distancia prou a prop d'un target] amb com a molt N iteracions (N ~ 100.000?)
+-El primer mag que aconsegueixi target mou
+
+Per la heuristica del A* es fa el seguent:
+< overcharges millor
+< distancia a target millor
+< kills nostres millor (estem forcant el move!!)
+
+
+quan fem blink o move posem el force = true per obligar les unitats a apartar-se, considerem una kill nostra si estem fent blink/move a sobre d'un tio amb canMove = false.

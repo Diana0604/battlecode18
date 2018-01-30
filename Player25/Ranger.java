@@ -1,7 +1,7 @@
-import bc.Team;
 import bc.UnitType;
 
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class Ranger {
     private static Ranger instance = null;
@@ -24,7 +24,7 @@ public class Ranger {
 
     /*------------------ ATTACK -----------------*/
 
-    int typePriority(UnitType t){
+    private int typePriority(UnitType t){
         switch(t){
             case Mage: return 6;
             case Knight: return 5;
@@ -181,36 +181,6 @@ public class Ranger {
         }
     }
 
-    private AuxMapLocation getBestPositionToShoot(AuxMapLocation myLoc) {
-        try {
-            int D = 10;
-            int bestScore = 0;
-            AuxMapLocation target = null;
-            for (int i = 0; i < Vision.Mx[D].length; ++i) {
-                AuxMapLocation newLoc = myLoc.add(new AuxMapLocation(Vision.Mx[D][i], Vision.My[D][i]));
-                if (newLoc.isOnMap()) {
-                    if (Target.rangerTargets[myLoc.x][myLoc.y] == 0) {
-                        if (Target.rangerTargets[newLoc.x][newLoc.y] > 0) {
-                            target = newLoc;
-                            break;
-                        }
-                    }
-                    else {
-                        // todo: provar si traient aixo millora
-                        if (Target.rangerTargets[newLoc.x][newLoc.y] > bestScore) {
-                            bestScore = Target.rangerTargets[newLoc.x][newLoc.y];
-                            target = newLoc;
-                        }
-                    }
-                }
-            }
-            return target;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
 
     AuxMapLocation getTarget(AuxUnit unit){
         try {
@@ -221,10 +191,7 @@ public class Ranger {
                 AuxMapLocation ans = getBestHealer(unit.getMapLocation());
                 if (ans != null) return ans;
             }
-            AuxMapLocation ans;
-            ans = getBestPositionToShoot(unit.getMapLocation());
-            if (ans != null) return ans;
-            ans = getBestEnemy(unit.getMapLocation());
+            AuxMapLocation ans = getBestEnemy(unit.getMapLocation());
             if (ans != null) return ans;
             return Explore.findExploreObjective(unit);
         }catch(Exception e) {

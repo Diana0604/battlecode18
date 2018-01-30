@@ -32,6 +32,7 @@ class GC {
             Danger.initTurn(); //ha d'anar despres de Units
             WorkerUtil.initTurn(); //ha d'anar despres de Units i Karbonite
             Rocket.initTurn(); //ha d'anar despres de Units i Danger
+            Target.initTurn();
         }catch(Exception e) {
             e.printStackTrace();
         }

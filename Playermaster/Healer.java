@@ -26,8 +26,8 @@ public class Healer {
         switch(t){
             case Mage: return 5;
             case Knight: return 4;
-            case Ranger: return 3;
-            case Healer: return 2;
+            case Healer: return 3;
+            case Ranger: return 2;
             case Worker: return 1;
             default: return 0;
         }

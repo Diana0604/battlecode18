@@ -73,7 +73,6 @@ class UnitManager{
 
     static void actUnits(){
         try {
-            Overcharge.generateMatrix();
             AuxUnit[] units = Units.myUnits.toArray(new AuxUnit[Units.myUnits.size()]);
             for (AuxUnit unit : units) {
                 //System.err.println("playing unit " + GC.myUnits[i].getType());
@@ -106,7 +105,6 @@ class UnitManager{
 
     static void actUnits2(){
         try {
-            Overcharge.generateMatrix();
             AuxUnit[] units = Units.myUnits.toArray(new AuxUnit[Units.myUnits.size()]);
             for (AuxUnit unit : units) {
                 //System.err.println("playing unit " + GC.myUnits[i].getType());

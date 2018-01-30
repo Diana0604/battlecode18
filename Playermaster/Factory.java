@@ -135,15 +135,9 @@ public class Factory {
             int workers = typeCount.get(UnitType.Worker);
             int knights = typeCount.get(UnitType.Knight);
 
-            if (workers < 1) return UnitType.Worker; //potser millor si workers < 2-3?
+            if (workers < 2) return UnitType.Worker; //potser millor si workers < 2-3?
 
-            AuxUnit[] enemies = Wrapper.senseUnits(unit.getMapLocation(), 50, false);
-            for (AuxUnit enemy : enemies){
-                if (enemy.getType() != UnitType.Worker && enemy.getMapLocation().distanceBFSTo(unit.getMapLocation()) <= 5){
-                    return UnitType.Knight;
-                }
-            }
-
+            /*
             int minRushtroops = 0;
             if (Build.initDistToEnemy <= 10) minRushtroops = 8;
             else if (Build.initDistToEnemy <= 15) minRushtroops = 7;
@@ -153,15 +147,15 @@ public class Factory {
                 if (constructedKnights > constructedMages) return UnitType.Mage;
                 return UnitType.Knight;
             }
+*/
+            int rushKnights = 0;
+            if (Build.initDistToEnemy <= 25) rushKnights = 5;
+
+            if (constructedKnights < rushKnights) return UnitType.Knight;
 
             //if (Danger.knightSeen && mages == 0) return UnitType.Mage;
 
             int totalTroops = knights + rangers + mages;
-
-            if (totalTroops < 5){
-                //if (Danger.knightSeen && mages == 0) return UnitType.Mage;
-                return UnitType.Ranger;
-            }
 
             int roundsEnemyUnseen = Utils.round - Build.lastRoundEnemySeen;
             if ((Utils.round > 250 && roundsEnemyUnseen > 10) || Utils.round >= ROCKET_RUSH) {

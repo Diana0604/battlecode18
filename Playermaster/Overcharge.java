@@ -1,4 +1,3 @@
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -7,7 +6,6 @@ import bc.UnitType;
 
 public class Overcharge {
 
-    static ArrayList<Integer>[] adjMatrix;
     static int[][] overchargeMatrix; //[i][j] = nº healers amb overcharge a rang de i,j
     static HashMap<Integer, HashSet<Integer>> overchargeInRange; //troop index -> healers indexs with overcharge in range
 
@@ -16,9 +14,6 @@ public class Overcharge {
         updateOverchargeInRange();
     }
 
-    static int overchargesAt(AuxMapLocation loc){
-        return overchargeMatrix[loc.x][loc.y];
-    }
 
     private static void updateOverchargeMatrix(){
         overchargeMatrix = new int[Mapa.W][Mapa.H];
@@ -49,10 +44,12 @@ public class Overcharge {
         }
     }
 
+
     private static void updateOverchargeInRange(){
         overchargeInRange = new HashMap<>();
         auxUpdateOverchargeInRange(Units.rangers);
         auxUpdateOverchargeInRange(Units.mages);
+        auxUpdateOverchargeInRange(Units.knights);
     }
 
     private static void auxUpdateOverchargeInRange(HashSet<Integer> troops){
@@ -71,71 +68,26 @@ public class Overcharge {
         }
     }
 
-    static void generateMatrix(){
-        try {
-            if (!Units.canOverCharge || Utils.round % 10 != 0) return;
-            int n = Units.myUnits.size();
-
-            adjMatrix = (ArrayList<Integer>[]) new ArrayList[n];
-
-            for (int i = 0; i < n; ++i) adjMatrix[i] = new ArrayList<>();
-
-            for (int index: Units.rangers){
-                AuxUnit unit1 = Units.myUnits.get(index);
-                if (unit1.isInGarrison()) continue;
-                for (int index2: Units.healers){
-                    AuxUnit unit2 = Units.myUnits.get(index2);
-                    if (unit2.isInGarrison()) continue;
-                    if (!unit2.canUseAbility()) continue;
-                    int l = (unit1.getMapLocation().distanceSquaredTo(unit2.getMapLocation()));
-                    if (l <= Const.overchargeRange) adjMatrix[index].add(index2);
-                }
-            }
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
+    //quants overcharges pot rebre la tropa a posicio loc
+    static int overchargesAt(AuxMapLocation loc){
+        return overchargeMatrix[loc.x][loc.y];
     }
 
-    static void getOvercharged(int troopIndex){
+    //gasta un overcharge amb la tropa
+    static void getOvercharged(int troopIndex, AuxMapLocation target){
         HashSet<Integer> healerList = overchargeInRange.get(troopIndex);
-        Iterator<Integer> it = healerList.iterator();
-        int healerIndex = it.next();
+        int maxDist = -1;
+        int maxIndex = -1;
+        for (int healerIndex: healerList){
+            AuxUnit healer = Units.myUnits.get(healerIndex);
+            int dist = healer.getMapLocation().distanceSquaredTo(target);
+            if (dist > maxDist){
+                maxDist = dist;
+                maxIndex = healerIndex;
+            }
+        }
         AuxUnit troop = Units.myUnits.get(troopIndex);
-        AuxUnit healer = Units.myUnits.get(healerIndex);
+        AuxUnit healer = Units.myUnits.get(maxIndex);
         Wrapper.overcharge(healer, troop);
     }
-/*
-    static boolean getOvercharged(int i){
-        try {
-            if (!Units.canOverCharge || Utils.round % 10 != 0) return false;
-            if (adjMatrix[i].size() <= 0) return false;
-            int j = adjMatrix[i].get(0);
-            if (!Units.myUnits.get(j).canUseAbility()) {
-                adjMatrix[i].remove(0);
-                return false;
-            }
-            Wrapper.overcharge(Units.myUnits.get(j), Units.myUnits.get(i));
-            return true;
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-*/
-    static boolean canGetOvercharged(int i){
-        try {
-            //if (!Units.canOverCharge || Utils.round % 10 != 0) return false;
-            if (!Units.canOverCharge) return false;
-            while (adjMatrix[i].size() > 0 && !Units.myUnits.get(adjMatrix[i].get(0)).canUseAbility()) {
-                adjMatrix[i].remove(0);
-            }
-            return (adjMatrix[i].size() > 0);
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-
 }

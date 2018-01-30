@@ -1,7 +1,4 @@
-import bc.MapLocation;
-import bc.ResearchInfo;
-import bc.UnitType;
-import bc.VecUnit;
+import bc.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -155,7 +152,11 @@ public class Units {
             VecUnit vecMyUnits = GC.gc.myUnits();
 
             int size = (int) vecMyUnits.size();
-            for (int i = 0; i < size; ++i) myUnits.add(new AuxUnit(vecMyUnits.get(i)));
+            for (int i = 0; i < size; ++i) {
+                Unit u = vecMyUnits.get(i);
+                if (u.location().isInSpace()) continue;
+                myUnits.add(new AuxUnit(u));
+            }
 
             vecMyUnits.delete();
             //First to last: Mage - Ranger - Healer - Knight - Worker - Rocket - Factory

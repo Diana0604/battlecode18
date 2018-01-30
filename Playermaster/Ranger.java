@@ -43,7 +43,6 @@ public class Ranger {
         return (int) Math.ceil((double)unit.health / (double)dmgReceived);
     }
 
-    //todo: fer que prioritzi per unit
     private AuxUnit compareAttackTargets(AuxUnit ranger, AuxUnit A, AuxUnit B, int attacks){
         try {
             if (A == null) return B;
@@ -122,7 +121,7 @@ public class Ranger {
                         attacksToKill--;
                         attacks--;
                     }else{
-                        Overcharge.getOvercharged(posAtArray);
+                        Overcharge.getOvercharged(posAtArray, targetUnit.getMapLocation());
                     }
                 }
                 if (attacks > 0) attack(unit); //si mata el target i li queden atacs mira que no pugui matar mes

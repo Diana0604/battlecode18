@@ -152,14 +152,11 @@ public class Wrapper {
         }
     }
 
-    static void heal(AuxUnit u1, AuxUnit u2){
+    static void heal(AuxUnit healer, AuxUnit healed){
         try {
-            u2.getHealth();
-            u2.health += Units.healingPower;
-            int mh = Units.getMaxHealth(u2.getType());
-            if (u2.health > mh) u2.health = mh;
-            u1.canAttack = false;
-            GC.gc.heal(u1.getID(), u2.getID());
+            healed.health = Math.min(healed.health + Units.healingPower, Units.getMaxHealth(healed.getType()));
+            healer.canAttack = false;
+            GC.gc.heal(healer.getID(), healed.getID());
         }catch(Exception e) {
             e.printStackTrace();
         }
@@ -573,8 +570,8 @@ public class Wrapper {
             AuxUnit troop = Units.myUnits.get(troopIndex);
             HashSet<Integer> healerList = entry.getValue();
             if (troop.getMapLocation().distanceSquaredTo(healer.getMapLocation()) <= Const.overchargeRange &&
-                    healer.canUseAbility() && !healer.isInGarrison() && !healer.isInSpace() &&
-                    !troop.isInGarrison() && !troop.isInSpace())
+                    healer.canUseAbility() && !healer.isInGarrison() && !healer.isInSpace() && !healer.isDead() &&
+                    !troop.isInGarrison() && !troop.isInSpace() && !troop.isDead())
                 healerList.add(healerIndex);
             else healerList.remove(healerIndex);
         }
@@ -583,12 +580,12 @@ public class Wrapper {
     static void updateOverchargeMapForTroop(AuxUnit troop){
         int troopIndex = Units.myUnits.indexOf(troop);
         HashSet<Integer> healerList = new HashSet<>();
-        if (troop.isInGarrison() || troop.isInSpace()) return;
+        if (troop.isDead() || troop.isInGarrison() || troop.isInSpace()) return;
 
         for (int healerIndex: Units.healers){
             AuxUnit healer = Units.myUnits.get(healerIndex);
             if (troop.getMapLocation().distanceSquaredTo(healer.getMapLocation()) <= Const.overchargeRange &&
-                    healer.canUseAbility() && !healer.isInGarrison() && !healer.isInSpace())
+                    healer.canUseAbility() && !healer.isInGarrison() && !healer.isInSpace() && !healer.isDead())
                 healerList.add(healerIndex);
         }
         Overcharge.overchargeInRange.put(troopIndex, healerList);

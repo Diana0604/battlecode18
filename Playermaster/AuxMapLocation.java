@@ -142,6 +142,21 @@ public class AuxMapLocation {
         return false;
     }
 
+    public boolean isOccupiedByStructure(){
+        try {
+            int indexPlus = Units.unitMap[x][y];
+            if (indexPlus == 0) return false;
+            int index;
+            AuxUnit unit;
+            if (indexPlus > 0) unit = Units.myUnits.get(indexPlus - 1);
+            else unit = Units.enemies.get(-(indexPlus + 1));
+            return (unit.isStructure());
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     //si la posicio esta ocupada per una unitat
     public boolean isOccupiedByUnit(){
         try {

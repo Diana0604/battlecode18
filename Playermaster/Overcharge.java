@@ -21,7 +21,7 @@ public class Overcharge {
         for (int index: Units.healers){
             AuxUnit healer = Units.myUnits.get(index);
             if (!healer.canUseAbility()) continue;
-            if (healer.isInGarrison() || healer.isInSpace()) continue;
+            if (healer.isDead() || healer.isInGarrison() || healer.isInSpace()) continue;
             int x = healer.getX();
             int y = healer.getY();
             int range = Const.overchargeRange;
@@ -56,10 +56,10 @@ public class Overcharge {
         for (int troopIndex: troops){
             AuxUnit troop = Units.myUnits.get(troopIndex);
             HashSet<Integer> healerList = new HashSet<>();
-            if (troop.isInGarrison() || troop.isInSpace()) continue;
+            if (troop.isDead() || troop.isInGarrison() || troop.isInSpace()) continue;
             for (int healerIndex: Units.healers){
                 AuxUnit healer = Units.myUnits.get(healerIndex);
-                if (healer.isInGarrison() || healer.isInSpace()) continue;
+                if (healer.isDead() || healer.isInGarrison() || healer.isInSpace()) continue;
                 if (!healer.canUseAbility()) continue;
                 int l = troop.getMapLocation().distanceSquaredTo(healer.getMapLocation());
                 if (l <= Const.overchargeRange) healerList.add(healerIndex);

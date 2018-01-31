@@ -5,6 +5,8 @@ import java.util.*;
 public class Target {
 
     static int[][] rangerTargets;
+    static double[][] mageHits;
+    static double[][] mageHitsExpanded;
 
     static void initTurn() {
         initMatrixs();
@@ -23,7 +25,7 @@ public class Target {
             AuxMapLocation loc = unit.mloc;
             for (int i = 0; i < Vision.Mx[range].length; ++i) {
                 AuxMapLocation newLoc = loc.add(new AuxMapLocation(Vision.Mx[range][i], Vision.My[range][i]));
-                if (newLoc.isOnMap() && targets[newLoc.x][newLoc.y] == 0 && newLoc.isPassable() && newLoc.getUnit() == null) {
+                if (newLoc.isOnMap() && targets[newLoc.x][newLoc.y] == 0 && newLoc.isAccessible()) {
                     targets[newLoc.x][newLoc.y] = 1;
                     queue.add(newLoc);
                 }
@@ -34,7 +36,7 @@ public class Target {
             int d = rangerTargets[loc.x][loc.y];
             for (int i = 0; i < 8; ++i){
                 AuxMapLocation newLoc = loc.add(i);
-                if (newLoc.isOnMap() && targets[newLoc.x][newLoc.y] == 0 && newLoc.isPassable() && newLoc.getUnit() == null){
+                if (newLoc.isOnMap() && targets[newLoc.x][newLoc.y] == 0 && newLoc.isAccessible()){
                     targets[newLoc.x][newLoc.y] = d+1;
                     queue.add(newLoc);
                 }

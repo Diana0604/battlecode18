@@ -42,81 +42,15 @@ public class MarsPlanning{
     public static void initGame(){
         try {
             PlanetMap planetMap = GC.gc.startingMap(Planet.Mars);
-            W = (int) planetMap.getWidth();
-            H = (int) planetMap.getHeight();
-            // fill cc
-            cc = new int[W][H];
-            ccs = 0;
-            passable = new boolean[W][H];
-            for (int x = 0; x < W; ++x) {
-                for (int y = 0; y < H; ++y) {
-                    passable[x][y] = planetMap.isPassableTerrainAt(new MapLocation(Planet.Mars, x, y)) != 0;
-                    if (!passable[x][y]) cc[x][y] = -1;
-                }
-            }
+            initBasics(planetMap);
+            computePassable(planetMap);
             planetMap.delete();
-            for (int x = 0; x < W; ++x) {
-                for (int y = 0; y < H; ++y) {
-                    if (cc[x][y] == 0) bfs(x, y);
-                }
-            }
-            clear = new int[W][H];
-            for (int x = 0; x < W; ++x) {
-                for (int y = 0; y < H; ++y) {
-                    AuxMapLocation loc = new AuxMapLocation(x,y);
-                    for (int d = 0; d < 8; ++d) {
-                        AuxMapLocation newLoc = loc.add(d);
-                        if (isOnMars(newLoc) && passable[newLoc.x][newLoc.y]) clear[x][y]++;
-                    }
-                }
-            }
-            Rocket.allyRocketLandingsCcs = new int[ccs + 1];
-            Rocket.enemyRocketLandingsCcs = new int[ccs + 1];
-            marsInitialKarbo_cc = new double[ccs + 1];
-            areaCC = new int[ccs+1];
-            for (int x = 0; x < W; ++x) for (int y = 0; y < H; ++y) if (cc[x][y] > 0) areaCC[cc[x][y]]++;
-            for (int i : areaCC) sumaArees += i;
-
-            // compute times from earth to mars
-            OrbitPattern op = GC.gc.orbitPattern();
-            int orbitPeriod = (int) op.getPeriod();
-            for (int i = 1; i <= 1000; ++i) {
-                int time = (int) op.duration(i);
-                int arrival = i + time;
-                arrivalTime[i] = arrival;
-                for (int j = arrival; j <= Math.min(1000, arrival + orbitPeriod); ++j) {
-                    departTime[j] = i;
-                }
-            }
-            for (int i = 1; i <= 1000; ++i) {
-                int arrival = arrivalTime[i];
-                for (int j = i; j >= 1; --j) {
-                    if (optimArrivalTime[j] == 0 || arrival < optimArrivalTime[j]) optimArrivalTime[j] = arrival;
-                    else break;
-                }
-            }
-            int arrivalBurstRound = Math.min(MAX_BURST_ROUND, arrivalTime[749]);
-            takeoffBurstRound = departTime[arrivalBurstRound];
-
-            // construct asteroid pattern
-            ArrayList<Integer> aRounds = new ArrayList<>();
-            //ArrayList<AsteroidStrike> aStrikes = new ArrayList<>();
-            ArrayList<Integer> aCarbo = new ArrayList<>();
-            ArrayList<AuxMapLocation> locCarbo = new ArrayList<>();
-            AsteroidPattern ap = GC.gc.asteroidPattern();
-            for (int i = 1; i <= 1000; ++i) { // round numbers are in [0,1000) or (0,1000]??
-                if (ap.hasAsteroid(i)) {
-                    AsteroidStrike as = ap.asteroid(i);
-                    //aStrikes.add(as);
-                    aRounds.add(i);
-                    aCarbo.add((int) as.getKarbonite());
-                    locCarbo.add(new AuxMapLocation(as.getLocation()));
-                }
-            }
-            Karbonite.asteroidRounds = aRounds.toArray(new Integer[0]);
-            //GC.asteroidStrikes = aStrikes.toArray(new AsteroidStrike[0]);
-            Karbonite.asteroidKarbo = aCarbo.toArray(new Integer[0]);
-            Karbonite.asteroidLocations = locCarbo.toArray(new AuxMapLocation[0]);
+            computeCCs();
+            initArraysDependingOnCCs();
+            computeClear();
+            computeArees();
+            computeOrbitStuff();
+            constructAsteroidPattern();
 
             marsInitialKarbonite = Wrapper.getMarsInitialKarbonite();
             marsInitialPriorityKarbo = computeInitialPriorityKarboMars();
@@ -126,6 +60,31 @@ public class MarsPlanning{
         }
         catch(Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private static void initBasics(PlanetMap planetMap) {
+        W = (int) planetMap.getWidth();
+        H = (int) planetMap.getHeight();
+        cc = new int[W][H];
+        ccs = 0;
+    }
+
+    private static void computePassable(PlanetMap planetMap) {
+        passable = new boolean[W][H];
+        for (int x = 0; x < W; ++x) {
+            for (int y = 0; y < H; ++y) {
+                passable[x][y] = planetMap.isPassableTerrainAt(new MapLocation(Planet.Mars, x, y)) != 0;
+                if (!passable[x][y]) cc[x][y] = -1;
+            }
+        }
+    }
+
+    private static void computeCCs() {
+        for (int x = 0; x < W; ++x) {
+            for (int y = 0; y < H; ++y) {
+                if (cc[x][y] == 0) bfs(x, y);
+            }
         }
     }
 
@@ -151,6 +110,77 @@ public class MarsPlanning{
         } catch(Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private static void initArraysDependingOnCCs() {
+        Rocket.allyRocketLandingsCcs = new int[ccs + 1];
+        Rocket.enemyRocketLandingsCcs = new int[ccs + 1];
+        marsInitialKarbo_cc = new double[ccs + 1];
+        areaCC = new int[ccs+1];
+    }
+
+    private static void computeClear() {
+        clear = new int[W][H];
+        for (int x = 0; x < W; ++x) {
+            for (int y = 0; y < H; ++y) {
+                AuxMapLocation loc = new AuxMapLocation(x,y);
+                for (int d = 0; d < 8; ++d) {
+                    AuxMapLocation newLoc = loc.add(d);
+                    if (isOnMars(newLoc) && passable[newLoc.x][newLoc.y]) clear[x][y]++;
+                }
+            }
+        }
+    }
+
+    private static void computeArees() {
+        for (int x = 0; x < W; ++x) {
+            for (int y = 0; y < H; ++y) {
+                if (cc[x][y] > 0) areaCC[cc[x][y]]++;
+            }
+        }
+        for (int i : areaCC) sumaArees += i;
+    }
+
+    private static void computeOrbitStuff() {
+        OrbitPattern op = GC.gc.orbitPattern();
+        int orbitPeriod = (int) op.getPeriod();
+        for (int i = 1; i <= 1000; ++i) {
+            int time = (int) op.duration(i);
+            int arrival = i + time;
+            arrivalTime[i] = arrival;
+            for (int j = arrival; j <= Math.min(1000, arrival + orbitPeriod); ++j) {
+                departTime[j] = i;
+            }
+        }
+        op.delete();
+        for (int i = 1; i <= 1000; ++i) {
+            int arrival = arrivalTime[i];
+            for (int j = i; j >= 1; --j) {
+                if (optimArrivalTime[j] == 0 || arrival < optimArrivalTime[j]) optimArrivalTime[j] = arrival;
+                else break;
+            }
+        }
+        int arrivalBurstRound = Math.min(MAX_BURST_ROUND, arrivalTime[749]);
+        takeoffBurstRound = departTime[arrivalBurstRound];
+    }
+
+    private static void constructAsteroidPattern() {
+        ArrayList<Integer> aRounds = new ArrayList<>();
+        ArrayList<Integer> aCarbo = new ArrayList<>();
+        ArrayList<AuxMapLocation> locCarbo = new ArrayList<>();
+        AsteroidPattern ap = GC.gc.asteroidPattern();
+        for (int i = 1; i <= 1000; ++i) {
+            if (ap.hasAsteroid(i)) {
+                AsteroidStrike as = ap.asteroid(i);
+                aRounds.add(i);
+                aCarbo.add((int) as.getKarbonite());
+                locCarbo.add(new AuxMapLocation(as.getLocation()));
+            }
+        }
+        ap.delete();
+        Karbonite.asteroidRounds = aRounds.toArray(new Integer[0]);
+        Karbonite.asteroidKarbo = aCarbo.toArray(new Integer[0]);
+        Karbonite.asteroidLocations = locCarbo.toArray(new AuxMapLocation[0]);
     }
 
     static boolean shouldWaitToLaunchRocket(int round) {
@@ -253,7 +283,7 @@ public class MarsPlanning{
                 AuxMapLocation loc = queue.poll();
                 for (int d = 0; d < 8; ++d) {
                     AuxMapLocation newLoc = loc.add(d);
-                    if (!isOnMars(newLoc) || !passable[newLoc.x][newLoc.y] || rocketNear[newLoc.x][newLoc.y] == 1) continue;
+                    if (!isOnMars(newLoc) || !passable[newLoc.x][newLoc.y] || (rocketNear != null && rocketNear[newLoc.x][newLoc.y] == 1)) continue;
                     int dist = initLoc.distanceSquaredTo(newLoc);
                     if (dist > depth) continue;
                     if (seen.contains(newLoc.x << 6 | newLoc.y)) continue;
@@ -356,42 +386,76 @@ public class MarsPlanning{
             // s'ha d'anar gradualment des de priorityKarbo cap a prioritySecurity
             //double[][] prioritySecurity = new double[W][H];
 
+            if (round < 720) {
+                // choose cc
+                double best_cc_factor = -1;
+                for (int i = 1; i <= ccs; ++i) {
+                    double factor_cc = karbo_cc[i] + (double) areaCC[i] / (double) sumaArees;
+                    if (factor_cc > best_cc_factor && areaCC[i] > 10) best_cc_factor = factor_cc;
+                }
 
-            // choose cc
-            double best_cc = -1;
-            for (int i = 1; i <= ccs; ++i) {
-                double factor_cc = karbo_cc[i] + (double)areaCC[i]/(double)sumaArees;
-                if (factor_cc > best_cc && areaCC[i] > 10) best_cc = factor_cc;
-            }
-
-            // find best location
-            AuxMapLocation bestLoc = null;
-            double best_priority = -Const.INF;
-            for (int x = 0; x < W; ++x) {
-                for (int y = 0; y < H; ++y) {
-                    if (!passable[x][y]) continue;
-                    if (bestLoc == null) bestLoc = new AuxMapLocation(x, y);
-                    if (karbo_cc[cc[x][y]] + (double)areaCC[cc[x][y]]/(double)sumaArees < best_cc) continue;
-                    double factor_clear = ((double)clear[x][y]) / 8;
-                    double priority_xy = factor_clear*(1+priorityKarbo[x][y]) - 1000*rocketAdj[x][y];
-                    if (rocketNear[x][y] > 1) priority_xy = -rocketNear[x][y];
-                    if (priority_xy > best_priority) {
-                        best_priority = priority_xy;
-                        bestLoc = new AuxMapLocation(x, y);
+                // find best location
+                AuxMapLocation bestLoc = null;
+                double best_priority = -Const.INF;
+                for (int x = 0; x < W; ++x) {
+                    for (int y = 0; y < H; ++y) {
+                        if (!passable[x][y]) continue;
+                        if (bestLoc == null) bestLoc = new AuxMapLocation(x, y);
+                        if (karbo_cc[cc[x][y]] + (double) areaCC[cc[x][y]] / (double) sumaArees < best_cc_factor) continue;
+                        double factor_clear = ((double) clear[x][y]) / 8;
+                        double priority_xy = factor_clear * (1 + priorityKarbo[x][y]) - 1000 * rocketAdj[x][y];
+                        if (rocketNear[x][y] > 1) priority_xy = -rocketNear[x][y];
+                        if (priority_xy > best_priority) {
+                            best_priority = priority_xy;
+                            bestLoc = new AuxMapLocation(x, y);
+                        }
                     }
                 }
+                if (karbo350 == -1) {
+                    karbo350 = karbo_cc[cc[bestLoc.x][bestLoc.y]];
+                    biggestArea = (double) areaCC[cc[bestLoc.x][bestLoc.y]];
+                    biggestAreaPercent = biggestArea / (double) sumaArees;
+                }
+                return bestLoc;
             }
-            if (karbo350 == -1) {
-                karbo350 = karbo_cc[cc[bestLoc.x][bestLoc.y]];
-                biggestArea = (double)areaCC[cc[bestLoc.x][bestLoc.y]];
-                biggestAreaPercent = biggestArea / (double)sumaArees;
+            else {
+                int best_cc = 0;
+                double best_priority = -Const.INF;
+                for (int i = 1; i <= ccs; ++i) {
+                    if (areaCC[i] > areaCC[best_cc]) best_cc = i;
+                }
+                AuxMapLocation bestLoc = null;
+                double[][] rocketSec = computeRocketSec();
+                for (int x = 0; x < W; ++x) {
+                    for (int y = 0; y < H; ++y) {
+                        if (!passable[x][y]) continue;
+                        if (bestLoc == null) bestLoc = new AuxMapLocation(x,y);
+                        double factor_clear = ((double) clear[x][y]) / 8;
+                        double priority = factor_clear * (10+rocketSec[x][y]) - 1000 * rocketAdj[x][y];
+                        if (priority > best_priority) {
+                             best_priority = priority;
+                             bestLoc = new AuxMapLocation(x,y);
+                        }
+                    }
+                }
+                return bestLoc;
             }
-            return bestLoc;
         }
         catch(Exception e) {
             e.printStackTrace();
         }
         return null;
+    }
+
+    private static double[][] computeRocketSec() {
+        double[][] rocketSec = new double[W][H];
+        for (AuxMapLocation loc : Rocket.allyRocketLandingsLocs) {
+            addGradually(rocketSec,loc,DEPTH*2,10, false, null);
+        }
+        for (AuxMapLocation loc: Rocket.enemyRocketLandingsLocs) {
+            addGradually(rocketSec,loc,DEPTH*2,-10, false, null);
+        }
+        return rocketSec;
     }
 
 }

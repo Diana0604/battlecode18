@@ -518,7 +518,7 @@ public class Mage {
             if (mage.isDead() || mage.isInGarrison() || mage.isInSpace()) continue;
             if (mage.target == null) continue;
             MageInfo mageInfo = new MageInfo(mage);
-            ArrayList<MageInfo> states = getNextStates(mageInfo, mage.canMove(), mage.canUseAbility());
+            ArrayList<MageInfo> states = getNextStates(mageInfo, mage.canMove(), mage.canUseAbility() && Units.canBlink);
             if (states != null) {
                 for (MageInfo state : states) {
                     queue.offer(state);

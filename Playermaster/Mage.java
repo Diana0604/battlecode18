@@ -555,13 +555,13 @@ public class Mage {
                 if (type == MOVE){
                     int dir = mage.getMapLocation().dirBFSTo(dest);
                     AuxUnit molesta = dest.getUnit();
-                    if (molesta.myTeam && molesta.isRobot())
+                    if (molesta != null && molesta.myTeam && molesta.isRobot())
                         MovementManager.getInstance().move(molesta, 2);
                     Wrapper.moveRobot(mage, dir);
                 }
                 if (type == BLINK){
                     AuxUnit molesta = dest.getUnit();
-                    if (molesta.myTeam && molesta.isRobot())
+                    if (molesta != null && molesta.myTeam && molesta.isRobot())
                         MovementManager.getInstance().move(molesta, 2);
                     Wrapper.blink(mage, dest);
                 }

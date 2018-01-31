@@ -76,7 +76,7 @@ public class Rocket {
     }
 
     // Retorna totes les meves unitats ordenades per distancia a mi
-    private static ArrayList<Pair> getSortedUnits(AuxUnit rocket) {
+    private static ArrayList<Pair>  getSortedUnits(AuxUnit rocket) {
         try {
             //if (GC.planet != Planet.Earth) return new ArrayList<>();
             ArrayList<Pair> sorted = new ArrayList<>();
@@ -182,7 +182,6 @@ public class Rocket {
         }
         return false;
     }
-
 
     static void play(AuxUnit rocket) {
         try {

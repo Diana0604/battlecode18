@@ -174,9 +174,14 @@ public class Factory {
             int totalTroops = knights + rangers + mages;
             if (totalTroops < 4) return UnitType.Ranger;
 
-            if (3*healers < totalTroops-1) return UnitType.Healer;
-            if (rangers < 10) return UnitType.Ranger;
-            if (healers < 0.8 * rangers) return UnitType.Healer;
+            if (Utils.round > 175 && rangers > 8 && healers > 4 && mages == 0) return UnitType.Mage;
+
+            if (2*healers < totalTroops-1) return UnitType.Healer;
+            if (rangers < maxRangers) return UnitType.Ranger;
+
+
+
+            if (healers < rangers) return UnitType.Healer;
             //if (rangers < maxRangers) return UnitType.Ranger;
             //if (healers < 1.25 * rangers) return UnitType.Healer;
             return UnitType.Mage;

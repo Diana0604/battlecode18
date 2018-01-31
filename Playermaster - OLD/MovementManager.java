@@ -219,18 +219,18 @@ public class MovementManager {
 
             Danger.computeDanger(unit);
 
-            /*int dirGreedy = greedyMove(unit, priority);
+            int dirGreedy = greedyMove(unit, priority);
             if (dirGreedy != 8){
                 doMovement(unit, dirGreedy);
                 return dirGreedy;
-            }*/
+            }
 
 
             ArrayList<Integer> directions = new ArrayList<>();
             long d = myLoc.distanceSquaredTo(unit.target);
 
 
-            /* NEW STUFF HERE*/
+            /*
 
             for (int i = 0; i < 8; ++i){
                 AuxMapLocation newLoc = myLoc.add(i);
@@ -272,7 +272,7 @@ public class MovementManager {
 
             d = myLoc.distanceSquaredTo(unit.target);
 
-            /* UNTIL HERE */
+            */
 
             if (priority != FORCED && d == 0) return 8;
 

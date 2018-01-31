@@ -377,7 +377,10 @@ public class MovementManager {
         try {
             if (unit.getType() == UnitType.Knight) return 0;
             if (unit.getType() == UnitType.Worker && kamikazeWorker()) return 0;
-            if (unit.getType() == UnitType.Ranger) return Danger.DPS[i];
+            if (unit.getType() == UnitType.Ranger){
+                if (unit.canAttack()) return Math.max(0, Danger.DPS[i] - 0.000001 - Danger.DPS(unit.getType()));
+                return Danger.DPS[i];
+            }
             if (unit.getType() == UnitType.Mage && Units.canBlink) return Danger.DPS[i];
             return Danger.DPSlong[i] + Danger.DPS[i];
         } catch(Exception e) {

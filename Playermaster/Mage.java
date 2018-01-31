@@ -584,6 +584,7 @@ public class Mage {
                             Wrapper.disintegrate(molesta);
                         }
                     }
+                    System.out.println("    - Blink to " + dest);
                     mage.immune = false;
                     Wrapper.blink(mage, dest);
                 }
@@ -605,6 +606,7 @@ public class Mage {
                         Wrapper.overcharge(Units.myUnits.get(maxIndex), mage);
                     }else{
                         System.out.println("INTENT DE OVERCHARGE PERO NO HI HA NINGU A RANG :(");
+                        return;
                     }
                 }
             }
@@ -983,13 +985,16 @@ public class Mage {
 
     private boolean isBetter(AuxMapLocation myLoc, AuxMapLocation A, AuxMapLocation B){
         try {
-            if (B == null) return true;
+            if (A == null) return false;
             if (!A.isOnMap()) return false;
-            if (!B.isOnMap()) return true;
             double a = multitargetArraY[A.x][A.y];
+            if (a < min_group) return false;
+
+            if (B == null) return true;
+            if (!B.isOnMap()) return true;
             double b = multitargetArraY[B.x][B.y];
-            if (b < min_group && a > b) return true;
-            if (a < min_group && a < b) return false;
+            if (b < min_group) return true;
+            if (a < b) return false;
             return (myLoc.distanceBFSTo(A) < myLoc.distanceBFSTo(B));
         } catch(Exception e) {
             e.printStackTrace();
@@ -997,16 +1002,15 @@ public class Mage {
         return false;
     }
 
-
     private AuxMapLocation getBestEnemy(AuxMapLocation myLoc){
         try {
-            AuxMapLocation target = null;
+            AuxMapLocation bestTarget = null;
             for (AuxUnit enemy: Units.enemies) {
                 if (enemy.isDead()) continue;
                 AuxMapLocation enemyLocation = enemy.getMapLocation();
-                if (isBetter(myLoc, enemyLocation, target)) target = enemyLocation;
+                if (isBetter(myLoc, enemyLocation, bestTarget)) bestTarget = enemyLocation;
             }
-            return target;
+            return bestTarget;
         }catch(Exception e) {
             e.printStackTrace();
             return null;

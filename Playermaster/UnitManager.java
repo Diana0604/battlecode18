@@ -73,6 +73,7 @@ class UnitManager{
 
     static void actUnits(){
         try {
+            Mage.getInstance().doActions();
             AuxUnit[] units = Units.myUnits.toArray(new AuxUnit[Units.myUnits.size()]);
             for (AuxUnit unit : units) {
                 //System.err.println("playing unit " + GC.myUnits[i].getType());
@@ -94,7 +95,6 @@ class UnitManager{
                 }
 
             }
-            Mage.getInstance().doActions();
             Worker.actWorkers(true);
             //WorkerUtil.doFirstActions();
         }catch(Exception e) {
@@ -104,6 +104,7 @@ class UnitManager{
 
     static void actUnits2(){
         try {
+            Mage.getInstance().doActions();
             AuxUnit[] units = Units.myUnits.toArray(new AuxUnit[Units.myUnits.size()]);
             for (AuxUnit unit : units) {
                 //System.err.println("playing unit " + GC.myUnits[i].getType());
@@ -124,7 +125,6 @@ class UnitManager{
                     Healer.getInstance().heal(unit);
                 }
             }
-            Mage.getInstance().doActions();
             Worker.actWorkers(false);
         }catch(Exception e) {
             e.printStackTrace();

@@ -530,6 +530,7 @@ public class Mage {
             MageInfo state = queue.poll();
             if (state.location.distanceSquaredTo(state.mage.target) <= Const.mageAttackRange){
                 //he trobat una sequencia que arriba al target!!
+                System.out.println("He trobat sequencia em deixa a " + state.location + " i ataco a " + state.mage.target);
                 return state;
             }
             ArrayList<MageInfo> nextStates = getNextStates(state.getOvercharged(), true, Units.canBlink);
@@ -549,6 +550,7 @@ public class Mage {
         while (state != null){
             System.out.println("ATTACKKKK " + state.mage.getID());
             AuxUnit mage = state.mage;
+            System.out.println(Utils.round + " ha trobat sequence! My loc " + mage.getMapLocation() + " target " + mage.target);
             ArrayList<Integer> moveSequence = state.movesUsed;
             for (Integer code: moveSequence){
                 int enc = movementDestination(code).encode();
@@ -558,6 +560,7 @@ public class Mage {
                 int type = movementType(code);
                 AuxMapLocation dest = movementDestination(code);
                 if (type == MOVE){
+                    System.out.println("    - Move to " + dest);
                     int dir = mage.getMapLocation().dirBFSTo(dest);
                     mage.immune = true;
                     AuxUnit molesta = dest.getUnit();
@@ -569,7 +572,6 @@ public class Mage {
                         }
                     }
                     mage.immune = false;
-
                     Wrapper.moveRobot(mage, dir);
                 }
                 if (type == BLINK){
@@ -582,10 +584,12 @@ public class Mage {
                             Wrapper.disintegrate(molesta);
                         }
                     }
+                    System.out.println("    - Blink to " + dest);
                     mage.immune = false;
                     Wrapper.blink(mage, dest);
                 }
                 if (type == OVERCHARGE){
+                    System.out.println("    - Overcharge");
                     HashSet<Integer> healerList = Overcharge.overchargeMatrix.get(mage.getMapLocation().encode());
                     int maxDist = -1;
                     int maxIndex = -1;
@@ -602,6 +606,7 @@ public class Mage {
                         Wrapper.overcharge(Units.myUnits.get(maxIndex), mage);
                     }else{
                         System.out.println("INTENT DE OVERCHARGE PERO NO HI HA NINGU A RANG :(");
+                        return;
                     }
                 }
             }
@@ -980,13 +985,16 @@ public class Mage {
 
     private boolean isBetter(AuxMapLocation myLoc, AuxMapLocation A, AuxMapLocation B){
         try {
-            if (B == null) return true;
+            if (A == null) return false;
             if (!A.isOnMap()) return false;
-            if (!B.isOnMap()) return true;
             double a = multitargetArraY[A.x][A.y];
+            if (a < min_group) return false;
+
+            if (B == null) return true;
+            if (!B.isOnMap()) return true;
             double b = multitargetArraY[B.x][B.y];
-            if (b < min_group && a > b) return true;
-            if (a < min_group && a < b) return false;
+            if (b < min_group) return true;
+            if (a < b) return false;
             return (myLoc.distanceBFSTo(A) < myLoc.distanceBFSTo(B));
         } catch(Exception e) {
             e.printStackTrace();
@@ -994,16 +1002,15 @@ public class Mage {
         return false;
     }
 
-
     private AuxMapLocation getBestEnemy(AuxMapLocation myLoc){
         try {
-            AuxMapLocation target = null;
+            AuxMapLocation bestTarget = null;
             for (AuxUnit enemy: Units.enemies) {
                 if (enemy.isDead()) continue;
                 AuxMapLocation enemyLocation = enemy.getMapLocation();
-                if (isBetter(myLoc, enemyLocation, target)) target = enemyLocation;
+                if (isBetter(myLoc, enemyLocation, bestTarget)) bestTarget = enemyLocation;
             }
-            return target;
+            return bestTarget;
         }catch(Exception e) {
             e.printStackTrace();
             return null;

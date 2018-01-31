@@ -193,7 +193,7 @@ public class MovementManager {
 
             if (unit.visited) return 8;
             unit.visited = true;
-            if (unit.target == null) return 8;
+            if (unit.target == null) unit.target = unit.getMapLocation();
             if (!unit.canMove()) return 8;
 
             this.data = getData(unit);

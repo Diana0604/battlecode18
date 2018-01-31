@@ -300,8 +300,8 @@ public class Mage {
         if (unit.target == null) return null; //todo canviar aixo?
         long initTime = System.nanoTime();
         final int MAX_TIME = 30000000/Units.unitTypeCount.get(UnitType.Mage);
-        System.out.println("");
-        System.out.println("====== ROUND " + Utils.round + " SUPER COMBO UNIT " + unit.getMapLocation() + " WITH TARGET " + unit.target);
+        //System.out.println("");
+        //System.out.println("====== ROUND " + Utils.round + " SUPER COMBO UNIT " + unit.getMapLocation() + " WITH TARGET " + unit.target);
         OverchargeMage initState = new OverchargeMage(unit);
         OverchargeMage bestState = initState;
         PriorityQueue<OverchargeMage> queue = new PriorityQueue<>();
@@ -309,13 +309,13 @@ public class Mage {
         int count = 1;
         while (!queue.isEmpty()){
             if (System.nanoTime() - initTime > MAX_TIME) {
-                System.out.println("TIME OUT!!");
+                //System.out.println("TIME OUT!!");
                 break;
             }
-            System.out.println("    New state " + count++);
+            //System.out.println("    New state " + count++);
             OverchargeMage state = queue.poll();
             if (bestState.compareTo(state) == 1) {
-                System.out.println("    UPDATES BEST SPACE!! kills: " + bestState.kills + "vs" + state.kills + ", damage " + bestState.damageDealt + "vs" + state.damageDealt);
+                //System.out.println("    UPDATES BEST SPACE!! kills: " + bestState.kills + "vs" + state.kills + ", damage " + bestState.damageDealt + "vs" + state.damageDealt);
                 bestState = state;
             }
             if (state.canAttack){
@@ -327,7 +327,7 @@ public class Mage {
                         MageAction action = new MageAction(ATTACK, enemyLoc);
                         OverchargeMage newState = state.nextStep(action);
                         if (newState != null) {
-                            System.out.println("    fa push d'un atac a " + enemyLoc);
+                            //System.out.println("    fa push d'un atac a " + enemyLoc);
                             queue.offer(newState);
                         }
                     }
@@ -343,7 +343,7 @@ public class Mage {
                     MageAction action = new MageAction(MOVE, newLoc);
                     OverchargeMage newState = state.nextStep(action);
                     if (newState != null) {
-                        System.out.println("    fa push d'un move a " + newLoc);
+                        //System.out.println("    fa push d'un move a " + newLoc);
                         queue.offer(newState);
                     }
                 }
@@ -361,7 +361,7 @@ public class Mage {
                     MageAction action = new MageAction(BLINK, newLoc);
                     OverchargeMage newState = state.nextStep(action);
                     if (newState != null) {
-                        System.out.println("    fa push d'un blink a " + newLoc);
+                        //System.out.println("    fa push d'un blink a " + newLoc);
                         queue.offer(newState);
                     }
                 }
@@ -371,12 +371,12 @@ public class Mage {
             int maxIndex = -1;
             HashSet<Integer> healers = Overcharge.overchargeMatrix.get(state.mageLoc.encode());
             if (healers == null) continue;
-            System.out.println("    healers available" + healers.size());
+            //System.out.println("    healers available" + healers.size());
             for (int index: healers){
                 AuxUnit healer = Units.myUnits.get(index);
                 AuxMapLocation healerLoc = healer.getMapLocation();
                 if (state.overchargesUsed.contains(healerLoc)) {
-                    System.out.println("    healer already used: " + healerLoc);
+                    //System.out.println("    healer already used: " + healerLoc);
                     continue; //si ja hem gastat aquest overcharge
                 }
                 int dist = healerLoc.distanceSquaredTo(unit.target);
@@ -391,7 +391,7 @@ public class Mage {
                 MageAction action = new MageAction(OVERCHARGE, healerLoc);
                 OverchargeMage newState = state.nextStep(action);
                 if (newState != null) {
-                    System.out.println("    fa push d'un overcharge a " + healerLoc);
+                    //System.out.println("    fa push d'un overcharge a " + healerLoc);
                     queue.offer(newState);
                 }
             }
@@ -404,7 +404,7 @@ public class Mage {
         if (state.lastAction == null) return;
         executeState(state.previousStep);
         MageAction action = state.lastAction;
-        System.out.println("    Executes action: " + action);
+        //System.out.println("    Executes action: " + action);
         AuxMapLocation targetLoc = action.target;
         switch(action.actionType){
             case ATTACK:
@@ -558,7 +558,6 @@ public class Mage {
         MageAction(int type, AuxMapLocation target){
             actionType = type;
             this.target = target;
-            if (target == null) System.out.println("CUIDAOOO INICIALITZACIO DE MAGE ACTION AMB TARGET NULL!");
         }
 
         public String toString(){
@@ -663,16 +662,15 @@ public class Mage {
         }
     }
 
-    AuxMapLocation getTarget(AuxUnit _unit){
+    AuxMapLocation getTarget(AuxUnit _unit) {
         try {
             AuxMapLocation ans = getBestTarget(_unit);
             if (ans != null) return ans;
             _unit.exploretarget = true;
             return Explore.findExploreObjective(_unit);
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
-
 }

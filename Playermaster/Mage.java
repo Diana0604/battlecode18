@@ -463,6 +463,7 @@ public class Mage {
             HashSet<Integer> healersIndex = Overcharge.overchargeMatrix.get(location.encode());
             int maxDist = -1;
             int maxIndex = -1;
+            if (healersIndex == null) return null;
             for (int index: healersIndex){
                 if (overchargesUsed.contains(index)) continue;
                 AuxUnit healer = Units.myUnits.get(index);
@@ -527,7 +528,6 @@ public class Mage {
         int iterations = 0;
         while (!queue.isEmpty() && iterations++ < 1000){
             MageInfo state = queue.poll();
-            System.out.println(" mage " + state.mage + " location " + state.location);
             if (state.location.distanceSquaredTo(state.mage.target) <= Const.mageAttackRange){
                 //he trobat una sequencia que arriba al target!!
                 return state;

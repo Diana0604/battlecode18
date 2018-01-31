@@ -13,10 +13,6 @@ public class Mage {
     private static final int BLINK = 2;
     private static final int OVERCHARGE = 3;
 
-    public AuxUnit unit;
-
-    private HashMap<Integer, Integer> objectiveArea; //todo borrar aixo??
-
     static Mage getInstance(){
         if (instance == null){
             instance = new Mage();
@@ -24,36 +20,49 @@ public class Mage {
         return instance;
     }
 
-    static double unitValue(UnitType type){
-        switch (type){
-            case Worker: return 0.45;
-            case Knight: return 1;
-            default: return 0.95;
-        }
-    }
-
     public Mage(){
-        objectiveArea = new HashMap<>();
     }
 
     /*------------ REGULAR ATTACK ------------*/
 
-    private void regularAttack() {
-        try {
-
-            AuxUnit bestEnemy = null;
-            double bestVal = 0;
-            if (!unit.canAttack()) return;
-            AuxUnit[] enemies = Wrapper.senseUnits(unit.getX(), unit.getY(), 30);
-            for (int i = 0; i < enemies.length; ++i){
-                AuxUnit enemy = enemies[i];
-                if (Target.mageHits[enemy.getX()][enemy.getY()] > bestVal){
-                    bestVal = Target.mageHits[enemy.getX()][enemy.getY()];
-                    bestEnemy = enemy;
-                }
+    private AuxUnit pickAttackTarget(AuxUnit mage){
+        AuxUnit bestEnemy = null;
+        double bestVal = 0;
+        AuxUnit[] enemies = Wrapper.senseUnits(mage.getX(), mage.getY(), 30); //fa sense d'aliats tambe
+        for (int i = 0; i < enemies.length; ++i){
+            AuxUnit enemy = enemies[i];
+            if (Target.mageHits[enemy.getX()][enemy.getY()] > bestVal){
+                bestVal = Target.mageHits[enemy.getX()][enemy.getY()];
+                bestEnemy = enemy;
             }
+        }
+        return bestEnemy;
+    }
 
-            if (bestEnemy != null) Wrapper.attack(unit, bestEnemy);
+    private void regularAttack(AuxUnit mage) {
+        try {
+            System.out.println(Utils.round + "  " + mage.getMapLocation() + " enter regular attack, target " + mage.target);
+            AuxUnit unitToAttack = pickAttackTarget(mage);
+            if (unitToAttack == null) {
+                System.out.println(Utils.round + "  " + mage.getMapLocation() + " unitToAttack null " + mage.target);
+                return;
+            }
+            System.out.println(Utils.round + "  " + mage.getMapLocation() + " decides to attack " + unitToAttack.getMapLocation());
+            AuxMapLocation location;
+            if (mage.target == null) location = unitToAttack.getMapLocation();
+            else location = mage.target;
+            if (!mage.canAttack()) {
+                System.out.println(Utils.round + "  " + mage.getMapLocation() + " can't attack, tries overcharging");
+                Overcharge.getOvercharged(mage, location);
+                if (mage.canAttack()) {
+                    System.out.println(Utils.round + "  " + mage.getMapLocation() + " gets overcharged, tries to attack");
+                    regularAttack(mage);
+                }
+            } else {
+                System.out.println(Utils.round + "  " + mage.getMapLocation() + " can attack, attacks " + unitToAttack.getMapLocation());
+                Wrapper.attack(mage,unitToAttack);
+                regularAttack(mage);
+            }
         }catch(Exception e) {
             e.printStackTrace();
         }
@@ -165,17 +174,17 @@ public class Mage {
     }
 
 
-    int encodeMovement(int type, AuxMapLocation newLoc){
+    private int encodeMovement(int type, AuxMapLocation newLoc){
         int n1 = type;
         int n2 = newLoc.encode();
         return (n1 << 12)|n2;
     }
 
-    int movementType(int code){
+    private int movementType(int code){
         return ((code >> 12)&0x3);
     }
 
-    AuxMapLocation movementDestination(int code){
+    private AuxMapLocation movementDestination(int code){
         return new AuxMapLocation(code&0xFFF);
     }
 
@@ -332,7 +341,7 @@ public class Mage {
     }
 
 
-    void attackkk(){
+    private void attackkk(){
         MageInfo state = findOPSequence();
         while (state != null){
             System.out.println("ATTACKKKK " + state.mage.getID());
@@ -389,7 +398,7 @@ public class Mage {
                         }
                     }
                     if (maxDist != -1){
-                        if (mage.canAttack()) regularAttack(); //ataca just abans de ferse overcharge
+                        if (mage.canAttack()) regularAttack(mage); //ataca just abans de ferse overcharge
                         Wrapper.overcharge(Units.myUnits.get(maxIndex), mage);
                     }else{
                         System.out.println("INTENT DE OVERCHARGE PERO NO HI HA NINGU A RANG :(");
@@ -397,20 +406,6 @@ public class Mage {
                     }
                 }
             }
-            //gasta tots els overcharges que li queden atacant
-            HashSet<Integer> healerIndexs = new HashSet<>();
-            healerIndexs.addAll(Overcharge.overchargeMatrix.get(mage.getMapLocation().encode()));
-            for (int index: healerIndexs){
-                if (state.overchargesUsed.contains(index)) continue;
-                AuxUnit healer = Units.myUnits.get(index);
-                if (mage.canAttack()) {
-                    System.out.println(Utils.round + "  " + state.mage.getID() + " fa regular attack");
-                    regularAttack();
-                }
-                System.out.println(Utils.round + "  " + state.mage.getID() + " fa overcharge amb " + healer.getID());
-                Wrapper.overcharge(healer, mage);
-            }
-            if (mage.canAttack()) regularAttack();
 
             for (Integer code: moveSequence){
                 int enc = movementDestination(code).encode();
@@ -418,18 +413,19 @@ public class Mage {
             }
             System.out.println("END ATTACKKKKK " + state.mage.getID());
             state.mage.target = getTarget(state.mage);
-            state = findOPSequence();
+            regularAttack(state.mage);
+            //state = findOPSequence();
+            state = null;
         }
     }
 
 
-    void doAction(AuxUnit _unit){
+    private void doAction(AuxUnit mage){
         try {
-            unit = _unit;
-            if (unit.target != null && !unit.exploretarget && unit.target.distanceSquaredTo(unit.getMapLocation()) < 90) {
+            if (mage.target != null && !mage.exploretarget && mage.target.distanceSquaredTo(mage.getMapLocation()) < 90) {
                 //if (trySpecialMove()) return;
             }
-            regularAttack();
+            regularAttack(mage);
         } catch(Exception e) {
             e.printStackTrace();
         }
@@ -477,26 +473,33 @@ public class Mage {
         }
     }
 
-    private AuxMapLocation getBestTarget(AuxUnit _unit){
+    private AuxMapLocation getBestTarget(AuxUnit mage){
         try {
-            if (Rocket.callsToRocket.containsKey(_unit.getID())) return Rocket.callsToRocket.get(_unit.getID());
+            if (Rocket.callsToRocket.containsKey(mage.getID())) {
+                mage.exploretarget = true;
+                return Rocket.callsToRocket.get(mage.getID());
+            }
             /*if (unit.getHealth() < 100) {
                 AuxMapLocation ans = getBestHealer(unit.getMapLocation());
                 if (ans != null) return ans;
             }*/
-            return getBestEnemy(_unit.getMapLocation());
+            return getBestEnemy(mage.getMapLocation());
         }catch(Exception e) {
             e.printStackTrace();
             return null;
         }
     }
 
-    AuxMapLocation getTarget(AuxUnit _unit) {
+    AuxMapLocation getTarget(AuxUnit mage) {
         try {
-            AuxMapLocation ans = getBestTarget(_unit);
-            if (ans != null) return ans;
-            _unit.exploretarget = true;
-            return Explore.findExploreObjective(_unit);
+            AuxMapLocation ans = getBestTarget(mage);
+            if (ans != null) {
+                System.out.println(Utils.round + "  " + mage.getMapLocation() + " ha trobat unit target " + ans);
+                return ans;
+            }
+            mage.exploretarget = true;
+            System.out.println(Utils.round + "  " + mage.getMapLocation() + " busca explorer target " + mage.target);
+            return Explore.findExploreObjective(mage);
         } catch (Exception e) {
             e.printStackTrace();
         }

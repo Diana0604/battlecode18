@@ -72,6 +72,7 @@ public class Overcharge {
                 maxIndex = healerIndex;
             }
         }
+        if (maxIndex == -1) return;
         AuxUnit healer = Units.myUnits.get(maxIndex);
         Wrapper.overcharge(healer, troop);
     }

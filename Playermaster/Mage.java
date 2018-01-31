@@ -557,7 +557,7 @@ public class Mage {
                     AuxUnit molesta = dest.getUnit();
                     if (molesta != null && molesta.myTeam && molesta.isRobot()){
                         int a = MovementManager.getInstance().move(molesta, MovementManager.FORCED);
-                        System.out.println("Forced to move to " + a);
+                        //System.out.println("Forced to move to " + a);
                     }
 
                     Wrapper.moveRobot(mage, dir);

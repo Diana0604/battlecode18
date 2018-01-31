@@ -195,14 +195,14 @@ public class MovementManager {
 
             //if (forced) System.out.println("Trying to move from " + unit.getX() + " " + unit.getY() + " to " + unit.target.x + " " + unit.target.y);
 
-            if (unit.visited){
+            if (unit.visited[priority]){
                 if (priority == FORCED){
                     Wrapper.disintegrate(unit);
                     return 0;
                 }
                 return 8;
             }
-            unit.visited = true;
+            unit.visited[priority] = true;
             if (unit.target == null) unit.target = unit.getMapLocation();
             if (!unit.canMove()){
                 if (priority == FORCED){

@@ -89,6 +89,7 @@ public class Factory {
             if (target == null) target = unit.getMapLocation();
             for (int j = 0; j < 8; ++j) {
                 if (Wrapper.canUnload(unit, j)) {
+                    if (garrisonUnit.getType() == UnitType.Knight && Danger.knightShouldNotGo(garrisonUnit, j)) continue;
                     AuxMapLocation newLoc = unit.getMapLocation().add(j);
                     double d = newLoc.distanceBFSTo(target);
                     if (d < bestDist) {

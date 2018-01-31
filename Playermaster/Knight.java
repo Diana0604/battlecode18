@@ -158,6 +158,13 @@ public class Knight {
 
             int distA = myLoc.distanceBFSTo(A.getMapLocation());
             int distB = myLoc.distanceBFSTo(B.getMapLocation());
+            int priorityA = moveTypePriority(A.getType());
+            int priorityB = moveTypePriority(B.getType());
+
+            return (distA - priorityA < distB - priorityB) ? A : B;
+
+            /*
+
             boolean farA = distA > 10;
             boolean farB = distB > 10;
 
@@ -173,6 +180,7 @@ public class Knight {
 
             if (distA < distB) return A;
             return B;
+            */
 
         }catch(Exception e) {
             e.printStackTrace();

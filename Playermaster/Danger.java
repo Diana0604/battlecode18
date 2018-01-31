@@ -145,7 +145,7 @@ class Danger {
     }
 
     static boolean knightShouldNotGo(AuxUnit unit, int dir){
-        AuxMapLocation loc = unit.getMapLocation().add(dir);
+        /*AuxMapLocation loc = unit.getMapLocation().add(dir);
         int dif = 0;
         AuxUnit[] units = Wrapper.senseUnits(loc.x, loc.y, 8);
         boolean badPosition = false;
@@ -156,12 +156,14 @@ class Danger {
                     --dif;
                     AuxMapLocation newLoc = units[i].getMapLocation();
                     if (Math.abs(newLoc.x - loc.x) > 1 || Math.abs(newLoc.y - loc.x) > 1) badPosition = true;
-                    else if (!unit.canAttack()) badPosition = true;
+                    else if (!unit.canAttack() && units[i].attackHeat < 20) badPosition = true;
                 }
             }
         }
         if (dif > 0) return false;
         return badPosition;
+        */
+        return false;
     }
 
 

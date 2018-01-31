@@ -321,8 +321,8 @@ public class Mage {
                 if (unit.canMove()) suicideScore = 1;
                 else suicideScore = 3;
             }
-            if (suicideScore < minSuicides[dx][dy]){
-                minSuicides[dx][dy] = suicideScore;
+            if (suicideScore < minSuicides[3 + dx][3 + dy]){
+                minSuicides[3 + dx][3 + dy] = suicideScore;
                 moveState.alliesSuicided = suicideScore/3;
                 states.put(moveLoc.encode(), moveState);
             }
@@ -340,8 +340,8 @@ public class Mage {
                     if (unit.canMove()) suicideScore2 += 1;
                     else suicideScore2 += 3;
                 }
-                if (suicideScore2 < minSuicides[ddx][ddy]){
-                    minSuicides[dx][dy] = suicideScore2;
+                if (suicideScore2 < minSuicides[3 + ddx][3 + ddy]){
+                    minSuicides[3 + ddx][3 + ddy] = suicideScore2;
                     moveBlinkState.alliesSuicided = suicideScore2/3;
                     states.put(moveBlinkLoc.encode(), moveBlinkState);
                 }
@@ -362,8 +362,8 @@ public class Mage {
                 if (unit.canMove()) suicideScore = 1;
                 else suicideScore = 3;
             }else suicideScore = 0;
-            if (suicideScore < minSuicides[dx][dy]){
-                minSuicides[dx][dy] = suicideScore;
+            if (suicideScore < minSuicides[3 + dx][3 + dy]){
+                minSuicides[3 + dx][3 + dy] = suicideScore;
                 blinkState.alliesSuicided = suicideScore/3;
                 states.put(blinkLoc.encode(), blinkState);
             }
@@ -381,8 +381,8 @@ public class Mage {
                     if (unit.canMove()) suicideScore2 += 1;
                     else suicideScore2 += 3;
                 }
-                if (suicideScore2 < minSuicides[ddx][ddy]){
-                    minSuicides[dx][dy] = suicideScore2;
+                if (suicideScore2 < minSuicides[3 + ddx][3 + ddy]){
+                    minSuicides[3 + ddx][3 + ddy] = suicideScore2;
                     blinkMoveState.alliesSuicided = suicideScore2/3;
                     states.put(blinkMoveLoc.encode(), blinkMoveState);
                 }

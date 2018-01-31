@@ -27,16 +27,16 @@ public class AuxMapLocation {
 
 
     public AuxMapLocation(int a){
-        x = a >> 12;
-        y = a & 0xFFF;
+        x = a >> 6;
+        y = a & 0x3F;
     }
 
     public int encode(){
-        return ((x << 12) | y);
+        return ((x << 6) | y);
     }
 
     public int encode(int _x, int _y){
-        return ((_x << 12) | _y);
+        return ((_x << 6) | _y);
     }
 
     public AuxMapLocation add(int dir){

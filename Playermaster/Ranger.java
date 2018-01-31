@@ -2,6 +2,8 @@ import bc.Team;
 import bc.UnitType;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.PriorityQueue;
 
 public class Ranger {
     private static Ranger instance = null;
@@ -182,7 +184,12 @@ public class Ranger {
 
     private AuxMapLocation getBestPositionToShoot(AuxMapLocation myLoc) {
         try {
-            int D = 10;
+
+            AuxMapLocation target = null;
+            int d = Target.getBestDirection(myLoc);
+            if (d >= 0) target = myLoc.add(d);
+            /*
+            int D = 100;
             int bestScore = 0;
             AuxMapLocation target = null;
             for (int i = 0; i < Vision.Mx[D].length; ++i) {
@@ -202,7 +209,7 @@ public class Ranger {
                         }
                     }
                 }
-            }
+            }*/
             return target;
         } catch (Exception e) {
             e.printStackTrace();
@@ -214,7 +221,6 @@ public class Ranger {
     AuxMapLocation getTarget(AuxUnit unit){
         try {
             final int MAX_HP_TO_RETREAT = 110; //todo: crec que es millor canviar aixo per 110 pq mages no facin oneshot
-            if (Units.canOverCharge && Utils.round % 10 == 9) return null;
             if (Rocket.callsToRocket.containsKey(unit.getID())) return Rocket.callsToRocket.get(unit.getID());
             if (unit.getHealth() < MAX_HP_TO_RETREAT) {
                 AuxMapLocation ans = getBestHealer(unit.getMapLocation());

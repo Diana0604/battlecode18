@@ -166,7 +166,7 @@ public class Factory {
             int roundsEnemyUnseen = Utils.round - Build.lastRoundEnemySeen;
             if ((Utils.round > 250 && roundsEnemyUnseen > 10) || Utils.round >= ROCKET_RUSH) {
                 //focus only on getting to mars
-                if (workers < 3) return UnitType.Worker;
+                if (workers < 2) return UnitType.Worker;
                 if (rangers + healers + mages +knights > 30 && (rangers+healers+mages+knights) > 8*typeCount.get(UnitType.Rocket)) return null;
             }
 
@@ -174,11 +174,9 @@ public class Factory {
             int totalTroops = knights + rangers + mages;
             if (totalTroops < 4) return UnitType.Ranger;
 
-            if (2*healers < totalTroops-1) return UnitType.Healer;
-            if (rangers < 10) return UnitType.Ranger;
-            //if (rangers < maxRangers) return UnitType.Ranger; provisional, per testejar mags xd
-            if (healers < 0.75 * rangers) return UnitType.Healer;
-            //if (healers < 1.25 * rangers) return UnitType.Healer;
+            if (3*healers < totalTroops-1) return UnitType.Healer;
+            if (rangers < maxRangers) return UnitType.Ranger;
+            if (healers < 1.25 * rangers) return UnitType.Healer;
             return UnitType.Mage;
         } catch(Exception e) {
             e.printStackTrace();

@@ -6,6 +6,7 @@ public class Rocket {
 
     public static HashMap<Integer, AuxMapLocation> callsToRocket;
     public static HashSet<AuxMapLocation> rocketTakeoffs;
+    public static HashMap<Integer,HashSet<AuxMapLocation>> rocketLandingsByRound;
 
     // worker - knight - ranger - mage - healer - factory - rocket
     static int[] maxUnitTypes = {1, 12, 12, 5, 2, 0, 0};
@@ -15,7 +16,6 @@ public class Rocket {
     static HashSet<AuxMapLocation> enemyRocketLandingsLocs;
     static int[] allyRocketLandingsCcs; // s'instancia a MarsPlanning despres de calculars les ccs
     static int[] enemyRocketLandingsCcs; // idem
-    static HashMap<Integer,HashSet<AuxMapLocation>> rocketLandingsByRound;
     static HashMap<Integer, RocketData> rocketDatas;
 
     static void initGame(){

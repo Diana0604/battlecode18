@@ -20,7 +20,7 @@ public class Research {
         return (int) researchInfo.getLevel(type);
     }
 
-    static void pickResearch(){
+    private static void pickResearch(){
         /*
 - Si isolated, R H M
 - si initDist molt petit (<25), H M R

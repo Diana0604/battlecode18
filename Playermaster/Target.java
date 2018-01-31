@@ -123,11 +123,10 @@ public class Target {
 
     static double unitValue(UnitType type){
         switch (type){
-            case Worker: return 0.45;
-            case Knight: {
-                if (Utils.round < 150) return 1.6;
-                return 1;
-            }
+            case Worker:
+                if (Utils.round < 100) return 0.2;
+                return 0.45;
+            case Knight: return 1;
             default: return 0.95;
         }
     }

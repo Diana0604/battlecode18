@@ -39,29 +39,33 @@ public class Mage {
         return bestEnemy;
     }
 
-    private void regularAttack(AuxUnit mage) {
+    private void regularAttack(AuxUnit mage, int depth) {
         try {
-            //System.out.println(Utils.round + "  " + mage.getMapLocation() + " enter regular attack, target " + mage.target);
-            AuxUnit unitToAttack = pickAttackTarget(mage);
-            if (unitToAttack == null) {
-                //System.out.println(Utils.round + "  " + mage.getMapLocation() + " unitToAttack null " + mage.target);
+            if (depth >= 25){
+                System.out.println(Utils.round + "  " + mage.getMapLocation() + " max depth reached, returning");
                 return;
             }
-            //System.out.println(Utils.round + "  " + mage.getMapLocation() + " decides to attack " + unitToAttack.getMapLocation());
+            System.out.println(Utils.round + "  " + mage.getMapLocation() + " enter regular attack, target " + mage.target);
+            AuxUnit unitToAttack = pickAttackTarget(mage);
+            if (unitToAttack == null) {
+                System.out.println(Utils.round + "  " + mage.getMapLocation() + " unitToAttack null " + mage.target);
+                return;
+            }
+            System.out.println(Utils.round + "  " + mage.getMapLocation() + " decides to attack " + unitToAttack.getMapLocation());
             AuxMapLocation location;
             if (mage.target == null) location = unitToAttack.getMapLocation();
             else location = mage.target;
             if (!mage.canAttack()) {
-                //System.out.println(Utils.round + "  " + mage.getMapLocation() + " can't attack, tries overcharging");
+                System.out.println(Utils.round + "  " + mage.getMapLocation() + " can't attack, tries overcharging");
                 Overcharge.getOvercharged(mage, location);
                 if (mage.canAttack()) {
-                    //System.out.println(Utils.round + "  " + mage.getMapLocation() + " gets overcharged, tries to attack");
-                    regularAttack(mage);
+                    System.out.println(Utils.round + "  " + mage.getMapLocation() + " gets overcharged, tries to attack");
+                    regularAttack(mage, depth + 1);
                 }
             } else {
-                //System.out.println(Utils.round + "  " + mage.getMapLocation() + " can attack, attacks " + unitToAttack.getMapLocation());
+                System.out.println(Utils.round + "  " + mage.getMapLocation() + " can attack, attacks " + unitToAttack.getMapLocation());
                 Wrapper.attack(mage,unitToAttack);
-                regularAttack(mage);
+                regularAttack(mage, depth + 1);
             }
         }catch(Exception e) {
             e.printStackTrace();
@@ -373,6 +377,7 @@ public class Mage {
                         }
                     }
                     mage.immune = false;
+                    if (mage.canAttack()) regularAttack(mage, 0); //ataca just abans de fer move
                     Wrapper.moveRobot(mage, dir);
                 }
                 if (type == BLINK){
@@ -387,6 +392,7 @@ public class Mage {
                     }
                     //System.out.println("    - Blink to " + dest);
                     mage.immune = false;
+                    if (mage.canAttack()) regularAttack(mage, 0); //ataca just abans de fer blink
                     Wrapper.blink(mage, dest);
                 }
                 if (type == OVERCHARGE){
@@ -403,7 +409,7 @@ public class Mage {
                         }
                     }
                     if (maxDist != -1){
-                        if (mage.canAttack()) regularAttack(mage); //ataca just abans de ferse overcharge
+                        if (mage.canAttack()) regularAttack(mage, 0); //ataca just abans de ferse overcharge
                         Wrapper.overcharge(Units.myUnits.get(maxIndex), mage);
                     }else{
                         //System.out.println("INTENT DE OVERCHARGE PERO NO HI HA NINGU A RANG :(");
@@ -418,7 +424,7 @@ public class Mage {
             }
             //System.out.println("END ATTACKKKKK " + state.mage.getID());
             state.mage.target = getTarget(state.mage);
-            regularAttack(state.mage);
+            regularAttack(state.mage, 0);
             //state = findOPSequence();
             state = null;
         }
@@ -430,7 +436,7 @@ public class Mage {
             if (mage.target != null && !mage.exploretarget && mage.target.distanceSquaredTo(mage.getMapLocation()) < 90) {
                 //if (trySpecialMove()) return;
             }
-            regularAttack(mage);
+            regularAttack(mage, 0);
         } catch(Exception e) {
             e.printStackTrace();
         }

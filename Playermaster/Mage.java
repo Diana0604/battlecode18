@@ -530,6 +530,7 @@ public class Mage {
             MageInfo state = queue.poll();
             if (state.location.distanceSquaredTo(state.mage.target) <= Const.mageAttackRange){
                 //he trobat una sequencia que arriba al target!!
+                System.out.println("He trobat sequencia em deixa a " + state.location + " i ataco a " + state.mage.target);
                 return state;
             }
             ArrayList<MageInfo> nextStates = getNextStates(state.getOvercharged(), true, Units.canBlink);
@@ -548,27 +549,30 @@ public class Mage {
         MageInfo state = findOPSequence();
         while (state != null){
             AuxUnit mage = state.mage;
+            System.out.println(Utils.round + " ha trobat sequence! My loc " + mage.getMapLocation() + " target " + mage.target);
             ArrayList<Integer> moveSequence = state.movesUsed;
             for (Integer code: moveSequence){
                 int type = movementType(code);
                 AuxMapLocation dest = movementDestination(code);
                 if (type == MOVE){
+                    System.out.println("    - Move to " + dest);
                     int dir = mage.getMapLocation().dirBFSTo(dest);
                     AuxUnit molesta = dest.getUnit();
                     if (molesta != null && molesta.myTeam && molesta.isRobot()){
                         int a = MovementManager.getInstance().move(molesta, MovementManager.FORCED);
                         System.out.println("Forced to move to " + a);
                     }
-
                     Wrapper.moveRobot(mage, dir);
                 }
                 if (type == BLINK){
+                    System.out.println("    - Blink to " + dest);
                     AuxUnit molesta = dest.getUnit();
                     if (molesta != null && molesta.myTeam && molesta.isRobot())
                         MovementManager.getInstance().move(molesta, MovementManager.FORCED);
                     Wrapper.blink(mage, dest);
                 }
                 if (type == OVERCHARGE){
+                    System.out.println("    - Overcharge");
                     HashSet<Integer> healerList = Overcharge.overchargeMatrix.get(mage.getMapLocation().encode());
                     int maxDist = -1;
                     int maxIndex = -1;

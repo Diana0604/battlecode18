@@ -335,8 +335,8 @@ public class Mage {
     void attackkk(){
         MageInfo state = findOPSequence();
         while (state != null){
-            System.out.println("ATTACKKKK " + state.mage.getID());
             AuxUnit mage = state.mage;
+            System.out.println("ATTACKKKK " + mage.getID());
             System.out.println(Utils.round + " ha trobat sequence! My loc " + mage.getMapLocation() + " target " + mage.target);
             ArrayList<Integer> moveSequence = state.movesUsed;
             for (Integer code: moveSequence){
@@ -404,10 +404,10 @@ public class Mage {
                 if (state.overchargesUsed.contains(index)) continue;
                 AuxUnit healer = Units.myUnits.get(index);
                 if (mage.canAttack()) {
-                    System.out.println(Utils.round + "  " + state.mage.getID() + " fa regular attack");
+                    System.out.println(Utils.round + "  " + mage.getID() + " fa regular attack");
                     regularAttack();
                 }
-                System.out.println(Utils.round + "  " + state.mage.getID() + " fa overcharge amb " + healer.getID());
+                System.out.println(Utils.round + "  " + mage.getID() + " fa overcharge amb " + healer.getID());
                 Wrapper.overcharge(healer, mage);
             }
             if (mage.canAttack()) regularAttack();
@@ -416,8 +416,8 @@ public class Mage {
                 int enc = movementDestination(code).encode();
                 Units.newOccupiedPositions.remove(enc);
             }
-            System.out.println("END ATTACKKKKK " + state.mage.getID());
-            state.mage.target = getTarget(state.mage);
+            System.out.println("END ATTACKKKKK " + mage.getID());
+            mage.target = getTarget(mage);
             state = findOPSequence();
         }
     }

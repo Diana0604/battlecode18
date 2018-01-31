@@ -379,7 +379,7 @@ public class Wrapper {
                 target.health -= Units.getDamage(troop.getType());
                 if (target.health <= 0) Units.unitMap[target.getX()][target.getY()] = 0;
             } else {
-                System.out.println("    MAGE ATTACK IN " + target.getMapLocation());
+                System.out.println(Utils.round + " " + troop.getID() + "    MAGE ATTACK IN " + target.getMapLocation());
                 AuxMapLocation mloc = target.getMapLocation();
                 for (int i = 0; i < 9; ++i) {
                     AuxMapLocation newLoc = mloc.add(i);

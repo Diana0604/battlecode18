@@ -226,7 +226,7 @@ public class Ranger {
                 if (ans != null) return ans;
             }
             AuxMapLocation ans = null;
-            ans = getBestPositionToShoot(unit.getMapLocation());
+            //ans = getBestPositionToShoot(unit.getMapLocation());
             if (ans != null) return ans;
             ans = getBestEnemy(unit.getMapLocation());
             if (ans != null) return ans;

@@ -76,7 +76,7 @@ public class Factory {
             AuxUnit garrisonUnit = Units.getUnitByID(units.get(0));
 
             MovementManager.getInstance().setData(garrisonUnit);
-            int dir = MovementManager.getInstance().greedyMove(garrisonUnit);
+            int dir = MovementManager.getInstance().greedyMove(garrisonUnit, MovementManager.PLSMOVE);
             if (dir != 8){
                if (Wrapper.canUnload(unit, dir)){
                    Wrapper.unload(unit, dir);

@@ -17,6 +17,7 @@ public class WorkerUtil {
 
     static boolean[] connectivityArray;
     static int[][] workerAreas;
+    static double[][] workerAreas2;
     static final int workerRadius = 16;
 
     static int[][] workersDeployed;
@@ -27,6 +28,7 @@ public class WorkerUtil {
     static double worker_value1 = 63, worker_value = 70;
 
     final static double decrease_rate = 0.95;
+    final static double decrease_rate_worker_area = 0.75;
     final static int MIN_DIST = 4;
 
     static int workerCont;
@@ -76,6 +78,7 @@ public class WorkerUtil {
     static void fillWorkerActions(){
         try {
             workerAreas = new int[Mapa.W][Mapa.H];
+            workerAreas2 = new double[Mapa.W][Mapa.H];
             workerActionsExpanded = new int[Mapa.W][Mapa.H];
             importantLocations = new ArrayList<>();
             extra_workers = 0;
@@ -99,7 +102,12 @@ public class WorkerUtil {
                         if (unit.getType() == UnitType.Worker){
                             for (int k = 0; k < Vision.Mx[2*workerRadius].length; ++k){
                                 AuxMapLocation newLoc = currentLoc.add(new AuxMapLocation(Vision.Mx[2*workerRadius][k], Vision.My[2*workerRadius][k]));
-                                if (newLoc.isOnMap() && newLoc.distanceBFSTo(currentLoc) <= workerRadius) ++workerAreas[newLoc.x][newLoc.y];
+                                if (!newLoc.isOnMap()) continue;
+                                int d = newLoc.distanceBFSTo(currentLoc);
+                                if (d <= workerRadius){
+                                    ++workerAreas[newLoc.x][newLoc.y];
+                                    workerAreas2[newLoc.x][newLoc.y] += Math.pow(decrease_rate_worker_area, d);
+                                }
                             }
                         }
                         putAction(currentLoc, (Karbonite.karboMap[i][j] + Units.harvestingPower - 1) / Units.harvestingPower, 1);
@@ -162,10 +170,10 @@ public class WorkerUtil {
             if (getConnectivity(location)) val += (1 << 28);
 
             if (closeFactory && isCloseToFactory(location)) val += (1 << 27);
-            val += workerAreas[location.x][location.y]*(1 << 22);
+            val += (int)(10.0*workerAreas2[location.x][location.y])*(1 << 15);
 
             if (isSafe(location)){
-                val += (1 << 20) - mindist;
+                val += (1 << 14) - mindist;
             }
             else val += mindist;
 

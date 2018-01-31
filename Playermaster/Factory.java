@@ -138,11 +138,11 @@ public class Factory {
         else if (Research.getLevel(UnitType.Healer) < 3){
             if (2*healers < totalTroops-1) return UnitType.Healer;
             if (mages < 2) return UnitType.Mage;
-            if (healers < totalTroops) return UnitType.Healer;
+            if (healers < rangers) return UnitType.Healer;
             return UnitType.Ranger;
         }
 
-        if (mages < healers/3) return UnitType.Mage;
+        if (mages < Math.min(healers, rangers)/3) return UnitType.Mage;
         if (healers < totalTroops) return UnitType.Healer;
         return UnitType.Ranger;
 

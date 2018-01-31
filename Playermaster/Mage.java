@@ -13,6 +13,8 @@ public class Mage {
     private static final int BLINK = 2;
     private static final int OVERCHARGE = 3;
 
+    private static final int MAX_DIST = 8;
+
     static Mage getInstance(){
         if (instance == null){
             instance = new Mage();
@@ -295,7 +297,7 @@ public class Mage {
             AuxUnit mage = Units.myUnits.get(index);
             if (mage.isDead() || mage.isInGarrison() || mage.isInSpace()) continue;
             if (mage.target == null || mage.exploretarget) continue;
-            if (!Units.canBlink && mage.getMapLocation().distanceSquaredTo(mage.target) > 90) continue;
+            if (!Units.canBlink && mage.getMapLocation().distanceBFSTo(mage.target) > MAX_DIST) continue;
             MageInfo mageInfo = new MageInfo(mage);
             ArrayList<MageInfo> states = getNextStates(mageInfo, mage.canMove(), mage.canUseAbility() && Units.canBlink);
             if (states != null) {

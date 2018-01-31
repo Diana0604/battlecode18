@@ -43,7 +43,7 @@ public class Research {
             tree = R3;
         }else {
             System.out.println("Default, triem R2");
-            tree = R2;
+            tree = R3;
         }
 
         for (UnitType tech : tree) GC.gc.queueResearch(tech);

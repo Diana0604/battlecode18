@@ -548,6 +548,12 @@ public class Wrapper {
         }
     }
 
+    static AuxUnit getStructure(AuxUnit garrisoned){
+        if (!garrisoned.isInGarrison()) return null;
+        Unit u = GC.gc.unit(garrisoned.getID());
+        return Units.getUnitByID(u.location().structure());
+    }
+
     /*------------------ GENERAL INIT GAME -----------------------*/
 
 

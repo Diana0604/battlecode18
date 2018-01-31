@@ -516,7 +516,7 @@ public class Mage {
         for (int index: Units.mages){
             AuxUnit mage = Units.myUnits.get(index);
             if (mage.isDead() || mage.isInGarrison() || mage.isInSpace()) continue;
-            if (mage.target == null) continue;
+            if (mage.target == null || mage.exploretarget) continue;
             if (!Units.canBlink && mage.getMapLocation().distanceSquaredTo(mage.target) > 90) continue;
             MageInfo mageInfo = new MageInfo(mage);
             ArrayList<MageInfo> states = getNextStates(mageInfo, mage.canMove(), mage.canUseAbility() && Units.canBlink);

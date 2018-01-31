@@ -114,6 +114,11 @@ public class Target {
         for (AuxUnit enemy: Units.enemies){
             putUnit(enemy.getType(), enemy.getMapLocation(), true);
         }
+        for (AuxUnit ally: Units.myUnits){
+            if (ally.isDead() || ally.isInSpace() || ally.isInGarrison()) continue;
+            AuxMapLocation loc = ally.getMapLocation();
+            if (loc != null) putUnit(ally.getType(), loc, false);
+        }
     }
 
     static double unitValue(UnitType type){

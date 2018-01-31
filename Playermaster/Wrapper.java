@@ -1003,7 +1003,7 @@ public class Wrapper {
     static void changePosition (AuxUnit unit, AuxMapLocation loc, AuxMapLocation newLoc){
         boolean add = !unit.myTeam;
         if (loc != null) Target.putUnit(unit.getType(), loc, !add);
-        if (newLoc != null) Target.putUnit(unit.getType(), loc, add);
+        if (newLoc != null) Target.putUnit(unit.getType(), newLoc, add);
     }
 
     /*------------------ INIT GAME -----------------------*/

@@ -5,7 +5,6 @@ import java.util.HashMap;
 class UnitManager{
     static void moveUnits() {
         try {
-            Mage.getInstance().computeMultiTarget();
             selectTargets();
             actUnits();
 

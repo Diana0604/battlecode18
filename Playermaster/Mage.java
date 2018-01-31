@@ -371,7 +371,6 @@ public class Mage {
                 states.put(blinkLoc.encode(), blinkState);
             }
 
-
             for (int j = 0; j < Vision.Mx[2].length; j++){
                 if (!canMove) continue;
                 int ddx = dx + Vision.Mx[2][j];
@@ -549,9 +548,15 @@ public class Mage {
                 AuxMapLocation dest = movementDestination(code);
                 if (type == MOVE){
                     int dir = mage.getMapLocation().dirBFSTo(dest);
+                    AuxUnit molesta = dest.getUnit();
+                    if (molesta.myTeam && molesta.isRobot())
+                        MovementManager.getInstance().move(molesta, 2);
                     Wrapper.moveRobot(mage, dir);
                 }
                 if (type == BLINK){
+                    AuxUnit molesta = dest.getUnit();
+                    if (molesta.myTeam && molesta.isRobot())
+                        MovementManager.getInstance().move(molesta, 2);
                     Wrapper.blink(mage, dest);
                 }
                 if (type == OVERCHARGE){

@@ -183,6 +183,7 @@ public class AuxMapLocation {
         if (isOccupiedByEnemy()) return false;
         if (isOccupiedByStructure()) return false;
         if (Units.newOccupiedPositions.contains(encode())) return false;
+        return true;
     }
 
     //si no hi ha res a la posicio

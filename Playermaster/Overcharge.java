@@ -64,6 +64,7 @@ public class Overcharge {
         HashSet<Integer> healerList = overchargeMatrix.get(troop.getMapLocation().encode());
         int maxDist = -1;
         int maxIndex = -1;
+        if (healerList == null) return;
         for (int healerIndex: healerList){
             AuxUnit healer = Units.myUnits.get(healerIndex);
             int dist = healer.getMapLocation().distanceSquaredTo(target);

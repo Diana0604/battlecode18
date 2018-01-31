@@ -314,7 +314,12 @@ public class Mage {
                     if (!state.overchargesUsed.contains(index)) overchargesLeft++;
                 }
             }
-            if (state.location.distanceSquaredTo(state.mage.target) <= Const.mageAttackRange && overchargesLeft > 0){
+            int minOvercharges = 3;
+            if (Research.getLevel(UnitType.Mage) == 0) minOvercharges = 3;
+            if (Research.getLevel(UnitType.Mage) == 1) minOvercharges = 2;
+            if (Research.getLevel(UnitType.Mage) == 2) minOvercharges = 2;
+            if (Research.getLevel(UnitType.Mage) >= 3) minOvercharges = 1;
+            if (state.location.distanceSquaredTo(state.mage.target) <= Const.mageAttackRange && overchargesLeft > minOvercharges){
                 //he trobat una sequencia que arriba al target!!
                 System.out.println("He trobat sequencia em deixa a " + state.location + " i ataco a " + state.mage.target + " overcharges left " + overchargesLeft);
                 System.out.print("Overcharges used: ");

@@ -35,8 +35,9 @@ public class AuxUnit {
     //MOVEMENT STUFF
     public AuxMapLocation target;
     public boolean exploretarget;
-    public boolean[] visited;
+    public boolean visited;
     public boolean frontline;
+    public boolean immune = false;
     int depth;
 
     public AuxUnit(Unit u) {
@@ -84,8 +85,7 @@ public class AuxUnit {
         health = (int) u.health();
         exploretarget = false;
         target = null;
-        visited = new boolean[3];
-        for (int i = 0; i < 3; ++i) visited[i] = false;
+        visited = false;
         frontline = false;
         myTeam = u.team() == Utils.myTeam;
         depth = 0;

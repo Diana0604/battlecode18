@@ -186,6 +186,14 @@ public class AuxMapLocation {
         return true;
     }
 
+    public boolean isPushable(){
+        if (!isOnMap()) return false;
+        if (!isPassable()) return false;
+        if (isOccupiedByEnemy()) return false;
+        if (Units.newOccupiedPositions.contains(encode())) return false;
+        return true;
+    }
+
     //si no hi ha res a la posicio
     public boolean isAccessible(){
         try {

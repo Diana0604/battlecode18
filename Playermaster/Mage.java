@@ -309,6 +309,7 @@ public class Mage {
             int dx = Vision.Mx[2][i];
             int dy = Vision.My[2][i];
             AuxMapLocation moveLoc = new AuxMapLocation(origin.x + dx, origin.y + dy);
+            if (!moveLoc.isMovable()) continue;
             int code = encodeMovement(MOVE, moveLoc);
             MageInfo moveState = new MageInfo(state, code);
             if (!myMoves[3 + dx][3 + dy]) states.add(moveState);
@@ -321,6 +322,7 @@ public class Mage {
                 if (myMoves[3 + ddx][3 + ddy]) continue;
                 myMoves[3 + ddx][3 + ddy] = true;
                 AuxMapLocation moveBlinkLoc = new AuxMapLocation(origin.x + ddx, origin.y + ddy);
+                if (!moveBlinkLoc.isMovable()) continue;
                 int code2 = encodeMovement(BLINK, moveBlinkLoc);
                 MageInfo moveBlinkState = new MageInfo(moveState, code2);
                 states.add(moveBlinkState);
@@ -332,6 +334,7 @@ public class Mage {
             int dx = Vision.Mx[8][i];
             int dy = Vision.My[8][i];
             AuxMapLocation blinkLoc = new AuxMapLocation(origin.x + dx, origin.y + dy);
+            if (!blinkLoc.isMovable()) continue;
             int code = encodeMovement(BLINK, blinkLoc);
             MageInfo blinkState = new MageInfo(state, code);
             if (!myMoves[3 + dx][3 + dy]) states.add(blinkState);
@@ -345,6 +348,7 @@ public class Mage {
                 if (myMoves[3 + ddx][3 + ddy]) continue;
                 myMoves[3 + ddx][3 + ddy] = true;
                 AuxMapLocation blinkMoveLoc = new AuxMapLocation(origin.x + ddx, origin.y + ddy);
+                if (!blinkMoveLoc.isMovable()) continue;
                 int code2 = encodeMovement(MOVE, blinkMoveLoc);
                 MageInfo blinkMoveState = new MageInfo(blinkState, code2);
                 states.add(blinkMoveState);

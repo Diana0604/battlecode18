@@ -157,6 +157,16 @@ public class AuxMapLocation {
         return false;
     }
 
+    public boolean isOccupiedByEnemy(){
+        try {
+            int indexPlus = Units.unitMap[x][y];
+            return indexPlus < 0;
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     //si la posicio esta ocupada per una unitat
     public boolean isOccupiedByUnit(){
         try {
@@ -165,6 +175,14 @@ public class AuxMapLocation {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public boolean isMovable(){
+        if (!isOnMap()) return false;
+        if (!isPassable()) return false;
+        if (isOccupiedByEnemy()) return false;
+        if (isOccupiedByStructure()) return false;
+        if (Units.newOccupiedPositions.contains(encode())) return false;
     }
 
     //si no hi ha res a la posicio

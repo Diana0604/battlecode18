@@ -67,6 +67,7 @@ public class Vision {
                     //if enemy update info
                     Units.enemies.add(possibleEnemy);
                     Units.unitMap[newLoc.x][newLoc.y] = -Units.enemies.size();
+                    Wrapper.changePosition(possibleEnemy, null, newLoc);
                 }
             }
         }catch(Exception e) {

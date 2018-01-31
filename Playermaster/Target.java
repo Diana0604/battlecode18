@@ -14,7 +14,9 @@ public class Target {
 
     static void initMatrixs() {
         rangerTargets = new int[Mapa.W][Mapa.H];
+        mageHits = new double[Mapa.W][Mapa.H];
         updateRangeMatrix(rangerTargets, UnitType.Ranger);
+        updateMageMatrices();
     }
 
     static void updateRangeMatrix(int[][] targets, UnitType unitType) {
@@ -102,4 +104,34 @@ public class Target {
         return -1;
     }
 
+
+    /*---------------------------- MAGES *-------------------------------------------------*/
+
+
+    static double MIN_VALUE = 1.5;
+
+    static void updateMageMatrices(){
+        for (AuxUnit enemy: Units.enemies){
+            putUnit(enemy.getType(), enemy.getMapLocation(), true);
+        }
+    }
+
+    static double unitValue(UnitType type){
+        switch (type){
+            case Worker: return 0.45;
+            case Knight: return 1;
+            default: return 0.95;
+        }
+    }
+
+    static void putUnit(UnitType type, AuxMapLocation loc, boolean in){
+        double val = unitValue(type);
+        if (!in) val = -val;
+        for (int i = 0; i < 9; ++i){
+            AuxMapLocation newLoc = loc.add(i);
+            if (newLoc.isOnMap()) {
+                mageHits[newLoc.x][newLoc.y] += val;
+            }
+        }
+    }
 }

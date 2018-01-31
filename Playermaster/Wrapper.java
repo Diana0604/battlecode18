@@ -214,13 +214,14 @@ public class Wrapper {
             Units.unitMap[mloc.x][mloc.y] = 0;
             Units.unitMap[newLoc.x][newLoc.y] = Units.allUnits.get(unit.getID()) + 1;
             GC.gc.moveRobot(unit.getID(), Const.allDirs[dir]);
-            if(Utils.round%10 == 0) Vision.checkAndUpdateSeen(newLoc, unit.getVisionRange());
+            Vision.checkAndUpdateSeen(newLoc, unit.getVisionRange());
             if (unit.getType() == UnitType.Healer){
                 if (unit.canUseAbility()){
                     updateOverchargeMatrix(mloc, Units.myUnits.indexOf(unit), false);
                     updateOverchargeMatrix(newLoc, Units.myUnits.indexOf(unit), true);
                 }
             }
+            changePosition(unit, mloc, newLoc);
         }catch(Exception e) {
             e.printStackTrace();
         }
@@ -233,8 +234,9 @@ public class Wrapper {
             Units.unitMap[loc.x][loc.y] = 0;
             Units.unitMap[mloc.x][mloc.y] = Units.allUnits.get(unit.getID()) + 1;
             GC.gc.blink(unit.getID(), new MapLocation(Mapa.planet, mloc.x, mloc.y));
-            if(Utils.round%10 == 0)Vision.checkAndUpdateSeen(mloc, unit.getVisionRange());
+            Vision.checkAndUpdateSeen(mloc, unit.getVisionRange());
             unit.mloc = mloc;
+            changePosition(unit, loc, mloc);
         }catch(Exception e) {
             e.printStackTrace();
         }
@@ -266,6 +268,7 @@ public class Wrapper {
             unit.canAttack = false;
             AuxUnit nW = new AuxUnit(newWorker);
             newWorker.delete();
+            changePosition(nW, null, newLoc);
             return nW;
         }catch(Exception e) {
             e.printStackTrace();
@@ -318,6 +321,7 @@ public class Wrapper {
             if (unit.getType() == UnitType.Healer){
                 if (unit.canUseAbility()) updateOverchargeMatrix(unit.getMapLocation(), Units.myUnits.indexOf(unit), false);
             }
+            changePosition(unit, unit.getMapLocation(), null);
             GC.gc.disintegrateUnit(unit.getID());
         }catch(Exception e){
             e.printStackTrace();
@@ -377,9 +381,12 @@ public class Wrapper {
         try {
             if (troop.getType() != UnitType.Mage) {
                 target.health -= Units.getDamage(troop.getType());
-                if (target.health <= 0) Units.unitMap[target.getX()][target.getY()] = 0;
+                if (target.health <= 0){
+                    Units.unitMap[target.getX()][target.getY()] = 0;
+                    changePosition(target, target.getMapLocation(), null);
+                }
             } else {
-                System.out.println("    MAGE ATTACK IN " + target.getMapLocation());
+                //System.out.println("    MAGE ATTACK IN " + target.getMapLocation());
                 AuxMapLocation mloc = target.getMapLocation();
                 for (int i = 0; i < 9; ++i) {
                     AuxMapLocation newLoc = mloc.add(i);
@@ -387,6 +394,7 @@ public class Wrapper {
                     if (unit2 != null) {
                         unit2.health -= Units.getDamage(troop.getType());
                         if (unit2.health <= 0){
+                            changePosition(unit2, newLoc, null);
                             Units.unitMap[unit2.getMapLocation().x][unit2.getMapLocation().y] = 0;
                             unit2.canMove = false;
                             unit2.canAttack = false;
@@ -990,6 +998,12 @@ public class Wrapper {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    static void changePosition (AuxUnit unit, AuxMapLocation loc, AuxMapLocation newLoc){
+        boolean add = !unit.myTeam;
+        if (loc != null) Target.putUnit(unit.getType(), loc, !add);
+        if (newLoc != null) Target.putUnit(unit.getType(), loc, add);
     }
 
     /*------------------ INIT GAME -----------------------*/

@@ -296,7 +296,6 @@ public class Mage {
     /*------------ EPIC COMBO ATTACK -----------*/
 
 
-
     private ArrayList<MageInfo> getNextStates(MageInfo state, boolean canMove, boolean canBlink){
         if (state == null) return null;
         int[][] minSuicides = new int[7][7];
@@ -305,11 +304,9 @@ public class Mage {
                 minSuicides[i][j] = 100;
             }
         }
-
         AuxMapLocation origin = new AuxMapLocation(state.location.x, state.location.y);
 
         HashMap<Integer, MageInfo> states = new HashMap<>();
-
         for (int i = 0; i < Vision.Mx[2].length; i++){
             if (!canMove) continue;
             int dx = Vision.Mx[2][i];
@@ -579,6 +576,7 @@ public class Mage {
                     }
                 }
             }
+            state = findOPSequence();
         }
     }
 

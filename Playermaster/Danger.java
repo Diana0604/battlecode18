@@ -155,7 +155,7 @@ class Danger {
                 else{
                     --dif;
                     AuxMapLocation newLoc = units[i].getMapLocation();
-                    if (Math.abs(newLoc.x) > 1 || Math.abs(newLoc.y) > 1) badPosition = true;
+                    if (Math.abs(newLoc.x - loc.x) > 1 || Math.abs(newLoc.y - loc.x) > 1) badPosition = true;
                     else if (!unit.canAttack()) badPosition = true;
                 }
             }

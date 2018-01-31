@@ -395,6 +395,8 @@ public class MovementManager {
         try {
             if (unit.getType() == UnitType.Knight) return 8;
             if (unit.getType() == UnitType.Worker && kamikazeWorker()) return 8;
+            attackRange = Units.getAttackRange(unit.getType());
+            attacker = dangerousUnit(unit.getType());
             int index = 8;
             if (priority == FORCED) index = -1;
             for (int i = 0; i < 8; ++i) if (Wrapper.canMove(unit, i)) index = bestIndex(index, i);

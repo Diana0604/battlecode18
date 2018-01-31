@@ -98,14 +98,14 @@ class Danger {
                 double dps = 0;
                 long arshort = 0;
                 long arslong = 0;
-                if (unit.getType() == UnitType.Worker || MovementManager.getInstance().dangerousUnit(enemy.getType())) {
+                if (MovementManager.getInstance().dangerousUnit(enemy.getType())) {
                     dps = Units.getDamage(enemy.getType()) / Units.getAttackCooldown(enemy.getType());
-                    if (unit.getType() == UnitType.Worker && enemy.getType() != UnitType.Worker && enemy.getType() != UnitType.Healer && enemy.getType() != UnitType.Rocket) dps += 0.0001;
+                    //if (unit.getType() == UnitType.Worker && enemy.getType() != UnitType.Worker && enemy.getType() != UnitType.Healer && enemy.getType() != UnitType.Rocket) dps += 0.0001;
                     arslong = Units.getAttackRangeLong(enemy.getType());
                     arshort = Units.getAttackRangeSafe(enemy.getType());
                 }
                 for (int j = 0; j < 9; ++j) {
-                    if (!Wrapper.canMove(unit, j) && j < 8) continue;
+                    //if (!Wrapper.canMove(unit, j) && j < 8) continue;
                     AuxMapLocation newLoc = myLoc.add(j);
                     long d = enemy.getMapLocation().distanceSquaredTo(newLoc);
                     if (dps > 0 && d <= arshort) data.DPS[j] += dps;

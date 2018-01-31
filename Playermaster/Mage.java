@@ -344,8 +344,8 @@ public class Mage {
     private void attackkk(){
         MageInfo state = findOPSequence();
         while (state != null){
-            System.out.println("ATTACKKKK " + state.mage.getID());
             AuxUnit mage = state.mage;
+            System.out.println("ATTACKKKK " + mage.getID());
             System.out.println(Utils.round + " ha trobat sequence! My loc " + mage.getMapLocation() + " target " + mage.target);
             ArrayList<Integer> moveSequence = state.movesUsed;
             for (Integer code: moveSequence){
@@ -445,12 +445,15 @@ public class Mage {
             if (A == null) return false;
             if (!A.isOnMap()) return false;
             double a = Target.mageHits[A.x][A.y];
-            if (a < Target.MIN_VALUE) return false;
 
             if (B == null) return true;
             if (!B.isOnMap()) return true;
             double b = Target.mageHits[B.x][B.y];
-            if (b < Target.MIN_VALUE) return true;
+
+            if (Target.MIN_VALUE < a && Target.MIN_VALUE >= b) return true;
+            if (Target.MIN_VALUE >= a && Target.MIN_VALUE < b) return false;
+            if (Target.MIN_VALUE < a && Target.MIN_VALUE < b) return (a > b);
+
             return (myLoc.distanceBFSTo(A) < myLoc.distanceBFSTo(B));
         } catch(Exception e) {
             e.printStackTrace();

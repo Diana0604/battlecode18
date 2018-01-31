@@ -160,6 +160,7 @@ public class Mage {
         for (MageInfo mageInfo: states.values()){
             ret.add(mageInfo);
         }
+        if (!canMove && !canBlink) ret.add(state);
         return ret;
     }
 
@@ -416,6 +417,7 @@ public class Mage {
                 Units.newOccupiedPositions.remove(enc);
             }
             System.out.println("END ATTACKKKKK " + state.mage.getID());
+            state.mage.target = getTarget(state.mage);
             state = findOPSequence();
         }
     }

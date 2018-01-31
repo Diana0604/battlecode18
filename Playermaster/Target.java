@@ -125,7 +125,7 @@ public class Target {
         switch (type){
             case Worker: return 0.45;
             case Knight: {
-                if (Utils.round < 150) return 1.5;
+                if (Utils.round < 150) return 1.6;
                 return 1;
             }
             default: return 0.95;

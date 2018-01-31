@@ -1,3 +1,5 @@
+import bc.UnitType;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -121,6 +123,8 @@ public class Rocket {
                 if (remaining == 0) return;
                 AuxUnit unit = sorted.get(i).unit;
                 int swig = unit.getType().swigValue();
+                AuxUnit structure = Wrapper.getStructure(unit);
+                if (structure != null && structure.getType() == UnitType.Rocket) continue;
                 if (unitTypes[swig] >= maxUnitTypes[swig]) continue;
                 if (!callsToRocket.containsKey(unit.getID())) {
                     callsToRocket.put(unit.getID(), rocket.getMapLocation());

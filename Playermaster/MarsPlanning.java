@@ -438,7 +438,7 @@ public class MarsPlanning{
                         }
                     }
                 }
-
+                return bestLoc;
             }
         }
         catch(Exception e) {

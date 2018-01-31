@@ -184,7 +184,6 @@ public class Ranger {
 
     private AuxMapLocation getBestPositionToShoot(AuxMapLocation myLoc) {
         try {
-
             AuxMapLocation target = null;
             int d = Target.getBestDirection(myLoc);
             if (d >= 0) target = myLoc.add(d);
@@ -226,7 +225,7 @@ public class Ranger {
                 AuxMapLocation ans = getBestHealer(unit.getMapLocation());
                 if (ans != null) return ans;
             }
-            AuxMapLocation ans;
+            AuxMapLocation ans = null;
             ans = getBestPositionToShoot(unit.getMapLocation());
             if (ans != null) return ans;
             ans = getBestEnemy(unit.getMapLocation());

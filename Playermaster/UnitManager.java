@@ -92,10 +92,9 @@ class UnitManager{
                 if (unit.getType() == UnitType.Healer) {
                     Healer.getInstance().heal(unit);
                 }
-                if (unit.getType() == UnitType.Mage) {
-                    Mage.getInstance().doAction(unit);
-                }
+
             }
+            Mage.getInstance().doActions();
             Worker.actWorkers(true);
             //WorkerUtil.doFirstActions();
         }catch(Exception e) {
@@ -124,10 +123,8 @@ class UnitManager{
                 if (unit.getType() == UnitType.Healer) {
                     Healer.getInstance().heal(unit);
                 }
-                if (unit.getType() == UnitType.Mage) {
-                    Mage.getInstance().doAction(unit);
-                }
             }
+            Mage.getInstance().doActions();
             Worker.actWorkers(false);
         }catch(Exception e) {
             e.printStackTrace();

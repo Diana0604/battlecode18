@@ -386,7 +386,7 @@ public class Wrapper {
                     changePosition(target, target.getMapLocation(), null);
                 }
             } else {
-                System.out.println("    MAGE ATTACK IN " + target.getMapLocation());
+                //System.out.println("    MAGE ATTACK IN " + target.getMapLocation());
                 AuxMapLocation mloc = target.getMapLocation();
                 for (int i = 0; i < 9; ++i) {
                     AuxMapLocation newLoc = mloc.add(i);

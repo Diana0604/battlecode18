@@ -168,17 +168,18 @@ public class Factory {
 
             boolean mageDetected = false;
             boolean shouldBuildKnight = false;
-            AuxUnit[] enemies = Wrapper.senseUnits(unit.getMapLocation(), 50, false);
-            for (int i = 0; i < enemies.length; ++i){
-                if (!shouldBuildKnight && enemies[i].getType() != UnitType.Worker && enemies[i].getMapLocation().distanceBFSTo(unit.getMapLocation()) <= 5) shouldBuildKnight = true;
-                if (enemies[i].getType() == UnitType.Mage) mageDetected = false;
+            AuxUnit[] enemies = Wrapper.senseUnits(unit.getMapLocation(), 100, false);
+            for (AuxUnit enemy : enemies) {
+                UnitType type = enemy.getType();
+                if (type == UnitType.Mage) mageDetected = true;
+                if (!shouldBuildKnight && (type == UnitType.Factory || type == UnitType.Ranger) && enemy.getMapLocation().distanceBFSTo(unit.getMapLocation()) <= 8)
+                    shouldBuildKnight = true;
             }
 
             if(shouldBuildKnight && !mageDetected) return UnitType.Knight;
 
             int minRushtroops = 0;
-            if (Build.initDistToEnemy <= 20) minRushtroops = 6;
-            else if (Build.initDistToEnemy <= 25) minRushtroops = 5;
+            if (Build.initDistToEnemy <= 25) minRushtroops = 2;
 
             if (constructedMages + constructedKnights < minRushtroops){
                 if (constructedKnights > constructedMages) return UnitType.Mage;

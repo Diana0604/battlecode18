@@ -24,9 +24,9 @@ public class MarsPlanning{
     static int H;
     static int takeoffBurstRound;
 
-    private static int[] arrivalTime = new int[1001];
-    private static int[] departTime = new int[1001]; //todo aixo mai es fa servir
-    private static int[] optimArrivalTime = new int[1001];
+    private static int[] arrivalTime = new int[750];
+    private static int[] departTime = new int[1001];
+    private static int[] optimArrivalTime = new int[750];
 
     static int[][] marsInitialKarbonite;
     static double[][] marsInitialPriorityKarbo;
@@ -144,7 +144,7 @@ public class MarsPlanning{
     private static void computeOrbitStuff() {
         OrbitPattern op = GC.gc.orbitPattern();
         int orbitPeriod = (int) op.getPeriod();
-        for (int i = 1; i <= 1000; ++i) {
+        for (int i = 1; i <= 749; ++i) {
             int time = (int) op.duration(i);
             int arrival = i + time;
             arrivalTime[i] = arrival;
@@ -153,7 +153,7 @@ public class MarsPlanning{
             }
         }
         op.delete();
-        for (int i = 1; i <= 1000; ++i) {
+        for (int i = 1; i <= 749; ++i) {
             int arrival = arrivalTime[i];
             for (int j = i; j >= 1; --j) {
                 if (optimArrivalTime[j] == 0 || arrival < optimArrivalTime[j]) optimArrivalTime[j] = arrival;
@@ -197,7 +197,7 @@ public class MarsPlanning{
     static boolean shouldWaitToLaunchRocket(int round, int maxRounds) {
         try {
             int arrival = arrivalTime[round];
-            for (int i = round + 1; i <= round + maxRounds; ++i) {
+            for (int i = round + 1; i <= Math.min(749,round + maxRounds); ++i) {
                 if (arrivalTime[i] < arrival) return true;
             }
             return false;

@@ -171,11 +171,11 @@ public class MovementManager {
         return null;
     }
 
-    double raw_dist(int dir, boolean forced){
+    double raw_dist(int dir, int priority){
         try {
             double a = 0;
             if (dir == 8){
-                if (forced) a += 0.001;
+                if (priority == PLSMOVE) a += 0.001;
                 else a -= 0.001;
             }
             return a + myLoc.add(dir).distanceBFSTo(unit.target);
@@ -185,16 +185,32 @@ public class MovementManager {
         return 0;
     }
 
+    static int NOTFORCED = 0;
+    static int PLSMOVE = 1;
+    static int FORCED = 2;
 
-    public int move(AuxUnit unit, boolean forced){
+
+    public int move(AuxUnit unit, int priority){
         try {
 
             //if (forced) System.out.println("Trying to move from " + unit.getX() + " " + unit.getY() + " to " + unit.target.x + " " + unit.target.y);
 
-            if (unit.visited) return 8;
+            if (unit.visited){
+                if (priority == FORCED){
+                    Wrapper.disintegrate(unit);
+                    return 0;
+                }
+                return 8;
+            }
             unit.visited = true;
-            if (unit.target == null) return 8;
-            if (!unit.canMove()) return 8;
+            if (unit.target == null) unit.target = unit.getMapLocation();
+            if (!unit.canMove()){
+                if (priority == FORCED){
+                    Wrapper.disintegrate(unit);
+                    return 0;
+                }
+                return 8;
+            }
 
             this.data = getData(unit);
             this.unit = unit;
@@ -205,51 +221,58 @@ public class MovementManager {
 
             Danger.computeDanger(unit);
 
-            int dirGreedy = greedyMove(unit);
+            int dirGreedy = greedyMove(unit, priority);
             if (dirGreedy != 8){
                 doMovement(unit, dirGreedy);
-                return dirGreedy; //Todo
+                return dirGreedy;
             }
 
             long d = myLoc.distanceSquaredTo(unit.target);
-            if (d == 0) return 8;
+            if (priority != FORCED && d == 0) return 8;
 
 
             ArrayList<Integer> directions = new ArrayList<>();
-            for (int i = 0; i < 9; ++i){
+            for (int i = 0; i < 8; ++i){
                 AuxMapLocation newLoc = myLoc.add(i);
-                if (newLoc.isOnMap() && newLoc.isPassable() && (i == 8 || isSafe(i))) directions.add(i);
+                if (newLoc.isOnMap() && newLoc.isPassable() && (priority == FORCED || isSafe(i))) directions.add(i);
+            }
+            if (priority != FORCED) directions.add(8);
+
+            directions.sort((a,b) -> raw_dist(a, priority) < raw_dist(b, priority) ? -1 : raw_dist(a, priority) == raw_dist(b, priority) ? 0 : 1);
+
+            for (int pr = PLSMOVE; pr <= Math.max(PLSMOVE, priority); ++pr) {
+                for (int i = 0; i < directions.size(); ++i) {
+
+                    int dirBFS = directions.get(i);
+
+                    if (dirBFS == 8) break;
+                    if (Wrapper.canMove(unit, dirBFS)) {
+                        doMovement(unit, dirBFS);
+                        return dirBFS;
+                    }
+                    AuxMapLocation newLoc = unit.getMapLocation().add(dirBFS);
+                    AuxUnit u = newLoc.getUnit(true);
+                    if (u != null) {
+                        if (u.getType() == UnitType.Factory && d > 2) {
+                            if (Wrapper.canLoad(u, unit)) {
+                                Wrapper.load(u, unit);
+                                getData(unit).soft_reset(newLoc);
+                                return dirBFS;
+                            }
+                        }
+                        if (u.getType() != UnitType.Factory && u.getType() != UnitType.Rocket && u.canMove()) {
+                            if (move(u, pr) != 8) {
+                                doMovement(unit, dirBFS);
+                                return dirBFS;
+                            }
+                        }
+                    }
+                }
             }
 
-            directions.sort((a,b) -> raw_dist(a, forced) < raw_dist(b, forced) ? -1 : raw_dist(a, forced) == raw_dist(b, forced) ? 0 : 1);
-
-            for (int i = 0; i < directions.size(); ++i){
-
-                int dirBFS = directions.get(i);
-
-                if (dirBFS == 8) break;
-                if (Wrapper.canMove(unit, dirBFS)){
-                    doMovement(unit, dirBFS);
-                    return dirBFS;
-                }
-                AuxMapLocation newLoc = unit.getMapLocation().add(dirBFS);
-                AuxUnit u = newLoc.getUnit(true);
-                if (u != null){
-                    if (u.getType() == UnitType.Factory && d > 2){
-                        if (Wrapper.canLoad(u, unit)){
-                            Wrapper.load(u, unit);
-                            getData(unit).soft_reset(newLoc);
-                            return dirBFS;
-                        }
-                    }
-                    if (u.getType() != UnitType.Factory && u.getType() != UnitType.Rocket && u.canMove()) {
-                        if (move(u, true) != 8) {
-                            doMovement(unit, dirBFS);
-                            return dirBFS;
-                        }
-                    }
-                }
-
+            if (priority == FORCED){
+                Wrapper.disintegrate(unit);
+                return 0;
             }
 
             if (d <= 2) return 8;
@@ -370,14 +393,13 @@ public class MovementManager {
         return false;
     }
 
-    int greedyMove(AuxUnit unit){
+    int greedyMove(AuxUnit unit, int priority){
         try {
             if (unit.getType() == UnitType.Knight) return 8;
             if (unit.getType() == UnitType.Worker && kamikazeWorker()) return 8;
             int index = 8;
+            if (priority == FORCED) index = 0;
             for (int i = 0; i < 8; ++i) if (Wrapper.canMove(unit, i)) index = bestIndex(index, i);
-
-            //System.err.println(index);
 
             if (index != 8) {
                 return index;

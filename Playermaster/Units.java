@@ -27,7 +27,7 @@ public class Units {
     static int repairingPower;
     static int harvestingPower;
     static int knightBlock;
-    private static int mageDamage;
+    static int mageDamage;
     static boolean canBlink = false;
     static boolean canOverCharge = false;
     static int rocketCapacity;

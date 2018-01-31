@@ -27,16 +27,16 @@ public class AuxMapLocation {
 
 
     public AuxMapLocation(int a){
-        x = a >> 12;
-        y = a & 0xFFF;
+        x = a >> 6;
+        y = a & 0x3F;
     }
 
     public int encode(){
-        return ((x << 12) | y);
+        return ((x << 6) | y);
     }
 
     public int encode(int _x, int _y){
-        return ((_x << 12) | _y);
+        return ((_x << 6) | _y);
     }
 
     public AuxMapLocation add(int dir){
@@ -157,6 +157,16 @@ public class AuxMapLocation {
         return false;
     }
 
+    public boolean isOccupiedByEnemy(){
+        try {
+            int indexPlus = Units.unitMap[x][y];
+            return indexPlus < 0;
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     //si la posicio esta ocupada per una unitat
     public boolean isOccupiedByUnit(){
         try {
@@ -165,6 +175,15 @@ public class AuxMapLocation {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public boolean isMovable(){
+        if (!isOnMap()) return false;
+        if (!isPassable()) return false;
+        if (isOccupiedByEnemy()) return false;
+        if (isOccupiedByStructure()) return false;
+        if (Units.newOccupiedPositions.contains(encode())) return false;
+        return true;
     }
 
     //si no hi ha res a la posicio

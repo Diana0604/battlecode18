@@ -76,7 +76,7 @@ public class Factory {
             AuxUnit garrisonUnit = Units.getUnitByID(units.get(0));
 
             MovementManager.getInstance().setData(garrisonUnit);
-            int dir = MovementManager.getInstance().greedyMove(garrisonUnit);
+            int dir = MovementManager.getInstance().greedyMove(garrisonUnit, MovementManager.PLSMOVE);
             if (dir != 8){
                if (Wrapper.canUnload(unit, dir)){
                    Wrapper.unload(unit, dir);
@@ -166,7 +166,7 @@ public class Factory {
             int roundsEnemyUnseen = Utils.round - Build.lastRoundEnemySeen;
             if ((Utils.round > 250 && roundsEnemyUnseen > 10) || Utils.round >= ROCKET_RUSH) {
                 //focus only on getting to mars
-                if (workers < 3) return UnitType.Worker;
+                if (workers < 2) return UnitType.Worker;
                 if (rangers + healers + mages +knights > 30 && (rangers+healers+mages+knights) > 8*typeCount.get(UnitType.Rocket)) return null;
             }
 
@@ -174,9 +174,16 @@ public class Factory {
             int totalTroops = knights + rangers + mages;
             if (totalTroops < 4) return UnitType.Ranger;
 
+            if (Utils.round > 175 && rangers > 8 && healers > 4 && mages == 0) return UnitType.Mage;
+
             if (2*healers < totalTroops-1) return UnitType.Healer;
             if (rangers < maxRangers) return UnitType.Ranger;
-            if (healers < 1.25 * rangers) return UnitType.Healer;
+
+
+
+            if (healers < rangers) return UnitType.Healer;
+            //if (rangers < maxRangers) return UnitType.Ranger;
+            //if (healers < 1.25 * rangers) return UnitType.Healer;
             return UnitType.Mage;
         } catch(Exception e) {
             e.printStackTrace();

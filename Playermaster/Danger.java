@@ -118,8 +118,9 @@ class Danger {
                 }
             }
 
+            /*
             HashSet<AuxMapLocation> rockets; // a la terra son els que s'enlairen, a mart son els que aterren
-            if (Mapa.onEarth()) rockets = Rocket.rocketTakeoffs;
+            if (Mapa.onEarth())rockets = Rocket.rocketTakeoffs;
             else rockets = Rocket.rocketLandingsByRound.get(Utils.round);
             for (AuxMapLocation rocketLoc : rockets) {
                 for (int j = 0; j < 9; ++j) {
@@ -130,7 +131,7 @@ class Danger {
                         data.DPSlong[j] += 100;
                     }
                 }
-            }
+            }*/
 
 
             dangerData.put(enc, data);

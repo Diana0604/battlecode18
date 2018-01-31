@@ -431,11 +431,18 @@ public class Mage {
         }
 
         MageInfo(MageInfo prevState, int movement){
+            mage = prevState.mage;
+            overchargesUsed = new HashSet<>();
+            overchargesUsed.addAll(prevState.overchargesUsed);
             ArrayList<Integer> newList = new ArrayList<>();
             newList.addAll(prevState.movesUsed);
             newList.add(movement);
             AuxMapLocation newLoc = movementDestination(movement);
-            new MageInfo(prevState.mage, prevState.overchargesUsed, newList, newLoc, prevState.alliesSuicided);
+            movesUsed = newList;
+            location = new AuxMapLocation(newLoc.x, newLoc.y);
+            alliesSuicided = prevState.alliesSuicided;
+            expectedOvercharges = getExpectedOvercharges();
+            value = getValue();
         }
 
         MageInfo(AuxUnit mage, HashSet<Integer> overchargesUsed, ArrayList<Integer> movesUsed,
@@ -507,6 +514,7 @@ public class Mage {
         PriorityQueue<MageInfo> queue = new PriorityQueue<>();
         for (int index: Units.mages){
             AuxUnit mage = Units.myUnits.get(index);
+            if (mage.isDead() || mage.isInGarrison() || mage.isInSpace()) continue;
             if (mage.target == null) continue;
             MageInfo mageInfo = new MageInfo(mage);
             ArrayList<MageInfo> states = getNextStates(mageInfo, mage.canMove(), mage.canUseAbility());
@@ -519,6 +527,7 @@ public class Mage {
         int iterations = 0;
         while (!queue.isEmpty() && iterations++ < 1000){
             MageInfo state = queue.poll();
+            System.out.println(" mage " + state.mage + " location " + state.location);
             if (state.location.distanceSquaredTo(state.mage.target) <= Const.mageAttackRange){
                 //he trobat una sequencia que arriba al target!!
                 return state;

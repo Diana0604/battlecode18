@@ -193,13 +193,11 @@ public class MovementManager {
     public int move(AuxUnit unit, int priority){
         try {
 
-            //if (forced) System.out.println("Trying to move from " + unit.getX() + " " + unit.getY() + " to " + unit.target.x + " " + unit.target.y);
+            if (unit.target == null) unit.target = unit.getMapLocation();
+            if (unit == null) System.out.println("WTF is happening!");
+            else if (priority == FORCED) System.out.println("Trying to move " + unit.getID() + " from " + unit.getX() + " " + unit.getY() + " to " + unit.target.x + " " + unit.target.y);
 
             if (unit.visited){
-                if (priority == FORCED){
-                    Wrapper.disintegrate(unit);
-                    return 0;
-                }
                 return 8;
             }
             unit.visited = true;
@@ -234,37 +232,36 @@ public class MovementManager {
             ArrayList<Integer> directions = new ArrayList<>();
             for (int i = 0; i < 8; ++i){
                 AuxMapLocation newLoc = myLoc.add(i);
-                if (newLoc.isOnMap() && newLoc.isPassable() && (priority == FORCED || isSafe(i))) directions.add(i);
+                if (newLoc.isPushable() && (priority == FORCED || isSafe(i))) directions.add(i);
             }
             if (priority != FORCED) directions.add(8);
 
             directions.sort((a,b) -> raw_dist(a, priority) < raw_dist(b, priority) ? -1 : raw_dist(a, priority) == raw_dist(b, priority) ? 0 : 1);
 
-            for (int pr = PLSMOVE; pr <= Math.max(PLSMOVE, priority); ++pr) {
-                for (int i = 0; i < directions.size(); ++i) {
+            for (int i = 0; i < directions.size(); ++i) {
 
-                    int dirBFS = directions.get(i);
+                int dirBFS = directions.get(i);
 
-                    if (dirBFS == 8) break;
-                    if (Wrapper.canMove(unit, dirBFS)) {
-                        doMovement(unit, dirBFS);
-                        return dirBFS;
-                    }
-                    AuxMapLocation newLoc = unit.getMapLocation().add(dirBFS);
-                    AuxUnit u = newLoc.getUnit(true);
-                    if (u != null) {
-                        if (u.getType() == UnitType.Factory && d > 2) {
-                            if (Wrapper.canLoad(u, unit)) {
-                                Wrapper.load(u, unit);
-                                getData(unit).soft_reset(newLoc);
-                                return dirBFS;
-                            }
+                if (dirBFS == 8) break;
+                if (Wrapper.canMove(unit, dirBFS)) {
+                    doMovement(unit, dirBFS);
+                    return dirBFS;
+                }
+                AuxMapLocation newLoc = unit.getMapLocation().add(dirBFS);
+                AuxUnit u = newLoc.getUnit(true);
+                if (u != null) {
+                    if (u.immune) continue;
+                    if (u.getType() == UnitType.Factory && d > 2) {
+                        if (Wrapper.canLoad(u, unit)) {
+                            Wrapper.load(u, unit);
+                            getData(unit).soft_reset(newLoc);
+                            return dirBFS;
                         }
-                        if (u.getType() != UnitType.Factory && u.getType() != UnitType.Rocket && u.canMove()) {
-                            if (move(u, pr) != 8) {
-                                doMovement(unit, dirBFS);
-                                return dirBFS;
-                            }
+                    }
+                    if (u.getType() != UnitType.Factory && u.getType() != UnitType.Rocket && u.canMove()) {
+                        if (move(u, priority) != 8) {
+                            doMovement(unit, dirBFS);
+                            return dirBFS;
                         }
                     }
                 }
@@ -344,6 +341,7 @@ public class MovementManager {
 
     int bestIndex(int i, int j){
         try {
+            if (i == -1) return j;
             if (shouldAggro()) {
                 if (Danger.minDist[i] > attackRange && Danger.minDist[j] <= attackRange) return j;
                 if (Danger.minDist[i] <= attackRange && Danger.minDist[j] > attackRange) return i;
@@ -398,10 +396,10 @@ public class MovementManager {
             if (unit.getType() == UnitType.Knight) return 8;
             if (unit.getType() == UnitType.Worker && kamikazeWorker()) return 8;
             int index = 8;
-            if (priority == FORCED) index = 0;
+            if (priority == FORCED) index = -1;
             for (int i = 0; i < 8; ++i) if (Wrapper.canMove(unit, i)) index = bestIndex(index, i);
 
-            if (index != 8) {
+            if (index != -1) {
                 return index;
             }
         }catch(Exception e) {

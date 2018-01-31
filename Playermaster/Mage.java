@@ -548,27 +548,43 @@ public class Mage {
     void attackkk(){
         MageInfo state = findOPSequence();
         while (state != null){
+            System.out.println("ATTACKKKK " + state.mage.getID());
             AuxUnit mage = state.mage;
             System.out.println(Utils.round + " ha trobat sequence! My loc " + mage.getMapLocation() + " target " + mage.target);
             ArrayList<Integer> moveSequence = state.movesUsed;
+            for (Integer code: moveSequence){
+                int enc = movementDestination(code).encode();
+                Units.newOccupiedPositions.add(enc);
+            }
             for (Integer code: moveSequence){
                 int type = movementType(code);
                 AuxMapLocation dest = movementDestination(code);
                 if (type == MOVE){
                     System.out.println("    - Move to " + dest);
                     int dir = mage.getMapLocation().dirBFSTo(dest);
+                    mage.immune = true;
                     AuxUnit molesta = dest.getUnit();
                     if (molesta != null && molesta.myTeam && molesta.isRobot()){
-                        int a = MovementManager.getInstance().move(molesta, MovementManager.FORCED);
-                        System.out.println("Forced to move to " + a);
+                        int moved = MovementManager.getInstance().move(molesta, MovementManager.FORCED);
+                        if (moved == 8){
+                            System.out.println("Didn't move :(");
+                            Wrapper.disintegrate(molesta);
+                        }
                     }
+                    mage.immune = false;
                     Wrapper.moveRobot(mage, dir);
                 }
                 if (type == BLINK){
-                    System.out.println("    - Blink to " + dest);
+                    mage.immune = true;
                     AuxUnit molesta = dest.getUnit();
-                    if (molesta != null && molesta.myTeam && molesta.isRobot())
-                        MovementManager.getInstance().move(molesta, MovementManager.FORCED);
+                    if (molesta != null && molesta.myTeam && molesta.isRobot()) {
+                        int moved = MovementManager.getInstance().move(molesta, MovementManager.FORCED);
+                        if (moved == 8){
+                            System.out.println("Didn't move :(");
+                            Wrapper.disintegrate(molesta);
+                        }
+                    }
+                    mage.immune = false;
                     Wrapper.blink(mage, dest);
                 }
                 if (type == OVERCHARGE){
@@ -592,6 +608,11 @@ public class Mage {
                     }
                 }
             }
+            for (Integer code: moveSequence){
+                int enc = movementDestination(code).encode();
+                Units.newOccupiedPositions.remove(enc);
+            }
+            System.out.println("END ATTACKKKKK " + state.mage.getID());
             state = findOPSequence();
         }
     }

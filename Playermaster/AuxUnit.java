@@ -37,6 +37,7 @@ public class AuxUnit {
     public boolean exploretarget;
     public boolean visited;
     public boolean frontline;
+    public boolean immune = false;
     int depth;
 
     public AuxUnit(Unit u) {

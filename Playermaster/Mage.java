@@ -39,33 +39,37 @@ public class Mage {
         return bestEnemy;
     }
 
+    //retorna el target
+    private AuxUnit singleAttack(AuxUnit mage){
+        AuxUnit unitToAttack = pickAttackTarget(mage);
+        if (unitToAttack == null) {
+            //System.out.println(Utils.round + "  " + mage.getMapLocation() + " unitToAttack null " + mage.target);
+            return null;
+        }
+        if (mage.canAttack()) {
+            Wrapper.attack(mage, unitToAttack);
+        }
+        return unitToAttack;
+    }
+
     private void regularAttack(AuxUnit mage, int depth) {
         try {
             if (depth >= 25){
-                System.out.println(Utils.round + "  " + mage.getMapLocation() + " max depth reached, returning");
+                //System.out.println(Utils.round + "  " + mage.getMapLocation() + " max depth reached, returning");
                 return;
             }
-            System.out.println(Utils.round + "  " + mage.getMapLocation() + " enter regular attack, target " + mage.target);
-            AuxUnit unitToAttack = pickAttackTarget(mage);
-            if (unitToAttack == null) {
-                System.out.println(Utils.round + "  " + mage.getMapLocation() + " unitToAttack null " + mage.target);
-                return;
-            }
-            System.out.println(Utils.round + "  " + mage.getMapLocation() + " decides to attack " + unitToAttack.getMapLocation());
-            AuxMapLocation location;
-            if (mage.target == null) location = unitToAttack.getMapLocation();
-            else location = mage.target;
-            if (!mage.canAttack()) {
-                System.out.println(Utils.round + "  " + mage.getMapLocation() + " can't attack, tries overcharging");
+            AuxUnit attackTarget = singleAttack(mage);
+            if (attackTarget != null){
+                //Si te target, ja l'ha atacat al single attack. Intenta fer overcharge i crida recursiu
+                AuxMapLocation location;
+                if (mage.target == null) location = attackTarget.getMapLocation();
+                else location = mage.target;
+                //System.out.println(Utils.round + "  " + mage.getMapLocation() + " can't attack, tries overcharging");
                 Overcharge.getOvercharged(mage, location);
                 if (mage.canAttack()) {
-                    System.out.println(Utils.round + "  " + mage.getMapLocation() + " gets overcharged, tries to attack");
+                    //System.out.println(Utils.round + "  " + mage.getMapLocation() + " gets overcharged, tries to attack");
                     regularAttack(mage, depth + 1);
                 }
-            } else {
-                System.out.println(Utils.round + "  " + mage.getMapLocation() + " can attack, attacks " + unitToAttack.getMapLocation());
-                Wrapper.attack(mage,unitToAttack);
-                regularAttack(mage, depth + 1);
             }
         }catch(Exception e) {
             e.printStackTrace();
@@ -377,7 +381,7 @@ public class Mage {
                         }
                     }
                     mage.immune = false;
-                    if (mage.canAttack()) regularAttack(mage, 0); //ataca just abans de fer move
+                    if (mage.canAttack()) singleAttack(mage); //ataca just abans de fer move
                     Wrapper.moveRobot(mage, dir);
                 }
                 if (type == BLINK){
@@ -392,7 +396,7 @@ public class Mage {
                     }
                     //System.out.println("    - Blink to " + dest);
                     mage.immune = false;
-                    if (mage.canAttack()) regularAttack(mage, 0); //ataca just abans de fer blink
+                    if (mage.canAttack()) singleAttack(mage); //ataca just abans de fer blink
                     Wrapper.blink(mage, dest);
                 }
                 if (type == OVERCHARGE){
@@ -424,7 +428,7 @@ public class Mage {
             }
             //System.out.println("END ATTACKKKKK " + state.mage.getID());
             state.mage.target = getTarget(state.mage);
-            regularAttack(state.mage, 0);
+            regularAttack(mage, 0);
             //state = findOPSequence();
             state = null;
         }

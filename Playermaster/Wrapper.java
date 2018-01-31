@@ -478,7 +478,7 @@ public class Wrapper {
 
     static void overcharge(AuxUnit healer, AuxUnit troop){
         try {
-            //System.out.println(Utils.round + " Overcharge " + healer.getMapLocation() + " can? " + healer.canUseAbility());
+            //System.out.println(Utils.round + " Overcharge " + healer.getMapLocation() + " at unit " + troop.getID() + " can? " + healer.canUseAbility());
             healer.canUseAbility = false;
             troop.canMove = true;
             troop.canAttack = true;

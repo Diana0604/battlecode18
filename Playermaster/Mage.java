@@ -532,7 +532,7 @@ public class Mage {
                 //he trobat una sequencia que arriba al target!!
                 return state;
             }
-            ArrayList<MageInfo> nextStates = getNextStates(state.getOvercharged(), true, true);
+            ArrayList<MageInfo> nextStates = getNextStates(state.getOvercharged(), true, Units.canBlink);
             if (nextStates != null) {
                 for (MageInfo newState : nextStates) {
                     queue.offer(newState);
@@ -556,13 +556,13 @@ public class Mage {
                     int dir = mage.getMapLocation().dirBFSTo(dest);
                     AuxUnit molesta = dest.getUnit();
                     if (molesta != null && molesta.myTeam && molesta.isRobot())
-                        MovementManager.getInstance().move(molesta, 2);
+                        MovementManager.getInstance().move(molesta, MovementManager.FORCED);
                     Wrapper.moveRobot(mage, dir);
                 }
                 if (type == BLINK){
                     AuxUnit molesta = dest.getUnit();
                     if (molesta != null && molesta.myTeam && molesta.isRobot())
-                        MovementManager.getInstance().move(molesta, 2);
+                        MovementManager.getInstance().move(molesta, MovementManager.FORCED);
                     Wrapper.blink(mage, dest);
                 }
                 if (type == OVERCHARGE){

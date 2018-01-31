@@ -210,14 +210,21 @@ public class Units {
             int factories = 0;
             int rockets = 0;
             for (AuxUnit u: myUnits) {
+                if (u.isDead() || u.isInSpace()) continue;
+                if (u.isInGarrison()){
+                    //si esta dintre un rocket, no la comptem
+                    AuxUnit structure = Wrapper.getStructure(u);
+                    if (structure != null && structure.getType() == UnitType.Rocket) continue;
+                }
                 UnitType type = u.getType();
                 if (type == UnitType.Factory){
                     factories++;
                     if (u.isBuilt()) {
-                        type = Wrapper.getBuildingUnit(u);
-                        if (type != null){
-                            switch(type){
+                        UnitType buildingType = Wrapper.getBuildingUnit(u);
+                        if (buildingType != null){
+                            switch(buildingType){
                                 case Worker: ++workers;
+                                case Ranger: ++rangers;
                                 case Mage: ++mages;
                                 case Healer: ++healers;
                                 case Knight: ++knights;

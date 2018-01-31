@@ -478,7 +478,7 @@ public class Wrapper {
 
     static void overcharge(AuxUnit healer, AuxUnit troop){
         try {
-            //System.out.println(Utils.round + " Overcharge " + healer.getMapLocation() + " can? " + healer.canUseAbility());
+            //System.out.println(Utils.round + " Overcharge " + healer.getMapLocation() + " at unit " + troop.getID() + " can? " + healer.canUseAbility());
             healer.canUseAbility = false;
             troop.canMove = true;
             troop.canAttack = true;
@@ -546,6 +546,14 @@ public class Wrapper {
             if (add) Overcharge.overchargeMatrix.get(newLoc.encode()).add(index);
             else Overcharge.overchargeMatrix.get(newLoc.encode()).remove(index);
         }
+    }
+
+    static AuxUnit getStructure(AuxUnit garrisoned){
+        if (!garrisoned.isInGarrison()) return null;
+        Unit u = GC.gc.unit(garrisoned.getID());
+        int sID = u.location().structure();
+        u.delete();
+        return Units.getUnitByID(sID);
     }
 
     /*------------------ GENERAL INIT GAME -----------------------*/

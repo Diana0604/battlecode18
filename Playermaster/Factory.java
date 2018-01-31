@@ -119,6 +119,35 @@ public class Factory {
         }
     }
 
+    private UnitType standardProduction(){
+        HashMap<UnitType, Integer> typeCount = Units.unitTypeCount;
+        int rangers = typeCount.get(UnitType.Ranger);
+        int healers = typeCount.get(UnitType.Healer);
+        int mages   = typeCount.get(UnitType.Mage);
+        int workers = typeCount.get(UnitType.Worker);
+        int knights = typeCount.get(UnitType.Knight);
+
+        int totalTroops = knights + rangers + mages;
+        if (totalTroops < 4) return UnitType.Ranger;
+
+        if (Research.getLevel(UnitType.Healer) < 2){
+            if (2*healers < totalTroops-1) return UnitType.Healer;
+            if (rangers < maxRangers) return UnitType.Ranger;
+        }
+
+        else if (Research.getLevel(UnitType.Healer) < 3){
+            if (2*healers < totalTroops-1) return UnitType.Healer;
+            if (mages < 2) return UnitType.Mage;
+            if (healers < rangers) return UnitType.Healer;
+            return UnitType.Ranger;
+        }
+
+        if (mages < Math.min(healers, rangers)/3) return UnitType.Mage;
+        if (healers < totalTroops) return UnitType.Healer;
+        return UnitType.Ranger;
+
+    }
+
     private UnitType chooseNextUnit(){
         try {
             int karbo = Utils.karbonite;
@@ -171,20 +200,8 @@ public class Factory {
             }
 
 
-            int totalTroops = knights + rangers + mages;
-            if (totalTroops < 4) return UnitType.Ranger;
+            return standardProduction();
 
-            if (Utils.round > 175 && mages < rangers/8) return UnitType.Mage;
-
-            if (2*healers < totalTroops-1) return UnitType.Healer;
-            if (rangers < maxRangers) return UnitType.Ranger;
-
-
-
-            if (healers < rangers) return UnitType.Healer;
-            //if (rangers < maxRangers) return UnitType.Ranger;
-            //if (healers < 1.25 * rangers) return UnitType.Healer;
-            return UnitType.Mage;
         } catch(Exception e) {
             e.printStackTrace();
         }

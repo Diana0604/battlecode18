@@ -355,7 +355,7 @@ public class Worker {
             //hem trobat un worker nostre, li fem construir el rocket!
             int dirBuild = workerLoc.dirBFSTo(loc);
             AuxUnit unitToKill = loc.getUnit();
-            if (unitToKill != null && MovementManager.getInstance().move(unitToKill, false) == 8)
+            if (unitToKill != null && MovementManager.getInstance().move(unitToKill, MovementManager.FORCED) == 8)
                 Wrapper.disintegrate(unitToKill);
 
             if (!Wrapper.canPlaceBlueprint(worker,UnitType.Rocket, dirBuild)){

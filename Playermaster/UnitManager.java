@@ -54,7 +54,7 @@ class UnitManager{
             }
             if (!unit.canMove()) return;
             if (unit.target == null) unit.target = unit.getMapLocation();
-            MovementManager.getInstance().move(unit, false);
+            MovementManager.getInstance().move(unit, MovementManager.NOTFORCED);
         }catch(Exception e) {
             e.printStackTrace();
         }

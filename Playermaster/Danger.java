@@ -144,6 +144,26 @@ class Danger {
         }
     }
 
+    static boolean knightShouldNotGo(AuxUnit unit, int dir){
+        AuxMapLocation loc = unit.getMapLocation().add(dir);
+        int dif = 0;
+        AuxUnit[] units = Wrapper.senseUnits(loc.x, loc.y, 8);
+        boolean badPosition = false;
+        for (int i = 0; i < units.length; ++i){
+            if (units[i].getType() == UnitType.Knight){
+                if(units[i].myTeam) ++dif;
+                else{
+                    --dif;
+                    AuxMapLocation newLoc = units[i].getMapLocation();
+                    if (Math.abs(newLoc.x) > 1 || Math.abs(newLoc.y) > 1) badPosition = true;
+                    else if (!unit.canAttack()) badPosition = true;
+                }
+            }
+        }
+        if (dif > 0) return false;
+        return badPosition;
+    }
+
 
     private static int encode(int x, int y){
         return (x << 12) | y;

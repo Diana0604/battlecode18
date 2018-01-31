@@ -298,7 +298,7 @@ public class MovementManager {
                 AuxUnit u = newLoc.getUnit(true);
                 if (u != null) {
                     if (u.immune) continue;
-                    if (u.getType() == UnitType.Factory && d > 2) {
+                    if (u.getType() == UnitType.Factory && d > 2 && u.getHealth() > 200) {
                         if (Wrapper.canLoad(u, unit)) {
                             Wrapper.load(u, unit);
                             getData(unit).soft_reset(newLoc);
@@ -375,7 +375,10 @@ public class MovementManager {
 
     double danger(int i){
         try {
-            if (unit.getType() == UnitType.Knight) return 0;
+            if (unit.getType() == UnitType.Knight){
+                if (Danger.knightShouldNotGo(unit, i)) return 1;
+                return 0;
+            }
             if (unit.getType() == UnitType.Worker && kamikazeWorker()) return 0;
             if (unit.getType() == UnitType.Ranger) return Danger.DPS[i];
             if (unit.getType() == UnitType.Mage && Units.canBlink) return Danger.DPS[i];

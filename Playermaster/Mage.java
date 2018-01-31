@@ -517,6 +517,7 @@ public class Mage {
             AuxUnit mage = Units.myUnits.get(index);
             if (mage.isDead() || mage.isInGarrison() || mage.isInSpace()) continue;
             if (mage.target == null || mage.exploretarget) continue;
+            if (!Units.canBlink && mage.getMapLocation().distanceSquaredTo(mage.target) > 90) continue;
             MageInfo mageInfo = new MageInfo(mage);
             ArrayList<MageInfo> states = getNextStates(mageInfo, mage.canMove(), mage.canUseAbility() && Units.canBlink);
             if (states != null) {
@@ -528,9 +529,26 @@ public class Mage {
         int iterations = 0;
         while (!queue.isEmpty() && iterations++ < 1000){
             MageInfo state = queue.poll();
-            if (state.location.distanceSquaredTo(state.mage.target) <= Const.mageAttackRange){
+            int overchargesLeft = 0;
+            HashSet<Integer> healerIndexs = Overcharge.overchargeMatrix.get(state.location.encode());
+            if (healerIndexs != null) {
+                for (int index : healerIndexs) {
+                    if (!state.overchargesUsed.contains(index)) overchargesLeft++;
+                }
+            }
+            if (state.location.distanceSquaredTo(state.mage.target) <= Const.mageAttackRange && overchargesLeft > 0){
                 //he trobat una sequencia que arriba al target!!
-                System.out.println("He trobat sequencia em deixa a " + state.location + " i ataco a " + state.mage.target);
+                System.out.println("He trobat sequencia em deixa a " + state.location + " i ataco a " + state.mage.target + " overcharges left " + overchargesLeft);
+                System.out.print("Overcharges used: ");
+                for (int index: state.overchargesUsed){
+                    AuxUnit u = Units.myUnits.get(index);
+                    System.out.print(u.getMapLocation() + "  ");
+                }
+                System.out.print("Overcharges left: ");
+                for (int index: Overcharge.overchargeMatrix.get(state.location.encode())){
+                    AuxUnit u = Units.myUnits.get(index);
+                    System.out.print(u.getMapLocation() + "  ");
+                }
                 return state;
             }
             ArrayList<MageInfo> nextStates = getNextStates(state.getOvercharged(), true, Units.canBlink);
@@ -610,6 +628,21 @@ public class Mage {
                     }
                 }
             }
+            //gasta tots els overcharges que li queden atacant
+            HashSet<Integer> healerIndexs = new HashSet<>();
+            healerIndexs.addAll(Overcharge.overchargeMatrix.get(mage.getMapLocation().encode()));
+            for (int index: healerIndexs){
+                if (state.overchargesUsed.contains(index)) continue;
+                AuxUnit healer = Units.myUnits.get(index);
+                if (mage.canAttack()) {
+                    System.out.println(Utils.round + "  " + state.mage.getID() + " fa regular attack");
+                    regularAttack();
+                }
+                System.out.println(Utils.round + "  " + state.mage.getID() + " fa overcharge amb " + healer.getID());
+                Wrapper.overcharge(healer, mage);
+            }
+            if (mage.canAttack()) regularAttack();
+
             for (Integer code: moveSequence){
                 int enc = movementDestination(code).encode();
                 Units.newOccupiedPositions.remove(enc);

@@ -5,7 +5,7 @@ import bc.UnitType;
 import java.util.*;
 
 public class Mage {
-    private final double min_group = 2.5;
+    private final double min_group = 1.5;
     private static Mage instance = null;
 
     //aixo es pel bfs de overcharge
@@ -299,10 +299,16 @@ public class Mage {
 
     private ArrayList<MageInfo> getNextStates(MageInfo state, boolean canMove, boolean canBlink){
         if (state == null) return null;
-        boolean[][] myMoves = new boolean[7][7];
+        int[][] minSuicides = new int[7][7];
+        for (int i = 0; i < minSuicides.length; i++){
+            for (int j = 0; j < minSuicides[0].length; j++){
+                minSuicides[i][j] = 100;
+            }
+        }
+
         AuxMapLocation origin = new AuxMapLocation(state.location.x, state.location.y);
 
-        ArrayList<MageInfo> states = new ArrayList<>();
+        HashMap<Integer, MageInfo> states = new HashMap<>();
 
         for (int i = 0; i < Vision.Mx[2].length; i++){
             if (!canMove) continue;
@@ -312,20 +318,36 @@ public class Mage {
             if (!moveLoc.isMovable()) continue;
             int code = encodeMovement(MOVE, moveLoc);
             MageInfo moveState = new MageInfo(state, code);
-            if (!myMoves[3 + dx][3 + dy]) states.add(moveState);
-            myMoves[3 + dx][3 + dy] = true;
+            int suicideScore = 0;
+            AuxUnit unit = moveLoc.getUnit();
+            if (unit != null && unit.isRobot() && unit.myTeam){
+                if (unit.canMove()) suicideScore = 1;
+                else suicideScore = 3;
+            }
+            if (suicideScore < minSuicides[dx][dy]){
+                minSuicides[dx][dy] = suicideScore;
+                moveState.alliesSuicided = suicideScore/3;
+                states.put(moveLoc.encode(), moveState);
+            }
 
             for (int j = 0; j < Vision.Mx[8].length; j++){
                 if (!canBlink) continue;
                 int ddx = dx + Vision.Mx[8][j];
                 int ddy = dy + Vision.My[8][j];
-                if (myMoves[3 + ddx][3 + ddy]) continue;
-                myMoves[3 + ddx][3 + ddy] = true;
                 AuxMapLocation moveBlinkLoc = new AuxMapLocation(origin.x + ddx, origin.y + ddy);
                 if (!moveBlinkLoc.isMovable()) continue;
                 int code2 = encodeMovement(BLINK, moveBlinkLoc);
                 MageInfo moveBlinkState = new MageInfo(moveState, code2);
-                states.add(moveBlinkState);
+                int suicideScore2 = suicideScore;
+                if (unit != null && unit.isRobot() && unit.myTeam){
+                    if (unit.canMove()) suicideScore2 += 1;
+                    else suicideScore2 += 3;
+                }
+                if (suicideScore2 < minSuicides[ddx][ddy]){
+                    minSuicides[dx][dy] = suicideScore2;
+                    moveBlinkState.alliesSuicided = suicideScore2/3;
+                    states.put(moveBlinkLoc.encode(), moveBlinkState);
+                }
             }
         }
 
@@ -337,24 +359,44 @@ public class Mage {
             if (!blinkLoc.isMovable()) continue;
             int code = encodeMovement(BLINK, blinkLoc);
             MageInfo blinkState = new MageInfo(state, code);
-            if (!myMoves[3 + dx][3 + dy]) states.add(blinkState);
-            myMoves[3 + dx][3 + dy] = true;
+            int suicideScore;
+            AuxUnit unit = blinkLoc.getUnit();
+            if (unit != null && unit.isRobot() && unit.myTeam){
+                if (unit.canMove()) suicideScore = 1;
+                else suicideScore = 3;
+            }else suicideScore = 0;
+            if (suicideScore < minSuicides[dx][dy]){
+                minSuicides[dx][dy] = suicideScore;
+                blinkState.alliesSuicided = suicideScore/3;
+                states.put(blinkLoc.encode(), blinkState);
+            }
 
 
             for (int j = 0; j < Vision.Mx[2].length; j++){
                 if (!canMove) continue;
                 int ddx = dx + Vision.Mx[2][j];
                 int ddy = dy + Vision.My[2][j];
-                if (myMoves[3 + ddx][3 + ddy]) continue;
-                myMoves[3 + ddx][3 + ddy] = true;
                 AuxMapLocation blinkMoveLoc = new AuxMapLocation(origin.x + ddx, origin.y + ddy);
                 if (!blinkMoveLoc.isMovable()) continue;
                 int code2 = encodeMovement(MOVE, blinkMoveLoc);
                 MageInfo blinkMoveState = new MageInfo(blinkState, code2);
-                states.add(blinkMoveState);
+                int suicideScore2 = suicideScore;
+                if (unit != null && unit.isRobot() && unit.myTeam){
+                    if (unit.canMove()) suicideScore2 += 1;
+                    else suicideScore2 += 3;
+                }
+                if (suicideScore2 < minSuicides[ddx][ddy]){
+                    minSuicides[dx][dy] = suicideScore2;
+                    blinkMoveState.alliesSuicided = suicideScore2/3;
+                    states.put(blinkMoveLoc.encode(), blinkMoveState);
+                }
             }
         }
-        return states;
+        ArrayList<MageInfo> ret = new ArrayList<>();
+        for (MageInfo mageInfo: states.values()){
+            ret.add(mageInfo);
+        }
+        return ret;
     }
 
 
@@ -460,7 +502,7 @@ public class Mage {
             int x2 = target.x;
             int y2 = target.y;
             int range = 3;
-            return (Math.min(Math.abs(x1-x2), Math.abs(y1-y2)) + range - 1) / range;
+            return (Math.max(Math.abs(x1-x2), Math.abs(y1-y2)) + range - 1) / range;
         }
     }
 

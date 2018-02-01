@@ -351,9 +351,8 @@ public class MovementManager {
             if (!dangerousUnit(unit.getType())) return false;
             if (!unit.canAttack()) return false;
             if (unit.getType() == UnitType.Mage) {
-                //if (!GC.canBlink) return false;
-                //if (!unit.canUseAbility()) return false;
-                return true;
+                if (Research.getLevel(UnitType.Healer) >= 3) return true;
+                return false;
             }
             if (Danger.attackers.contains(id)) return true;
             if (Mapa.onEarth() && Units.canBlink) return true;

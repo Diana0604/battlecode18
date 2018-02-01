@@ -89,6 +89,7 @@ public class Factory {
             if (target == null) target = unit.getMapLocation();
             for (int j = 0; j < 8; ++j) {
                 if (Wrapper.canUnload(unit, j)) {
+                    if (garrisonUnit.getType() == UnitType.Knight && Danger.knightShouldNotGo(garrisonUnit, j)) continue;
                     AuxMapLocation newLoc = unit.getMapLocation().add(j);
                     double d = newLoc.distanceBFSTo(target);
                     if (d < bestDist) {
@@ -168,20 +169,24 @@ public class Factory {
 
             boolean mageDetected = false;
             boolean shouldBuildKnight = false;
-            AuxUnit[] enemies = Wrapper.senseUnits(unit.getMapLocation(), 50, false);
-            for (int i = 0; i < enemies.length; ++i){
-                if (!shouldBuildKnight && enemies[i].getType() != UnitType.Worker && enemies[i].getMapLocation().distanceBFSTo(unit.getMapLocation()) <= 5) shouldBuildKnight = true;
-                if (enemies[i].getType() == UnitType.Mage) mageDetected = false;
+            AuxUnit[] enemies = Wrapper.senseUnits(unit.getMapLocation(), 100, false);
+            for (AuxUnit enemy : enemies) {
+                UnitType type = enemy.getType();
+                if (type == UnitType.Mage) mageDetected = true;
+                if (!shouldBuildKnight && (type == UnitType.Factory) && enemy.getMapLocation().distanceBFSTo(unit.getMapLocation()) <= 8)
+                    shouldBuildKnight = true;
             }
 
-            if(shouldBuildKnight && !mageDetected) return UnitType.Knight;
+            if(shouldBuildKnight && !mageDetected){
+                if (knights <= mages+1 || mages > 2) return UnitType.Knight;
+                return UnitType.Mage;
+            }
 
             int minRushtroops = 0;
-            if (Build.initDistToEnemy <= 20) minRushtroops = 6;
-            else if (Build.initDistToEnemy <= 25) minRushtroops = 5;
+            if (Build.initDistToEnemy <= 25) minRushtroops = 2;
 
             if (constructedMages + constructedKnights < minRushtroops){
-                if (constructedKnights > constructedMages) return UnitType.Mage;
+                if (!shouldBuildKnight || constructedKnights > constructedMages) return UnitType.Mage;
                 return UnitType.Knight;
             }
 

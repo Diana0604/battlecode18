@@ -27,6 +27,7 @@ public class AuxUnit {
     public Boolean troop;
     public UnitType type;
     public boolean myTeam;
+    public int attackHeat;
 
     public Integer health;
 
@@ -59,11 +60,17 @@ public class AuxUnit {
 
         canMove = robot && GC.gc.isMoveReady(getID());
 
-        if (type == UnitType.Ranger || type == UnitType.Knight || type == UnitType.Mage) canAttack = GC.gc.isAttackReady(getID());
+        if (type == UnitType.Ranger || type == UnitType.Knight || type == UnitType.Mage){
+            canAttack = GC.gc.isAttackReady(getID());
+            if (garrison) canAttack = false;
+        }
         else if (getType() == UnitType.Worker) canAttack = (u.workerHasActed() == 0);
         else if (getType() == UnitType.Healer) canAttack = GC.gc.isHealReady(getID());
         else if (getType() == UnitType.Factory) canAttack = (u.isFactoryProducing() == 0);
         else canAttack = false;
+
+        attackHeat = 0;
+        if (type == UnitType.Knight) attackHeat = (int)u.attackHeat();
 
         boolean abilityUnlocked;
         switch(type){

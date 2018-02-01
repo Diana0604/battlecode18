@@ -28,30 +28,41 @@ public class Mage {
     /*------------ REGULAR ATTACK ------------*/
 
     private AuxUnit pickAttackTarget(AuxUnit mage){
-        AuxUnit bestEnemy = null;
-        double bestVal = 0;
-        AuxUnit[] enemies = Wrapper.senseUnits(mage.getX(), mage.getY(), 30); //fa sense d'aliats tambe
-        for (int i = 0; i < enemies.length; ++i){
-            AuxUnit enemy = enemies[i];
-            if (Target.mageHits[enemy.getX()][enemy.getY()] > bestVal){
-                bestVal = Target.mageHits[enemy.getX()][enemy.getY()];
-                bestEnemy = enemy;
+        try{
+            AuxUnit bestEnemy = null;
+            double bestVal = 0;
+            AuxUnit[] enemies = Wrapper.senseUnits(mage.getX(), mage.getY(), 30); //fa sense d'aliats tambe
+            if (enemies == null) return null;
+            for (AuxUnit enemy : enemies) {
+                if (Target.mageHits[enemy.getX()][enemy.getY()] > bestVal) {
+                    bestVal = Target.mageHits[enemy.getX()][enemy.getY()];
+                    bestEnemy = enemy;
+                }
             }
+            return bestEnemy;
+        }catch(Exception e){
+            e.printStackTrace();
         }
-        return bestEnemy;
+        return null;
+
     }
 
     //retorna el target
     private AuxUnit singleAttack(AuxUnit mage){
-        AuxUnit unitToAttack = pickAttackTarget(mage);
-        if (unitToAttack == null) {
-            //System.out.println(Utils.round + "  " + mage.getMapLocation() + " unitToAttack null " + mage.target);
-            return null;
+        try{
+            AuxUnit unitToAttack = pickAttackTarget(mage);
+            if (unitToAttack == null) {
+                //System.out.println(Utils.round + "  " + mage.getMapLocation() + " unitToAttack null " + mage.target);
+                return null;
+            }
+            if (mage.canAttack()) {
+                Wrapper.attack(mage, unitToAttack);
+            }
+            return unitToAttack;
+        }catch(Exception e){
+            e.printStackTrace();
         }
-        if (mage.canAttack()) {
-            Wrapper.attack(mage, unitToAttack);
-        }
-        return unitToAttack;
+        return null;
     }
 
     private void regularAttack(AuxUnit mage, int depth) {
@@ -84,103 +95,108 @@ public class Mage {
 
 
     private ArrayList<MageInfo> getNextStates(MageInfo state, boolean canMove, boolean canBlink){
-        if (state == null) return null;
-        int[][] minSuicides = new int[7][7];
-        for (int i = 0; i < minSuicides.length; i++){
-            for (int j = 0; j < minSuicides[0].length; j++){
-                minSuicides[i][j] = 100;
-            }
-        }
-        AuxMapLocation origin = new AuxMapLocation(state.location.x, state.location.y);
-
-        HashMap<Integer, MageInfo> states = new HashMap<>();
-        for (int i = 0; i < Vision.Mx[2].length; i++){
-            if (!canMove) continue;
-            int dx = Vision.Mx[2][i];
-            int dy = Vision.My[2][i];
-            AuxMapLocation moveLoc = new AuxMapLocation(origin.x + dx, origin.y + dy);
-            if (!moveLoc.isMovable()) continue;
-            int code = encodeMovement(MOVE, moveLoc);
-            MageInfo moveState = new MageInfo(state, code);
-            int suicideScore = 0;
-            AuxUnit unit = moveLoc.getUnit();
-            if (unit != null && unit.isRobot() && unit.myTeam){
-                if (unit.canMove()) suicideScore = 1;
-                else suicideScore = 3;
-            }
-            if (suicideScore < minSuicides[3 + dx][3 + dy]){
-                minSuicides[3 + dx][3 + dy] = suicideScore;
-                moveState.alliesSuicided = suicideScore/3;
-                states.put(moveLoc.encode(), moveState);
-            }
-
-            for (int j = 0; j < Vision.Mx[8].length; j++){
-                if (!canBlink) continue;
-                int ddx = dx + Vision.Mx[8][j];
-                int ddy = dy + Vision.My[8][j];
-                AuxMapLocation moveBlinkLoc = new AuxMapLocation(origin.x + ddx, origin.y + ddy);
-                if (!moveBlinkLoc.isMovable()) continue;
-                int code2 = encodeMovement(BLINK, moveBlinkLoc);
-                MageInfo moveBlinkState = new MageInfo(moveState, code2);
-                int suicideScore2 = suicideScore;
-                if (unit != null && unit.isRobot() && unit.myTeam){
-                    if (unit.canMove()) suicideScore2 += 1;
-                    else suicideScore2 += 3;
-                }
-                if (suicideScore2 < minSuicides[3 + ddx][3 + ddy]){
-                    minSuicides[3 + ddx][3 + ddy] = suicideScore2;
-                    moveBlinkState.alliesSuicided = suicideScore2/3;
-                    states.put(moveBlinkLoc.encode(), moveBlinkState);
+        try{
+            if (state == null) return null;
+            int[][] minSuicides = new int[7][7];
+            for (int i = 0; i < minSuicides.length; i++){
+                for (int j = 0; j < minSuicides[0].length; j++){
+                    minSuicides[i][j] = 100;
                 }
             }
-        }
+            AuxMapLocation origin = new AuxMapLocation(state.location.x, state.location.y);
 
-        for (int i = 0; i < Vision.Mx[8].length; i++){
-            if (!canBlink) continue;
-            int dx = Vision.Mx[8][i];
-            int dy = Vision.My[8][i];
-            AuxMapLocation blinkLoc = new AuxMapLocation(origin.x + dx, origin.y + dy);
-            if (!blinkLoc.isMovable()) continue;
-            int code = encodeMovement(BLINK, blinkLoc);
-            MageInfo blinkState = new MageInfo(state, code);
-            int suicideScore;
-            AuxUnit unit = blinkLoc.getUnit();
-            if (unit != null && unit.isRobot() && unit.myTeam){
-                if (unit.canMove()) suicideScore = 1;
-                else suicideScore = 3;
-            }else suicideScore = 0;
-            if (suicideScore < minSuicides[3 + dx][3 + dy]){
-                minSuicides[3 + dx][3 + dy] = suicideScore;
-                blinkState.alliesSuicided = suicideScore/3;
-                states.put(blinkLoc.encode(), blinkState);
-            }
-
-            for (int j = 0; j < Vision.Mx[2].length; j++){
+            HashMap<Integer, MageInfo> states = new HashMap<>();
+            for (int i = 0; i < Vision.Mx[2].length; i++){
                 if (!canMove) continue;
-                int ddx = dx + Vision.Mx[2][j];
-                int ddy = dy + Vision.My[2][j];
-                AuxMapLocation blinkMoveLoc = new AuxMapLocation(origin.x + ddx, origin.y + ddy);
-                if (!blinkMoveLoc.isMovable()) continue;
-                int code2 = encodeMovement(MOVE, blinkMoveLoc);
-                MageInfo blinkMoveState = new MageInfo(blinkState, code2);
-                int suicideScore2 = suicideScore;
+                int dx = Vision.Mx[2][i];
+                int dy = Vision.My[2][i];
+                AuxMapLocation moveLoc = new AuxMapLocation(origin.x + dx, origin.y + dy);
+                if (!moveLoc.isMovable()) continue;
+                int code = encodeMovement(MOVE, moveLoc);
+                MageInfo moveState = new MageInfo(state, code);
+                int suicideScore = 0;
+                AuxUnit unit = moveLoc.getUnit();
                 if (unit != null && unit.isRobot() && unit.myTeam){
-                    if (unit.canMove()) suicideScore2 += 1;
-                    else suicideScore2 += 3;
+                    if (unit.canMove()) suicideScore = 1;
+                    else suicideScore = 3;
                 }
-                if (suicideScore2 < minSuicides[3 + ddx][3 + ddy]){
-                    minSuicides[3 + ddx][3 + ddy] = suicideScore2;
-                    blinkMoveState.alliesSuicided = suicideScore2/3;
-                    states.put(blinkMoveLoc.encode(), blinkMoveState);
+                if (suicideScore < minSuicides[3 + dx][3 + dy]){
+                    minSuicides[3 + dx][3 + dy] = suicideScore;
+                    moveState.alliesSuicided = suicideScore/3;
+                    states.put(moveLoc.encode(), moveState);
+                }
+
+                for (int j = 0; j < Vision.Mx[8].length; j++){
+                    if (!canBlink) continue;
+                    int ddx = dx + Vision.Mx[8][j];
+                    int ddy = dy + Vision.My[8][j];
+                    AuxMapLocation moveBlinkLoc = new AuxMapLocation(origin.x + ddx, origin.y + ddy);
+                    if (!moveBlinkLoc.isMovable()) continue;
+                    int code2 = encodeMovement(BLINK, moveBlinkLoc);
+                    MageInfo moveBlinkState = new MageInfo(moveState, code2);
+                    int suicideScore2 = suicideScore;
+                    if (unit != null && unit.isRobot() && unit.myTeam){
+                        if (unit.canMove()) suicideScore2 += 1;
+                        else suicideScore2 += 3;
+                    }
+                    if (suicideScore2 < minSuicides[3 + ddx][3 + ddy]){
+                        minSuicides[3 + ddx][3 + ddy] = suicideScore2;
+                        moveBlinkState.alliesSuicided = suicideScore2/3;
+                        states.put(moveBlinkLoc.encode(), moveBlinkState);
+                    }
                 }
             }
+
+            for (int i = 0; i < Vision.Mx[8].length; i++){
+                if (!canBlink) continue;
+                int dx = Vision.Mx[8][i];
+                int dy = Vision.My[8][i];
+                AuxMapLocation blinkLoc = new AuxMapLocation(origin.x + dx, origin.y + dy);
+                if (!blinkLoc.isMovable()) continue;
+                int code = encodeMovement(BLINK, blinkLoc);
+                MageInfo blinkState = new MageInfo(state, code);
+                int suicideScore;
+                AuxUnit unit = blinkLoc.getUnit();
+                if (unit != null && unit.isRobot() && unit.myTeam){
+                    if (unit.canMove()) suicideScore = 1;
+                    else suicideScore = 3;
+                }else suicideScore = 0;
+                if (suicideScore < minSuicides[3 + dx][3 + dy]){
+                    minSuicides[3 + dx][3 + dy] = suicideScore;
+                    blinkState.alliesSuicided = suicideScore/3;
+                    states.put(blinkLoc.encode(), blinkState);
+                }
+
+                for (int j = 0; j < Vision.Mx[2].length; j++){
+                    if (!canMove) continue;
+                    int ddx = dx + Vision.Mx[2][j];
+                    int ddy = dy + Vision.My[2][j];
+                    AuxMapLocation blinkMoveLoc = new AuxMapLocation(origin.x + ddx, origin.y + ddy);
+                    if (!blinkMoveLoc.isMovable()) continue;
+                    int code2 = encodeMovement(MOVE, blinkMoveLoc);
+                    MageInfo blinkMoveState = new MageInfo(blinkState, code2);
+                    int suicideScore2 = suicideScore;
+                    if (unit != null && unit.isRobot() && unit.myTeam){
+                        if (unit.canMove()) suicideScore2 += 1;
+                        else suicideScore2 += 3;
+                    }
+                    if (suicideScore2 < minSuicides[3 + ddx][3 + ddy]){
+                        minSuicides[3 + ddx][3 + ddy] = suicideScore2;
+                        blinkMoveState.alliesSuicided = suicideScore2/3;
+                        states.put(blinkMoveLoc.encode(), blinkMoveState);
+                    }
+                }
+            }
+            ArrayList<MageInfo> ret = new ArrayList<>();
+            for (MageInfo mageInfo: states.values()){
+                ret.add(mageInfo);
+            }
+            if (!canMove && !canBlink) ret.add(state);
+            return ret;
+        }catch(Exception e){
+            e.printStackTrace();
         }
-        ArrayList<MageInfo> ret = new ArrayList<>();
-        for (MageInfo mageInfo: states.values()){
-            ret.add(mageInfo);
-        }
-        if (!canMove && !canBlink) ret.add(state);
-        return ret;
+        return null;
     }
 
 
@@ -248,28 +264,33 @@ public class Mage {
 
         //fa overcharge amb el healer mes llunya del target
         MageInfo getOvercharged(){
-            HashSet<Integer> healersIndex = Overcharge.overchargeMatrix.get(location.encode());
-            int maxDist = -1;
-            int maxIndex = -1;
-            if (healersIndex == null) return null;
-            for (int index: healersIndex){
-                if (overchargesUsed.contains(index)) continue;
-                AuxUnit healer = Units.myUnits.get(index);
-                int dist = healer.getMapLocation().distanceSquaredTo(mage.target);
-                if (dist > maxDist){
-                    maxDist = dist;
-                    maxIndex = index;
+            try{
+                HashSet<Integer> healersIndex = Overcharge.overchargeMatrix.get(location.encode());
+                int maxDist = -1;
+                int maxIndex = -1;
+                if (healersIndex == null) return null;
+                for (int index: healersIndex){
+                    if (overchargesUsed.contains(index)) continue;
+                    AuxUnit healer = Units.myUnits.get(index);
+                    int dist = healer.getMapLocation().distanceSquaredTo(mage.target);
+                    if (dist > maxDist){
+                        maxDist = dist;
+                        maxIndex = index;
+                    }
                 }
+                if (maxIndex == -1) return null;
+                HashSet<Integer> newOverchargesUsed = new HashSet<>();
+                newOverchargesUsed.addAll(overchargesUsed);
+                newOverchargesUsed.add(maxIndex);
+                ArrayList<Integer> newMovesUsed = new ArrayList<>();
+                newMovesUsed.addAll(movesUsed);
+                int code = encodeMovement(OVERCHARGE, location);
+                newMovesUsed.add(code);
+                return new MageInfo(mage, newOverchargesUsed, newMovesUsed, location, alliesSuicided);
+            }catch(Exception e){
+                e.printStackTrace();
             }
-            if (maxIndex == -1) return null;
-            HashSet<Integer> newOverchargesUsed = new HashSet<>();
-            newOverchargesUsed.addAll(overchargesUsed);
-            newOverchargesUsed.add(maxIndex);
-            ArrayList<Integer> newMovesUsed = new ArrayList<>();
-            newMovesUsed.addAll(movesUsed);
-            int code = encodeMovement(OVERCHARGE, location);
-            newMovesUsed.add(code);
-            return new MageInfo(mage, newOverchargesUsed, newMovesUsed, location, alliesSuicided);
+            return null;
         }
 
         //com mes petit, millor
@@ -300,140 +321,150 @@ public class Mage {
 
 
     private MageInfo findOPSequence(){
-        PriorityQueue<MageInfo> queue = new PriorityQueue<>();
-        for (int index: Units.mages){
-            AuxUnit mage = Units.myUnits.get(index);
-            if (mage.isDead() || mage.isInGarrison() || mage.isInSpace()) continue;
-            if (mage.target == null || mage.exploretarget) continue;
-            if (!Units.canBlink && mage.getMapLocation().distanceBFSTo(mage.target) > MAX_DIST) continue;
-            MageInfo mageInfo = new MageInfo(mage);
-            ArrayList<MageInfo> states = getNextStates(mageInfo, mage.canMove(), mage.canUseAbility() && Units.canBlink);
-            if (states != null) {
-                for (MageInfo state : states) {
-                    queue.offer(state);
+        try{
+            PriorityQueue<MageInfo> queue = new PriorityQueue<>();
+            for (int index: Units.mages){
+                AuxUnit mage = Units.myUnits.get(index);
+                if (mage.isDead() || mage.isInGarrison() || mage.isInSpace()) continue;
+                if (mage.target == null || mage.exploretarget) continue;
+                if (!Units.canBlink && mage.getMapLocation().distanceBFSTo(mage.target) > MAX_DIST) continue;
+                MageInfo mageInfo = new MageInfo(mage);
+                ArrayList<MageInfo> states = getNextStates(mageInfo, mage.canMove(), mage.canUseAbility() && Units.canBlink);
+                if (states != null) {
+                    for (MageInfo state : states) {
+                        queue.offer(state);
+                    }
                 }
             }
+            int iterations = 0;
+            while (!queue.isEmpty() && iterations++ < 1000){
+                MageInfo state = queue.poll();
+                int overchargesLeft = 0;
+                HashSet<Integer> healerIndexs = Overcharge.overchargeMatrix.get(state.location.encode());
+                if (healerIndexs != null) {
+                    for (int index : healerIndexs) {
+                        if (!state.overchargesUsed.contains(index)) overchargesLeft++;
+                    }
+                }
+                int minOvercharges = 3;
+                if (Research.getLevel(UnitType.Mage) == 0) minOvercharges = 3;
+                if (Research.getLevel(UnitType.Mage) == 1) minOvercharges = 2;
+                if (Research.getLevel(UnitType.Mage) == 2) minOvercharges = 2;
+                if (Research.getLevel(UnitType.Mage) >= 3) minOvercharges = 1;
+                if (state.location.distanceSquaredTo(state.mage.target) <= Const.mageAttackRange && overchargesLeft > minOvercharges){
+                    //he trobat una sequencia que arriba al target!!
+                    //System.out.println("He trobat sequencia em deixa a " + state.location + " i ataco a " + state.mage.target + " overcharges left " + overchargesLeft);
+                    //System.out.print("Overcharges used: ");
+                    for (int index: state.overchargesUsed){
+                        AuxUnit u = Units.myUnits.get(index);
+                        //System.out.print(u.getMapLocation() + "  ");
+                    }
+                    //System.out.print("Overcharges left: ");
+                    for (int index: Overcharge.overchargeMatrix.get(state.location.encode())){
+                        AuxUnit u = Units.myUnits.get(index);
+                        //System.out.print(u.getMapLocation() + "  ");
+                    }
+                    return state;
+                }
+                ArrayList<MageInfo> nextStates = getNextStates(state.getOvercharged(), true, Units.canBlink);
+                if (nextStates != null) {
+                    for (MageInfo newState : nextStates) {
+                        queue.offer(newState);
+                    }
+                }
+            }
+            //no ha trobat cap manera d'arribar a rang del target
+            return null;
+        }catch(Exception e){
+            e.printStackTrace();
         }
-        int iterations = 0;
-        while (!queue.isEmpty() && iterations++ < 1000){
-            MageInfo state = queue.poll();
-            int overchargesLeft = 0;
-            HashSet<Integer> healerIndexs = Overcharge.overchargeMatrix.get(state.location.encode());
-            if (healerIndexs != null) {
-                for (int index : healerIndexs) {
-                    if (!state.overchargesUsed.contains(index)) overchargesLeft++;
-                }
-            }
-            int minOvercharges = 3;
-            if (Research.getLevel(UnitType.Mage) == 0) minOvercharges = 3;
-            if (Research.getLevel(UnitType.Mage) == 1) minOvercharges = 2;
-            if (Research.getLevel(UnitType.Mage) == 2) minOvercharges = 2;
-            if (Research.getLevel(UnitType.Mage) >= 3) minOvercharges = 1;
-            if (state.location.distanceSquaredTo(state.mage.target) <= Const.mageAttackRange && overchargesLeft > minOvercharges){
-                //he trobat una sequencia que arriba al target!!
-                //System.out.println("He trobat sequencia em deixa a " + state.location + " i ataco a " + state.mage.target + " overcharges left " + overchargesLeft);
-                //System.out.print("Overcharges used: ");
-                for (int index: state.overchargesUsed){
-                    AuxUnit u = Units.myUnits.get(index);
-                    //System.out.print(u.getMapLocation() + "  ");
-                }
-                //System.out.print("Overcharges left: ");
-                for (int index: Overcharge.overchargeMatrix.get(state.location.encode())){
-                    AuxUnit u = Units.myUnits.get(index);
-                    //System.out.print(u.getMapLocation() + "  ");
-                }
-                return state;
-            }
-            ArrayList<MageInfo> nextStates = getNextStates(state.getOvercharged(), true, Units.canBlink);
-            if (nextStates != null) {
-                for (MageInfo newState : nextStates) {
-                    queue.offer(newState);
-                }
-            }
-        }
-        //no ha trobat cap manera d'arribar a rang del target
         return null;
     }
 
 
     private void attackkk(){
-        MageInfo state = findOPSequence();
-        while (state != null){
-            AuxUnit mage = state.mage;
-            //System.out.println("ATTACKKKK " + mage.getID());
-            //System.out.println(Utils.round + " ha trobat sequence! My loc " + mage.getMapLocation() + " target " + mage.target);
-            ArrayList<Integer> moveSequence = state.movesUsed;
-            for (Integer code: moveSequence){
-                int enc = movementDestination(code).encode();
-                Units.newOccupiedPositions.add(enc);
-            }
-            for (Integer code: moveSequence){
-                int type = movementType(code);
-                AuxMapLocation dest = movementDestination(code);
-                if (type == MOVE){
-                    //System.out.println("    - Move to " + dest);
-                    int dir = mage.getMapLocation().dirBFSTo(dest);
-                    mage.immune = true;
-                    AuxUnit molesta = dest.getUnit();
-                    if (molesta != null && molesta.myTeam && molesta.isRobot()){
-                        int moved = MovementManager.getInstance().move(molesta, MovementManager.FORCED);
-                        if (moved == 8){
-                            //System.out.println("Didn't move :(");
-                            Wrapper.disintegrate(molesta);
+        try{
+            MageInfo state = findOPSequence();
+            while (state != null){
+                AuxUnit mage = state.mage;
+                //System.out.println("ATTACKKKK " + mage.getID());
+                //System.out.println(Utils.round + " ha trobat sequence! My loc " + mage.getMapLocation() + " target " + mage.target);
+                ArrayList<Integer> moveSequence = state.movesUsed;
+                for (Integer code: moveSequence){
+                    int enc = movementDestination(code).encode();
+                    Units.newOccupiedPositions.add(enc);
+                }
+                for (Integer code: moveSequence){
+                    int type = movementType(code);
+                    AuxMapLocation dest = movementDestination(code);
+                    if (type == MOVE){
+                        //System.out.println("    - Move to " + dest);
+                        int dir = mage.getMapLocation().dirBFSTo(dest);
+                        mage.immune = true;
+                        AuxUnit molesta = dest.getUnit();
+                        if (molesta != null && molesta.myTeam && molesta.isRobot()){
+                            int moved = MovementManager.getInstance().move(molesta, MovementManager.FORCED);
+                            if (moved == 8){
+                                //System.out.println("Didn't move :(");
+                                Wrapper.disintegrate(molesta);
+                            }
+                        }
+                        mage.immune = false;
+                        if (mage.canAttack()) singleAttack(mage); //ataca just abans de fer move
+                        Wrapper.moveRobot(mage, dir);
+                    }
+                    if (type == BLINK){
+                        mage.immune = true;
+                        AuxUnit molesta = dest.getUnit();
+                        if (molesta != null && molesta.myTeam && molesta.isRobot()) {
+                            int moved = MovementManager.getInstance().move(molesta, MovementManager.FORCED);
+                            if (moved == 8){
+                                //System.out.println("Didn't move :(");
+                                Wrapper.disintegrate(molesta);
+                            }
+                        }
+                        //System.out.println("    - Blink to " + dest);
+                        mage.immune = false;
+                        if (mage.canAttack()) singleAttack(mage); //ataca just abans de fer blink
+                        Wrapper.blink(mage, dest);
+                    }
+                    if (type == OVERCHARGE){
+                        //System.out.println("    - Overcharge");
+                        HashSet<Integer> healerList = Overcharge.overchargeMatrix.get(mage.getMapLocation().encode());
+                        int maxDist = -1;
+                        int maxIndex = -1;
+                        for (int index: healerList){
+                            AuxUnit healer = Units.myUnits.get(index);
+                            int dist = healer.getMapLocation().distanceSquaredTo(mage.target);
+                            if (dist > maxDist){
+                                maxDist = dist;
+                                maxIndex = index;
+                            }
+                        }
+                        if (maxDist != -1){
+                            if (mage.canAttack()) regularAttack(mage, 0); //ataca just abans de ferse overcharge
+                            Wrapper.overcharge(Units.myUnits.get(maxIndex), mage);
+                        }else{
+                            //System.out.println("INTENT DE OVERCHARGE PERO NO HI HA NINGU A RANG :(");
+                            return;
                         }
                     }
-                    mage.immune = false;
-                    if (mage.canAttack()) singleAttack(mage); //ataca just abans de fer move
-                    Wrapper.moveRobot(mage, dir);
                 }
-                if (type == BLINK){
-                    mage.immune = true;
-                    AuxUnit molesta = dest.getUnit();
-                    if (molesta != null && molesta.myTeam && molesta.isRobot()) {
-                        int moved = MovementManager.getInstance().move(molesta, MovementManager.FORCED);
-                        if (moved == 8){
-                            //System.out.println("Didn't move :(");
-                            Wrapper.disintegrate(molesta);
-                        }
-                    }
-                    //System.out.println("    - Blink to " + dest);
-                    mage.immune = false;
-                    if (mage.canAttack()) singleAttack(mage); //ataca just abans de fer blink
-                    Wrapper.blink(mage, dest);
-                }
-                if (type == OVERCHARGE){
-                    //System.out.println("    - Overcharge");
-                    HashSet<Integer> healerList = Overcharge.overchargeMatrix.get(mage.getMapLocation().encode());
-                    int maxDist = -1;
-                    int maxIndex = -1;
-                    for (int index: healerList){
-                        AuxUnit healer = Units.myUnits.get(index);
-                        int dist = healer.getMapLocation().distanceSquaredTo(mage.target);
-                        if (dist > maxDist){
-                            maxDist = dist;
-                            maxIndex = index;
-                        }
-                    }
-                    if (maxDist != -1){
-                        if (mage.canAttack()) regularAttack(mage, 0); //ataca just abans de ferse overcharge
-                        Wrapper.overcharge(Units.myUnits.get(maxIndex), mage);
-                    }else{
-                        //System.out.println("INTENT DE OVERCHARGE PERO NO HI HA NINGU A RANG :(");
-                        return;
-                    }
-                }
-            }
 
-            for (Integer code: moveSequence){
-                int enc = movementDestination(code).encode();
-                Units.newOccupiedPositions.remove(enc);
+                for (Integer code: moveSequence){
+                    int enc = movementDestination(code).encode();
+                    Units.newOccupiedPositions.remove(enc);
+                }
+                //System.out.println("END ATTACKKKKK " + state.mage.getID());
+                state.mage.target = getTarget(state.mage);
+                regularAttack(mage, 0);
+                //state = findOPSequence();
+                state = null;
             }
-            //System.out.println("END ATTACKKKKK " + state.mage.getID());
-            state.mage.target = getTarget(state.mage);
-            regularAttack(mage, 0);
-            //state = findOPSequence();
-            state = null;
+        }catch(Exception e){
+            e.printStackTrace();
         }
+
     }
 
 

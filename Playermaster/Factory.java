@@ -173,17 +173,20 @@ public class Factory {
             for (AuxUnit enemy : enemies) {
                 UnitType type = enemy.getType();
                 if (type == UnitType.Mage) mageDetected = true;
-                if (!shouldBuildKnight && (type == UnitType.Factory || type == UnitType.Ranger) && enemy.getMapLocation().distanceBFSTo(unit.getMapLocation()) <= 8)
+                if (!shouldBuildKnight && (type == UnitType.Factory) && enemy.getMapLocation().distanceBFSTo(unit.getMapLocation()) <= 8)
                     shouldBuildKnight = true;
             }
 
-            if(shouldBuildKnight && !mageDetected) return UnitType.Knight;
+            if(shouldBuildKnight && !mageDetected){
+                if (knights <= mages+1 || mages > 2) return UnitType.Knight;
+                return UnitType.Mage;
+            }
 
             int minRushtroops = 0;
             if (Build.initDistToEnemy <= 25) minRushtroops = 2;
 
             if (constructedMages + constructedKnights < minRushtroops){
-                if (constructedKnights > constructedMages) return UnitType.Mage;
+                if (!shouldBuildKnight || constructedKnights > constructedMages) return UnitType.Mage;
                 return UnitType.Knight;
             }
 

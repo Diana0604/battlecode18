@@ -149,7 +149,7 @@ public class WorkerUtil {
         try {
             AuxUnit[] closeUnits = Wrapper.senseUnits(loc, 32, true);
             for (int i = 0; i < closeUnits.length; ++i){
-                if (loc.distanceSquaredTo(closeUnits[i].getMapLocation()) <= 8) continue; //no volem factories contigues
+                //if (loc.distanceSquaredTo(closeUnits[i].getMapLocation()) <= 8) continue; //no volem factories contigues
                 if (closeUnits[i].getType() == UnitType.Factory) return true;
             }
             return false;
